@@ -56,7 +56,8 @@ export default function WebUploadList() {
   const uploadCount = useAppSelector(selectUploadCount);
   const activeFormId = useAppSelector((state) => state.publish.activeFormId);
   const allPipelineItems = useAppSelector(selectActivePipelineItems) as PipelineItem[];
-  const pipelineItems = allPipelineItems.filter((item) => item.stage !== 'published');
+  const [dismissedIds, setDismissedIds] = React.useState<Set<string>>(new Set());
+  const pipelineItems = allPipelineItems.filter((item) => !dismissedIds.has(item.id));
   const doPublishResume = (arg0: any) => dispatch(doPublishResumeAction(arg0));
   const doUpdateUploadRemove = (arg0: string, arg1: any) => dispatch(doUpdateUploadRemoveAction(arg0, arg1));
   const doOpenModal = (arg0: string, arg1: {}) => dispatch(doOpenModalAction(arg0, arg1));
@@ -118,6 +119,15 @@ export default function WebUploadList() {
                         <rect x="6" y="4" width="4" height="16" />
                         <rect x="14" y="4" width="4" height="16" />
                       </svg>
+                    </button>
+                  )}
+                  {(item.stage === 'published' || item.stage === 'error') && (
+                    <button
+                      className="web-upload-item__round-btn"
+                      title={__('Dismiss')}
+                      onClick={() => setDismissedIds((prev) => new Set(prev).add(item.id))}
+                    >
+                      <Icon icon={ICONS.REMOVE} size={14} />
                     </button>
                   )}
                   {item.stage === 'paused' && (

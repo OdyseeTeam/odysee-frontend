@@ -592,13 +592,23 @@ export const selectMyClaimsPage = createSelector(selectState, (state) => {
   const results = state.myClaimsPageResults || EMPTY_ARRAY;
   const pendingById = state.pendingById;
   if (!pendingById) return results;
-  const seen = new Set(results);
+  const seenUrls = new Set(results);
+  const seenNames = new Set<string>();
+  for (const url of results) {
+    const claimId = state.claimsByUri[url];
+    const claim = claimId && state.byId[claimId];
+    if (claim) seenNames.add(claim.name);
+  }
   const pendingUris: string[] = [];
   for (const [id, claim] of Object.entries(pendingById)) {
     const c = claim as any;
-    if (id.startsWith('pending-') && c.permanent_url && !seen.has(c.permanent_url)) {
+    if (id.startsWith('__preview_')) continue;
+    const resolved = state.byId[id];
+    if (c.confirmations > 0 || (resolved && resolved.confirmations > 0)) continue;
+    if (c.permanent_url && !seenUrls.has(c.permanent_url) && !seenNames.has(c.name)) {
       pendingUris.push(c.permanent_url);
-      seen.add(c.permanent_url);
+      seenUrls.add(c.permanent_url);
+      seenNames.add(c.name);
     }
   }
   const combined = pendingUris.length > 0 ? [...pendingUris, ...results] : results;

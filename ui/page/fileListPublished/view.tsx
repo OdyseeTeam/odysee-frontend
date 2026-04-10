@@ -38,7 +38,7 @@ import {
   selectMyPaidClaims,
   selectMyPaidClaimsLegacy,
 } from 'redux/selectors/claims';
-import { selectUploadCount, selectActiveUploadActivity } from 'redux/selectors/publish';
+import { selectUploadCount } from 'redux/selectors/publish';
 import { doFetchClaimListMine, doCheckPendingClaims, doClearClaimSearch } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { selectUploadsFilteringSetting } from 'redux/selectors/settings';
@@ -68,6 +68,8 @@ function FileListPublished() {
   const activeChannel = useAppSelector(selectActiveChannelClaim);
   const fetching = useAppSelector(selectIsFetchingClaimListMine);
   const isFetchComplete = useAppSelector(selectIsFetchingClaimListMineSuccess);
+  const hasFetchedOnce = React.useRef(false);
+  if (isFetchComplete === true && !fetching) hasFetchedOnce.current = true;
   const urls = useAppSelector(selectMyClaimsPage);
   const urlTotal = useAppSelector(selectMyClaimsPageItemCount);
   const isAllMyClaimsFetched = useAppSelector(selectIsAllMyClaimsFetched);
@@ -80,7 +82,6 @@ function FileListPublished() {
   const myPaidClaims = useAppSelector(selectMyPaidClaims);
   const myPaidClaimsLegacy = useAppSelector(selectMyPaidClaimsLegacy);
   const uploadCount = useAppSelector(selectUploadCount);
-  const uploadActivity = useAppSelector(selectActiveUploadActivity);
   const myChannelIds = useAppSelector(selectMyChannelClaimIds);
   const isFilteringEnabled = filteringSettings.isFilteringEnabled;
   const sortOption = filteringSettings.sortOption;
@@ -422,7 +423,7 @@ function FileListPublished() {
     } else {
       dispatch(doClearClaimSearch());
     }
-  }, [uploadCount, uploadActivity, params, filterType, dispatch, method, isFilteringEnabled, channelIdsClaimList]);
+  }, [uploadCount, params, filterType, dispatch, method, isFilteringEnabled, channelIdsClaimList]);
   useEffect(() => {
     if (!isFilteringEnabled || isAllMyClaimsFetched) {
       return;
@@ -482,37 +483,41 @@ function FileListPublished() {
         {method === FILE_LIST.METHOD.CLAIM_LIST && getClaimListResultsJsx()}
         {method === FILE_LIST.METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
       </div>
-      {!(myClaims && myClaims.length) && method === FILE_LIST.METHOD.CLAIM_LIST && isFetchComplete && (
-        <React.Fragment>
-          {!fetching && !hasClaims ? (
-            <section className="main--empty">
-              <Yrbl
-                title={filterType === FILE_LIST.FILE_TYPE.REPOSTS.key ? __('No Reposts') : __('No uploads')}
-                subtitle={
-                  filterType === FILE_LIST.FILE_TYPE.REPOSTS.key
-                    ? __("You haven't reposted anything yet.")
-                    : __("You haven't uploaded anything yet. This is where you can find them when you do!")
-                }
-                actions={
-                  filterType !== FILE_LIST.FILE_TYPE.REPOSTS.key && (
-                    <div className="section__actions">
-                      <Button
-                        button="primary"
-                        label={__('Upload Something New')}
-                        onClick={() => dispatch(doBeginPublish('file'))}
-                      />
-                    </div>
-                  )
-                }
-              />
-            </section>
-          ) : (
-            <section className="main--empty">
-              <Spinner delayed />
-            </section>
-          )}
-        </React.Fragment>
-      )}
+      {!urls?.length &&
+        !(myClaims && myClaims.length) &&
+        method === FILE_LIST.METHOD.CLAIM_LIST &&
+        hasFetchedOnce.current &&
+        !fetching && (
+          <React.Fragment>
+            {!fetching && !hasClaims ? (
+              <section className="main--empty">
+                <Yrbl
+                  title={filterType === FILE_LIST.FILE_TYPE.REPOSTS.key ? __('No Reposts') : __('No uploads')}
+                  subtitle={
+                    filterType === FILE_LIST.FILE_TYPE.REPOSTS.key
+                      ? __("You haven't reposted anything yet.")
+                      : __("You haven't uploaded anything yet. This is where you can find them when you do!")
+                  }
+                  actions={
+                    filterType !== FILE_LIST.FILE_TYPE.REPOSTS.key && (
+                      <div className="section__actions">
+                        <Button
+                          button="primary"
+                          label={__('Upload Something New')}
+                          onClick={() => dispatch(doBeginPublish('file'))}
+                        />
+                      </div>
+                    )
+                  }
+                />
+              </section>
+            ) : (
+              <section className="main--empty">
+                <Spinner delayed />
+              </section>
+            )}
+          </React.Fragment>
+        )}
     </Page>
   );
 }
