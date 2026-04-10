@@ -275,9 +275,10 @@ function VideoViewer(props: Props) {
       setVideoNode(node);
 
       // Restore position
-      if (timeParam && !Number.isNaN(timeParam)) {
-        node.currentTime = Number(timeParam);
-      } else if (position && !isLivestreamClaim) {
+      const parsedTime = Number(timeParam);
+      if (timeParam && isFinite(parsedTime) && parsedTime > 0) {
+        node.currentTime = parsedTime;
+      } else if (position && isFinite(position) && !isLivestreamClaim) {
         const avDuration = claim?.value?.video?.duration || claim?.value?.audio?.duration;
         node.currentTime = avDuration && position >= avDuration - 100 ? 0 : position;
       }

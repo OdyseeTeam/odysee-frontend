@@ -7,6 +7,7 @@ const DYNAMIC_IMPORT_ERROR_PATTERNS = [
   /[._]result\.default/i,
   /_result is undefined/i,
   /reading 'default'/i,
+  /evaluating 'e\._result\.default'/i,
 ];
 
 export function getDynamicImportErrorMessage(error: unknown): string {

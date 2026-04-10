@@ -46,7 +46,10 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] Caught:', error?.message, error?.stack); // eslint-disable-line no-console
-    if (error?.message && /[._]result\.default|reading 'default'|_result is undefined/.test(error.message)) {
+    if (
+      error?.message &&
+      /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result/.test(error.message)
+    ) {
       const key = `__staleChunkReload:${window.location.pathname}`;
       try {
         const prev = sessionStorage.getItem(key);
