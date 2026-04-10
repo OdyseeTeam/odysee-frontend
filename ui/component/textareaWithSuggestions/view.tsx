@@ -210,7 +210,7 @@ export default function TextareaWithSuggestions(props: Props) {
 
   /** --------- **/
   function handleInputChange(value: string) {
-    onChange({
+    onChange?.({
       target: {
         value,
       },

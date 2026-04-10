@@ -85,6 +85,12 @@ export const sentryWrapper: SentryWrapper = {
 function handleBeforeSend(event, hints) {
   try {
     const ev = event.exception?.values || [];
+    const msg = ev[0]?.value || '';
+
+    if (msg.includes('NO_TARGET') || msg.includes('DESTROYED')) {
+      return null;
+    }
+
     const frames = ev[0]?.stacktrace?.frames || [];
     const lastFrame = frames[frames.length - 1];
 

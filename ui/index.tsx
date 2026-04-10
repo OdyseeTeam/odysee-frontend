@@ -138,6 +138,7 @@ window.onunhandledrejection = function (event) {
     errorMessage.includes('IDBDatabase') ||
     errorMessage.includes('NO_TARGET') ||
     errorMessage.includes('no supported sources') ||
+    errorMessage.includes('operation is not supported') ||
     errorMessage.includes('NetworkError when attempting to fetch') ||
     errorMessage.includes('Failed to fetch') ||
     errorMessage.includes('cross-origin frame')

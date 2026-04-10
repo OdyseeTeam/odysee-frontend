@@ -193,7 +193,7 @@ export default function MobileTouchOverlay(props) {
           const s = store.state;
           if (s.paused) {
             quickHideRef.current = true;
-            s.play();
+            Promise.resolve(s.play()).catch(() => {});
           } else {
             s.pause();
           }
