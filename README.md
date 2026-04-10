@@ -25,21 +25,23 @@ Go to the website to interact on this frontend.
 
 ### Prerequisites
 
-- [Git](https://git-scm.com/downloads)
-- [Node.js](https://nodejs.org/en/download/) 22.x
-- [pnpm](https://pnpm.io/installation) 10.x (or `corepack enable`)
+<!-- Comment for this—you're literally on a Git frontend website, I'm well sure somebody who knows how to code and is using a Git platform _must_ have Git already installed. -->
+<!--- [Git](https://git-scm.com/downloads)-->
+
+- [Bun](https://bun.sh), that's it.
+
+<!-- Link to a guide on how to fork a repo :sob: -->
 
 1. Clone (or [fork](https://help.github.com/articles/fork-a-repo/)) this repository: `git clone https://github.com/OdyseeTeam/odysee-frontend`
-2. Change directory into the cloned repository: `cd odysee-frontend`
-3. Enable Corepack if needed: `corepack enable`
-4. Install the dependencies: `pnpm install`
+2. Go into your cloned/forked directory: `cd odysee-frontend`
+3. Install the dependencies needed: `bun install`
 
 ### Run the web app for development
 
-`pnpm dev`
+`bun run dev`
 
 - This uses Vite and includes hot-reloading.
-- If you want to debug the [web server we use in production](https://github.com/OdyseeTeam/odysee-frontend/blob/master/web/index.js), run `pnpm dev:ssr`. This starts the SSR server at `localhost:1337`.
+- If you want to debug the [web server we use in production](https://github.com/OdyseeTeam/odysee-frontend/blob/master/web/index.js), run `bun run dev:ssr`. This starts the SSR server at `localhost:1337`.
 
 ### Customization and troubleshooting
 
@@ -59,18 +61,18 @@ Go to the website to interact on this frontend.
 - To customize the homepage content:
   1. Add `CUSTOM_HOMEPAGE=true` to the .env file.
   2. Copy `/custom/homepage.example.js` to `/custom/homepage.js` and make desired changes to `homepage.js`.
-- Finally, run `NODE_ENV=production pnpm build` to rebuild. - _Note: You do not need to edit the `.env` file in the `/web` folder._
+- Finally, run `NODE_ENV=production bun run build` to rebuild. - _Note: You do not need to edit the `.env` file in the `/web` folder._
 </details>
 
 <details>
   <summary>Deploy the web app</summary>
 
 1. Create a server with a domain name and a reverse proxy https to port 1337.
-2. Install `pm2`, `node` 22.x, and `pnpm` (or enable Corepack).
-3. Clone this repo.
+2. Install `pm2` and `bun`.
+3. Clone/fork this repo.
 4. Make any customizations as above.
-5. Run `pnpm install`.
-6. Run `NODE_ENV=production pnpm build`.
+5. Run `bun install`.
+6. Run `NODE_ENV=production bun run build`.
 7. Set up pm2 to start `./web/index.js`.
 </details>
 
@@ -96,7 +98,9 @@ To override defaults at runtime, pass environment variables with `-e` or provide
 <details>
   <summary>Resetting your packages</summary>
 
-If the app isn't building, or `pnpm` commands aren't working, you may need to reset `node_modules`. To do so you can run: `rm -r node_modules && pnpm install` or `del /s /q node_modules && pnpm install` on Windows.
+If the app isn't building, or `bun` commands aren't working, you may need to reset `node_modules`. To do so you can run `rm -r node_modules && bun install` if you're on a \*NIX operating system or `rmdir /s /q node_modules && bun install` if you're on Windows.
+
+<!-- Imagine using Windows -->
 
 If you _really_ think something might have gone wrong, you can force your repo to clear everything that doesn't match the repo with `git reset --hard HEAD && git clean -fxd && git pull -r`
 

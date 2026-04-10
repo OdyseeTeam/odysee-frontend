@@ -55,8 +55,6 @@ ecosystem.config.js
 .tmp/
 
 ### Local tooling ###
-.pnpm-store/
-pnpm-debug.log*
 .zed/
 
 ### Local env ###

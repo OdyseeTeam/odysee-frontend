@@ -4,10 +4,10 @@ set -eu
 repo_root=$(git rev-parse --show-toplevel)
 cd "$repo_root"
 
-echo "Running pnpm check:fix..."
-pnpm check:fix
+echo "Running bun run check:fix..."
+bun run check:fix
 
 git add --update
 
-echo "Verifying pnpm check..."
-pnpm check
+echo "Verifying bun run check..."
+bun run check
