@@ -42,6 +42,7 @@ export const HIDE_MEMBERS_ONLY_CONTENT = 'hide_members_only_content';
 export const HIDE_REPOSTS = 'hide_reposts';
 export const HIDE_SHORTS = 'hide_shorts';
 export const HIDE_LIVESTREAMS_IN_CATEGORIES = 'hide_livestreams_in_categories';
+export const HIDE_YOUTUBE_MIRRORS = 'hide_youtube_mirrors';
 export const DEFAULT_COLLECTION_ACTION = 'default_collection_action';
 export const HIDE_SCHEDULED_LIVESTREAMS = 'hide_scheduled_livestreams';
 export const SUPPORT_OPTION = 'support_option';

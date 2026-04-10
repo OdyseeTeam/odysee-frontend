@@ -215,3 +215,5 @@ export const selectAutoplayNextShorts = (state: State) =>
   Boolean(selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
 export const selectDisableShortsView = (state: State) =>
   Boolean(selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
+export const selectHideYouTubeMirrors = (state: State) =>
+  Boolean(selectClientSetting(state, SETTINGS.HIDE_YOUTUBE_MIRRORS));
