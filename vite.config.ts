@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import legacy from '@vitejs/plugin-legacy';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -778,6 +779,9 @@ export default defineConfig({
       },
     },
     react(),
+    legacy({
+      targets: ['defaults', 'Chrome >= 80', 'Safari >= 13', 'Firefox >= 78', 'iOS >= 13', 'Samsung >= 13'],
+    }),
     ssrTemplatePlugin(),
     {
       name: 'favicon-proxy',
