@@ -563,6 +563,95 @@ function uiModuleResolverPlugin() {
 const isProduction = process.env.NODE_ENV === 'production';
 const isServeCommand = process.argv.some((arg) => arg === 'dev' || arg === 'serve');
 
+// Post-build plugin: generates a single transpiled legacy bundle for browsers that don't support ES modules.
+// Modern browsers load the normal `<script type="module">` chunks. Old browsers (pre-2021) ignore those
+// and load a `<script nomodule>` fallback instead. The fallback is a single concatenated + Babel-transpiled
+// file so it works without `import`/`export` or dynamic `import()`.
+function legacyFallbackPlugin() {
+  return {
+    name: 'legacy-fallback',
+    apply: 'build' as const,
+    writeBundle: {
+      sequential: true,
+      async handler(options: any) {
+        const outDir = options.dir || path.resolve(__dirname, 'web/dist/public');
+        const builtHtml = path.join(outDir, 'index.html');
+        if (!fs.existsSync(builtHtml)) return;
+
+        const html = fs.readFileSync(builtHtml, 'utf8');
+        const scriptRe = /<script\b[^>]*src="([^"]*)"[^>]*><\/script>/g;
+        const entryScripts: string[] = [];
+        let match;
+        while ((match = scriptRe.exec(html)) !== null) {
+          entryScripts.push(match[1]);
+        }
+        if (entryScripts.length === 0) return;
+
+        const assetsDir = path.join(outDir, 'assets');
+        if (!fs.existsSync(assetsDir)) return;
+
+        const allJs = fs.readdirSync(assetsDir).filter((f: string) => f.endsWith('.js'));
+        const runtimeFile = allJs.find((f: string) => f.startsWith('rolldown-runtime'));
+        const entryFile = entryScripts
+          .map((s: string) => s.replace(/^.*\/assets\//, ''))
+          .find((s: string) => allJs.includes(s));
+
+        if (!runtimeFile || !entryFile) return;
+
+        const remaining = allJs.filter((f: string) => f !== runtimeFile && f !== entryFile);
+        const orderedFiles = [runtimeFile, ...remaining, entryFile];
+        const combined = orderedFiles
+          .map((f: string) => fs.readFileSync(path.join(assetsDir, f), 'utf8'))
+          .join('\n;\n');
+
+        let transpiled: string;
+        try {
+          const babel = require('@babel/core');
+          const result = babel.transformSync(combined, {
+            presets: [
+              [
+                require.resolve('@babel/preset-env'),
+                {
+                  targets: 'Chrome >= 80, Safari >= 13, Firefox >= 78, iOS >= 13, Samsung >= 13',
+                  modules: false,
+                  useBuiltIns: 'usage',
+                  corejs: 3,
+                },
+              ],
+            ],
+            compact: true,
+            comments: false,
+            sourceMaps: false,
+            configFile: false,
+            babelrc: false,
+          });
+          transpiled = result?.code || combined;
+        } catch (e) {
+          console.warn('[legacy-fallback] Babel transpilation failed, using raw bundle:', (e as Error).message);
+          transpiled = combined;
+        }
+
+        const legacyFilename = `assets/legacy-${Date.now().toString(36)}.js`;
+        fs.writeFileSync(path.join(outDir, legacyFilename), transpiled, 'utf8');
+
+        const nomoduleTag = `<script nomodule src="/${legacyFilename}"></script>`;
+        const updatedHtml = html.replace('</body>', `    ${nomoduleTag}\n  </body>`);
+        fs.writeFileSync(builtHtml, updatedHtml, 'utf8');
+
+        const templateHtml = path.join(outDir, 'index-web.html');
+        if (fs.existsSync(templateHtml)) {
+          const tmpl = fs.readFileSync(templateHtml, 'utf8');
+          const updatedTmpl = tmpl.replace('</body>', `    ${nomoduleTag}\n  </body>`);
+          fs.writeFileSync(templateHtml, updatedTmpl, 'utf8');
+        }
+
+        const sizeMB = (Buffer.byteLength(transpiled) / 1024 / 1024).toFixed(1);
+        console.log(`[legacy-fallback] Generated ${legacyFilename} (${sizeMB} MB)`);
+      },
+    },
+  };
+}
+
 // Post-build plugin: injects Vite-built asset tags into the SSR template (`index-web.html`)
 // so the Koa web server can serve pages with the correct JS/CSS references.
 function ssrTemplatePlugin() {
