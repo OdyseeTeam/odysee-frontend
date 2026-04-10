@@ -15,6 +15,7 @@ import { selectCurrentUploads, selectUploadCount, selectActivePipelineItems } fr
 import { doUpdatePipelineItem } from 'redux/actions/publishPipeline';
 import type { PipelineItem } from 'redux/actions/publishPipeline';
 import { useNavigate } from 'react-router-dom';
+import * as PAGES from 'constants/pages';
 
 const STAGE_LABELS: Record<string, string> = {
   queued: 'Queued',
@@ -84,7 +85,7 @@ export default function WebUploadList() {
                     onClick={() => {
                       if (item.formId) {
                         dispatch(doSwitchPublishForm(item.formId, activeFormId || undefined));
-                        navigate(`/$/${'upload'}`);
+                        navigate(`/$/${PAGES.UPLOAD}`);
                       }
                     }}
                   >

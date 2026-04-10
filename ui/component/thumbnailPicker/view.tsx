@@ -200,8 +200,8 @@ function ThumbnailPicker(props: Props) {
             video.preload = 'auto';
             video.src = videoUrl;
             await new Promise<void>((resolve, reject) => {
-              video.onloadedmetadata = () => resolve();
-              video.onerror = () => reject(new Error('Failed to load video'));
+              video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+              video.addEventListener('error', () => reject(new Error('Failed to load video')), { once: true });
             });
             const dur = video.duration;
             if (extractionId === extractionIdRef.current) setDuration(dur);
@@ -212,7 +212,7 @@ function ThumbnailPicker(props: Props) {
               if (extractionId !== extractionIdRef.current) break;
               video.currentTime = ts;
               await new Promise<void>((resolve) => {
-                video.onseeked = () => resolve();
+                video.addEventListener('seeked', () => resolve(), { once: true });
               });
               const canvas = new OffscreenCanvas(video.videoWidth || 320, video.videoHeight || 180);
               const ctx = canvas.getContext('2d');
@@ -275,8 +275,8 @@ function ThumbnailPicker(props: Props) {
         video.src = videoUrl;
 
         await new Promise<void>((resolve, reject) => {
-          video.onloadedmetadata = () => resolve();
-          video.onerror = () => reject(new Error('Failed to load video'));
+          video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+          video.addEventListener('error', () => reject(new Error('Failed to load video')), { once: true });
         });
 
         const dur = video.duration;
@@ -289,7 +289,7 @@ function ThumbnailPicker(props: Props) {
           if (extractionId !== extractionIdRef.current) break;
           video.currentTime = ts;
           await new Promise<void>((resolve) => {
-            video.onseeked = () => resolve();
+            video.addEventListener('seeked', () => resolve(), { once: true });
           });
           const canvas = new OffscreenCanvas(video.videoWidth || 320, video.videoHeight || 180);
           const ctx = canvas.getContext('2d');
