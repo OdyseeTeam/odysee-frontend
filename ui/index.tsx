@@ -127,11 +127,6 @@ function setupRewardCallbacks() {
     });
 }
 
-analytics.init();
-// Handle IndexedDB errors gracefully (e.g., "Connection to Indexed Database server lost")
-// These can happen due to browser storage issues, too many tabs, or private browsing restrictions.
-// The site continues to work normally - state just won't persist across refreshes.
-// We silently handle this since it's not actionable and doesn't affect video playback.
 window.addEventListener('unhandledrejection', (event) => {
   const errorMessage = event.reason?.message || event.reason?.toString() || '';
 
@@ -145,6 +140,7 @@ window.addEventListener('unhandledrejection', (event) => {
     event.preventDefault();
   }
 });
+analytics.init();
 window.addEventListener('vite:preloadError', (event) => {
   const preloadEvent = event as Event & { payload?: unknown };
 
