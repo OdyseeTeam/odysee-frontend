@@ -1,6 +1,9 @@
 # syntax=docker/dockerfile:1.7
 
-FROM oven/bun:latest AS build
+ARG BUN_VERSION=1.3.12
+
+# ── Stage 1: Build ────────────────────────────────────────────────────────────
+FROM oven/bun:${BUN_VERSION} AS build
 
 ENV CI=true
 ENV GIT_TERMINAL_PROMPT=0
@@ -41,7 +44,7 @@ RUN if [ -n "$TX_TOKEN" ]; then \
     fi
 
 # ── Stage 2: Server Deps ──────────────────────────────────────────────────────
-FROM oven/bun:latest AS web-deps
+FROM oven/bun:${BUN_VERSION} AS web-deps
 
 ENV CI=true
 
@@ -52,7 +55,7 @@ COPY web/package.json ./
 RUN bun install --production --frozen-lockfile
 
 # ── Stage 3: Runtime ──────────────────────────────────────────────────────────
-FROM oven/bun:latest AS runtime
+FROM oven/bun:${BUN_VERSION} AS runtime
 
 RUN groupadd -r odysee && useradd -r -g odysee odysee
 
