@@ -139,7 +139,8 @@ window.addEventListener('unhandledrejection', (event) => {
     errorMessage.includes('IndexedDB') ||
     errorMessage.includes('Indexed Database') ||
     errorMessage.includes('IDBDatabase') ||
-    errorMessage.includes('NO_TARGET')
+    errorMessage.includes('NO_TARGET') ||
+    errorMessage.includes('no supported sources')
   ) {
     event.preventDefault();
   }
