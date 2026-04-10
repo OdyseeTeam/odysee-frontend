@@ -56,10 +56,12 @@ class ErrorBoundary extends React.Component<Props, State> {
         const now = Date.now();
         if (!prev || now - Number(prev) > 30000) {
           sessionStorage.setItem(key, String(now));
+          this.retryCount = 999;
           window.location.reload();
           return;
         }
       } catch {}
+      return;
     }
     try {
       sessionStorage.setItem(

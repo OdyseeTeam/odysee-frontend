@@ -1165,7 +1165,7 @@ export default function OdyseeSkin(props) {
       <div className="odysee-progress-bar">
         {isCasting && castState ? (
           <CastProgressBar castState={castState} castActions={castActions} />
-        ) : (
+        ) : media ? (
           <TimeSlider.Root className="media-slider media-slider--time odysee-time-slider">
             <Slider.Track className="media-slider__track odysee-slider__track">
               <Slider.Fill className="media-slider__fill odysee-slider__fill" />
@@ -1195,7 +1195,7 @@ export default function OdyseeSkin(props) {
               />
             </Slider.Preview>
           </TimeSlider.Root>
-        )}
+        ) : null}
       </div>
 
       <Controls.Root

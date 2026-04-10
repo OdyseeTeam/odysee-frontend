@@ -127,9 +127,11 @@ function setupRewardCallbacks() {
     });
 }
 
-window.addEventListener('unhandledrejection', (event) => {
-  const errorMessage = event.reason?.message || event.reason?.toString() || '';
+analytics.init();
 
+const _origOnUnhandledRejection = window.onunhandledrejection;
+window.onunhandledrejection = function (event) {
+  const errorMessage = event.reason?.message || event.reason?.toString() || '';
   if (
     errorMessage.includes('IndexedDB') ||
     errorMessage.includes('Indexed Database') ||
@@ -138,9 +140,10 @@ window.addEventListener('unhandledrejection', (event) => {
     errorMessage.includes('no supported sources')
   ) {
     event.preventDefault();
+    return true;
   }
-});
-analytics.init();
+  return _origOnUnhandledRejection ? _origOnUnhandledRejection.call(window, event) : false;
+};
 window.addEventListener('vite:preloadError', (event) => {
   const preloadEvent = event as Event & { payload?: unknown };
 
