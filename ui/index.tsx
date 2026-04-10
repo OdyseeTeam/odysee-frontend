@@ -111,16 +111,20 @@ function scheduleWhenIdle(callback: () => void, timeout = 1500): CancelScheduled
 }
 
 function setupRewardCallbacks() {
-  void import('rewards').then(({ default: rewards }) => {
-    rewards.setCallback('claimFirstRewardSuccess', () => {
-      app.store.dispatch(doOpenModal(MODALS.FIRST_REWARD));
+  void import('rewards')
+    .catch(() => null)
+    .then((mod) => {
+      if (!mod) return;
+      const rewards = mod.default;
+      rewards.setCallback('claimFirstRewardSuccess', () => {
+        app.store.dispatch(doOpenModal(MODALS.FIRST_REWARD));
+      });
+      rewards.setCallback('claimRewardSuccess', (reward) => {
+        if (reward && reward.type === rewards.TYPE_REWARD_CODE) {
+          app.store.dispatch(doHideModal());
+        }
+      });
     });
-    rewards.setCallback('claimRewardSuccess', (reward) => {
-      if (reward && reward.type === rewards.TYPE_REWARD_CODE) {
-        app.store.dispatch(doHideModal());
-      }
-    });
-  });
 }
 
 analytics.init();

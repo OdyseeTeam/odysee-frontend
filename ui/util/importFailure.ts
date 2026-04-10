@@ -6,6 +6,7 @@ const DYNAMIC_IMPORT_ERROR_PATTERNS = [
   /Unable to preload CSS/i,
   /[._]result\.default/i,
   /_result is undefined/i,
+  /reading 'default'/i,
 ];
 
 export function getDynamicImportErrorMessage(error: unknown): string {
