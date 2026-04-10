@@ -1269,7 +1269,7 @@ export default function OdyseeSkin(props) {
                   >
                     <OdyseeInfo size={18} color="currentColor" />
                   </button>
-                  {chapters.length > 0 && (
+                  {chapters.length > 0 && !isEmbeddedPlayback && (
                     <button
                       type="button"
                       className={`media-button media-button--icon ${
@@ -1762,7 +1762,7 @@ export default function OdyseeSkin(props) {
                 )}
               </div>
 
-              {chapters.length > 0 && !isFloating && <ChapterPill chapters={chapters} />}
+              {chapters.length > 0 && !isFloating && !isEmbeddedPlayback && <ChapterPill chapters={chapters} />}
             </div>
 
             <div className="media-surface odysee-controls odysee-controls--right">
