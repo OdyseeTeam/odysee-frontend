@@ -137,7 +137,10 @@ window.onunhandledrejection = function (event) {
     errorMessage.includes('Indexed Database') ||
     errorMessage.includes('IDBDatabase') ||
     errorMessage.includes('NO_TARGET') ||
-    errorMessage.includes('no supported sources')
+    errorMessage.includes('no supported sources') ||
+    errorMessage.includes('NetworkError when attempting to fetch') ||
+    errorMessage.includes('Failed to fetch') ||
+    errorMessage.includes('cross-origin frame')
   ) {
     event.preventDefault();
     return true;

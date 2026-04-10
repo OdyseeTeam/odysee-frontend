@@ -189,13 +189,15 @@ export default function MobileTouchOverlay(props) {
           castActions.pause();
         }
       } else {
-        const s = store.state;
-        if (s.paused) {
-          quickHideRef.current = true;
-          s.play();
-        } else {
-          s.pause();
-        }
+        try {
+          const s = store.state;
+          if (s.paused) {
+            quickHideRef.current = true;
+            s.play();
+          } else {
+            s.pause();
+          }
+        } catch {}
       }
     },
     [store, isCasting, castActions, castState]
