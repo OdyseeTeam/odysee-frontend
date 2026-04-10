@@ -37,7 +37,12 @@ import { doFetchThumbnailClaimsForCollectionIds as doFetchThumbnailClaimsForColl
 import { selectFollowedTags } from 'redux/selectors/tags';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { doFetchOdyseeMembershipForChannelIds as doFetchOdyseeMembershipForChannelIdsAction } from 'redux/actions/memberships';
-import { selectClientSetting, selectShowMatureContent, selectLanguage, selectHideYouTubeMirrors } from 'redux/selectors/settings';
+import {
+  selectClientSetting,
+  selectShowMatureContent,
+  selectLanguage,
+  selectHideYouTubeMirrors,
+} from 'redux/selectors/settings';
 
 function resolveHideMembersOnly(global: any, override: any) {
   return override === undefined || override === null ? global : override;
