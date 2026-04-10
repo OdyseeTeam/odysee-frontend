@@ -27,7 +27,7 @@ export const apiLog: ApiLog = {
   setState: (enable: boolean) => {
     gApiLogOn = enable;
   },
-  view: (uri, outpoint, claimId, _position, _cb, preview) => {
+  view: (uri, outpoint, claimId) => {
     return new Promise((resolve, reject) => {
       if (gApiLogOn && (isProduction || devInternalApis)) {
         const params: {
@@ -35,12 +35,10 @@ export const apiLog: ApiLog = {
           outpoint: string;
           claim_id: string;
           time_to_start?: number;
-          preview?: boolean;
         } = {
           uri,
           outpoint,
           claim_id: claimId,
-          ...(preview ? { preview: true } : {}),
         };
         resolve(Lbryio.call('file', 'view', params));
       } else {
