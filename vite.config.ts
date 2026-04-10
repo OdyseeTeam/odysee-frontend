@@ -867,6 +867,7 @@ export default defineConfig({
       },
     },
     react(),
+    legacyFallbackPlugin(),
     ssrTemplatePlugin(),
     {
       name: 'favicon-proxy',

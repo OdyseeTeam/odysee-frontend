@@ -912,6 +912,10 @@
     margin: var(--spacing-xxs);
     margin-bottom: 0;
 
+    & + .claim-preview__hover-actions {
+      margin-top: calc(var(--spacing-xxs) - 2px);
+    }
+
     &.second-item {
       grid-column: 2;
       grid-row: 1;
@@ -920,6 +924,11 @@
     &.third-item {
       grid-column: 2;
       grid-row: 2;
+    }
+
+    &.fourth-item {
+      grid-column: 2;
+      grid-row: 3;
     }
 
     .button--file-action,
@@ -1668,7 +1677,7 @@
 
   .button {
     margin-top: var(--spacing-s);
-    background-image: var(--color-odysee-memberships);
+    background-image: var(--color-odysee-gradient);
   }
 
   @media (max-width: $breakpoint-small) {
@@ -1723,7 +1732,7 @@ $claim-preview-progress-bar-height: 5px;
 .claim-preview__progress-bar {
   height: $claim-preview-progress-bar-height;
   // background-color: var(--color-primary);
-  background-image: var(--color-odysee-memberships);
+  background-image: var(--color-odysee-gradient);
 }
 
 .claim-preview__claim-property-overlay {
@@ -2432,14 +2441,14 @@ $claim-preview-progress-bar-height: 5px;
     color: var(--color-text);
     font-size: var(--font-body);
     max-width: 80%;
-    background: var(--color-odysee-memberships);
+    background: var(--color-odysee-gradient);
     transition: all 0.4s;
     opacity: 1;
 
     .protected-content__label-container {
       background: rgba(0, 0, 0, 0.95);
       .protected-content__label {
-        background-image: var(--color-odysee-memberships);
+        background-image: var(--color-odysee-gradient);
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;

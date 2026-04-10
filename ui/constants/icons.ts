@@ -64,6 +64,8 @@ export const REPLAY = 'Replay';
 export const REPEAT = 'Repeat';
 export const SHUFFLE = 'Shuffle';
 export const VOLUME_MUTED = 'VolumeX';
+export const VOLUME = 'Volume2';
+export const FLOATING_PLAYER = 'FloatingPlayer';
 // Livestreams
 export const LIVESTREAM = 'Livestream';
 export const LIVESTREAM_SOLID = 'LivestreamSolid';

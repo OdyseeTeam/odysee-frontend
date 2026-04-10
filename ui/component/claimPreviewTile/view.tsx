@@ -21,6 +21,7 @@ import PreviewOverlayProperties from 'component/previewOverlayProperties';
 import FileHideRecommendation from 'component/fileHideRecommendation';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
+import ButtonFloatingPlayer from 'component/buttonFloatingPlayer';
 import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import ClaimMenuList from 'component/claimMenuList';
 import CollectionPreviewOverlay from 'component/collectionPreviewOverlay';
@@ -262,7 +263,13 @@ function ClaimPreviewTile(props: Props) {
             if (isEmbed) {
               window.open(navigateUrl, '_blank');
             } else {
-              navigate(navigateUrl);
+              const previewTime = (window as any).__previewCurrentTime;
+              const previewUnmuted = (window as any).__previewMuted === false;
+              if (previewTime && previewTime > 0 && previewUnmuted) {
+                navigate(navigateUrl + (navigateUrl.includes('?') ? '&' : '?') + 't=' + previewTime);
+              } else {
+                navigate(navigateUrl);
+              }
             }
           }
         }}
@@ -286,22 +293,21 @@ function ClaimPreviewTile(props: Props) {
         >
           {!isChannel && (
             <React.Fragment>
-              {((fypId && isStream) || showCollectionContext) && (
-                <div className="claim-preview__hover-actions-grid">
-                  {fypId && isStream && (
-                    <div className="claim-preview__hover-actions">
-                      <FileHideRecommendation focusable={false} uri={repostedContentUri} />
-                    </div>
-                  )}
+              <div className="claim-preview__hover-actions-grid">
+                {fypId && isStream && (
+                  <div className="claim-preview__hover-actions">
+                    <FileHideRecommendation focusable={false} uri={repostedContentUri} />
+                  </div>
+                )}
 
-                  {showCollectionContext && (
-                    <>
-                      <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
-                      <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
-                    </>
-                  )}
-                </div>
-              )}
+                {showCollectionContext && (
+                  <>
+                    <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
+                    <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
+                  </>
+                )}
+                <ButtonFloatingPlayer uri={repostedContentUri} />
+              </div>
 
               <div className="claim-preview__file-property-overlay">
                 <PreviewOverlayProperties uri={uri} properties={properties} />
