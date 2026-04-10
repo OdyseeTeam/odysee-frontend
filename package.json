@@ -64,7 +64,7 @@
     "@reduxjs/toolkit": "^2.11.2",
     "@sentry/react": "^10.45.0",
     "@ungap/from-entries": "^0.2.1",
-    "@videojs/react": "10.0.0-beta.10",
+    "@videojs/react": "10.0.0-beta.15",
     "@wanderapp/connect": "^0.1.11",
     "arweave": "^1.15.7",
     "classnames": "^2.2.5",

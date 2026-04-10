@@ -138,11 +138,10 @@ window.addEventListener('unhandledrejection', (event) => {
   if (
     errorMessage.includes('IndexedDB') ||
     errorMessage.includes('Indexed Database') ||
-    errorMessage.includes('IDBDatabase')
+    errorMessage.includes('IDBDatabase') ||
+    errorMessage.includes('NO_TARGET')
   ) {
-    event.preventDefault(); // Prevent the error from being reported to Sentry
-
-    console.warn('IndexedDB error (handled):', errorMessage);
+    event.preventDefault();
   }
 });
 window.addEventListener('vite:preloadError', (event) => {

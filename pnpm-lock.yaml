@@ -51,8 +51,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1
       '@videojs/react':
-        specifier: 10.0.0-beta.10
-        version: 10.0.0-beta.10(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)
+        specifier: 10.0.0-beta.15
+        version: 10.0.0-beta.15(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)
       '@wanderapp/connect':
         specifier: ^0.1.11
         version: 0.1.13
@@ -1797,11 +1797,11 @@ packages:
     resolution: {integrity: sha512-e7Mew686owMaPJVNNLs55PUvgz371nKgwsc4vxE49zsODpJEnxgxRo2y/OKrqueavXgZNMDVj3DdHFlaSAeU8g==}
 
   '@svta/cml-608@1.0.1':
-    resolution: {integrity: sha512-Y/Ier9VPUSOBnf0bJqdDyTlPrt4dDB+jk5mYHa1bnD2kcRl8qn7KkW3PRuj4w1aVN+BS2eHmsLxodt7P2hylUg==}
+    resolution: {integrity: sha512-Y/Ier9VPUSOBnf0bJqdDyTlPrt4dDB+jk5mYHa1bnD2kcRl8qn7KkW3PRuj4w1aVN+BS2eHmsLxodt7P2hylUg==, tarball: https://registry.npmjs.org/@svta/cml-608/-/cml-608-1.0.1.tgz}
     engines: {node: '>=20'}
 
   '@svta/cml-cmcd@1.0.1':
-    resolution: {integrity: sha512-eox305g+QUJgXqOLVrbgxeQHCgl90ewwQ9O2bIoo7m+hanR8Xswu5CknFnT5qqIbLOHfw80ug+raycoAFHTQ+w==}
+    resolution: {integrity: sha512-eox305g+QUJgXqOLVrbgxeQHCgl90ewwQ9O2bIoo7m+hanR8Xswu5CknFnT5qqIbLOHfw80ug+raycoAFHTQ+w==, tarball: https://registry.npmjs.org/@svta/cml-cmcd/-/cml-cmcd-1.0.1.tgz}
     engines: {node: '>=20'}
     peerDependencies:
       '@svta/cml-cta': 1.0.1
@@ -1809,7 +1809,7 @@ packages:
       '@svta/cml-utils': 1.0.1
 
   '@svta/cml-cmsd@1.0.1':
-    resolution: {integrity: sha512-+nIB8PuSfb/qw+xGaArPhNqPm84tBJUbe3H1DnPL5QUsjSUI7mUIUQwAtRV1ZdEu0+80g9i0op79woB0OIwr/g==}
+    resolution: {integrity: sha512-+nIB8PuSfb/qw+xGaArPhNqPm84tBJUbe3H1DnPL5QUsjSUI7mUIUQwAtRV1ZdEu0+80g9i0op79woB0OIwr/g==, tarball: https://registry.npmjs.org/@svta/cml-cmsd/-/cml-cmsd-1.0.1.tgz}
     engines: {node: '>=20'}
     peerDependencies:
       '@svta/cml-cta': 1.0.1
@@ -1824,19 +1824,19 @@ packages:
       '@svta/cml-utils': 1.0.1
 
   '@svta/cml-dash@1.0.1':
-    resolution: {integrity: sha512-lYnD1I7FUbbQND+xICI+kcRaRXuT+whKk27R8m8me5VMVu2sMsAMc7Yui6l9sxw2cBKt8pSETPYRm/1+n4LZkw==}
+    resolution: {integrity: sha512-lYnD1I7FUbbQND+xICI+kcRaRXuT+whKk27R8m8me5VMVu2sMsAMc7Yui6l9sxw2cBKt8pSETPYRm/1+n4LZkw==, tarball: https://registry.npmjs.org/@svta/cml-dash/-/cml-dash-1.0.1.tgz}
     engines: {node: '>=20'}
     peerDependencies:
       '@svta/cml-utils': 1.0.1
 
   '@svta/cml-id3@1.0.1':
-    resolution: {integrity: sha512-90fGlL1qRI88CcaB89k6NG6cC3kky4Eu2jwqU4HefqK+S5k2OASUxf8JXkGz+DsdaiY7sh51vGPYdolfBZS7ug==}
+    resolution: {integrity: sha512-90fGlL1qRI88CcaB89k6NG6cC3kky4Eu2jwqU4HefqK+S5k2OASUxf8JXkGz+DsdaiY7sh51vGPYdolfBZS7ug==, tarball: https://registry.npmjs.org/@svta/cml-id3/-/cml-id3-1.0.1.tgz}
     engines: {node: '>=20'}
     peerDependencies:
       '@svta/cml-utils': 1.0.1
 
   '@svta/cml-request@1.0.1':
-    resolution: {integrity: sha512-enL19BuXUjFkDDDF9jdNwUclMNPRsagnjGAetVC7xcmpDMpEx+ZLgsDip6BFNg5p6izSEk/OyujTWW1r8bDNiA==}
+    resolution: {integrity: sha512-enL19BuXUjFkDDDF9jdNwUclMNPRsagnjGAetVC7xcmpDMpEx+ZLgsDip6BFNg5p6izSEk/OyujTWW1r8bDNiA==, tarball: https://registry.npmjs.org/@svta/cml-request/-/cml-request-1.0.1.tgz}
     engines: {node: '>=20'}
     peerDependencies:
       '@svta/cml-utils': 1.0.1
@@ -1853,7 +1853,7 @@ packages:
     engines: {node: '>=20'}
 
   '@svta/cml-xml@1.0.1':
-    resolution: {integrity: sha512-11LkJa5kDEcsRMWkVI1ABH3KLCxGoiSVe4kQ293ItVj8ncTTQ7htmCGiJDjS+Cmy35UgF3e/vc0ysJIiWRTx2g==}
+    resolution: {integrity: sha512-11LkJa5kDEcsRMWkVI1ABH3KLCxGoiSVe4kQ293ItVj8ncTTQ7htmCGiJDjS+Cmy35UgF3e/vc0ysJIiWRTx2g==, tarball: https://registry.npmjs.org/@svta/cml-xml/-/cml-xml-1.0.1.tgz}
     engines: {node: '>=20'}
     peerDependencies:
       '@svta/cml-utils': 1.0.1
@@ -1946,21 +1946,21 @@ packages:
   '@ungap/structured-clone@1.3.0':
     resolution: {integrity: sha512-WmoN8qaIAo7WTYWbAZuG8PYEhn5fkz7dZrqTBZ7dtt//lL2Gwms1IcnQ5yHqjDfX8Ft5j4YzDM23f87zBfDe9g==}
 
-  '@videojs/core@10.0.0-beta.10':
-    resolution: {integrity: sha512-P5dNV014F8H9CUXL3qZ8T/a5LrkTEbAEFeWIdO0FTIJTFopjJx/gpJ6Dikcg6wIia3RbuGg8gr7MStGTQjaOTw==}
+  '@videojs/core@10.0.0-beta.15':
+    resolution: {integrity: sha512-hRQvB+XwiQ0PZsy0ovSCQXed3LfJEcpqZchlDpq8gIe6gBT5jYd2sXYoxn6rodJ8H54TSwEpsJ3kBS220XcbJg==, tarball: https://registry.npmjs.org/@videojs/core/-/core-10.0.0-beta.15.tgz}
 
-  '@videojs/react@10.0.0-beta.10':
-    resolution: {integrity: sha512-bgHZU6ksPTjb8Pwug7ukcB2bk8WxuGUO11Se8EMRFSW2BYWyIUuGO2zyTR8gNuJTi31pdj68NBHeLs05HjKM0A==}
+  '@videojs/react@10.0.0-beta.15':
+    resolution: {integrity: sha512-Yn3R1RMVY0eVbzSPhrPN1OtCp2DTf77kUsubjYNgBucSj2aPxwVBjJj6bd5zYLeibeZNHv/hhJxFWPSzxbKhGw==, tarball: https://registry.npmjs.org/@videojs/react/-/react-10.0.0-beta.15.tgz}
     peerDependencies:
       react: '>=16.8.0'
 
-  '@videojs/spf@10.0.0-beta.10':
-    resolution: {integrity: sha512-/Hi7QhdFBmr5NphI6dK85ENnzubBXJ1Q8A6VaSxIDnLdaICfRI686t82FpE7EHTTnnRezutHskpYhJEzbLJcDA==}
+  '@videojs/spf@10.0.0-beta.15':
+    resolution: {integrity: sha512-h80PGh0MCBsdC437nGvCery75WrcNGom/zzsdl2EVpTCPb3PiroNOZHJg1Rl2dlFLOyBDgIXvu2b+j7qLRkrtg==, tarball: https://registry.npmjs.org/@videojs/spf/-/spf-10.0.0-beta.15.tgz}
 
-  '@videojs/store@10.0.0-beta.10':
-    resolution: {integrity: sha512-NO8f5sikkSQBVPKv2QD0WY1wGsKu9lKH7mwQSBbsy64bVp+4CHZunUXaU8dyfgwunczYCFRtMhSewquCUnEZIg==}
+  '@videojs/store@10.0.0-beta.15':
+    resolution: {integrity: sha512-boFQ5PuDlxHQjzbDnmo9hirXftcdp3MyeMu3FGnqiefWl9K/SkMEltsOfY2IJmkZHjZPjeZnSPzyFz5gJOeJIg==, tarball: https://registry.npmjs.org/@videojs/store/-/store-10.0.0-beta.15.tgz}
     peerDependencies:
-      '@videojs/element': 10.0.0-beta.10
+      '@videojs/element': 10.0.0-beta.15
       react: ^18.0.0 || ^19.0.0
     peerDependenciesMeta:
       '@videojs/element':
@@ -1968,8 +1968,8 @@ packages:
       react:
         optional: true
 
-  '@videojs/utils@10.0.0-beta.10':
-    resolution: {integrity: sha512-sF4Q3cnnWdDjgz6BfGF8vLj0MvhBEYHgjHESS8E9ij39sQGQ5rXm8ZcI0vfplq2Fw08I/m7CzKlcNth8SDKxFA==}
+  '@videojs/utils@10.0.0-beta.15':
+    resolution: {integrity: sha512-MtiQQc9DNmnGCXfsEH/bMg5sJjJKc0JSUiRDhacsh5NJSmKnUtSMCDOP9OKgF3ln+mTOUSRQ+JjwoMBhqmN9dA==, tarball: https://registry.npmjs.org/@videojs/utils/-/utils-10.0.0-beta.15.tgz}
 
   '@vitejs/plugin-legacy@8.0.1':
     resolution: {integrity: sha512-8zeDeuNPqXd49rIVgFgluQYB8vQICHR7l+W2I3CxYK4gTjTorajVr0wLvSjALIwEwLRxBn68EgNVyGP4j6hP7w==, tarball: https://registry.npmjs.org/@vitejs/plugin-legacy/-/plugin-legacy-8.0.1.tgz}
@@ -2276,13 +2276,13 @@ packages:
     hasBin: true
 
   bcp-47-match@2.0.3:
-    resolution: {integrity: sha512-JtTezzbAibu8G0R9op9zb3vcWZd9JF6M0xOYGPn0fNCd7wOpRB1mU2mH9T8gaBGbAAyIIVgB2G7xG0GP98zMAQ==}
+    resolution: {integrity: sha512-JtTezzbAibu8G0R9op9zb3vcWZd9JF6M0xOYGPn0fNCd7wOpRB1mU2mH9T8gaBGbAAyIIVgB2G7xG0GP98zMAQ==, tarball: https://registry.npmjs.org/bcp-47-match/-/bcp-47-match-2.0.3.tgz}
 
   bcp-47-normalize@2.3.0:
-    resolution: {integrity: sha512-8I/wfzqQvttUFz7HVJgIZ7+dj3vUaIyIxYXaTRP1YWoSDfzt6TUmxaKZeuXR62qBmYr+nvuWINFRl6pZ5DlN4Q==}
+    resolution: {integrity: sha512-8I/wfzqQvttUFz7HVJgIZ7+dj3vUaIyIxYXaTRP1YWoSDfzt6TUmxaKZeuXR62qBmYr+nvuWINFRl6pZ5DlN4Q==, tarball: https://registry.npmjs.org/bcp-47-normalize/-/bcp-47-normalize-2.3.0.tgz}
 
   bcp-47@2.1.0:
-    resolution: {integrity: sha512-9IIS3UPrvIa1Ej+lVDdDwO7zLehjqsaByECw0bu2RRGP73jALm6FYbzI5gWbgHLvNdkvfXB5YrSbocZdOS0c0w==}
+    resolution: {integrity: sha512-9IIS3UPrvIa1Ej+lVDdDwO7zLehjqsaByECw0bu2RRGP73jALm6FYbzI5gWbgHLvNdkvfXB5YrSbocZdOS0c0w==, tarball: https://registry.npmjs.org/bcp-47/-/bcp-47-2.1.0.tgz}
 
   bcrypt-pbkdf@1.0.2:
     resolution: {integrity: sha512-qeFIXtP4MSoi6NLqO12WfqARWWuCKi2Rn/9hJLEmtB5yTNr9DqFWkJRCf2qShWzPeAMRnOgCrq0sg/KLv5ES9w==, tarball: https://registry.npmjs.org/bcrypt-pbkdf/-/bcrypt-pbkdf-1.0.2.tgz}
@@ -2441,7 +2441,7 @@ packages:
     engines: {node: '>=6'}
 
   codem-isoboxer@0.3.10:
-    resolution: {integrity: sha512-eNk3TRV+xQMJ1PEj0FQGY8KD4m0GPxT487XJ+Iftm7mVa9WpPFDMWqPt+46buiP5j5Wzqe5oMIhqBcAeKfygSA==}
+    resolution: {integrity: sha512-eNk3TRV+xQMJ1PEj0FQGY8KD4m0GPxT487XJ+Iftm7mVa9WpPFDMWqPt+46buiP5j5Wzqe5oMIhqBcAeKfygSA==, tarball: https://registry.npmjs.org/codem-isoboxer/-/codem-isoboxer-0.3.10.tgz}
 
   codemirror@6.0.2:
     resolution: {integrity: sha512-VhydHotNW5w1UGK0Qj96BwSk/Zqbp9WbnyK2W/eVMv4QyF41INRGpjUhFJY7/uDNuudSc33a/PKr4iDqRduvHw==}
@@ -2572,7 +2572,7 @@ packages:
     engines: {node: '>=0.10'}
 
   dashjs@5.1.1:
-    resolution: {integrity: sha512-BzNXlUgzEjhuZ5M5hlSp1qIyQHZ7NpXAR0loP9DAAFVZj/ntL1DHeZ7qp/L3bvI4rq50X5indkAZQ3zEHWJoCA==}
+    resolution: {integrity: sha512-BzNXlUgzEjhuZ5M5hlSp1qIyQHZ7NpXAR0loP9DAAFVZj/ntL1DHeZ7qp/L3bvI4rq50X5indkAZQ3zEHWJoCA==, tarball: https://registry.npmjs.org/dashjs/-/dashjs-5.1.1.tgz}
 
   dat.gui@0.7.9:
     resolution: {integrity: sha512-sCNc1OHobc+Erc1HqiswYgHdVNpSJUlk/Hz8vzOCsER7rl+oF/4+v8GXFUyCgtXpoCX6+bnmg07DedLvBLwYKQ==}
@@ -2792,7 +2792,7 @@ packages:
     engines: {'0': node >=0.6.0}
 
   fast-deep-equal@3.1.3:
-    resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
+    resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==, tarball: https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz}
 
   fast-fifo@1.3.2:
     resolution: {integrity: sha512-/d9sfos4yxzpwkDkuN7k2SqFKtYNmCTzgfEpz82x34IM9/zc8KGxQoXg1liNC/izpRM/MBdt44Nmx41ZWqk+FQ==}
@@ -2957,7 +2957,7 @@ packages:
     resolution: {integrity: sha512-71lZziiDnsuabfdYiUeWdCVyKuqwWi23L8YeIgV9jSSZHCtb6wB1BKWooH7L3tn4/FuZJMVWyNaIDr4RGmaSYw==, tarball: https://registry.npmjs.org/html-encoding-sniffer/-/html-encoding-sniffer-1.0.2.tgz}
 
   html-entities@2.6.0:
-    resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==}
+    resolution: {integrity: sha512-kig+rMn/QOVRvr7c86gQ8lWXq+Hkv6CbAH1hLu+RG338StTpE8Z0b44SDVaqVu7HGKf27frdmUYEs9hTUX/cLQ==, tarball: https://registry.npmjs.org/html-entities/-/html-entities-2.6.0.tgz}
 
   html-url-attributes@3.0.1:
     resolution: {integrity: sha512-ol6UPyBWqsrO6EJySPz2O7ZSr856WDrEzM5zMqp+FJJLGMW35cLYmmZnl0vztAZxRUoNZJFTCohfjuIJ8I4QBQ==}
@@ -2997,7 +2997,7 @@ packages:
     engines: {node: '>=6'}
 
   imsc@1.1.5:
-    resolution: {integrity: sha512-V8je+CGkcvGhgl2C1GlhqFFiUOIEdwXbXLiu1Fcubvvbo+g9inauqT3l0pNYXGoLPBj3jxtZz9t+wCopMkwadQ==}
+    resolution: {integrity: sha512-V8je+CGkcvGhgl2C1GlhqFFiUOIEdwXbXLiu1Fcubvvbo+g9inauqT3l0pNYXGoLPBj3jxtZz9t+wCopMkwadQ==, tarball: https://registry.npmjs.org/imsc/-/imsc-1.1.5.tgz}
 
   inflight@1.0.6:
     resolution: {integrity: sha512-k92I/b08q4wvFscXCLvqfsHCrjrF7yiXsQuIVvVE7N82W3+aqpzuUdBbfhWcy/FZR3/4IgflMgKLOsvPDrGCJA==}
@@ -3520,6 +3520,9 @@ packages:
   ms@2.1.3:
     resolution: {integrity: sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==}
 
+  mux-embed@5.17.10:
+    resolution: {integrity: sha512-i+eaoezVxIEliYGWPsjQztrWbA8A3Rzwqhwv1WGuRrl2npx85jFYJV5y+cjh7FASPOjT+7zJTYCJfxmcbgM7Hg==, tarball: https://registry.npmjs.org/mux-embed/-/mux-embed-5.17.10.tgz}
+
   nano-md5@1.0.5:
     resolution: {integrity: sha512-1VAOX0EiuwAdCMGpnglxp9r6ylm+gXwQi+UPAnc/Oj1tLLJ8D1I8rLZeiO4MWsUAqH8tuBAHweT1LYSrDfJlPg==}
 
@@ -3656,7 +3659,7 @@ packages:
     resolution: {integrity: sha512-w2jx/0tJzvgKwZa58sj2vAYq/S/K1QJfIB3cWYea/Iu1scFPDQQ3IQiVZTHWtRBwAjv2Yd7S/xeZf3XqLDb3bA==, tarball: https://registry.npmjs.org/parse5/-/parse5-1.5.1.tgz}
 
   path-browserify@1.0.1:
-    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==, tarball: https://registry.npmjs.org/path-browserify/-/path-browserify-1.0.1.tgz}
 
   path-exists@3.0.0:
     resolution: {integrity: sha512-bpC7GYwiDYQ4wYLe+FA8lhRjhQCMcQGuSgGGqDkg/QerRWw9CmGRT0iSOVRSZJ29NMLZgIzqaljJ63oaL4NIJQ==}
@@ -4107,7 +4110,7 @@ packages:
     hasBin: true
 
   sax@1.2.1:
-    resolution: {integrity: sha512-8I2a3LovHTOpm7NV5yOyO8IHqgVsfK4+UuySrXU8YXkSRX7k6hCV9b3HrkKCr3nMpgj+0bmocaJJWpvp1oc7ZA==}
+    resolution: {integrity: sha512-8I2a3LovHTOpm7NV5yOyO8IHqgVsfK4+UuySrXU8YXkSRX7k6hCV9b3HrkKCr3nMpgj+0bmocaJJWpvp1oc7ZA==, tarball: https://registry.npmjs.org/sax/-/sax-1.2.1.tgz}
 
   sax@1.6.0:
     resolution: {integrity: sha512-6R3J5M4AcbtLUdZmRv2SygeVaM7IhrLXu9BmnOGmmACak8fiUtOsYNWUS4uK7upbmHIBbLBeFeI//477BKLBzA==, tarball: https://registry.npmjs.org/sax/-/sax-1.6.0.tgz}
@@ -4153,6 +4156,9 @@ packages:
   shell-quote@1.8.3:
     resolution: {integrity: sha512-ObmnIF4hXNg1BqhnHmgbDETF8dLPCggZWBjkQfhZpbszZnYur5DUljTcCHii5LC3J5E0yeO/1LIMyH+UvHQgyw==}
     engines: {node: '>= 0.4'}
+
+  signal-polyfill@0.2.2:
+    resolution: {integrity: sha512-p63Y4Er5/eMQ9RHg0M0Y64NlsQKpiu6MDdhBXpyywRuWiPywhJTpKJ1iB5K2hJEbFZ0BnDS7ZkJ+0AfTuL37Rg==, tarball: https://registry.npmjs.org/signal-polyfill/-/signal-polyfill-0.2.2.tgz}
 
   simple-concat@1.0.1:
     resolution: {integrity: sha512-cSFtAPtRhljv69IK0hTVZQ+OfE9nePi/rtJmw5UjHeVyVroEqJXP1sFztKUy1qU+xvz3u/sfYJLa947b7nAN2Q==}
@@ -4412,7 +4418,7 @@ packages:
     hasBin: true
 
   ua-parser-js@1.0.41:
-    resolution: {integrity: sha512-LbBDqdIC5s8iROCUjMbW1f5dJQTEFB1+KO9ogbvlb3nm9n4YHa5p4KTvFPWvh2Hs8gZMBuiB1/8+pdfe/tDPug==}
+    resolution: {integrity: sha512-LbBDqdIC5s8iROCUjMbW1f5dJQTEFB1+KO9ogbvlb3nm9n4YHa5p4KTvFPWvh2Hs8gZMBuiB1/8+pdfe/tDPug==, tarball: https://registry.npmjs.org/ua-parser-js/-/ua-parser-js-1.0.41.tgz}
     hasBin: true
 
   uint8-util@2.2.6:
@@ -6256,13 +6262,14 @@ snapshots:
 
   '@ungap/structured-clone@1.3.0': {}
 
-  '@videojs/core@10.0.0-beta.10(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)':
+  '@videojs/core@10.0.0-beta.15(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)':
     dependencies:
-      '@videojs/spf': 10.0.0-beta.10
-      '@videojs/store': 10.0.0-beta.10(react@18.3.1)
-      '@videojs/utils': 10.0.0-beta.10
+      '@videojs/spf': 10.0.0-beta.15
+      '@videojs/store': 10.0.0-beta.15(react@18.3.1)
+      '@videojs/utils': 10.0.0-beta.15
       dashjs: 5.1.1(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)
       hls.js: 1.6.15
+      mux-embed: 5.17.10
     transitivePeerDependencies:
       - '@svta/cml-cta'
       - '@svta/cml-structured-field-values'
@@ -6270,12 +6277,12 @@ snapshots:
       - '@videojs/element'
       - react
 
-  '@videojs/react@10.0.0-beta.10(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)':
+  '@videojs/react@10.0.0-beta.15(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)':
     dependencies:
-      '@videojs/core': 10.0.0-beta.10(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)
-      '@videojs/spf': 10.0.0-beta.10
-      '@videojs/store': 10.0.0-beta.10(react@18.3.1)
-      '@videojs/utils': 10.0.0-beta.10
+      '@videojs/core': 10.0.0-beta.15(@svta/cml-cta@1.0.1(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1))(@svta/cml-structured-field-values@1.0.1(@svta/cml-utils@1.0.1))(@svta/cml-utils@1.0.1)(react@18.3.1)
+      '@videojs/spf': 10.0.0-beta.15
+      '@videojs/store': 10.0.0-beta.15(react@18.3.1)
+      '@videojs/utils': 10.0.0-beta.15
       react: 18.3.1
     transitivePeerDependencies:
       - '@svta/cml-cta'
@@ -6283,17 +6290,18 @@ snapshots:
       - '@svta/cml-utils'
       - '@videojs/element'
 
-  '@videojs/spf@10.0.0-beta.10':
+  '@videojs/spf@10.0.0-beta.15':
     dependencies:
-      '@videojs/utils': 10.0.0-beta.10
+      '@videojs/utils': 10.0.0-beta.15
+      signal-polyfill: 0.2.2
 
-  '@videojs/store@10.0.0-beta.10(react@18.3.1)':
+  '@videojs/store@10.0.0-beta.15(react@18.3.1)':
     dependencies:
-      '@videojs/utils': 10.0.0-beta.10
+      '@videojs/utils': 10.0.0-beta.15
     optionalDependencies:
       react: 18.3.1
 
-  '@videojs/utils@10.0.0-beta.10': {}
+  '@videojs/utils@10.0.0-beta.15': {}
 
   '@vitejs/plugin-legacy@8.0.1(terser@5.46.1)(vite@8.0.1(@types/node@25.5.0)(sass@1.98.0)(terser@5.46.1))':
     dependencies:
@@ -8080,6 +8088,8 @@ snapshots:
 
   ms@2.1.3: {}
 
+  mux-embed@5.17.10: {}
+
   nano-md5@1.0.5: {}
 
   nano-time@1.0.0:
@@ -8853,6 +8863,8 @@ snapshots:
   shebang-regex@3.0.0: {}
 
   shell-quote@1.8.3: {}
+
+  signal-polyfill@0.2.2: {}
 
   simple-concat@1.0.1: {}
 
