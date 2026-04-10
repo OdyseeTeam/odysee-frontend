@@ -1,35 +1,22 @@
 # syntax=docker/dockerfile:1.7
 
-ARG NODE_VERSION=22-slim
+FROM oven/bun:latest AS build
 
-# ── Stage 1: Build ────────────────────────────────────────────────────────────
-FROM node:${NODE_VERSION} AS build
-
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
 ENV CI=true
 ENV GIT_TERMINAL_PROMPT=0
 
-RUN apt-get update && apt-get install -y --no-install-recommends git ca-certificates && \
-    rm -rf /var/lib/apt/lists/* && \
-    corepack enable && \
-    pnpm config set store-dir /pnpm/store
-
 WORKDIR /app
 
-COPY package.json pnpm-lock.yaml ./
-COPY web/package.json web/pnpm-lock.yaml ./web/
+COPY package.json bun.lock ./
+COPY web/package.json ./web/
 
-# Fix git dep SSH URL in lockfile -> HTTPS for Docker builds
-RUN sed -i 's|git@github.com:|https://github.com/|g' pnpm-lock.yaml
-
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm fetch --frozen-lockfile
+RUN --mount=type=cache,id=bun-cache,target=/root/.bun bun install --frozen-lockfile
 
 COPY . .
 
-RUN sed -i 's|git@github.com:|https://github.com/|g' pnpm-lock.yaml
+RUN sed -i 's|git@github.com:|https://github.com/|g' bun.lock || true
 
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --frozen-lockfile
+RUN --mount=type=cache,id=bun-cache,target=/root/.bun bun install --frozen-lockfile
 
 # Build args baked into the frontend bundle at compile time.
 # Most site config comes from `.env.defaults`, which Vite loads during build.
@@ -43,7 +30,7 @@ ENV COMMIT_ID=$COMMIT_ID
 ENV BUILD_REV=$BUILD_REV
 ENV CUSTOM_HOMEPAGE=$CUSTOM_HOMEPAGE
 
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm build
+RUN bun run build
 
 RUN mkdir -p web/dist/app-strings
 COPY .tx .tx
@@ -54,24 +41,18 @@ RUN if [ -n "$TX_TOKEN" ]; then \
     fi
 
 # ── Stage 2: Server Deps ──────────────────────────────────────────────────────
-FROM node:${NODE_VERSION} AS web-deps
+FROM oven/bun:latest AS web-deps
 
-ENV PNPM_HOME=/pnpm
-ENV PATH=$PNPM_HOME:$PATH
 ENV CI=true
-
-RUN corepack enable && pnpm config set store-dir /pnpm/store
 
 WORKDIR /app/web
 
-COPY web/package.json web/pnpm-lock.yaml ./
+COPY web/package.json ./
 
-RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm install --prod --frozen-lockfile && \
-    pnpm store prune && \
-    rm -rf /tmp/* /root/.cache
+RUN bun install --production --frozen-lockfile
 
 # ── Stage 3: Runtime ──────────────────────────────────────────────────────────
-FROM node:${NODE_VERSION} AS runtime
+FROM oven/bun:latest AS runtime
 
 RUN groupadd -r odysee && useradd -r -g odysee odysee
 
@@ -79,7 +60,6 @@ WORKDIR /app
 
 COPY --from=web-deps --chown=odysee:odysee /app/web/node_modules web/node_modules
 
-# Copy root-level node_modules deps needed by server (config.cjs, lbry.js)
 # Root-level node_modules needed by server code (config.cjs, lbry.js, rss.js, googleVideo.js)
 COPY --from=build --chown=odysee:odysee /app/node_modules/dotenv-defaults node_modules/dotenv-defaults
 COPY --from=build --chown=odysee:odysee /app/node_modules/dotenv node_modules/dotenv
@@ -115,6 +95,6 @@ ENV WEB_SERVER_PORT=1337
 EXPOSE 1337
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
-  CMD node -e "fetch('http://localhost:1337').then(r=>{process.exit(r.ok?0:1)}).catch(()=>process.exit(1))"
+  CMD bun -e "fetch('http://localhost:1337').then(r=>{process.exit(r.ok?0:1)}).catch(()=>process.exit(1))"
 
-CMD ["node", "web/cluster.js"]
+CMD ["bun", "web/cluster.js"]

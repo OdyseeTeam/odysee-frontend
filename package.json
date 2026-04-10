@@ -20,27 +20,27 @@
   },
   "type": "module",
   "scripts": {
-    "dev": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development vp dev",
-    "dev:usagi-local": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true vp dev",
-    "dev:ssr": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
-    "dev:ssr:usagi-local": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true node scripts/dev-web-server.mjs",
+    "dev": "bun run scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development vp dev",
+    "dev:usagi-local": "bun run scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true vp dev",
+    "dev:ssr": "bun run scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development bun run scripts/dev-web-server.mjs",
+    "dev:ssr:usagi-local": "bun run scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true bun run scripts/dev-web-server.mjs",
     "build": "vp build",
     "build:usagi-local": "cross-env USE_LOCAL_USAGI=true vp build",
     "preview": "vp preview",
-    "check": "cross-env NODE_OPTIONS=--experimental-strip-types vp check",
-    "check:fix": "cross-env NODE_OPTIONS=--experimental-strip-types vp check --fix",
-    "lint": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json .",
-    "lint:fix": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json --fix .",
-    "audit:styles": "node scripts/style-audit.mjs",
+    "check": "vp check",
+    "check:fix": "vp check --fix",
+    "lint": "oxlint -c .oxlintrc.json .",
+    "lint:fix": "oxlint -c .oxlintrc.json --fix .",
+    "audit:styles": "bun run scripts/style-audit.mjs",
     "fmt": "vp fmt",
     "fmt:check": "vp fmt --check",
     "typecheck": "vp lint --type-aware --type-check",
     "typecheck:native": "vp lint --type-aware --type-check",
     "typecheck:tsc": "tsc --noEmit",
-    "prepare": "node scripts/setup-git-hooks.mjs",
-    "dev:web-server": "cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
-    "run:web-server": "cross-env NODE_ENV=production vp build && cd web && node index.js",
-    "postinstall": "cd web && pnpm install",
+    "prepare": "bun run scripts/setup-git-hooks.mjs",
+    "dev:web-server": "cross-env NODE_ENV=development bun run scripts/dev-web-server.mjs",
+    "run:web-server": "cross-env NODE_ENV=production vp build && cd web && bun run index.js",
+    "postinstall": "cd web && bun install",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -169,12 +169,6 @@
     "iOS >= 15.4"
   ],
   "engines": {
-    "node": ">=22.12.0"
-  },
-  "packageManager": "pnpm@10.33.0",
-  "pnpm": {
-    "overrides": {
-      "react-is": "^18.3.1"
-    }
+    "bun": ">=1.0.0"
   }
 }

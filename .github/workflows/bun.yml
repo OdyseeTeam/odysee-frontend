@@ -1,6 +1,4 @@
-# CI for the Vite + pnpm stack
-# Node version is driven by .nvmrc (mirrors package.json#engines.node ^22.0.0).
-# pnpm version is driven by package.json#packageManager (read by pnpm/action-setup automatically).
+# CI for the Vite + Bun stack
 
 name: Node.js CI
 
@@ -23,25 +21,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # Install the pnpm version pinned in package.json#packageManager
-      - uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
+          bun-version: latest
 
       # Lockfile resolves odysee-media-usagi to SSH (git@github.com:) which
-      # fails without SSH keys. Rewrite to HTTPS so pnpm can clone it.
+      # fails without SSH keys. Rewrite to HTTPS so bun can clone it.
       - name: Use HTTPS for git deps
         run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Check (lint + format + typecheck)
-        run: pnpm check
+        run: bun run check
 
   # ─── Build ───────────────────────────────────────────────────────────────────
   build:
@@ -52,22 +46,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - uses: pnpm/action-setup@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
         with:
-          node-version-file: '.nvmrc'
-          cache: 'pnpm'
+          bun-version: latest
 
       - name: Use HTTPS for git deps
         run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: bun install --frozen-lockfile
 
       - name: Build (Vite)
-        run: pnpm build
+        run: bun run build
         env:
           NODE_ENV: production
           COMMIT_ID: ${{ github.sha }}
