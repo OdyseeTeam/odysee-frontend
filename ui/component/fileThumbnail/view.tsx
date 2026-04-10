@@ -10,10 +10,15 @@ import { icons } from 'component/common/icon-custom';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
-import { useAppSelector } from 'redux/hooks';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectHasResolvedClaimForUri, selectThumbnailForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectIsActiveLivestreamForUri, selectLiveThumbnailForUri } from 'redux/selectors/livestream';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { doAnalyticsViewForUri } from 'redux/actions/app';
+import { selectUser } from 'redux/selectors/user';
+import analytics from 'analytics';
+
+const previewViewedUris = new Set<string>();
 
 function parseVttTime(str: string): number {
   const parts = str.split(':');
@@ -333,6 +338,39 @@ function FileThumbnail(props: Props) {
   }, [hasFrames, framePreviewActive, framesFadedIn]);
 
   const isPreviewActive = hlsPreviewActive || (framePreviewActive && framesFadedIn);
+
+  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => selectUser(state))?.id;
+  const claimId = claim?.claim_id;
+
+  React.useEffect(() => {
+    if (!isPreviewActive || !uri || !claimId || previewViewedUris.has(uri)) return;
+    const timer = setTimeout(() => {
+      if (previewViewedUris.has(uri)) return;
+      previewViewedUris.add(uri);
+      dispatch(doAnalyticsViewForUri(uri, true));
+      const video = hlsVideoRef.current;
+      if (video) {
+        const playerShim = {
+          currentSource: () => ({
+            type: video.currentSrc?.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
+            src: video.currentSrc,
+          }),
+          get currentTime() {
+            return video.currentTime;
+          },
+          get duration() {
+            return video.duration;
+          },
+          get seeking() {
+            return video.seeking;
+          },
+        };
+        analytics.video.videoStartEvent(claimId, 0, 'player-v10', userId, uri, playerShim, undefined, false, true);
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [isPreviewActive, uri, claimId]);
 
   if (!gettingThumbnail) {
     return (

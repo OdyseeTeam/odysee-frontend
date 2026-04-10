@@ -188,6 +188,7 @@
     height: 5px;
     margin: 0 8px 10px;
     border-radius: 2px;
+    overflow: visible;
   }
 
   &:hover .media__thumb-progress-hover {
@@ -262,7 +263,7 @@
   line-height: 16px;
   color: #fff;
   background: rgba(0, 0, 0, 0.7);
-  border-radius: 2px;
+  border-radius: 4px;
   white-space: nowrap;
   font-variant-numeric: tabular-nums;
 }

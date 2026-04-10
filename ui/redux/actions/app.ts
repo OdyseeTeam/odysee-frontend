@@ -368,7 +368,7 @@ export function doToggleSearchExpanded() {
     type: ACTIONS.TOGGLE_SEARCH_EXPANDED,
   };
 }
-export function doAnalyticsViewForUri(uri: string) {
+export function doAnalyticsViewForUri(uri: string, preview?: boolean) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
@@ -385,7 +385,7 @@ export function doAnalyticsViewForUri(uri: string) {
 
     const position = selectContentPositionForUri(state, uri);
 
-    return analytics.apiLog.view(uri, outpoint, claimId, position, undefined);
+    return analytics.apiLog.view(uri, outpoint, claimId, position, undefined, preview);
   };
 }
 
