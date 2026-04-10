@@ -161,6 +161,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   } = props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [rowHover, setRowHover] = React.useState(false);
   const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
   const mediaDuration = media && media.duration && formatMediaDuration(media.duration);
@@ -481,8 +482,6 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   if (isPublishSuggestion) {
     return null; // Ignore 'showNullPlaceholder'
   }
-
-  const [rowHover, setRowHover] = React.useState(false);
 
   return (
     <WrapperElement
