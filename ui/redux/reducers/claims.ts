@@ -703,9 +703,13 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
     }
     if ((claim as any).permanent_url) confirmedUrls.add((claim as any).permanent_url);
   });
+  const confirmedNames = new Set(confirmedClaims.map((c: any) => c.name));
   const cleanedPending = { ...pendingClaims };
   for (const [id, claim] of Object.entries(cleanedPending)) {
-    if (id.startsWith('pending-') && confirmedUrls.has((claim as any).permanent_url)) {
+    if (
+      id.startsWith('pending-') &&
+      (confirmedUrls.has((claim as any).permanent_url) || confirmedNames.has((claim as any).name))
+    ) {
       delete cleanedPending[id];
     }
   }
@@ -719,10 +723,15 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
       newPageResults = [...confirmedPageUrls, ...pageResults];
     }
   }
+  const myClaimIds = new Set(state.myClaims);
+  confirmedClaims.forEach((claim: GenericClaim) => {
+    myClaimIds.add(claim.claim_id);
+  });
   return Object.assign({}, state, {
     pendingById: cleanedPending,
     byId: resolveDelta(state.byId, byIdDelta),
     myClaimsPageResults: newPageResults,
+    myClaims: Array.from(myClaimIds),
   });
 };
 
