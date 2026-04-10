@@ -331,6 +331,7 @@ function UploadForm(props: Props) {
       ) as any;
       const pipelineId = activePipelineItem?.id || pipelineItemIdRef.current;
       const pipelineStage = activePipelineItem?.stage;
+      dispatch(doUpdatePipelineItem(pipelineId, { publishStarted: true }));
 
       if (
         mode === PUBLISH_MODES.FILE &&

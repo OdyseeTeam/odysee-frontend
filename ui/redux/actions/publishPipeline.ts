@@ -28,6 +28,7 @@ export type PipelineItem = {
   error?: string;
   title?: string;
   thumbnail?: string;
+  publishStarted?: boolean;
 };
 
 export function doAddPipelineItem(item: PipelineItem) {

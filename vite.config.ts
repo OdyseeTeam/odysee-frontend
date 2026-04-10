@@ -634,14 +634,19 @@ function legacyFallbackPlugin() {
         const legacyFilename = `assets/legacy-${Date.now().toString(36)}.js`;
         fs.writeFileSync(path.join(outDir, legacyFilename), transpiled, 'utf8');
 
-        const nomoduleTag = `<script nomodule src="/${legacyFilename}"></script>`;
-        const updatedHtml = html.replace('</body>', `    ${nomoduleTag}\n  </body>`);
+        const detectorScript = `<script>
+(function(){try{eval("class C{x=1;static s=2}let a=1;a??=2;a&&=1;a||=0")}catch(e){
+document.querySelectorAll('script[type=module],link[rel=modulepreload]').forEach(function(el){el.remove()});
+var s=document.createElement('script');s.src='/${legacyFilename}';document.head.appendChild(s)}})();
+</script>`;
+
+        const updatedHtml = html.replace('<head>', `<head>\n    ${detectorScript}`);
         fs.writeFileSync(builtHtml, updatedHtml, 'utf8');
 
         const templateHtml = path.join(outDir, 'index-web.html');
         if (fs.existsSync(templateHtml)) {
           const tmpl = fs.readFileSync(templateHtml, 'utf8');
-          const updatedTmpl = tmpl.replace('</body>', `    ${nomoduleTag}\n  </body>`);
+          const updatedTmpl = tmpl.replace('<head>', `<head>\n    ${detectorScript}`);
           fs.writeFileSync(templateHtml, updatedTmpl, 'utf8');
         }
 

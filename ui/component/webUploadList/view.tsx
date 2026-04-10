@@ -16,6 +16,7 @@ import { doUpdatePipelineItem } from 'redux/actions/publishPipeline';
 import type { PipelineItem } from 'redux/actions/publishPipeline';
 import { useNavigate } from 'react-router-dom';
 import * as PAGES from 'constants/pages';
+import { formatLbryUrlForWeb } from 'util/url';
 
 const STAGE_LABELS: Record<string, string> = {
   queued: 'Queued',
@@ -82,9 +83,11 @@ export default function WebUploadList() {
                 <div className="claim-preview-info">
                   <div
                     className="claim-preview__title"
-                    style={item.formId ? { cursor: 'pointer' } : undefined}
+                    style={(item.formId && !item.publishStarted) || item.uri ? { cursor: 'pointer' } : undefined}
                     onClick={() => {
-                      if (item.formId) {
+                      if (item.uri) {
+                        navigate(formatLbryUrlForWeb(item.uri));
+                      } else if (item.formId && !item.publishStarted) {
                         dispatch(doSwitchPublishForm(item.formId, activeFormId || undefined));
                         navigate(`/$/${PAGES.UPLOAD}`);
                       }
