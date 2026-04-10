@@ -98,7 +98,7 @@ To override defaults at runtime, pass environment variables with `-e` or provide
 <details>
   <summary>Resetting your packages</summary>
 
-If the app isn't building, or `bun` commands aren't working, you may need to reset `node_modules`. To do so you can run `rm -r node_modules && bun install` if you're on a \*NIX operating system or `del /s /q node_modules && bun install` if you're on Windows.
+If the app isn't building, or `bun` commands aren't working, you may need to reset `node_modules`. To do so you can run `rm -r node_modules && bun install` if you're on a \*NIX operating system or `rmdir /s /q node_modules && bun install` if you're on Windows.
 
 <!-- Imagine using Windows -->
 
