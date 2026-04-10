@@ -248,11 +248,21 @@
 }
 
 .media__thumb-progress-tooltip-sprite {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: black;
+  border: 2px solid #fff;
   border-radius: 6px;
   overflow: hidden;
-  border: 2px solid #fff;
-  background: #000;
+  aspect-ratio: 16 / 9;
+  min-width: fit-content;
+  min-height: fit-content;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+}
+
+.media__thumb-progress-tooltip-sprite-inner {
+  zoom: 1;
 }
 
 .media__thumb-progress-tooltip-time {

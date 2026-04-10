@@ -482,19 +482,40 @@ function FileThumbnail(props: Props) {
                 {hoverFrac > 0 && (
                   <div
                     className="media__thumb-progress-tooltip"
-                    style={{ left: `clamp(75px, ${hoverFrac * 100}%, calc(100% - 75px))` }}
+                    style={{
+                      left: (() => {
+                        const halfW = activeCue
+                          ? Math.round(
+                              (activeCue.h > activeCue.w ? activeCue.w * (90 / activeCue.h) : activeCue.w) / 2
+                            ) + 6
+                          : 86;
+                        return `clamp(${halfW}px, ${hoverFrac * 100}%, calc(100% - ${halfW}px))`;
+                      })(),
+                    }}
                   >
-                    {activeCue && (
-                      <div
-                        className="media__thumb-progress-tooltip-sprite"
-                        style={{
-                          width: activeCue.w,
-                          height: activeCue.h,
-                          backgroundImage: `url(${activeCue.url})`,
-                          backgroundPosition: `-${activeCue.x}px -${activeCue.y}px`,
-                        }}
-                      />
-                    )}
+                    {activeCue &&
+                      (() => {
+                        const isPortrait = activeCue.h > activeCue.w;
+                        const maxH = 90;
+                        const scale = isPortrait && activeCue.h > maxH ? maxH / activeCue.h : 1;
+                        return (
+                          <div
+                            className="media__thumb-progress-tooltip-sprite"
+                            style={isPortrait ? { aspectRatio: 'auto', minWidth: 0, minHeight: 0 } : undefined}
+                          >
+                            <div
+                              className="media__thumb-progress-tooltip-sprite-inner"
+                              style={{
+                                width: activeCue.w,
+                                height: activeCue.h,
+                                backgroundImage: `url(${activeCue.url})`,
+                                backgroundPosition: `-${activeCue.x}px -${activeCue.y}px`,
+                                zoom: scale,
+                              }}
+                            />
+                          </div>
+                        );
+                      })()}
                     <span className="media__thumb-progress-tooltip-time">{formatTime(hoverTime)}</span>
                   </div>
                 )}
