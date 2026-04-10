@@ -16,7 +16,6 @@ dist_stage
 /static/locales
 yarn-error.log
 package-lock.json
-bun.lock
 .transifexrc
 .idea/
 .yarn/
