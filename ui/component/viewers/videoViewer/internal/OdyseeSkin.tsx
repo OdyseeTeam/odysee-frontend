@@ -1162,10 +1162,10 @@ export default function OdyseeSkin(props) {
       />
 
       {/* Progress Bar — above the control bar */}
-      <div className="odysee-progress-bar">
+      <div className="odysee-progress-bar" style={media ? undefined : { pointerEvents: 'none', opacity: 0.5 }}>
         {isCasting && castState ? (
           <CastProgressBar castState={castState} castActions={castActions} />
-        ) : media ? (
+        ) : (
           <TimeSlider.Root className="media-slider media-slider--time odysee-time-slider">
             <Slider.Track className="media-slider__track odysee-slider__track">
               <Slider.Fill className="media-slider__fill odysee-slider__fill" />
@@ -1195,13 +1195,14 @@ export default function OdyseeSkin(props) {
               />
             </Slider.Preview>
           </TimeSlider.Root>
-        ) : null}
+        )}
       </div>
 
       <Controls.Root
         className={`media-controls ${
           isMobileDevice || (isMobileSize && isFullscreen) ? 'odysee-mobile-controls' : 'odysee-controls-row'
         }`}
+        style={media ? undefined : { pointerEvents: 'none', opacity: 0.5 }}
       >
         {isMobileDevice || (isMobileSize && isFullscreen) ? (
           <>

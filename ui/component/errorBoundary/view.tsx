@@ -46,6 +46,10 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] Caught:', error?.message, error?.stack); // eslint-disable-line no-console
+    if (error?.name === 'NotFoundError' || error?.message?.includes('object can not be found')) {
+      this.setState({ hasError: false });
+      return;
+    }
     if (
       error?.message &&
       /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result/.test(error.message)
