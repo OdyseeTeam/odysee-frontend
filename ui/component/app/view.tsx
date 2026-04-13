@@ -725,7 +725,9 @@ function App() {
               <Router uri={uri} />
             </React.Suspense>
             <React.Suspense fallback={null}>{isAuthenticated && !embedPath && <Wander />}</React.Suspense>
-            <React.Suspense fallback={null}>{shouldMountModalRouter && <ModalRouter />}</React.Suspense>
+            <React.Suspense fallback={null}>
+              <ModalRouter />
+            </React.Suspense>
             <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
             <React.Suspense fallback={null}>{shouldMountFloatingPlayer && <VideoRenderFloating />}</React.Suspense>
             <LivestreamPublisherFloatingGate embedPath={embedPath} />
