@@ -222,6 +222,8 @@ function VideoViewer(props: Props) {
     }
   }, [doPlayNextUri, playPreviousUri, videoNode]);
 
+  const onVideoEndedRef = React.useRef<() => void>(() => {});
+
   const onVideoEnded = React.useCallback(() => {
     if (videoNode?.loop) {
       videoNode.currentTime = 0;
@@ -250,6 +252,10 @@ function VideoViewer(props: Props) {
 
     clearPosition(uri);
   }, [canPlayNext, clearPosition, embedContext, handlePlayNextUri, uri]);
+
+  React.useEffect(() => {
+    onVideoEndedRef.current = onVideoEnded;
+  }, [onVideoEnded]);
 
   const lastSyncTimeRef = React.useRef(0);
 
@@ -295,8 +301,8 @@ function VideoViewer(props: Props) {
       node.addEventListener('canplay', restoreRate, { once: true });
       node.addEventListener('playing', restoreRate, { once: true });
 
-      // Listen for ended event
-      const handleEnded = () => onVideoEnded();
+      // Listen for ended event (use ref to always call the latest callback)
+      const handleEnded = () => onVideoEndedRef.current();
       node.addEventListener('ended', handleEnded);
 
       // Track play state
