@@ -28,7 +28,7 @@ import {
   selectIsStillEditing,
   selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
-import { doError } from 'redux/actions/notifications';
+import { doError, doToast } from 'redux/actions/notifications';
 import { navigateTo } from 'redux/router';
 import analytics from 'analytics';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
@@ -1469,10 +1469,6 @@ export const doPublishWithEarlyUpload =
         type: ACTIONS.UPDATE_PENDING_CLAIMS,
         data: { claims: [fakePendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
       } as UpdatePendingClaimsAction);
-      dispatch({
-        type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
-        data: { id: guid, updates: { stage: 'published', progress: 100, uri: publishedUri } },
-      });
       dispatch({ type: ACTIONS.PUBLISH_SET_ACTIVE_FORM, data: { id: null } });
       dispatch({ type: ACTIONS.PUBLISH_SUCCESS, data: {} });
 
@@ -1484,10 +1480,38 @@ export const doPublishWithEarlyUpload =
             type: ACTIONS.UPDATE_PENDING_CLAIMS,
             data: { claims: [pendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
           } as UpdatePendingClaimsAction);
+          dispatch({
+            type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+            data: {
+              id: guid,
+              updates: { stage: 'published', progress: 100, uri: pendingClaim.permanent_url || publishedUri },
+            },
+          });
           dispatch(doCheckPendingClaims(undefined));
         })
-        .catch(() => {
+        .catch((err: any) => {
           dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: pendingClaimId } });
+          dispatch({
+            type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+            data: {
+              id: guid,
+              updates: {
+                stage: 'error',
+                error:
+                  err?.message ||
+                  'Publish confirmation failed. Your upload may have been blocked by a browser extension.',
+              },
+            },
+          });
+          dispatch(
+            doToast({
+              isError: true,
+              message: __('Publish failed.'),
+              subMessage:
+                err?.message || __('Confirmation timed out. A browser extension may be blocking the request.'),
+              duration: 'long',
+            })
+          );
         });
     } catch (error: any) {
       dispatch({ type: ACTIONS.PUBLISH_FAIL });
