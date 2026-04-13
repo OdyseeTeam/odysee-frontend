@@ -127,7 +127,9 @@ export function doArConnect() {
       } catch (e) {
         console.error('error:', e);
 
-        if (e.includes('User cancelled the AuthRequest')) {
+        const errMsg = typeof e === 'string' ? e : e?.message || String(e);
+
+        if (errMsg.includes('User cancelled the AuthRequest')) {
           LocalStorage.setItem('WANDER_DISCONNECT', 'true');
         }
 
