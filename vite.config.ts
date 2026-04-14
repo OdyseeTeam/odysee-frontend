@@ -591,52 +591,37 @@ function legacyFallbackPlugin() {
         if (!fs.existsSync(assetsDir)) return;
 
         const allJs = fs.readdirSync(assetsDir).filter((f: string) => f.endsWith('.js'));
-        const runtimeFile = allJs.find((f: string) => f.startsWith('rolldown-runtime'));
         const entryFile = entryScripts
           .map((s: string) => s.replace(/^.*\/assets\//, ''))
           .find((s: string) => allJs.includes(s));
 
-        if (!runtimeFile || !entryFile) return;
+        if (!entryFile) return;
 
-        const remaining = allJs.filter((f: string) => f !== runtimeFile && f !== entryFile);
-        const orderedFiles = [runtimeFile, ...remaining, entryFile];
-        const combined = orderedFiles
-          .map((f: string) => fs.readFileSync(path.join(assetsDir, f), 'utf8'))
-          .join('\n;\n');
-
-        let transpiled: string;
-        try {
-          const babel = require('@babel/core');
-          const result = babel.transformSync(combined, {
-            presets: [
-              [
-                require.resolve('@babel/preset-env'),
-                {
-                  targets: 'Chrome >= 80, Safari >= 13, Firefox >= 78, iOS >= 13, Samsung >= 13',
-                  modules: false,
-                  useBuiltIns: 'usage',
-                  corejs: 3,
-                },
-              ],
-            ],
-            compact: true,
-            comments: false,
-            sourceMaps: false,
-            configFile: false,
-            babelrc: false,
-          });
-          transpiled = result?.code || combined;
-        } catch (e) {
-          console.warn('[legacy-fallback] Babel transpilation failed, using raw bundle:', (e as Error).message);
-          transpiled = combined;
-        }
-
+        const entryPath = path.join(assetsDir, entryFile);
         const legacyFilename = `assets/legacy-${Date.now().toString(36)}.js`;
-        fs.writeFileSync(path.join(outDir, legacyFilename), transpiled, 'utf8');
+        const legacyPath = path.join(outDir, legacyFilename);
+
+        try {
+          const esbuild = require('esbuild');
+          await esbuild.build({
+            entryPoints: [entryPath],
+            bundle: true,
+            format: 'iife',
+            target: ['es2015'],
+            outfile: legacyPath,
+            minify: true,
+            sourcemap: false,
+            logLevel: 'warning',
+          });
+        } catch (e) {
+          console.warn('[legacy-fallback] esbuild bundling failed:', (e as Error).message);
+          return;
+        }
 
         const detectorScript = `<script>
 (function(){try{eval("class C{x=1;static s=2}let a=1;a??=2;a&&=1;a||=0")}catch(e){
-document.querySelectorAll('script[type=module],link[rel=modulepreload]').forEach(function(el){el.remove()});
+var els=document.querySelectorAll('script[type=module],link[rel=modulepreload]');
+for(var i=0;i<els.length;i++)els[i].parentNode.removeChild(els[i]);
 var s=document.createElement('script');s.src='/${legacyFilename}';document.head.appendChild(s)}})();
 </script>`;
 
@@ -650,7 +635,8 @@ var s=document.createElement('script');s.src='/${legacyFilename}';document.head.
           fs.writeFileSync(templateHtml, updatedTmpl, 'utf8');
         }
 
-        const sizeMB = (Buffer.byteLength(transpiled) / 1024 / 1024).toFixed(1);
+        const stats = fs.statSync(legacyPath);
+        const sizeMB = (stats.size / 1024 / 1024).toFixed(1);
         console.log(`[legacy-fallback] Generated ${legacyFilename} (${sizeMB} MB)`);
       },
     },
