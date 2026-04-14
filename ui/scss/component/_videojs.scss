@@ -13,6 +13,10 @@ $control-bar-height-mobile: 44px;
   &--ios {
     -webkit-overflow-scrolling: touch;
   }
+
+  &--popover-open {
+    overflow: visible;
+  }
 }
 
 .odysee-skin {
@@ -824,9 +828,6 @@ img.odysee-cast-thumbnail {
 }
 
 .media-popover--settings {
-  position: absolute !important;
-  bottom: 100%;
-  right: 0;
   background-color: rgba(28, 28, 28, 0.9);
   border-radius: var(--border-radius);
   padding: 6px;

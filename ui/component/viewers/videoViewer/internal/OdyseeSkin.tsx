@@ -1085,7 +1085,8 @@ export default function OdyseeSkin(props) {
   React.useLayoutEffect(() => {
     if (!settingsOpen) return;
     const isSafari = platform.isSafari();
-    if (!isFloating && !isSafari) return;
+    const noPopoverAPI = typeof HTMLElement.prototype.showPopover !== 'function';
+    if (!isFloating && !isSafari && !noPopoverAPI) return;
     const fix = () => {
       const popup = document.querySelector<HTMLElement>('.media-popover--settings[popover]');
       const trigger = isFloating
@@ -1095,16 +1096,33 @@ export default function OdyseeSkin(props) {
       const tr = trigger.getBoundingClientRect();
       const ph = popup.offsetHeight;
       const pw = popup.offsetWidth;
-      const fitsAbove = tr.top - ph - 4 >= 0;
-      const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
-      popup.style.setProperty('bottom', 'auto', 'important');
-      popup.style.setProperty('top', `${topPos}px`, 'important');
-      popup.style.setProperty('left', `${tr.right - pw + 12}px`, 'important');
-      popup.style.setProperty('place-self', 'normal', 'important');
-      popup.style.setProperty('margin-inline-start', '0', 'important');
+
+      if (noPopoverAPI) {
+        popup.style.setProperty('position', 'fixed', 'important');
+        popup.style.setProperty('inset', 'auto', 'important');
+        popup.style.setProperty('top', `${tr.top - ph - 4}px`, 'important');
+        popup.style.setProperty('left', `${tr.right - pw}px`, 'important');
+      } else {
+        const fitsAbove = tr.top - ph - 4 >= 0;
+        const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
+        popup.style.setProperty('bottom', 'auto', 'important');
+        popup.style.setProperty('top', `${topPos}px`, 'important');
+        popup.style.setProperty('left', `${tr.right - pw + 12}px`, 'important');
+        popup.style.setProperty('place-self', 'normal', 'important');
+        popup.style.setProperty('margin-inline-start', '0', 'important');
+      }
     };
     requestAnimationFrame(fix);
   }, [settingsOpen, isFloating]);
+
+  React.useEffect(() => {
+    // if (typeof HTMLElement.prototype.showPopover === 'function') return;
+    const parent = document.querySelector('.video-js-parent');
+    if (parent) {
+      if (settingsOpen) parent.classList.add('video-js-parent--popover-open');
+      else parent.classList.remove('video-js-parent--popover-open');
+    }
+  }, [settingsOpen]);
 
   React.useEffect(() => {
     const syncFsIcons = () => {
