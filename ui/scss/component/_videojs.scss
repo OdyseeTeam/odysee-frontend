@@ -271,7 +271,8 @@ img.odysee-cast-thumbnail {
   }
 }
 
-.odysee-skin:has(.media-button--settings-open) .media-controls {
+.odysee-skin:has(.media-button--settings-open) .media-controls,
+.media-controls--popover-open {
   opacity: 1 !important;
   pointer-events: auto !important;
 }

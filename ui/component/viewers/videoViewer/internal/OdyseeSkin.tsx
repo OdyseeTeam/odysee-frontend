@@ -1201,7 +1201,7 @@ export default function OdyseeSkin(props) {
       <Controls.Root
         className={`media-controls ${
           isMobileDevice || (isMobileSize && isFullscreen) ? 'odysee-mobile-controls' : 'odysee-controls-row'
-        }`}
+        } ${settingsOpen ? 'media-controls--popover-open' : ''}`}
         style={media ? undefined : { pointerEvents: 'none', opacity: 0.5 }}
       >
         {isMobileDevice || (isMobileSize && isFullscreen) ? (

@@ -985,14 +985,34 @@
   }
 }
 
-.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action {
-  max-width: 23.59px;
-  padding: calc(0.3rem - 1px) !important;
+.compact-hover-actions .claim-preview__hover-actions-grid .button--file-action,
+.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action,
+.file-page__recommended .claim-preview__hover-actions-grid .button--file-action,
+.banner-latest-claims__tiles .claim-preview__hover-actions-grid .button--file-action {
+  max-width: 21px;
+  padding: calc(0.25rem - 1px) !important;
+
+  .icon {
+    width: 14px;
+    height: 14px;
+  }
 }
-.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action:hover {
-  min-width: 23.59px;
+.compact-hover-actions .claim-preview__hover-actions-grid .button--file-action:hover,
+.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action:hover,
+.file-page__recommended .claim-preview__hover-actions-grid .button--file-action:hover,
+.banner-latest-claims__tiles .claim-preview__hover-actions-grid .button--file-action:hover {
+  min-width: 21px;
 }
-.channel-cover ~ * .claim-preview__hover-actions-grid .claim-preview__hover-actions + .claim-preview__hover-actions {
+.compact-hover-actions .claim-preview__hover-actions-grid .claim-preview__hover-actions + .claim-preview__hover-actions,
+.channel-cover ~ * .claim-preview__hover-actions-grid .claim-preview__hover-actions + .claim-preview__hover-actions,
+.file-page__recommended
+  .claim-preview__hover-actions-grid
+  .claim-preview__hover-actions
+  + .claim-preview__hover-actions,
+.banner-latest-claims__tiles
+  .claim-preview__hover-actions-grid
+  .claim-preview__hover-actions
+  + .claim-preview__hover-actions {
   margin-top: 1px;
 }
 
