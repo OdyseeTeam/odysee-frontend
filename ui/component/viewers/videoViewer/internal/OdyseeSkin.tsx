@@ -1104,7 +1104,7 @@ export default function OdyseeSkin(props) {
         popup.style.setProperty('position', 'fixed', 'important');
         popup.style.setProperty('inset', 'auto', 'important');
         popup.style.setProperty('top', `${tr.top - ctrlRect.top - ph - 4}px`, 'important');
-        popup.style.setProperty('left', `${tr.right - ctrlRect.left - pw}px`, 'important');
+        popup.style.setProperty('left', `${tr.left - ctrlRect.left + tr.width / 2 - pw / 2}px`, 'important');
       } else {
         const fitsAbove = tr.top - ph - 4 >= 0;
         const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
