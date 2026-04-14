@@ -256,6 +256,7 @@
   display: none;
   align-items: center;
   justify-content: center;
+  color: #fff;
   color: oklch(1 0 0);
   pointer-events: none;
 
@@ -289,6 +290,7 @@
   max-width: 18rem;
   padding: 0.75rem;
   border-radius: 1.75rem;
+  color: #fff;
   color: oklch(1 0 0);
   font-size: 0.875rem;
   transition-property: opacity, transform;
@@ -406,11 +408,13 @@
   justify-content: center;
   flex-shrink: 0;
   padding: 0.5rem 1rem;
+  background: #fff;
   background: oklch(1 0 0);
   border: none;
   border-radius: 9999px;
   outline: 2px solid transparent;
   outline-offset: -2px;
+  color: #000;
   color: oklch(0 0 0);
   font-weight: 500;
   text-align: center;
@@ -421,6 +425,7 @@
   user-select: none;
 
   &:focus-visible {
+    outline-color: #3b82f6;
     outline-color: oklch(62.3% 0.214 259.815);
     outline-offset: 2px;
   }
@@ -459,7 +464,7 @@
   }
 
   & .media-icon {
-    filter: drop-shadow(0 1px 0 var(--media-controls-current-shadow-color, oklch(0 0 0 / 0.25)));
+    filter: drop-shadow(0 1px 0 var(--media-controls-current-shadow-color, rgba(0, 0, 0, 0.25)));
   }
 }
 
@@ -571,9 +576,9 @@
   background-color: currentColor;
   border-radius: 9999px;
   box-shadow:
-    0 0 0 1px var(--media-controls-current-shadow-color-subtle, oklch(0 0 0 / 0.1)),
-    0 1px 3px 0 oklch(0 0 0 / 0.15),
-    0 1px 2px -1px oklch(0 0 0 / 0.15);
+    0 0 0 1px var(--media-controls-current-shadow-color-subtle, rgba(0, 0, 0, 0.1)),
+    0 1px 3px 0 rgba(0, 0, 0, 0.15),
+    0 1px 2px -1px rgba(0, 0, 0, 0.15);
   opacity: 0;
   transition-property: opacity, height, width, outline-offset;
   transition-duration: 150ms;
@@ -756,16 +761,17 @@
    ========================================================================== */
 
 :where(.media-default-skin--video) {
+  background: #000;
   background: oklch(0 0 0);
-  --media-border-color: oklch(0 0 0 / 0.1);
-  --media-surface-background-color: oklch(0 0 0 / 0.3);
-  --media-surface-inner-border-color: oklch(1 0 0 / 0.05);
-  --media-surface-outer-border-color: oklch(0 0 0 / 0.1);
-  --media-surface-shadow-color: oklch(0 0 0 / 0.15);
+  --media-border-color: rgba(0, 0, 0, 0.1);
+  --media-surface-background-color: rgba(0, 0, 0, 0.3);
+  --media-surface-inner-border-color: rgba(255, 255, 255, 0.05);
+  --media-surface-outer-border-color: rgba(0, 0, 0, 0.1);
+  --media-surface-shadow-color: rgba(0, 0, 0, 0.15);
   --media-surface-backdrop-filter: blur(64px) brightness(0.9) saturate(1.5);
 
   @media (prefers-color-scheme: dark) {
-    --media-border-color: oklch(1 0 0 / 0.1);
+    --media-border-color: rgba(255, 255, 255, 0.1);
   }
 
   /* Inner border ring */
@@ -795,6 +801,7 @@
   transition-delay: 0ms;
   transition-timing-function: ease-out;
   transform-origin: bottom;
+  color: #fff;
   color: oklch(1 0 0);
 
   &:not([data-visible]) {
@@ -854,6 +861,8 @@
    ========================================================================== */
 
 .media-default-skin--video .media-slider__track {
+  background-color: rgba(255, 255, 255, 0.2);
   background-color: oklch(1 0 0 / 0.2);
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
   box-shadow: 0 0 0 1px oklch(0 0 0 / 0.05);
 }
