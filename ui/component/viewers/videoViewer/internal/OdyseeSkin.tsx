@@ -1098,10 +1098,13 @@ export default function OdyseeSkin(props) {
       const pw = popup.offsetWidth;
 
       if (noPopoverAPI) {
+        const controls = trigger.closest('.media-controls');
+        if (!controls) return;
+        const ctrlRect = controls.getBoundingClientRect();
         popup.style.setProperty('position', 'fixed', 'important');
         popup.style.setProperty('inset', 'auto', 'important');
-        popup.style.setProperty('top', `${tr.top - ph - 4}px`, 'important');
-        popup.style.setProperty('left', `${tr.right - pw}px`, 'important');
+        popup.style.setProperty('top', `${tr.top - ctrlRect.top - ph - 4}px`, 'important');
+        popup.style.setProperty('left', `${tr.right - ctrlRect.left - pw}px`, 'important');
       } else {
         const fitsAbove = tr.top - ph - 4 >= 0;
         const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
@@ -1116,7 +1119,7 @@ export default function OdyseeSkin(props) {
   }, [settingsOpen, isFloating]);
 
   React.useEffect(() => {
-    // if (typeof HTMLElement.prototype.showPopover === 'function') return;
+    if (typeof HTMLElement.prototype.showPopover === 'function') return;
     const parent = document.querySelector('.video-js-parent');
     if (parent) {
       if (settingsOpen) parent.classList.add('video-js-parent--popover-open');
