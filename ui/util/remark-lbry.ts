@@ -40,6 +40,7 @@ const BARE_LINK_DOMAINS = [
   'substack.com',
   'patreon.com',
   'gofundme.com',
+  'odysee.com',
 ];
 const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
 const bareLinkRegex = new RegExp(`(?:^|(?<=\\s))((?:${bareDomainPattern})(?:/[^\\s]*)?)`, 'i');
