@@ -596,7 +596,7 @@ $thumbnailWidthSmall: 2rem;
 
   .menu__link {
     padding: 0;
-    color: var(--color-text);
+    color: inherit;
   }
 
   .comment__menu-help {
@@ -611,8 +611,10 @@ $thumbnailWidthSmall: 2rem;
   }
 
   &:hover {
+    color: #fff !important;
+
     .comment__menu-help {
-      color: var(--color-primary-contrast);
+      color: #fff;
     }
   }
 }
