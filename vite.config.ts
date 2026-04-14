@@ -964,6 +964,7 @@ export default defineConfig({
     outDir: 'web/dist/public',
     sourcemap: isProduction ? true : 'inline',
     minify: isProduction,
+    cssTarget: ['chrome80', 'firefox78', 'safari13'],
     rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
       output: {
