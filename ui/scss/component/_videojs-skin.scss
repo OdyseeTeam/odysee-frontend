@@ -700,13 +700,6 @@
     filter: blur(8px);
   }
 
-  &[data-open][data-starting-style] {
-    opacity: 1;
-    transform: none;
-    filter: none;
-    transition-duration: 0ms;
-  }
-
   &[data-instant] {
     transition-duration: 0ms;
   }
