@@ -619,7 +619,7 @@ function legacyFallbackPlugin() {
         }
 
         const detectorScript = `<script>
-(function(){try{eval("class C{x=1;static s=2}let a=1;a??=2;a&&=1;a||=0")}catch(e){
+(function(){try{eval("class C{#x=1;static s=2}let a=1;a??=2;a&&=1;a||=0;a?.toString();[1].at(0);structuredClone(a);Object.hasOwn({},'x')")}catch(e){
 var els=document.querySelectorAll('script[type=module],link[rel=modulepreload]');
 for(var i=0;i<els.length;i++)els[i].parentNode.removeChild(els[i]);
 var s=document.createElement('script');s.src='/${legacyFilename}';document.head.appendChild(s)}})();
