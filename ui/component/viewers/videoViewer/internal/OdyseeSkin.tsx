@@ -1115,7 +1115,7 @@ export default function OdyseeSkin(props) {
         popup.style.setProperty('margin-inline-start', '0', 'important');
       }
     };
-    requestAnimationFrame(fix);
+    requestAnimationFrame(() => requestAnimationFrame(fix));
   }, [settingsOpen, isFloating]);
 
   React.useEffect(() => {
@@ -1126,6 +1126,27 @@ export default function OdyseeSkin(props) {
       else parent.classList.remove('video-js-parent--popover-open');
     }
   }, [settingsOpen]);
+
+  React.useEffect(() => {
+    if (typeof HTMLElement.prototype.showPopover === 'function') return;
+    if (typeof MutationObserver === 'undefined') return;
+    const controls = document.querySelector('.media-controls');
+    const progressBar = document.querySelector('.odysee-progress-bar');
+    if (!controls || !progressBar) return;
+    const sync = () => {
+      if (controls.hasAttribute('data-visible')) {
+        (progressBar as HTMLElement).style.removeProperty('opacity');
+        (progressBar as HTMLElement).style.removeProperty('pointer-events');
+      } else {
+        (progressBar as HTMLElement).style.setProperty('opacity', '0');
+        (progressBar as HTMLElement).style.setProperty('pointer-events', 'none');
+      }
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(controls, { attributes: true, attributeFilter: ['data-visible'] });
+    return () => observer.disconnect();
+  }, []);
 
   React.useEffect(() => {
     const syncFsIcons = () => {
