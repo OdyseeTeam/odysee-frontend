@@ -146,10 +146,12 @@ export const getSearchQueryString = (query: string, options: SearchQueryOptions 
   } = options;
   const { store } = window;
   let hideShorts = false;
+  let hideYouTubeMirrors = false;
 
   if (store) {
     const state = store.getState();
     hideShorts = selectClientSetting(state, SETTINGS.HIDE_SHORTS);
+    hideYouTubeMirrors = selectClientSetting(state, SETTINGS.HIDE_YOUTUBE_MIRRORS);
   }
 
   if (related_to) {
@@ -193,6 +195,10 @@ export const getSearchQueryString = (query: string, options: SearchQueryOptions 
     additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS] = hideShorts;
     additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_ASPECT_RATIO_LTE] = SETTINGS.SHORTS_ASPECT_RATIO_LTE;
     additionalOptions[SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE] = SETTINGS.SHORTS_DURATION_LTE;
+  }
+
+  if (hideYouTubeMirrors) {
+    additionalOptions[SEARCH_OPTIONS.EXCLUDE_YOUTUBE_MIRRORS] = true;
   }
 
   if (additionalOptions) {
