@@ -1392,43 +1392,45 @@ export default function OdyseeSkin(props) {
                 />
               )}
 
-              <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
-                <Popover.Trigger
-                  render={
-                    <button
-                      type="button"
-                      className={`media-button media-button--icon media-button--settings ${
-                        settingsOpen ? 'media-button--settings-open' : ''
-                      }`}
-                      aria-label={__('Settings')}
-                    >
-                      <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
-                      {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
-                        <span className="media-hd-badge">HD</span>
-                      )}
-                    </button>
-                  }
-                />
-                <Popover.Popup className="media-popover media-popover--settings">
-                  <SettingsMenuContent
-                    isMarkdownOrComment={isMarkdownOrComment}
-                    isLivestream={Boolean(isLivestream)}
-                    onToggleAutoplayNext={onToggleAutoplayNext}
-                    autoplayNext={autoplayNext}
-                    floatingPlayer={floatingPlayer}
-                    onToggleFloatingPlayer={onToggleFloatingPlayer}
-                    autoplayMedia={autoplayMedia}
-                    onToggleAutoplayMedia={onToggleAutoplayMedia}
-                    title={title}
-                    onShowShortcuts={() => setShowShortcuts(true)}
-                    onCloseMenu={() => setSettingsOpen(false)}
-                    quality={quality}
-                    isFloating={isFloating}
-                    embedded={isEmbeddedPlayback}
-                    isCasting={isCasting}
+              {!isEmbeddedPlayback && (
+                <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
+                  <Popover.Trigger
+                    render={
+                      <button
+                        type="button"
+                        className={`media-button media-button--icon media-button--settings ${
+                          settingsOpen ? 'media-button--settings-open' : ''
+                        }`}
+                        aria-label={__('Settings')}
+                      >
+                        <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
+                        {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
+                          <span className="media-hd-badge">HD</span>
+                        )}
+                      </button>
+                    }
                   />
-                </Popover.Popup>
-              </Popover.Root>
+                  <Popover.Popup className="media-popover media-popover--settings">
+                    <SettingsMenuContent
+                      isMarkdownOrComment={isMarkdownOrComment}
+                      isLivestream={Boolean(isLivestream)}
+                      onToggleAutoplayNext={onToggleAutoplayNext}
+                      autoplayNext={autoplayNext}
+                      floatingPlayer={floatingPlayer}
+                      onToggleFloatingPlayer={onToggleFloatingPlayer}
+                      autoplayMedia={autoplayMedia}
+                      onToggleAutoplayMedia={onToggleAutoplayMedia}
+                      title={title}
+                      onShowShortcuts={() => setShowShortcuts(true)}
+                      onCloseMenu={() => setSettingsOpen(false)}
+                      quality={quality}
+                      isFloating={isFloating}
+                      embedded={isEmbeddedPlayback}
+                      isCasting={isCasting}
+                    />
+                  </Popover.Popup>
+                </Popover.Root>
+              )}
             </div>
 
             <div className="odysee-mobile-controls__bottom">
@@ -1510,6 +1512,45 @@ export default function OdyseeSkin(props) {
               </div>
 
               <div className="media-surface odysee-mobile-controls__fs">
+                {isEmbeddedPlayback && (
+                  <Popover.Root side="top" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
+                    <Popover.Trigger
+                      render={
+                        <button
+                          type="button"
+                          className={`media-button media-button--icon media-button--settings ${
+                            settingsOpen ? 'media-button--settings-open' : ''
+                          }`}
+                          aria-label={__('Settings')}
+                        >
+                          <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
+                          {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
+                            <span className="media-hd-badge">HD</span>
+                          )}
+                        </button>
+                      }
+                    />
+                    <Popover.Popup className="media-popover media-popover--settings">
+                      <SettingsMenuContent
+                        isMarkdownOrComment={isMarkdownOrComment}
+                        isLivestream={Boolean(isLivestream)}
+                        onToggleAutoplayNext={onToggleAutoplayNext}
+                        autoplayNext={autoplayNext}
+                        floatingPlayer={floatingPlayer}
+                        onToggleFloatingPlayer={onToggleFloatingPlayer}
+                        autoplayMedia={autoplayMedia}
+                        onToggleAutoplayMedia={onToggleAutoplayMedia}
+                        title={title}
+                        onShowShortcuts={() => setShowShortcuts(true)}
+                        onCloseMenu={() => setSettingsOpen(false)}
+                        quality={quality}
+                        isFloating={isFloating}
+                        embedded={isEmbeddedPlayback}
+                        isCasting={isCasting}
+                      />
+                    </Popover.Popup>
+                  </Popover.Root>
+                )}
                 {castAvailable && onCastToggle && (
                   <Btn
                     className={`media-button--icon media-button--cast ${isCasting ? 'media-button--cast-active' : ''}`}

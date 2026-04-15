@@ -25,6 +25,16 @@ setGlobalDevModeChecks({
   identityFunctionCheck: 'once',
 });
 
+// React 18.3.1 doesn't recognize the `fetchPriority` prop, but @videojs/react passes it.
+// The warning is harmless; suppress it to reduce dev console noise.
+{
+  const originalConsoleError = console.error;
+  console.error = (...args: any[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('fetchPriority')) return;
+    originalConsoleError.apply(console, args);
+  };
+}
+
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
 import SnackBar from 'component/snackBar';
