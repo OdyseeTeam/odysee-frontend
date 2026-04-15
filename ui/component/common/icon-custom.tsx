@@ -3676,4 +3676,25 @@ export const icons = {
       <path d="M2.5 7V12.9098C2.5 14.8037 3.57001 16.535 5.26393 17.382L6.901 18.2005C9.27653 19.3883 11.8648 20.091 14.5149 20.2677L15.6846 20.3456C17.1169 20.4411 18.4909 19.7636 19.2872 18.5692C20.6906 16.4641 19.8173 13.6012 17.4778 12.6379L15.3578 11.765C14.2336 11.3021 13.5 10.2066 13.5 8.99092V6.5M16.5 13L14 20M2.5 11.5C4.33333 11.3333 7.8 12.4 7 18M3 7H13C14.1046 7 15 6.10457 15 5V3C15 1.89543 14.1046 1 13 1H3C1.89543 1 1 1.89543 1 3V5C1 6.10457 1.89543 7 3 7Z" />
     </svg>
   ),
+  [ICONS.FLOATING_PLAYER]: (props: IconProps) => {
+    const { size = 24, color = 'currentColor', ...otherProps } = props;
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="1 2 22 16"
+        width={size}
+        height={size}
+        fill="none"
+        stroke={color}
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ overflow: 'visible' }}
+        {...otherProps}
+      >
+        <rect x="2" y="3" width="20" height="14" rx="2" />
+        <rect x="7.5" y="6.5" width="9" height="7" rx="1" fill={color} stroke="none" />
+      </svg>
+    );
+  },
 };

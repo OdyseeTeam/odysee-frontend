@@ -87,7 +87,7 @@ export const selectActiveChannelClaim = createSelector(
 
     if (activeChannelClaim) return activeChannelClaim;
     if (defaultChannel) return defaultChannel;
-    const myChannelClaimsByEffectiveAmount = myChannelClaims.slice().toSorted((a, b) => {
+    const myChannelClaimsByEffectiveAmount = myChannelClaims.slice().sort((a, b) => {
       const effectiveAmountA = (a.meta && Number(a.meta.effective_amount)) || 0;
       const effectiveAmountB = (b.meta && Number(b.meta.effective_amount)) || 0;
 

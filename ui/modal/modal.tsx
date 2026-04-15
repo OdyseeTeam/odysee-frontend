@@ -47,7 +47,7 @@ export function Modal(props: ModalProps) {
     <ReactModal
       {...modalProps}
       parentSelector={() => document.fullscreenElement || document.body}
-      onRequestClose={!disableOutsideClick ? onAborted || onConfirmed : false}
+      onRequestClose={!disableOutsideClick ? onAborted || onConfirmed : undefined}
       className={classnames('modal', className, {
         'modal--card-internal': type === 'card',
         'modal--wide': width === 'wide',

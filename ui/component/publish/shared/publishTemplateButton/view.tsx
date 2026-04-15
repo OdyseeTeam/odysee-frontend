@@ -92,7 +92,7 @@ function normalizeTemplateValue(value: any): any {
   if (value && typeof value === 'object') {
     const normalized = {};
     Object.keys(value)
-      .toSorted()
+      .sort()
       .forEach((key) => {
         normalized[key] = normalizeTemplateValue(value[key]);
       });
@@ -283,7 +283,7 @@ export default function PublishTemplateButton() {
   }, [orderedChannelClaims, getTemplatesForChannelId]);
   const sortedTemplates = React.useMemo(
     () =>
-      [...allTemplates].toSorted((a, b) => {
+      [...allTemplates].sort((a, b) => {
         const pinnedDiff = Number(Boolean(b.isPinned)) - Number(Boolean(a.isPinned));
         if (pinnedDiff !== 0) return pinnedDiff;
         const byLastUsed =

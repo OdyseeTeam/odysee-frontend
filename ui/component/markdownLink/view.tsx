@@ -148,17 +148,46 @@ function MarkdownLink(props: Props) {
     (protocol && (protocol[0] === 'http:' || protocol[0] === 'https:' || protocol[0] === 'mailto:'))
   ) {
     const isLbryLink = href.startsWith('lbry://');
+    const isMailto = href.startsWith('mailto:');
+    const faviconUrl = !isLbryLink && !isMailto && linkUrlObject ? `/$/favicon?d=${linkUrlObject.host}` : null;
     element = (
-      <Button
-        button="link"
-        iconRight={isLbryLink ? undefined : ICONS.EXTERNAL}
-        iconSize={isMobile && 12}
-        title={title || decodedUri}
-        label={children}
-        className="button--external-link"
-        navigate={isLbryLink ? href : undefined}
-        href={isLbryLink ? undefined : href}
-      />
+      <span className="button--external-link-wrap">
+        {faviconUrl && (
+          <span
+            ref={(el) => {
+              if (!el || el.dataset.init) return;
+              el.dataset.init = '1';
+              const img = new Image();
+              img.addEventListener(
+                'load',
+                () => {
+                  el.style.backgroundImage = `url(${faviconUrl})`;
+                },
+                { once: true }
+              );
+              img.addEventListener(
+                'error',
+                () => {
+                  el.style.display = 'none';
+                },
+                { once: true }
+              );
+              img.src = faviconUrl;
+            }}
+            className="markdown-link-favicon"
+          />
+        )}
+        <Button
+          button="link"
+          iconRight={isLbryLink ? undefined : ICONS.EXTERNAL}
+          iconSize={isMobile && 12}
+          title={title || decodedUri}
+          label={children}
+          className="button--external-link"
+          navigate={isLbryLink ? href : undefined}
+          href={isLbryLink ? undefined : href}
+        />
+      </span>
     );
   }
 

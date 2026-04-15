@@ -1,6 +1,8 @@
 // Disabled flow in this copy. This copy is for uncompiled web server ES5 require()s.
 require('proxy-polyfill');
 
+const { PROXY_URL_NO_CF } = require('../config.cjs');
+
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 //
 // Basic LBRY sdk connection config
@@ -10,7 +12,7 @@ const Lbry = {
   isConnected: false,
   connectPromise: null,
   daemonConnectionString: 'http://localhost:5279',
-  alternateConnectionString: '',
+  alternateConnectionString: PROXY_URL_NO_CF || '',
   methodsUsingAlternateConnectionString: [],
   apiRequestHeaders: {
     'Content-Type': 'application/json-rpc',
@@ -18,6 +20,9 @@ const Lbry = {
   // Allow overriding daemon connection string (e.g. to `/api/proxy` for lbryweb)
   setDaemonConnectionString: (value) => {
     Lbry.daemonConnectionString = value;
+  },
+  setAlternateDaemonConnectionString: (value) => {
+    Lbry.alternateConnectionString = value;
   },
   setApiHeader: (key, value) => {
     Lbry.apiRequestHeaders = Object.assign(Lbry.apiRequestHeaders, {
@@ -160,6 +165,8 @@ const Lbry = {
     }),
 };
 
+const READ_ONLY_METHODS = new Set(['resolve', 'claim_search', 'get', 'collection_resolve', 'status']);
+
 function checkAndParse(response) {
   if (response.status >= 200 && response.status < 300) {
     return response.json();
@@ -191,11 +198,26 @@ function apiCall(method, params, resolve, reject) {
       id: counter,
     }),
   };
-  const connectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
+  const primaryConnectionString = Lbry.methodsUsingAlternateConnectionString.includes(method)
     ? Lbry.alternateConnectionString
     : Lbry.daemonConnectionString;
-  return fetch(connectionString + '?m=' + method, options)
-    .then(checkAndParse)
+  const alternateConnectionString =
+    !Lbry.methodsUsingAlternateConnectionString.includes(method) &&
+    READ_ONLY_METHODS.has(method) &&
+    Lbry.alternateConnectionString &&
+    Lbry.alternateConnectionString !== primaryConnectionString
+      ? Lbry.alternateConnectionString
+      : '';
+  const call = (connectionString) => fetch(connectionString + '?m=' + method, options).then(checkAndParse);
+
+  return call(primaryConnectionString)
+    .catch((error) => {
+      if (!alternateConnectionString) {
+        throw error;
+      }
+
+      return call(alternateConnectionString);
+    })
     .then((response) => {
       const error = response.error || (response.result && response.result.error);
 

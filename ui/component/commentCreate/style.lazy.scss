@@ -37,9 +37,11 @@
         margin: 0;
         opacity: 0.8;
 
-        &[data-selected] {
+        &.tab--selected {
           background-color: var(--color-background);
           opacity: 1;
+          cursor: default;
+          pointer-events: none;
         }
 
         &::after {
@@ -435,7 +437,7 @@
 
         .tab {
           background-color: rgba(var(--color-header-button-base), 0.4);
-          &[data-selected] {
+          &.tab--selected {
             background-color: var(--color-header-button);
             opacity: 1;
           }

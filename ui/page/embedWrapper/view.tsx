@@ -141,11 +141,14 @@ const EmbedWrapperPage = () => {
   }
 
   // Determine if this should render like a full page (channels/collections) or minimal (videos/posts)
-  const { isChannel } = uri
-    ? parseURI(uri)
-    : {
-        isChannel: false,
-      };
+  let isChannel = false;
+  if (uri) {
+    try {
+      isChannel = Boolean(parseURI(uri).isChannel);
+    } catch {
+      isChannel = false;
+    }
+  }
   const isMarkdown = renderMode === RENDER_MODES.MARKDOWN;
   const isPageLike = Boolean(isChannel || isCollection || isMarkdown);
   return (

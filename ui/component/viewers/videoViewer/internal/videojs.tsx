@@ -817,12 +817,10 @@ function VideoJsInner(props: Props) {
           .catch((error) => {
             if (docEl) docEl.removeAttribute('data-shorts-transitioning');
             if (error.name === 'NotAllowedError') {
-              if (IS_IOS) {
-                media.muted = true;
-                const mutedPromise = media.play();
-                if (mutedPromise !== undefined) {
-                  mutedPromise.then(() => setTapToUnmuteVisible(true)).catch(() => {});
-                }
+              media.muted = true;
+              const mutedPromise = media.play();
+              if (mutedPromise !== undefined) {
+                mutedPromise.then(() => setTapToUnmuteVisible(true)).catch(() => {});
               }
             }
           });
@@ -1067,7 +1065,7 @@ function VideoJsInner(props: Props) {
           ></Video>
         )}
 
-        {IS_MOBILE && !embeddedPlayback && (
+        {IS_MOBILE && (
           <MobileTouchOverlay
             onPlayNext={playNext}
             onPlayPrevious={playPrevious}

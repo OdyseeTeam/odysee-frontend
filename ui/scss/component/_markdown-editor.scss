@@ -37,15 +37,15 @@
   padding: 0 var(--spacing-xs);
   border-radius: var(--border-radius);
   border: none;
-  background: transparent;
+  background: var(--color-background);
   color: var(--color-header-link);
   font-size: var(--font-xsmall);
   font-weight: var(--font-weight-bold);
 
   &:hover,
   &:focus-visible {
-    color: var(--color-header-link-active);
-    background-color: rgba(var(--color-primary-dynamic), 0.08);
+    color: var(--color-primary-contrast);
+    background-color: var(--color-primary);
   }
 
   &:disabled {

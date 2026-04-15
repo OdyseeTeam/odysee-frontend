@@ -113,6 +113,18 @@
    ========================================================================== */
 
 .media-default-skin {
+  --media-white: #fff;
+  --media-black: #000;
+  --media-white-20: rgba(255, 255, 255, 0.2);
+  --media-white-10: rgba(255, 255, 255, 0.1);
+  --media-white-05: rgba(255, 255, 255, 0.05);
+  --media-black-80: rgba(0, 0, 0, 0.8);
+  --media-black-30: rgba(0, 0, 0, 0.3);
+  --media-black-15: rgba(0, 0, 0, 0.15);
+  --media-black-10: rgba(0, 0, 0, 0.1);
+  --media-black-05: rgba(0, 0, 0, 0.05);
+  --media-focus: #3b82f6;
+
   position: relative;
   isolation: isolate;
   display: block;
@@ -256,7 +268,7 @@
   display: none;
   align-items: center;
   justify-content: center;
-  color: oklch(1 0 0);
+  color: var(--media-white);
   pointer-events: none;
 
   &[data-visible] {
@@ -289,7 +301,7 @@
   max-width: 18rem;
   padding: 0.75rem;
   border-radius: 1.75rem;
-  color: oklch(1 0 0);
+  color: var(--media-white);
   font-size: 0.875rem;
   transition-property: opacity, transform;
   transition-duration: 500ms;
@@ -406,12 +418,12 @@
   justify-content: center;
   flex-shrink: 0;
   padding: 0.5rem 1rem;
-  background: oklch(1 0 0);
+  background: var(--media-white);
   border: none;
   border-radius: 9999px;
   outline: 2px solid transparent;
   outline-offset: -2px;
-  color: oklch(0 0 0);
+  color: var(--media-black);
   font-weight: 500;
   text-align: center;
   transition-property: background-color, color, outline-offset, transform;
@@ -421,7 +433,7 @@
   user-select: none;
 
   &:focus-visible {
-    outline-color: oklch(62.3% 0.214 259.815);
+    outline-color: var(--media-focus);
     outline-offset: 2px;
   }
 
@@ -440,8 +452,8 @@
 .media-default-skin .media-button--icon {
   display: grid;
   width: 2.125rem;
+  height: 2.125rem;
   padding: 0;
-  aspect-ratio: 1;
   background: transparent;
   color: inherit;
   text-shadow: inherit;
@@ -459,7 +471,7 @@
   }
 
   & .media-icon {
-    filter: drop-shadow(0 1px 0 var(--media-controls-current-shadow-color, oklch(0 0 0 / 0.25)));
+    filter: drop-shadow(0 1px 0 var(--media-controls-current-shadow-color, var(--media-black-15)));
   }
 }
 
@@ -571,9 +583,9 @@
   background-color: currentColor;
   border-radius: 9999px;
   box-shadow:
-    0 0 0 1px var(--media-controls-current-shadow-color-subtle, oklch(0 0 0 / 0.1)),
-    0 1px 3px 0 oklch(0 0 0 / 0.15),
-    0 1px 2px -1px oklch(0 0 0 / 0.15);
+    0 0 0 1px var(--media-controls-current-shadow-color-subtle, var(--media-black-10)),
+    0 1px 3px 0 var(--media-black-15),
+    0 1px 2px -1px var(--media-black-15);
   opacity: 0;
   transition-property: opacity, height, width, outline-offset;
   transition-duration: 150ms;
@@ -756,16 +768,16 @@
    ========================================================================== */
 
 :where(.media-default-skin--video) {
-  background: oklch(0 0 0);
-  --media-border-color: oklch(0 0 0 / 0.1);
-  --media-surface-background-color: oklch(0 0 0 / 0.3);
-  --media-surface-inner-border-color: oklch(1 0 0 / 0.05);
-  --media-surface-outer-border-color: oklch(0 0 0 / 0.1);
-  --media-surface-shadow-color: oklch(0 0 0 / 0.15);
+  background: var(--media-black);
+  --media-border-color: var(--media-black-10);
+  --media-surface-background-color: var(--media-black-30);
+  --media-surface-inner-border-color: var(--media-white-05);
+  --media-surface-outer-border-color: var(--media-black-10);
+  --media-surface-shadow-color: var(--media-black-15);
   --media-surface-backdrop-filter: blur(64px) brightness(0.9) saturate(1.5);
 
   @media (prefers-color-scheme: dark) {
-    --media-border-color: oklch(1 0 0 / 0.1);
+    --media-border-color: var(--media-white-10);
   }
 
   /* Inner border ring */
@@ -795,7 +807,7 @@
   transition-delay: 0ms;
   transition-timing-function: ease-out;
   transform-origin: bottom;
-  color: oklch(1 0 0);
+  color: var(--media-white);
 
   &:not([data-visible]) {
     opacity: 0;
@@ -854,6 +866,6 @@
    ========================================================================== */
 
 .media-default-skin--video .media-slider__track {
-  background-color: oklch(1 0 0 / 0.2);
-  box-shadow: 0 0 0 1px oklch(0 0 0 / 0.05);
+  background-color: var(--media-white-20);
+  box-shadow: 0 0 0 1px var(--media-black-05);
 }

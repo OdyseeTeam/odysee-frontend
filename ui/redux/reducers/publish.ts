@@ -370,7 +370,16 @@ export const publishReducer = handleActions(
     [ACTIONS.PUBLISH_SAVE_FORM]: (state: PublishState, action) => {
       const { id } = action.data;
       const snapshot: any = {};
-      const EXCLUDE = ['savedForms', 'pipelineItems', 'activeFormId', 'currentUploads', 'claimToEdit'];
+      const EXCLUDE = [
+        'savedForms',
+        'pipelineItems',
+        'activeFormId',
+        'currentUploads',
+        'claimToEdit',
+        'publishing',
+        'publishSuccess',
+        'publishError',
+      ];
       for (const key of Object.keys(state)) {
         if (!EXCLUDE.includes(key)) snapshot[key] = (state as any)[key];
       }

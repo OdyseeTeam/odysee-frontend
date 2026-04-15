@@ -6,6 +6,10 @@ services:
     stop_grace_period: 15s
     ports:
       - '${FRONTEND_BIND:-127.0.0.1:1338:1337}'
+    build:
+      context: .
+      args:
+        TX_TOKEN: ${TX_TOKEN:-}
     environment:
       NODE_ENV: production
       WEB_SERVER_PORT: 1337

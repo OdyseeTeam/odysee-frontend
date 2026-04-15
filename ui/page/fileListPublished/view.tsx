@@ -24,6 +24,7 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
   selectIsFetchingClaimListMine,
+  selectIsFetchingClaimListMineSuccess,
   selectMyClaimsPage,
   selectMyClaimsPageItemCount,
   selectMyChannelClaimIds,
@@ -66,6 +67,9 @@ function FileListPublished() {
   const filteringSettings = useAppSelector(selectUploadsFilteringSetting);
   const activeChannel = useAppSelector(selectActiveChannelClaim);
   const fetching = useAppSelector(selectIsFetchingClaimListMine);
+  const isFetchComplete = useAppSelector(selectIsFetchingClaimListMineSuccess);
+  const hasFetchedOnce = React.useRef(false);
+  if (isFetchComplete === true && !fetching) hasFetchedOnce.current = true;
   const urls = useAppSelector(selectMyClaimsPage);
   const urlTotal = useAppSelector(selectMyClaimsPageItemCount);
   const isAllMyClaimsFetched = useAppSelector(selectIsAllMyClaimsFetched);
@@ -239,7 +243,7 @@ function FileListPublished() {
     }
 
     // Then the sorting selected setting
-    return result.toSorted((claimA, claimB) => {
+    return result.sort((claimA, claimB) => {
       const nameComparisonClaimA = claimA.reposted_claim ? claimA.reposted_claim : claimA;
       const nameComparisonClaimB = claimB.reposted_claim ? claimB.reposted_claim : claimB;
       let firstComparisonItem =
@@ -479,37 +483,41 @@ function FileListPublished() {
         {method === FILE_LIST.METHOD.CLAIM_LIST && getClaimListResultsJsx()}
         {method === FILE_LIST.METHOD.CLAIM_SEARCH && getClaimSearchResultsJsx()}
       </div>
-      {!(myClaims && myClaims.length) && method === FILE_LIST.METHOD.CLAIM_LIST && (
-        <React.Fragment>
-          {!fetching && !hasClaims ? (
-            <section className="main--empty">
-              <Yrbl
-                title={filterType === FILE_LIST.FILE_TYPE.REPOSTS.key ? __('No Reposts') : __('No uploads')}
-                subtitle={
-                  filterType === FILE_LIST.FILE_TYPE.REPOSTS.key
-                    ? __("You haven't reposted anything yet.")
-                    : __("You haven't uploaded anything yet. This is where you can find them when you do!")
-                }
-                actions={
-                  filterType !== FILE_LIST.FILE_TYPE.REPOSTS.key && (
-                    <div className="section__actions">
-                      <Button
-                        button="primary"
-                        label={__('Upload Something New')}
-                        onClick={() => dispatch(doBeginPublish('file'))}
-                      />
-                    </div>
-                  )
-                }
-              />
-            </section>
-          ) : (
-            <section className="main--empty">
-              <Spinner delayed />
-            </section>
-          )}
-        </React.Fragment>
-      )}
+      {!urls?.length &&
+        !(myClaims && myClaims.length) &&
+        method === FILE_LIST.METHOD.CLAIM_LIST &&
+        hasFetchedOnce.current &&
+        !fetching && (
+          <React.Fragment>
+            {!fetching && !hasClaims ? (
+              <section className="main--empty">
+                <Yrbl
+                  title={filterType === FILE_LIST.FILE_TYPE.REPOSTS.key ? __('No Reposts') : __('No uploads')}
+                  subtitle={
+                    filterType === FILE_LIST.FILE_TYPE.REPOSTS.key
+                      ? __("You haven't reposted anything yet.")
+                      : __("You haven't uploaded anything yet. This is where you can find them when you do!")
+                  }
+                  actions={
+                    filterType !== FILE_LIST.FILE_TYPE.REPOSTS.key && (
+                      <div className="section__actions">
+                        <Button
+                          button="primary"
+                          label={__('Upload Something New')}
+                          onClick={() => dispatch(doBeginPublish('file'))}
+                        />
+                      </div>
+                    )
+                  }
+                />
+              </section>
+            ) : (
+              <section className="main--empty">
+                <Spinner delayed />
+              </section>
+            )}
+          </React.Fragment>
+        )}
     </Page>
   );
 }

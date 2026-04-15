@@ -45,6 +45,14 @@ ENV CUSTOM_HOMEPAGE=$CUSTOM_HOMEPAGE
 
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store pnpm build
 
+RUN mkdir -p web/dist/app-strings
+COPY .tx .tx
+ARG TX_TOKEN=
+RUN if [ -n "$TX_TOKEN" ]; then \
+      curl -sL https://github.com/transifex/cli/releases/latest/download/tx-linux-amd64.tar.gz | tar xz -C /usr/local/bin && \
+      TX_TOKEN=$TX_TOKEN tx pull -a --force || true; \
+    fi
+
 # ── Stage 2: Server Deps ──────────────────────────────────────────────────────
 FROM node:${NODE_VERSION} AS web-deps
 

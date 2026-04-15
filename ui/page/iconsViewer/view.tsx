@@ -9,7 +9,7 @@ function TagsFollowingPage(props: Props) {
   return (
     <Page noFooter fullWidthPage>
       {Object.keys(ICONS)
-        .toSorted((a, b) => a.localeCompare(b))
+        .sort((a, b) => a.localeCompare(b))
         .map((tag) => (
           <>
             <div

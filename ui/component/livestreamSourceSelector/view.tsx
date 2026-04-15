@@ -107,7 +107,7 @@ export default function LivestreamSourceSelector(props: Props) {
   const activeVideoSources = (() => {
     const active = allVideoSources.filter((s) => activeVideoIds.has(s.deviceId));
     if (activeVideoOrder) {
-      return active.toSorted((a, b) => {
+      return active.sort((a, b) => {
         const ai = activeVideoOrder.indexOf(a.deviceId);
         const bi = activeVideoOrder.indexOf(b.deviceId);
         return (ai === -1 ? 999 : ai) - (bi === -1 ? 999 : bi);

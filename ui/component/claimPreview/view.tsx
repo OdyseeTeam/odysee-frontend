@@ -33,6 +33,7 @@ import ClaimRepostAuthor from 'component/claimRepostAuthor';
 import FileWatchLaterLink from 'component/fileWatchLaterLink';
 import PublishPending from 'component/publish/shared/publishPending';
 import ButtonAddToQueue from 'component/buttonAddToQueue';
+import ButtonFloatingPlayer from 'component/buttonFloatingPlayer';
 import ClaimMenuList from 'component/claimMenuList';
 import ClaimPreviewReset from 'component/claimPreviewReset';
 import ClaimPreviewLoading from 'component/common/claim-preview-loading';
@@ -160,6 +161,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   } = props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const [rowHover, setRowHover] = React.useState(false);
   const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
   const media = claim && claim.value && (claim.value.video || claim.value.audio);
   const mediaDuration = media && media.duration && formatMediaDuration(media.duration);
@@ -283,6 +285,18 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   }
 
   const handleNavLinkClick = (e) => {
+    const previewTime = (window as any).__previewCurrentTime;
+    const previewUnmuted = (window as any).__previewMuted === false;
+    if (previewTime && previewTime > 0 && previewUnmuted) {
+      e.preventDefault();
+      const params = new URLSearchParams(navigateSearch.toString());
+      params.set('t', String(previewTime));
+      navigate({
+        pathname: navigateUrl,
+        search: '?' + params.toString(),
+      });
+    }
+
     if (playItemsOnClick && claim) {
       dispatch(
         doPlayNextUri({
@@ -292,7 +306,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     }
 
     if (onClick) {
-      onClick(e, claim, indexInContainer); // not sure indexInContainer is used for anything.
+      onClick(e, claim, indexInContainer);
     }
 
     e.stopPropagation();
@@ -304,8 +318,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
       search: disableClickNavigation ? search : navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
     },
     onClick: handleNavLinkClick,
-    // if items play on click, don't play on auxClick
-    onAuxClick: playItemsOnClick ? undefined : handleNavLinkClick,
+    onAuxClick: undefined,
   };
   let shouldHide =
     placeholder !== 'loading' &&
@@ -361,9 +374,15 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     }
 
     if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {
+      const previewTime = (window as any).__previewCurrentTime;
+      const previewUnmuted = (window as any).__previewMuted === false;
+      const params = new URLSearchParams(navigateSearch.toString());
+      if (previewTime && previewTime > 0 && previewUnmuted) {
+        params.set('t', String(previewTime));
+      }
       navigate({
         pathname: navigateUrl,
-        search: navigateSearch.toString() ? '?' + navigateSearch.toString() : '',
+        search: params.toString() ? '?' + params.toString() : '',
       });
     }
   }
@@ -469,6 +488,14 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
       ref={ref}
       role="link"
       onClick={pending || type === 'inline' ? undefined : handleOnClick}
+      onMouseEnter={() => setRowHover(true)}
+      onMouseLeave={() => setRowHover(false)}
+      onAuxClick={(e: any) => {
+        if (e.button === 1 && navigateUrl && !pending && !disableNavigation) {
+          e.preventDefault();
+          window.open(navigateUrl, '_blank');
+        }
+      }}
       className={classnames('claim-preview__wrapper', {
         'claim-preview__wrapper--row': !type,
         'claim-preview__wrapper--channel': isChannelUri && type !== 'inline',
@@ -535,11 +562,17 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
                     hoverPreview={!smallThumbnail}
                     uri={uri}
                     secondaryUri={firstCollectionItemUrl}
+                    externalHover={rowHover}
                   >
-                    {showCollectionContext && !smallThumbnail && (
+                    {!smallThumbnail && (
                       <div className="claim-preview__hover-actions-grid">
-                        <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
-                        <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
+                        {showCollectionContext && (
+                          <>
+                            <FileWatchLaterLink focusable={false} uri={repostedContentUri} />
+                            <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
+                          </>
+                        )}
+                        <ButtonFloatingPlayer uri={repostedContentUri} />
                       </div>
                     )}
                     <div className="claim-preview__file-property-overlay">

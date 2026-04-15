@@ -140,7 +140,11 @@
   padding: 10px 14px;
   background: linear-gradient(to bottom, rgba(0, 0, 0, 0.7) 0%, transparent 100%);
   opacity: 0;
-  transition-property: opacity;
+  scale: 0.9;
+  filter: blur(8px);
+  transform-origin: top;
+  will-change: scale, transform, filter, opacity;
+  transition-property: scale, transform, filter, opacity;
   transition-duration: 300ms;
   transition-delay: 500ms;
   transition-timing-function: ease-out;
@@ -149,9 +153,37 @@
 
 .media-controls[data-visible] ~ .odysee-embed-header {
   opacity: 1;
+  scale: 1;
+  filter: none;
   pointer-events: auto;
-  transition-duration: 150ms;
+  transition-duration: 100ms;
   transition-delay: 0ms;
+}
+
+.media-controls.odysee-mobile-controls ~ .odysee-embed-header {
+  opacity: 1;
+  scale: 1;
+  filter: none;
+  pointer-events: auto;
+  transition-property: opacity !important;
+  transition-duration: 100ms !important;
+  transition-delay: 0ms !important;
+}
+
+@media (pointer: fine) {
+  .media-controls.odysee-mobile-controls:not([data-visible]) ~ .odysee-embed-header {
+    opacity: 0;
+    pointer-events: none;
+    transition-duration: 300ms !important;
+    transition-delay: 500ms !important;
+  }
+}
+
+.media-controls.odysee-mobile-controls[data-mobile-hidden] ~ .odysee-embed-header {
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition-duration: 50ms !important;
+  transition-delay: 0ms !important;
 }
 
 .odysee-embed-header__title {

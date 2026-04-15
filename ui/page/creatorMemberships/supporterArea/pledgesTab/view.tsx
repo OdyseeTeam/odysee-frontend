@@ -69,9 +69,7 @@ function PledgesTab(props: Props) {
       }
     }
 
-    return myMembershipSubs
-      ? myMembershipSubs.filter((sub) => sub.subscription.is_active === true).toSorted(sortFn)
-      : [];
+    return myMembershipSubs ? myMembershipSubs.filter((sub) => sub.subscription.is_active === true).sort(sortFn) : [];
   }, [myMembershipSubs, sortKey, order]);
 
   if (myMembershipSubs === undefined && isFetchingMembershipSubs) {

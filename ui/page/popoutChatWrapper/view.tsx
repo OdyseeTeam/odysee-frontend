@@ -50,7 +50,7 @@ export default function PopoutChatPage() {
     if (!claim) return;
     const { claim_id: claimId, signing_channel: channelClaim } = claim;
     const claimChannelName = channelClaim && formatLbryChannelName(channelClaim.canonical_url);
-    const reversedClaimId = claimId.split('').toReversed().join('');
+    const reversedClaimId = claimId.split('').reverse().join('');
     const claimIdToUse = isProtectedContent ? reversedClaimId : claimId;
 
     if (claimId && claimChannelName && contentUnlocked) {

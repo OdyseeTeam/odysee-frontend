@@ -239,7 +239,7 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
   // and can lock up pages with 50+ comments containing URLs/timestamps.
   const isCommentBody = Boolean(parentCommentId);
   const remarkPlugins = isCommentBody
-    ? [formattedLinks, formattedEmote, remarkEmoji, remarkBreaks]
+    ? [formattedLinks, formattedTimestamp, formattedEmote, remarkEmoji, remarkBreaks]
     : [
         remarkGfm,
         formattedLinks,

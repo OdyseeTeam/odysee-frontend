@@ -21,6 +21,7 @@
     "typescript/no-unsafe-type-assertion": "off",
     "react-hooks/exhaustive-deps": "off",
     "react/no-did-mount-set-state": "off",
-    "react/jsx-key": "off"
+    "react/jsx-key": "off",
+    "unicorn/no-array-sort": "off"
   }
 }

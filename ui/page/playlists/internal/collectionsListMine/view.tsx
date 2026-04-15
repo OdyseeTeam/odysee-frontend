@@ -112,7 +112,7 @@ export default function CollectionsListMine(props: Props) {
     }
 
     // Then the sorting selected setting
-    return result.slice().toSorted((a, b) => {
+    return result.slice().sort((a, b) => {
       const collectionA = { ...collectionsById[a], ...updatedCollections[a] };
       const collectionB = { ...collectionsById[b], ...updatedCollections[b] };
       let firstComparisonItem = sortOption.value === COLS.SORT_ORDER.ASC ? collectionA : collectionB;

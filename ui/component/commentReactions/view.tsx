@@ -84,16 +84,8 @@ export default function CommentReactions(props: Props) {
 
   const shouldHide = !canCreatorReact && hideCreatorLike;
   const creatorLiked = getCountForReaction(REACTION_TYPES.CREATOR_LIKE, othersReacts, myReacts) > 0;
-  const likeIcon = SIMPLE_SITE
-    ? myReacts && myReacts.includes(REACTION_TYPES.LIKE)
-      ? ICONS.FIRE_ACTIVE
-      : ICONS.FIRE
-    : ICONS.UPVOTE;
-  const dislikeIcon = SIMPLE_SITE
-    ? myReacts && myReacts.includes(REACTION_TYPES.DISLIKE)
-      ? ICONS.SLIME_ACTIVE
-      : ICONS.SLIME
-    : ICONS.DOWNVOTE;
+  const likeIcon = myReacts && myReacts.includes(REACTION_TYPES.LIKE) ? ICONS.FIRE_ACTIVE : ICONS.FIRE;
+  const dislikeIcon = myReacts && myReacts.includes(REACTION_TYPES.DISLIKE) ? ICONS.SLIME_ACTIVE : ICONS.SLIME;
 
   function handleCommentLike() {
     if (activeChannelId) {

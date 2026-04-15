@@ -1,4 +1,5 @@
 const path = require('path');
+const fs = require('fs');
 
 const config = require('../config.cjs');
 
@@ -44,7 +45,7 @@ app.use(appStringsMiddleWare);
 const staticMaxAge = (process.env.NODE_ENV || 'development') === 'development' ? 0 : 3600000;
 const staticServe = serve(DIST_ROOT, { maxage: staticMaxAge });
 // Root-level files like /robots.txt, /sw.js are in dist/public/, serve with prefix strip
-const rootStaticServe = serve(path.resolve(__dirname, 'dist/public'), { maxage: staticMaxAge });
+const rootStaticServe = serve(path.resolve(__dirname, 'dist/public'), { maxage: staticMaxAge, index: false });
 
 if (config.DYNAMIC_ROUTES_FIRST) {
   app.use(router.routes());

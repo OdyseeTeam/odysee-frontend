@@ -80,31 +80,40 @@ export default function useResolvedSource(
         return;
       }
 
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 5000);
       let response;
-      try {
-        response = await fetch(source, {
-          method: 'HEAD',
-          cache: 'no-store',
-          signal: controller.signal,
-        });
-      } catch (e) {
-        if (cancelled) return;
-        if (source) {
-          setResolved({
-            src: source,
-            type: sourceType,
-            isHls: false,
-            originalSrc: { type: sourceType, src: source },
-            hlsSrc: null,
-            thumbnailBasePath: null,
+      const MAX_RETRIES = 5;
+      const RETRY_DELAYS = [2000, 3000, 5000, 8000, 12000];
+      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+        try {
+          response = await fetch(source, {
+            method: 'HEAD',
+            cache: 'no-store',
+            signal: controller.signal,
           });
+        } catch (e) {
+          clearTimeout(timeout);
+          if (cancelled) return;
+          if (source) {
+            setResolved({
+              src: source,
+              type: sourceType,
+              isHls: false,
+              originalSrc: { type: sourceType, src: source },
+              hlsSrc: null,
+              thumbnailBasePath: null,
+            });
+          }
+          doSetVideoSourceLoaded(uri);
+          return;
+        } finally {
+          clearTimeout(timeout);
         }
-        doSetVideoSourceLoaded(uri);
-        return;
-      } finally {
-        clearTimeout(timeout);
+        if (cancelled) return;
+        if (response.status < 400 || attempt === MAX_RETRIES) break;
+        await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt] || 5000));
+        if (cancelled) return;
       }
       if (cancelled) return;
 

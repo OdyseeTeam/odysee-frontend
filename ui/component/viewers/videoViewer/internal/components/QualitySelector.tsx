@@ -78,7 +78,7 @@ export default function QualitySelector({ defaultQuality, originalVideoHeight, i
         <div className="media-quality-menu media-surface">
           {levels
             .slice()
-            .toSorted((a, b) => a.height - b.height)
+            .sort((a, b) => a.height - b.height)
             .map((level) => (
               <button
                 key={level.index}

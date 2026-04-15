@@ -4,7 +4,7 @@ export const COUNTRIES = Array.from(
     countryData.all
       .filter((country) => country.status !== 'deleted')
       .map((country) => country.name)
-      .toSorted((a, b) => {
+      .sort((a, b) => {
         if (a > b) {
           return 1;
         }

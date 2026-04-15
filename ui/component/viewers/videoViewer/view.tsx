@@ -222,6 +222,8 @@ function VideoViewer(props: Props) {
     }
   }, [doPlayNextUri, playPreviousUri, videoNode]);
 
+  const onVideoEndedRef = React.useRef<() => void>(() => {});
+
   const onVideoEnded = React.useCallback(() => {
     if (videoNode?.loop) {
       videoNode.currentTime = 0;
@@ -251,6 +253,10 @@ function VideoViewer(props: Props) {
     clearPosition(uri);
   }, [canPlayNext, clearPosition, embedContext, handlePlayNextUri, uri]);
 
+  React.useEffect(() => {
+    onVideoEndedRef.current = onVideoEnded;
+  }, [onVideoEnded]);
+
   const lastSyncTimeRef = React.useRef(0);
 
   function handlePosition(node: HTMLVideoElement, forceSync = false) {
@@ -275,9 +281,10 @@ function VideoViewer(props: Props) {
       setVideoNode(node);
 
       // Restore position
-      if (timeParam && !Number.isNaN(timeParam)) {
-        node.currentTime = Number(timeParam);
-      } else if (position && !isLivestreamClaim) {
+      const parsedTime = Number(timeParam);
+      if (timeParam && isFinite(parsedTime) && parsedTime > 0) {
+        node.currentTime = parsedTime;
+      } else if (position && isFinite(position) && !isLivestreamClaim) {
         const avDuration = claim?.value?.video?.duration || claim?.value?.audio?.duration;
         node.currentTime = avDuration && position >= avDuration - 100 ? 0 : position;
       }
@@ -288,9 +295,14 @@ function VideoViewer(props: Props) {
       }
       node.volume = volume;
       node.playbackRate = videoPlaybackRate;
+      const restoreRate = () => {
+        node.playbackRate = videoPlaybackRate;
+      };
+      node.addEventListener('canplay', restoreRate, { once: true });
+      node.addEventListener('playing', restoreRate, { once: true });
 
-      // Listen for ended event
-      const handleEnded = () => onVideoEnded();
+      // Listen for ended event (use ref to always call the latest callback)
+      const handleEnded = () => onVideoEndedRef.current();
       node.addEventListener('ended', handleEnded);
 
       // Track play state
@@ -308,8 +320,9 @@ function VideoViewer(props: Props) {
       const handleVolumeChange = () => {
         updateVolumeState(node.volume, node.muted);
       };
+      let unmounted = false;
       const handleRateChange = () => {
-        if (node.readyState > 0) {
+        if (node.readyState > 0 && !unmounted) {
           setVideoPlaybackRate(node.playbackRate);
         }
       };
@@ -320,6 +333,7 @@ function VideoViewer(props: Props) {
       node.addEventListener('ratechange', handleRateChange);
 
       return () => {
+        unmounted = true;
         node.removeEventListener('ended', handleEnded);
         node.removeEventListener('play', handlePlay);
         node.removeEventListener('pause', handlePause);

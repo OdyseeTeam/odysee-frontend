@@ -551,7 +551,7 @@ export const selectMembershipsSortedByPriceForRestrictedIds = createSelector(
   selectMembershipsById,
   (restrictedIds, byId) => {
     const memberships = restrictedIds.map((id) => byId[id]);
-    return memberships.toSorted((a, b) => a.prices.amount - b.prices.amount);
+    return [...memberships].sort((a, b) => a.prices.amount - b.prices.amount);
   }
 );
 export const selectCheapestPlanForRestrictedIds = (state: State, restrictedIds: Array<string>) => {

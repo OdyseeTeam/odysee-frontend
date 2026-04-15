@@ -141,7 +141,7 @@ function reorderVideoCodecsForIngest(
   const prioritized = prioritizeVideoCodec(codecs, preference);
   const h264Preferred = preference === 'h264';
 
-  return [...prioritized].toSorted((a, b) => {
+  return [...prioritized].sort((a, b) => {
     const aIsH264 = a.mimeType.toLowerCase() === 'video/h264';
     const bIsH264 = b.mimeType.toLowerCase() === 'video/h264';
 

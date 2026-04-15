@@ -48,6 +48,14 @@ function PostEditor(props: Props) {
     [dispatch]
   );
 
+  const localTextRef = React.useRef(localText);
+  localTextRef.current = localText;
+  React.useEffect(() => {
+    return () => {
+      dispatch(doUpdatePublishForm({ fileText: localTextRef.current }));
+    };
+  }, [dispatch]);
+
   const updateFileText = React.useCallback(
     (value: string) => {
       setLocalText(value);

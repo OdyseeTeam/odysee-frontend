@@ -80,8 +80,9 @@ export default function PlaylistCard(props: Props) {
   );
   const collectionLength = useAppSelector((state) => selectCollectionLengthForId(state, collectionId));
   const collectionEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
-  const hasCollectionById =
-    collectionId && Boolean(useAppSelector((state) => selectCollectionForId(state, collectionId)));
+  const hasCollectionById = Boolean(
+    useAppSelector((state) => (collectionId ? selectCollectionForId(state, collectionId) : undefined))
+  );
   const collectionSavedForId = useAppSelector((state) => selectCollectionSavedForId(state, collectionId));
   const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, playingItemUrl || collectionUri));
 

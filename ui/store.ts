@@ -42,7 +42,7 @@ const store = configureStore({
       serializableCheck: {
         // persist/PERSIST carries function refs (rehydrate, register);
         // BATCH_ACTIONS carries an array of action objects/thunks.
-        ignoredActions: [...PERSIST_ACTION_TYPES, 'BATCH_ACTIONS'],
+        ignoredActions: [...PERSIST_ACTION_TYPES, 'BATCH_ACTIONS', 'SHOW_MODAL'],
         ignoredActionPaths: ['register', 'rehydrate', 'payload.register', 'payload.rehydrate', 'actions'],
         ignoredPaths: ['_persist'],
       },

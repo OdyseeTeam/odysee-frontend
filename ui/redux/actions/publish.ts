@@ -28,7 +28,7 @@ import {
   selectIsStillEditing,
   selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
-import { doError } from 'redux/actions/notifications';
+import { doError, doToast } from 'redux/actions/notifications';
 import { navigateTo } from 'redux/router';
 import analytics from 'analytics';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
@@ -283,8 +283,12 @@ export const doBeginPublish = (type: PublishType, name: string = '', customPath:
         dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: currentFormId } });
       }
       dispatch(doClearPublish());
-      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: null } });
-      dispatch({ type: ACTIONS.UPDATE_PUBLISH_FORM, data: { type } });
+      dispatch(
+        batchActions(
+          { type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: null } },
+          { type: ACTIONS.UPDATE_PUBLISH_FORM, data: { type } }
+        )
+      );
     }
 
     if (name) {
@@ -942,7 +946,7 @@ const RECENT_PAGE_SIZE = 100;
 const SEARCH_PAGE_SIZE_PER_CHANNEL = 24;
 
 function sortClaimsByNewest(claims: Array<StreamClaim>): Array<StreamClaim> {
-  return [...claims].toSorted((a, b) => {
+  return [...claims].sort((a, b) => {
     const aTime = Number(a?.value?.release_time || a?.meta?.creation_timestamp || 0);
     const bTime = Number(b?.value?.release_time || b?.meta?.creation_timestamp || 0);
     return bTime - aTime;
@@ -1374,6 +1378,10 @@ export const doPublishWithEarlyUpload =
 
     try {
       const { tusUrl } = await tusUrlPromise;
+      dispatch({
+        type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+        data: { id: guid, updates: { stage: 'processing', progress: 0 } },
+      });
 
       const state = getState();
       const myClaimForUri = state.publish.claimToEdit;
@@ -1418,11 +1426,12 @@ export const doPublishWithEarlyUpload =
         onFailure: () => {},
       });
 
-      const publishedUri = buildURI(
-        { streamName: publishData.name, channelName: publishData.channel } as LbryUrlObj,
-        true
-      );
       const signingChannel = myChannels?.find((ch: any) => ch.claim_id === channelClaimId);
+      const channelBaseUrl =
+        signingChannel?.short_url || signingChannel?.canonical_url || signingChannel?.permanent_url;
+      const publishedUri = channelBaseUrl
+        ? `${channelBaseUrl}/${publishData.name}`
+        : buildURI({ streamName: publishData.name, channelName: publishData.channel } as LbryUrlObj, true);
       const pendingClaimId = `pending-${guid}`;
       const fakePendingClaim: any = {
         claim_id: pendingClaimId,
@@ -1460,10 +1469,6 @@ export const doPublishWithEarlyUpload =
         type: ACTIONS.UPDATE_PENDING_CLAIMS,
         data: { claims: [fakePendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
       } as UpdatePendingClaimsAction);
-      dispatch({
-        type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
-        data: { id: guid, updates: { stage: 'published', progress: 100, uri: publishedUri } },
-      });
       dispatch({ type: ACTIONS.PUBLISH_SET_ACTIVE_FORM, data: { id: null } });
       dispatch({ type: ACTIONS.PUBLISH_SUCCESS, data: {} });
 
@@ -1475,11 +1480,42 @@ export const doPublishWithEarlyUpload =
             type: ACTIONS.UPDATE_PENDING_CLAIMS,
             data: { claims: [pendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
           } as UpdatePendingClaimsAction);
+          dispatch({
+            type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+            data: {
+              id: guid,
+              updates: { stage: 'published', progress: 100, uri: pendingClaim.permanent_url || publishedUri },
+            },
+          });
           dispatch(doCheckPendingClaims(undefined));
         })
-        .catch(() => {});
+        .catch((err: any) => {
+          dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: pendingClaimId } });
+          dispatch({
+            type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+            data: {
+              id: guid,
+              updates: {
+                stage: 'error',
+                error:
+                  err?.message ||
+                  'Publish confirmation failed. Your upload may have been blocked by a browser extension.',
+              },
+            },
+          });
+          dispatch(
+            doToast({
+              isError: true,
+              message: __('Publish failed.'),
+              subMessage:
+                err?.message || __('Confirmation timed out. A browser extension may be blocking the request.'),
+              duration: 'long',
+            })
+          );
+        });
     } catch (error: any) {
       dispatch({ type: ACTIONS.PUBLISH_FAIL });
+      dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: `pending-${guid}` } });
       dispatch({
         type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
         data: { id: guid, updates: { stage: 'error', error: error?.message } },

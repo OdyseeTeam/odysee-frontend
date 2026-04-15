@@ -177,9 +177,9 @@ export default function LivestreamSetupPage() {
 
       <div className="livestream-setup__header">
         <div className="livestream-setup__heading">
-          <h1 className="livestream-setup__title">
-            <Icon icon={ICONS.LIVESTREAM_MONOCHROME} size={28} />
-            <span>{formTitle}</span>
+          <h1 className="page__title page__title--margin">
+            <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
+            <label>{formTitle}</label>
           </h1>
           <p className="livestream-setup__subtitle">
             {__('Stream directly from your browser or use RTMP with OBS/Restream.')}

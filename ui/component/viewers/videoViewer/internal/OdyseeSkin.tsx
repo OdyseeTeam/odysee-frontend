@@ -451,7 +451,7 @@ function SettingsMenuContent({
         </button>
         {levels
           .slice()
-          .toSorted((a, b) => b.height - a.height)
+          .sort((a, b) => b.height - a.height)
           .map((level) => (
             <button
               key={level.index}
@@ -644,8 +644,13 @@ function SettingsMenuContent({
         <span className="media-settings-menu__label">{__('Playback Speed')}</span>
         <span className="media-settings-menu__value">{rateLabel}</span>
       </button>
-      {levels.length > 0 && !isCasting && (
-        <button type="button" className="media-settings-menu__item" onClick={() => setView('quality')}>
+      {!isCasting && (
+        <button
+          type="button"
+          className="media-settings-menu__item"
+          disabled={levels.length === 0}
+          onClick={() => setView('quality')}
+        >
           <svg
             className="media-settings-menu__icon"
             width={16}
@@ -668,7 +673,7 @@ function SettingsMenuContent({
             <line x1={17} y1={16} x2={23} y2={16} />
           </svg>
           <span className="media-settings-menu__label">{__('Quality')}</span>
-          <span className="media-settings-menu__value">{currentLabel}</span>
+          <span className="media-settings-menu__value">{levels.length > 0 ? currentLabel : __('Original')}</span>
         </button>
       )}
     </div>
@@ -1080,7 +1085,8 @@ export default function OdyseeSkin(props) {
   React.useLayoutEffect(() => {
     if (!settingsOpen) return;
     const isSafari = platform.isSafari();
-    if (!isFloating && !isSafari) return;
+    const noPopoverAPI = typeof HTMLElement.prototype.showPopover !== 'function';
+    if (!isFloating && !isSafari && !noPopoverAPI) return;
     const fix = () => {
       const popup = document.querySelector<HTMLElement>('.media-popover--settings[popover]');
       const trigger = isFloating
@@ -1090,16 +1096,57 @@ export default function OdyseeSkin(props) {
       const tr = trigger.getBoundingClientRect();
       const ph = popup.offsetHeight;
       const pw = popup.offsetWidth;
-      const fitsAbove = tr.top - ph - 4 >= 0;
-      const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
-      popup.style.setProperty('bottom', 'auto', 'important');
-      popup.style.setProperty('top', `${topPos}px`, 'important');
-      popup.style.setProperty('left', `${tr.right - pw + 12}px`, 'important');
-      popup.style.setProperty('place-self', 'normal', 'important');
-      popup.style.setProperty('margin-inline-start', '0', 'important');
+
+      if (noPopoverAPI) {
+        const controls = trigger.closest('.media-controls');
+        if (!controls) return;
+        const ctrlRect = controls.getBoundingClientRect();
+        popup.style.setProperty('position', 'fixed', 'important');
+        popup.style.setProperty('inset', 'auto', 'important');
+        popup.style.setProperty('top', `${tr.top - ctrlRect.top - ph - 4}px`, 'important');
+        popup.style.setProperty('left', `${tr.right - ctrlRect.left - pw}px`, 'important');
+      } else {
+        const fitsAbove = tr.top - ph - 4 >= 0;
+        const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
+        popup.style.setProperty('bottom', 'auto', 'important');
+        popup.style.setProperty('top', `${topPos}px`, 'important');
+        popup.style.setProperty('left', `${tr.right - pw + 12}px`, 'important');
+        popup.style.setProperty('place-self', 'normal', 'important');
+        popup.style.setProperty('margin-inline-start', '0', 'important');
+      }
     };
-    requestAnimationFrame(fix);
+    requestAnimationFrame(() => requestAnimationFrame(fix));
   }, [settingsOpen, isFloating]);
+
+  React.useEffect(() => {
+    if (typeof HTMLElement.prototype.showPopover === 'function') return;
+    const parent = document.querySelector('.video-js-parent');
+    if (parent) {
+      if (settingsOpen) parent.classList.add('video-js-parent--popover-open');
+      else parent.classList.remove('video-js-parent--popover-open');
+    }
+  }, [settingsOpen]);
+
+  React.useEffect(() => {
+    if (typeof HTMLElement.prototype.showPopover === 'function') return;
+    if (typeof MutationObserver === 'undefined') return;
+    const controls = document.querySelector('.media-controls');
+    const progressBar = document.querySelector('.odysee-progress-bar');
+    if (!controls || !progressBar) return;
+    const sync = () => {
+      if (controls.hasAttribute('data-visible')) {
+        (progressBar as HTMLElement).style.removeProperty('opacity');
+        (progressBar as HTMLElement).style.removeProperty('pointer-events');
+      } else {
+        (progressBar as HTMLElement).style.setProperty('opacity', '0');
+        (progressBar as HTMLElement).style.setProperty('pointer-events', 'none');
+      }
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(controls, { attributes: true, attributeFilter: ['data-visible'] });
+    return () => observer.disconnect();
+  }, []);
 
   React.useEffect(() => {
     const syncFsIcons = () => {
@@ -1157,7 +1204,7 @@ export default function OdyseeSkin(props) {
       />
 
       {/* Progress Bar — above the control bar */}
-      <div className="odysee-progress-bar">
+      <div className="odysee-progress-bar" style={media ? undefined : { pointerEvents: 'none', opacity: 0.5 }}>
         {isCasting && castState ? (
           <CastProgressBar castState={castState} castActions={castActions} />
         ) : (
@@ -1196,7 +1243,8 @@ export default function OdyseeSkin(props) {
       <Controls.Root
         className={`media-controls ${
           isMobileDevice || (isMobileSize && isFullscreen) ? 'odysee-mobile-controls' : 'odysee-controls-row'
-        }`}
+        } ${settingsOpen ? 'media-controls--popover-open' : ''}`}
+        style={media ? undefined : { pointerEvents: 'none', opacity: 0.5 }}
       >
         {isMobileDevice || (isMobileSize && isFullscreen) ? (
           <>
@@ -1263,7 +1311,7 @@ export default function OdyseeSkin(props) {
                   >
                     <OdyseeInfo size={18} color="currentColor" />
                   </button>
-                  {chapters.length > 0 && (
+                  {chapters.length > 0 && !isEmbeddedPlayback && (
                     <button
                       type="button"
                       className={`media-button media-button--icon ${
@@ -1344,43 +1392,45 @@ export default function OdyseeSkin(props) {
                 />
               )}
 
-              <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
-                <Popover.Trigger
-                  render={
-                    <button
-                      type="button"
-                      className={`media-button media-button--icon media-button--settings ${
-                        settingsOpen ? 'media-button--settings-open' : ''
-                      }`}
-                      aria-label={__('Settings')}
-                    >
-                      <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
-                      {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
-                        <span className="media-hd-badge">HD</span>
-                      )}
-                    </button>
-                  }
-                />
-                <Popover.Popup className="media-popover media-popover--settings">
-                  <SettingsMenuContent
-                    isMarkdownOrComment={isMarkdownOrComment}
-                    isLivestream={Boolean(isLivestream)}
-                    onToggleAutoplayNext={onToggleAutoplayNext}
-                    autoplayNext={autoplayNext}
-                    floatingPlayer={floatingPlayer}
-                    onToggleFloatingPlayer={onToggleFloatingPlayer}
-                    autoplayMedia={autoplayMedia}
-                    onToggleAutoplayMedia={onToggleAutoplayMedia}
-                    title={title}
-                    onShowShortcuts={() => setShowShortcuts(true)}
-                    onCloseMenu={() => setSettingsOpen(false)}
-                    quality={quality}
-                    isFloating={isFloating}
-                    embedded={isEmbeddedPlayback}
-                    isCasting={isCasting}
+              {!isEmbeddedPlayback && (
+                <Popover.Root side="bottom" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
+                  <Popover.Trigger
+                    render={
+                      <button
+                        type="button"
+                        className={`media-button media-button--icon media-button--settings ${
+                          settingsOpen ? 'media-button--settings-open' : ''
+                        }`}
+                        aria-label={__('Settings')}
+                      >
+                        <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
+                        {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
+                          <span className="media-hd-badge">HD</span>
+                        )}
+                      </button>
+                    }
                   />
-                </Popover.Popup>
-              </Popover.Root>
+                  <Popover.Popup className="media-popover media-popover--settings">
+                    <SettingsMenuContent
+                      isMarkdownOrComment={isMarkdownOrComment}
+                      isLivestream={Boolean(isLivestream)}
+                      onToggleAutoplayNext={onToggleAutoplayNext}
+                      autoplayNext={autoplayNext}
+                      floatingPlayer={floatingPlayer}
+                      onToggleFloatingPlayer={onToggleFloatingPlayer}
+                      autoplayMedia={autoplayMedia}
+                      onToggleAutoplayMedia={onToggleAutoplayMedia}
+                      title={title}
+                      onShowShortcuts={() => setShowShortcuts(true)}
+                      onCloseMenu={() => setSettingsOpen(false)}
+                      quality={quality}
+                      isFloating={isFloating}
+                      embedded={isEmbeddedPlayback}
+                      isCasting={isCasting}
+                    />
+                  </Popover.Popup>
+                </Popover.Root>
+              )}
             </div>
 
             <div className="odysee-mobile-controls__bottom">
@@ -1462,6 +1512,45 @@ export default function OdyseeSkin(props) {
               </div>
 
               <div className="media-surface odysee-mobile-controls__fs">
+                {isEmbeddedPlayback && (
+                  <Popover.Root side="top" open={settingsOpen} onOpenChange={(open) => setSettingsOpen(open)}>
+                    <Popover.Trigger
+                      render={
+                        <button
+                          type="button"
+                          className={`media-button media-button--icon media-button--settings ${
+                            settingsOpen ? 'media-button--settings-open' : ''
+                          }`}
+                          aria-label={__('Settings')}
+                        >
+                          <OdyseeSettings className="media-icon media-icon--settings" size={18} color="currentColor" />
+                          {(quality.isHD || (quality.levels.length === 0 && (originalVideoHeight || 0) >= 720)) && (
+                            <span className="media-hd-badge">HD</span>
+                          )}
+                        </button>
+                      }
+                    />
+                    <Popover.Popup className="media-popover media-popover--settings">
+                      <SettingsMenuContent
+                        isMarkdownOrComment={isMarkdownOrComment}
+                        isLivestream={Boolean(isLivestream)}
+                        onToggleAutoplayNext={onToggleAutoplayNext}
+                        autoplayNext={autoplayNext}
+                        floatingPlayer={floatingPlayer}
+                        onToggleFloatingPlayer={onToggleFloatingPlayer}
+                        autoplayMedia={autoplayMedia}
+                        onToggleAutoplayMedia={onToggleAutoplayMedia}
+                        title={title}
+                        onShowShortcuts={() => setShowShortcuts(true)}
+                        onCloseMenu={() => setSettingsOpen(false)}
+                        quality={quality}
+                        isFloating={isFloating}
+                        embedded={isEmbeddedPlayback}
+                        isCasting={isCasting}
+                      />
+                    </Popover.Popup>
+                  </Popover.Root>
+                )}
                 {castAvailable && onCastToggle && (
                   <Btn
                     className={`media-button--icon media-button--cast ${isCasting ? 'media-button--cast-active' : ''}`}
@@ -1756,7 +1845,7 @@ export default function OdyseeSkin(props) {
                 )}
               </div>
 
-              {chapters.length > 0 && !isFloating && <ChapterPill chapters={chapters} />}
+              {chapters.length > 0 && !isFloating && !isEmbeddedPlayback && <ChapterPill chapters={chapters} />}
             </div>
 
             <div className="media-surface odysee-controls odysee-controls--right">

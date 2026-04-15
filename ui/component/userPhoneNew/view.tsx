@@ -11,7 +11,7 @@ const isMac = typeof navigator !== 'undefined' && /Mac/.test(navigator.platform)
 const countryCodes = countryData.callingCountries.all
   .filter((_) => _.emoji)
   .reduce((acc, cur) => acc.concat(cur.countryCallingCodes.map((_) => ({ ...cur, countryCallingCode: _ }))), [])
-  .toSorted((a, b) => {
+  .sort((a, b) => {
     if (a.countryCallingCode < b.countryCallingCode) {
       return -1;
     }

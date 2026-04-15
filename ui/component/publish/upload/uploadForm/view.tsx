@@ -2,6 +2,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
 
 import { SITE_NAME, SIMPLE_SITE } from 'config';
 import React, { useEffect, useState } from 'react';
+import { useStore } from 'react-redux';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import { lazyImport } from 'util/lazyImport';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
@@ -85,6 +86,7 @@ type Props = {
 function UploadForm(props: Props) {
   const { disabled = false } = props;
   const dispatch = useAppDispatch();
+  const reduxStore = useStore();
 
   const publishFormValues = useAppSelector(selectPublishFormValues);
   const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
@@ -323,21 +325,52 @@ function UploadForm(props: Props) {
     }
 
     if (runPublish) {
-      const pipelineItems = window.store?.getState?.()?.publish?.pipelineItems || {};
-      const activePipelineItem = Object.values(pipelineItems).find(
+      const items = (reduxStore.getState() as any).publish.pipelineItems || {};
+      const activePipelineItem = Object.values(items).find(
         (item: any) => item.formId === pipelineIdForForm.current && item.stage !== 'error' && item.stage !== 'published'
       ) as any;
       const pipelineId = activePipelineItem?.id || pipelineItemIdRef.current;
+      const pipelineStage = activePipelineItem?.stage;
+      dispatch(doUpdatePipelineItem(pipelineId, { publishStarted: true }));
 
-      dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
+      if (
+        mode === PUBLISH_MODES.FILE &&
+        pipelineStage &&
+        ['queued', 'converting', 'optimizing', 'paused', 'pausing'].includes(pipelineStage)
+      ) {
+        dispatch(doUpdatePipelineItem(pipelineId, { stage: pipelineStage }));
+        const uploadPromise = await new Promise<Promise<{ tusUrl: string }> | null>((resolve) => {
+          const check = () => {
+            const handle = (window as any).__earlyUploadHandles?.[pipelineId];
+            const promise = earlyUploadPromiseRef.current || handle?.promise;
+            if (promise) {
+              resolve(promise);
+              return;
+            }
+            const currentItems = (reduxStore.getState() as any).publish.pipelineItems || {};
+            const current = currentItems[pipelineId];
+            if (!current || current.stage === 'error') {
+              resolve(null);
+              return;
+            }
+            setTimeout(check, 500);
+          };
+          check();
+        });
 
-      const uploadHandle = (window as any).__earlyUploadHandles?.[pipelineId];
-      const uploadPromise = earlyUploadPromiseRef.current || uploadHandle?.promise;
-
-      if (uploadPromise && mode === PUBLISH_MODES.FILE) {
-        dispatch(doPublishWithEarlyUpload(uploadPromise, pipelineId));
+        if (!uploadPromise) return;
+        dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
+        dispatch(doPublishWithEarlyUpload(uploadPromise as any, pipelineId));
       } else {
-        publish(outputFile, false);
+        const uploadHandle = (window as any).__earlyUploadHandles?.[pipelineId];
+        const uploadPromise = earlyUploadPromiseRef.current || uploadHandle?.promise;
+
+        if (uploadPromise && mode === PUBLISH_MODES.FILE) {
+          dispatch(doPublishWithEarlyUpload(uploadPromise, pipelineId));
+        } else {
+          dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
+          publish(outputFile, false);
+        }
       }
     }
   }
@@ -364,7 +397,7 @@ function UploadForm(props: Props) {
 
   // -- Form persistence --
   const activeFormId = useAppSelector((state) => selectPublishFormValue(state, 'activeFormId'));
-  const pipelineIdForForm = React.useRef(activeFormId && activeFormId !== '__new__' ? activeFormId : uuid());
+  const pipelineIdForForm = React.useRef(activeFormId && !activeFormId.startsWith('__new_') ? activeFormId : uuid());
   const previewOrderRef = React.useRef(++previewOrderCounter);
 
   const savedStep = useAppSelector((state) => state.publish.activeStep);
@@ -404,7 +437,7 @@ function UploadForm(props: Props) {
   React.useLayoutEffect(() => {
     if (activeFormId && activeFormId !== pipelineIdForForm.current) {
       dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: pipelineIdForForm.current } });
-      const isNew = activeFormId === '__new__';
+      const isNew = activeFormId.startsWith('__new_');
       const newId = isNew ? uuid() : activeFormId;
       pipelineIdForForm.current = newId;
       dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: newId } });
@@ -417,6 +450,14 @@ function UploadForm(props: Props) {
 
   // -- Pipeline --
   const pipelineItemIdRef = React.useRef<string>(uuid());
+
+  React.useEffect(() => {
+    const id = pipelineItemIdRef.current;
+    const items = (reduxStore.getState() as any).publish.pipelineItems || {};
+    if (items[id] && (thumbnail || title)) {
+      dispatch(doUpdatePipelineItem(id, { ...(thumbnail ? { thumbnail } : {}), ...(title ? { title } : {}) }));
+    }
+  }, [thumbnail, title]); // eslint-disable-line react-hooks/exhaustive-deps
   const pipelineHandleRef = React.useRef<{ pause: () => Promise<void>; resume: () => void } | null>(null);
   const pipelinePausedRef = React.useRef(false);
   const pipelineResumeRef = React.useRef<(() => void) | null>(null);
@@ -596,6 +637,8 @@ function UploadForm(props: Props) {
             steps,
             fileSize: file.size,
             formId: pipelineIdForForm.current,
+            title: title || filename,
+            thumbnail,
           })
         );
 
@@ -618,6 +661,8 @@ function UploadForm(props: Props) {
             steps: ['uploading'],
             fileSize: file.size,
             formId: pipelineIdForForm.current,
+            title: title || filename,
+            thumbnail,
           })
         );
 
@@ -714,7 +759,7 @@ function UploadForm(props: Props) {
                   <MenuItem
                     className="menu__link"
                     onSelect={() => {
-                      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: '__new__' } });
+                      dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: `__new_${uuid()}` } });
                     }}
                   >
                     <Icon icon={ICONS.ADD} size={14} />
