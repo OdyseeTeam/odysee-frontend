@@ -43,6 +43,7 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   private retryTimer: any;
   private retryCount = 0;
+  private reloading = false;
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] Caught:', error?.message, error?.stack); // eslint-disable-line no-console
@@ -54,6 +55,10 @@ class ErrorBoundary extends React.Component<Props, State> {
       error?.message &&
       /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result/.test(error.message)
     ) {
+      // Cancel any retry timer scheduled by componentDidUpdate so the children
+      // don't re-render and trigger the error UI before the reload navigates away.
+      clearTimeout(this.retryTimer);
+      this.reloading = true;
       const key = `__staleChunkReload:${window.location.pathname}`;
       try {
         const prev = sessionStorage.getItem(key);
@@ -93,7 +98,7 @@ class ErrorBoundary extends React.Component<Props, State> {
     const { sentryEventId } = this.state;
     const errorWasReported = sentryEventId !== null;
 
-    if (hasError && this.retryCount < 5) {
+    if (hasError && (this.retryCount < 5 || this.reloading)) {
       return null;
     }
 
