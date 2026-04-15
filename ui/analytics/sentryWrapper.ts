@@ -91,6 +91,15 @@ function handleBeforeSend(event, hints) {
       return null;
     }
 
+    // Stale chunk / lazy-import failures — already handled by ErrorBoundary auto-reload.
+    if (
+      /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result|ChunkLoadError|dynamically imported module|Importing a module script failed|Unable to preload CSS/i.test(
+        msg
+      )
+    ) {
+      return null;
+    }
+
     const frames = ev[0]?.stacktrace?.frames || [];
     const lastFrame = frames[frames.length - 1];
 

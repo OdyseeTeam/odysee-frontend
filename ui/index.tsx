@@ -1,3 +1,7 @@
+if (typeof Object.hasOwn !== 'function') {
+  (Object as any).hasOwn = (obj: any, key: PropertyKey) => Object.prototype.hasOwnProperty.call(obj, key);
+}
+
 if (typeof AbortSignal.any !== 'function') {
   AbortSignal.any = (signals: AbortSignal[]) => {
     const controller = new AbortController();
