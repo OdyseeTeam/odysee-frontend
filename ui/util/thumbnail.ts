@@ -15,8 +15,8 @@ export function getThumbnailCdnUrl(props: Props) {
     isShorts = false,
   } = props;
 
-  if (!THUMBNAIL_CDN_URL || !thumbnail) {
-    return thumbnail;
+  if (!THUMBNAIL_CDN_URL || !thumbnail || typeof thumbnail !== 'string') {
+    return typeof thumbnail === 'string' ? thumbnail : null;
   }
 
   if (thumbnail.includes(THUMBNAIL_CDN_URL)) {
@@ -39,11 +39,12 @@ export function getImageProxyUrl(thumbnail: string | null | undefined) {
   if (
     IMAGE_PROXY_URL &&
     thumbnail &&
+    typeof thumbnail === 'string' &&
     !thumbnail.startsWith(THUMBNAIL_CDN_URL) &&
     !thumbnail.startsWith(IMAGE_PROXY_URL)
   ) {
     return `${IMAGE_PROXY_URL}?${thumbnail}`;
   }
 
-  return thumbnail;
+  return typeof thumbnail === 'string' ? thumbnail : null;
 }
