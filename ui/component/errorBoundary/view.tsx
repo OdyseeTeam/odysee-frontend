@@ -53,7 +53,9 @@ class ErrorBoundary extends React.Component<Props, State> {
     }
     if (
       error?.message &&
-      /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result/.test(error.message)
+      /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result|Lazy element type must resolve|Received a promise that resolves to: undefined|Minified React error #306|undefined is not an object \(evaluating '\$?\w+\.(use[A-Z]|jsxs?|jsxDEV|Fragment|createElement|cloneElement|forwardRef|memo)/.test(
+        error.message
+      )
     ) {
       // Cancel any retry timer scheduled by componentDidUpdate so the children
       // don't re-render and trigger the error UI before the reload navigates away.

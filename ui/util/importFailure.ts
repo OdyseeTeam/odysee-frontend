@@ -8,6 +8,9 @@ const DYNAMIC_IMPORT_ERROR_PATTERNS = [
   /_result is undefined/i,
   /reading 'default'/i,
   /evaluating 'e\._result\.default'/i,
+  /Lazy element type must resolve to a class or function/i,
+  /Received a promise that resolves to: undefined/i,
+  /Minified React error #306/i,
 ];
 
 export function getDynamicImportErrorMessage(error: unknown): string {

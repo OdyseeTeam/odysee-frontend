@@ -93,7 +93,7 @@ function handleBeforeSend(event, hints) {
 
     // Stale chunk / lazy-import failures — already handled by ErrorBoundary auto-reload.
     if (
-      /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result|ChunkLoadError|dynamically imported module|Importing a module script failed|Unable to preload CSS/i.test(
+      /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result|ChunkLoadError|dynamically imported module|Importing a module script failed|Unable to preload CSS|Lazy element type must resolve|Received a promise that resolves to: undefined|Minified React error #306|undefined is not an object \(evaluating '\$?\w+\.(use[A-Z]|jsxs?|jsxDEV|Fragment|createElement|cloneElement|forwardRef|memo)/i.test(
         msg
       )
     ) {
