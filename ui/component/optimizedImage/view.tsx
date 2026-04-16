@@ -72,4 +72,4 @@ function OptimizedImage(props: Props) {
   );
 }
 
-export default OptimizedImage;
+export default React.memo(OptimizedImage);

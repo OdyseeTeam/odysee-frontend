@@ -27,7 +27,7 @@ type Props = {
   uri: string;
   shrinkOnMobile?: boolean;
 };
-export default function SubscribeButton(props: Props) {
+function SubscribeButton(props: Props) {
   const { uri, shrinkOnMobile = false } = props;
   const dispatch = useAppDispatch();
   const isSubscribed = useAppSelector((state) => selectIsSubscribedForUri(state, uri));
@@ -309,3 +309,5 @@ export default function SubscribeButton(props: Props) {
     </div>
   ) : null;
 }
+
+export default React.memo(SubscribeButton);

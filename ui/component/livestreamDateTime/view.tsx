@@ -74,4 +74,4 @@ const LivestreamDateTime = (props: Props) => {
   );
 };
 
-export default LivestreamDateTime;
+export default React.memo(LivestreamDateTime);

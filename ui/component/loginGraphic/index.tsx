@@ -8,7 +8,7 @@ function LoginGraphic(props: any) {
 
   return (
     <div className="signup-image">
-      <img alt={alt} src={LOGIN_IMG_URL} />
+      <img loading="lazy" alt={alt} src={LOGIN_IMG_URL} />
     </div>
   );
 }
