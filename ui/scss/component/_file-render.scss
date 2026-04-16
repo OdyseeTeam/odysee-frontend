@@ -918,6 +918,35 @@
   aspect-ratio: 16 / 9;
   border-radius: var(--border-radius) !important;
 
+  .file-viewer__embedded-header {
+    font-size: 0.875rem;
+    grid-template-columns: minmax(0, 1fr) auto;
+
+    .button {
+      padding: var(--spacing-xxxs);
+    }
+  }
+
+  .file-viewer__embedded-title {
+    min-width: 0;
+    line-height: 1.2;
+  }
+
+  .file-viewer__overlay-logo {
+    display: inline-flex;
+    align-items: center;
+    width: auto !important;
+
+    .icon,
+    .embed__overlay-logo,
+    svg {
+      display: block;
+      width: auto !important;
+      height: 24px;
+      max-width: none;
+    }
+  }
+
   .paid-content-overlay,
   .protected-content-overlay {
     .button__content {

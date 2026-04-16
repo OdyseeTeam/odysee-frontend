@@ -55,7 +55,7 @@ function VideoViewerWithRedux(props: any) {
   const params = useParams();
   const navigate = useNavigate();
   const { search, pathname, hash } = location;
-  const isEmbeddedPlayback = Boolean(rest.embedded) || isEmbedPath(pathname);
+  const isEmbeddedPlayback = isEmbedPath(pathname);
 
   const urlParams = new URLSearchParams(search);
   const autoplay = urlParams.get('autoplay');

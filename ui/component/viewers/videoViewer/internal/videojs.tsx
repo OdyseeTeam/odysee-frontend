@@ -130,6 +130,7 @@ type Props = {
   title?: string;
   channelTitle?: string;
   embedded?: boolean;
+  externalEmbed?: boolean;
   embeddedInternal?: boolean;
   isAudio?: boolean;
   poster?: string;
@@ -188,6 +189,7 @@ function VideoJsInner(props: Props) {
     title,
     channelTitle,
     embedded,
+    externalEmbed,
     embeddedInternal,
     isAudio,
     poster,
@@ -1043,6 +1045,7 @@ function VideoJsInner(props: Props) {
         description={claimValues?.description}
         isFloating={isFloating}
         embedded={embeddedPlayback}
+        externalEmbed={Boolean(externalEmbed || isEmbedPath(window.location.pathname))}
         uri={uri}
         castAvailable={castAvailable || airPlayAvailable}
         isCasting={isCasting}

@@ -79,6 +79,23 @@
   .nag--inline {
     top: unset;
   }
+
+  .file-viewer__embedded-title {
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  .file-viewer__overlay-logo {
+    padding-left: 0;
+
+    .icon,
+    .embed__overlay-logo,
+    svg {
+      width: auto !important;
+      height: 24px;
+      max-width: none;
+    }
+  }
 }
 
 .embed__inline-button--preview {
@@ -123,9 +140,8 @@
   }
 }
 
-.embed__wrapper .media-settings-menu {
-  max-height: 200px;
-  overflow-y: auto;
+.embed__wrapper .media-popover--settings-external-embed {
+  max-height: min(240px, calc(100vh - 24px));
 }
 
 .odysee-embed-header {
@@ -202,13 +218,28 @@
 }
 
 .odysee-embed-header__logo {
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  width: auto !important;
+  max-width: none;
   color: #fff;
   text-decoration: none;
 
-  .icon {
+  .icon,
+  .embed__overlay-logo,
+  svg {
+    display: block;
+    width: auto !important;
     height: 24px;
+    max-width: none;
   }
+}
+
+.odysee-embed-header--odysee {
+  justify-content: flex-end;
 }
 
 // Reactions overlay for embedded videos
@@ -264,6 +295,14 @@
       background-color: rgba(255, 255, 255, 0.2) !important;
     }
 
+    &.button--fire-glow-pulse {
+      animation: floatingFireBtnGlow 2s ease-out forwards;
+    }
+
+    &.button--slime-glow-pulse {
+      animation: floatingSlimeBtnGlow 3s ease-out forwards;
+    }
+
     .button__content {
       padding: 0;
     }
@@ -282,6 +321,37 @@
       height: 16px;
       stroke: white;
       filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
+    }
+
+    .button__fire-glow {
+      left: 50%;
+      bottom: 50%;
+    }
+
+    .button__fire-particle1,
+    .button__fire-particle4 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter1 !important;
+    }
+
+    .button__fire-particle2,
+    .button__fire-particle5 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter2 !important;
+    }
+
+    .button__fire-particle3,
+    .button__fire-particle6 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter3 !important;
+    }
+
+    [class^='button__slime'] {
+      left: 50%;
+      bottom: 50%;
     }
   }
 }

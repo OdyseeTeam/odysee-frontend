@@ -369,6 +369,7 @@ function SettingsMenuContent({
   quality,
   isFloating,
   embedded,
+  externalEmbed,
   isCasting,
 }) {
   const isMobileDevice = platform.isMobile();
@@ -377,7 +378,7 @@ function SettingsMenuContent({
   const media = Player.useMedia();
   const rate = Player.usePlayer((s) => s.playbackRate) || 1;
   const rateLabel = `${rate}x`;
-  const isEmbeddedPlayback = Boolean(embedded || isEmbedPath(window.location.pathname));
+  const isExternalEmbedPlayback = Boolean(externalEmbed || isEmbedPath(window.location.pathname));
 
   const handleSelectRate = useCallback(
     (r) => {
@@ -532,7 +533,7 @@ function SettingsMenuContent({
 
   return (
     <div key="main" className="media-settings-menu">
-      {!isMobileDevice && !isEmbeddedPlayback && !isShorts && (
+      {!isMobileDevice && !isExternalEmbedPlayback && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleShowShortcuts}>
           <svg
             className="media-settings-menu__icon"
@@ -557,7 +558,7 @@ function SettingsMenuContent({
           <span className="media-settings-menu__label">{__('Take snapshot')}</span>
         </button>
       )}
-      {!isEmbeddedPlayback && (
+      {!isExternalEmbedPlayback && (
         <button
           type="button"
           className={`media-settings-menu__item ${isFloating ? 'media-settings-menu__item--disabled' : ''}`}
@@ -584,7 +585,7 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      {!isEmbeddedPlayback && (
+      {!isExternalEmbedPlayback && (
         <button type="button" className="media-settings-menu__item" onClick={handleToggleAutoplay}>
           <svg
             className="media-settings-menu__icon"
@@ -607,7 +608,7 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      {!isEmbeddedPlayback && !isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
+      {!isExternalEmbedPlayback && !isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleToggleAutoplayNext}>
           <OdyseeAutoplayNext className="media-settings-menu__icon" size={16} />
           <span className="media-settings-menu__label">{__('Autoplay Next')}</span>
@@ -616,7 +617,7 @@ function SettingsMenuContent({
           </span>
         </button>
       )}
-      {!isEmbeddedPlayback && !isShorts && (
+      {!isExternalEmbedPlayback && !isShorts && (
         <button type="button" className="media-settings-menu__item" onClick={handleToggleLoop}>
           <OdyseeRepeat className="media-settings-menu__icon" size={16} color="currentColor" />
           <span className="media-settings-menu__label">{__('Loop')}</span>
@@ -1001,6 +1002,7 @@ export default function OdyseeSkin(props) {
     description,
     isFloating,
     embedded,
+    externalEmbed,
     uri,
     castAvailable,
     isCasting,
@@ -1029,6 +1031,11 @@ export default function OdyseeSkin(props) {
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const liveTimeFormat = useLiveTimeFormat();
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
+  const isExternalEmbedPlayback = Boolean(externalEmbed || isEmbedPath(window.location.pathname));
+  const isOdyseeEmbeddedPlayback = Boolean(isEmbeddedPlayback && (!isExternalEmbedPlayback || isMarkdownOrComment));
+  const settingsPopoverClassName = `media-popover media-popover--settings ${
+    isEmbeddedPlayback ? 'media-popover--settings-embed' : ''
+  } ${isExternalEmbedPlayback ? 'media-popover--settings-external-embed' : ''}`;
 
   // Detect portrait video from actual stream dimensions and add class to container
   const media = Player.useMedia();
@@ -1410,7 +1417,7 @@ export default function OdyseeSkin(props) {
                       </button>
                     }
                   />
-                  <Popover.Popup className="media-popover media-popover--settings">
+                  <Popover.Popup className={settingsPopoverClassName}>
                     <SettingsMenuContent
                       isMarkdownOrComment={isMarkdownOrComment}
                       isLivestream={Boolean(isLivestream)}
@@ -1426,6 +1433,7 @@ export default function OdyseeSkin(props) {
                       quality={quality}
                       isFloating={isFloating}
                       embedded={isEmbeddedPlayback}
+                      externalEmbed={externalEmbed}
                       isCasting={isCasting}
                     />
                   </Popover.Popup>
@@ -1530,7 +1538,7 @@ export default function OdyseeSkin(props) {
                         </button>
                       }
                     />
-                    <Popover.Popup className="media-popover media-popover--settings">
+                    <Popover.Popup className={settingsPopoverClassName}>
                       <SettingsMenuContent
                         isMarkdownOrComment={isMarkdownOrComment}
                         isLivestream={Boolean(isLivestream)}
@@ -1546,6 +1554,7 @@ export default function OdyseeSkin(props) {
                         quality={quality}
                         isFloating={isFloating}
                         embedded={isEmbeddedPlayback}
+                        externalEmbed={externalEmbed}
                         isCasting={isCasting}
                       />
                     </Popover.Popup>
@@ -1929,7 +1938,7 @@ export default function OdyseeSkin(props) {
                     </button>
                   }
                 />
-                <Popover.Popup className="media-popover media-popover--settings">
+                <Popover.Popup className={settingsPopoverClassName}>
                   <SettingsMenuContent
                     isMarkdownOrComment={isMarkdownOrComment}
                     isLivestream={Boolean(isLivestream)}
@@ -1945,6 +1954,7 @@ export default function OdyseeSkin(props) {
                     quality={quality}
                     isFloating={isFloating}
                     embedded={isEmbeddedPlayback}
+                    externalEmbed={externalEmbed}
                     isCasting={isCasting}
                   />
                 </Popover.Popup>
@@ -2121,16 +2131,27 @@ export default function OdyseeSkin(props) {
       {!isEmbeddedPlayback && <div className="media-overlay" />}
 
       {isEmbeddedPlayback && (
-        <div className="odysee-embed-header">
+        <div
+          className={`odysee-embed-header ${isOdyseeEmbeddedPlayback ? 'odysee-embed-header--odysee' : ''}`}
+          style={isOdyseeEmbeddedPlayback ? { justifyContent: 'flex-end' } : undefined}
+        >
+          {!isOdyseeEmbeddedPlayback && (
+            <a
+              className="odysee-embed-header__title"
+              href={uri ? URL + formatLbryUrlForWeb(uri) : URL}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {title}
+            </a>
+          )}
           <a
-            className="odysee-embed-header__title"
-            href={uri ? URL + formatLbryUrlForWeb(uri) : URL}
+            className="odysee-embed-header__logo"
+            href={URL}
             target="_blank"
             rel="noopener noreferrer"
+            style={isOdyseeEmbeddedPlayback ? { marginLeft: 'auto' } : undefined}
           >
-            {title}
-          </a>
-          <a className="odysee-embed-header__logo" href={URL} target="_blank" rel="noopener noreferrer">
             <Logo type="embed" />
           </a>
         </div>
