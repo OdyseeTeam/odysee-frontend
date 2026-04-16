@@ -81,7 +81,9 @@ const config: Record<string, any> = {
   LOADING_BAR_COLOR: process.env.LOADING_BAR_COLOR,
 
   SHOW_ADS: process.env.SHOW_ADS === 'true',
-  KNOWN_APP_DOMAINS: process.env.KNOWN_APP_DOMAINS ? process.env.KNOWN_APP_DOMAINS.split(',') : [],
+  KNOWN_APP_DOMAINS: process.env.KNOWN_APP_DOMAINS
+    ? process.env.KNOWN_APP_DOMAINS.split(',')
+    : ['open.lbry.com', 'lbry.tv', 'lbry.lat', 'odysee.com', 'localhost'],
   STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,
   ENABLE_UI_NOTIFICATIONS: process.env.ENABLE_UI_NOTIFICATIONS === 'true',
   ENABLE_MATURE: process.env.ENABLE_MATURE === 'true',

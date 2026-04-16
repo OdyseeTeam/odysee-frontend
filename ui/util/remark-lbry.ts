@@ -43,7 +43,7 @@ const BARE_LINK_DOMAINS = [
   'odysee.com',
 ];
 const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
-const bareLinkRegex = new RegExp(`(?:^|(?<=\\s))((?:${bareDomainPattern})(?:/[^\\s]*)?)`, 'i');
+const bareLinkRegex = new RegExp(`(?:^|(?<=\\s))((?:https?://)?(?:${bareDomainPattern})(?:/[^\\s]*)?)`, 'i');
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
 const mentionToken = '@';
 const invalidRegex = /[-_.+=?!@#$%^&*:;,{}<>\w/\\]/;
@@ -190,9 +190,10 @@ function splitTextNode(value: string): MdastNode[] {
     const isBareLink = nextIndex === nextBare && nextIndex !== nextUri && nextIndex !== nextMention;
     if (isBareLink) {
       const cleaned = rawMatch.replace(/[.,;:!?)}\]]+$/, '');
+      const url = /^https?:\/\//i.test(cleaned) ? cleaned : `https://${cleaned}`;
       nodes.push({
         type: 'link',
-        url: `https://${cleaned}`,
+        url,
         children: [{ type: 'text', value: cleaned }],
       });
       cursor = nextIndex + cleaned.length;
