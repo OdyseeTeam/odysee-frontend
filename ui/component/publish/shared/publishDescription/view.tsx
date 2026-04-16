@@ -1,8 +1,6 @@
-import { SIMPLE_SITE } from 'config';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import React, { useEffect, useCallback } from 'react';
 import { FormField } from 'component/common/form';
-import usePersistedState from 'effects/use-persisted-state';
 import Card from 'component/common/card';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectPublishFormValue } from 'redux/selectors/publish';
@@ -16,7 +14,6 @@ function PublishDescription(props: Props) {
   const dispatch = useAppDispatch();
   const description = useAppSelector((state) => selectPublishFormValue(state, 'description'));
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
-  const [advancedEditor, setAdvancedEditor] = usePersistedState('publish-form-description-mode', false);
 
   const autoResize = useCallback(() => {
     const el = document.getElementById('content_description') as HTMLTextAreaElement | null;
@@ -30,17 +27,13 @@ function PublishDescription(props: Props) {
     autoResize();
   }, [description, autoResize]);
 
-  function toggleMarkdown() {
-    setAdvancedEditor(!advancedEditor);
-  }
-
   return (
     <>
       <Card
         className="card--description"
         actions={
           <FormField
-            type={!SIMPLE_SITE && advancedEditor ? 'markdown' : 'textarea'}
+            type={'textarea'}
             name="content_description"
             hideSuggestions
             placeholder={__(
@@ -50,11 +43,11 @@ function PublishDescription(props: Props) {
             disabled={disabled}
             onChange={(value) =>
               updatePublishForm({
-                description: !SIMPLE_SITE && advancedEditor ? value : value.target.value,
+                description: value.target.value,
               })
             }
-            quickActionLabel={!SIMPLE_SITE && (advancedEditor ? __('Simple Editor') : __('Advanced Editor'))}
-            quickActionHandler={toggleMarkdown}
+            quickActionLabel={undefined}
+            quickActionHandler={undefined}
             textAreaMaxLength={FF_MAX_CHARS_IN_DESCRIPTION}
           />
         }

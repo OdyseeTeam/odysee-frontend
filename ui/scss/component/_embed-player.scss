@@ -79,6 +79,23 @@
   .nag--inline {
     top: unset;
   }
+
+  .file-viewer__embedded-title {
+    font-size: 0.875rem;
+    line-height: 1.2;
+  }
+
+  .file-viewer__overlay-logo {
+    padding-left: 0;
+
+    .icon,
+    .embed__overlay-logo,
+    svg {
+      width: auto !important;
+      height: 24px;
+      max-width: none;
+    }
+  }
 }
 
 .embed__inline-button--preview {
@@ -123,9 +140,8 @@
   }
 }
 
-.embed__wrapper .media-settings-menu {
-  max-height: 200px;
-  overflow-y: auto;
+.embed__wrapper .media-popover--settings-external-embed {
+  max-height: min(240px, calc(100vh - 24px));
 }
 
 .odysee-embed-header {
@@ -202,59 +218,140 @@
 }
 
 .odysee-embed-header__logo {
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-left: auto;
+  width: auto !important;
+  max-width: none;
   color: #fff;
   text-decoration: none;
 
-  .icon {
+  .icon,
+  .embed__overlay-logo,
+  svg {
+    display: block;
+    width: auto !important;
     height: 24px;
+    max-width: none;
   }
+}
+
+.odysee-embed-header--odysee {
+  justify-content: flex-end;
 }
 
 // Reactions overlay for embedded videos
 .embed-reactions-overlay {
   position: absolute;
   right: 8px;
-  bottom: 48px; // sit just above the seek bar
-  z-index: 7;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 5;
   display: flex;
-  gap: 8px;
+  flex-direction: column;
+  gap: 0.075rem;
+  padding: 0.25rem;
+  border-radius: 9999px;
+  background-color: rgba(0, 0, 0, 0.3);
   pointer-events: auto;
-  background: rgba(0, 0, 0, 0.45);
-  border-radius: 8px;
-  padding: 6px 12px;
-  align-items: center;
-  backdrop-filter: blur(1.5px);
-  // Override colors for legibility on dark background
-  --color-link: var(--color-text);
-  --color-fire: var(--color-text);
-  --color-slime: var(--color-text);
 
   .ratio-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 0.075rem;
     min-width: unset;
     max-width: unset;
-    margin-right: 0;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+    margin: 0;
+    width: auto;
 
-    // Hide the ratio bar in embed overlay - too cluttered
     .ratio-bar {
       display: none;
     }
+  }
 
-    .button-like,
-    .button-dislike {
-      float: none;
-      margin: 0;
+  .button-like,
+  .button-dislike {
+    background-color: transparent;
+    backdrop-filter: none;
+    box-shadow: none !important;
+    border-radius: 9999px !important;
+    width: 2.125rem !important;
+    height: 2.125rem !important;
+    min-width: 2.125rem;
+    min-height: 2.125rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+    position: relative;
+    padding: 0 !important;
+    margin: 0 !important;
+    float: none;
+    transition: background-color 150ms ease;
 
-      .button__content {
-        gap: 6px;
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.2) !important;
+    }
+
+    &.button--fire-glow-pulse {
+      animation: floatingFireBtnGlow 2s ease-out forwards;
+    }
+
+    &.button--slime-glow-pulse {
+      animation: floatingSlimeBtnGlow 3s ease-out forwards;
+    }
+
+    .button__content {
+      padding: 0;
+    }
+
+    .button__label {
+      display: contents;
+
+      .counter-inline,
+      .reaction-count-placeholder {
+        display: none;
       }
+    }
 
-      .button__label {
-        font-size: var(--font-small);
-      }
+    .icon {
+      width: 16px;
+      height: 16px;
+      stroke: white;
+      filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.25));
+    }
+
+    .button__fire-glow {
+      left: 50%;
+      bottom: 50%;
+    }
+
+    .button__fire-particle1,
+    .button__fire-particle4 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter1 !important;
+    }
+
+    .button__fire-particle2,
+    .button__fire-particle5 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter2 !important;
+    }
+
+    .button__fire-particle3,
+    .button__fire-particle6 {
+      left: 50%;
+      right: auto;
+      animation-name: particleUpCenter3 !important;
+    }
+
+    [class^='button__slime'] {
+      left: 50%;
+      bottom: 50%;
     }
   }
 }

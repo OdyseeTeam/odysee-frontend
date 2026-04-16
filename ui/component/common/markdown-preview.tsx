@@ -31,7 +31,7 @@ function isEmote(title, src) {
 }
 
 function isStakeEnoughForPreview(stakedLevel) {
-  return !stakedLevel || stakedLevel >= CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS;
+  return !stakedLevel || stakedLevel >= (Number(CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS) || 4);
 }
 
 type SimpleTextProps = {

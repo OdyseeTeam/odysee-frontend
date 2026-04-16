@@ -156,7 +156,8 @@ function VideoViewer(props: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const embedContext = useContext(EmbedContext);
-  const isEmbedded = Boolean(embedContext) || embedded || isEmbedPath(window.location.pathname);
+  const isExternalEmbed = Boolean(embedContext) || isEmbedPath(window.location.pathname);
+  const isEmbedded = isExternalEmbed || embedded;
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
 
   const [videoNode, setVideoNode] = useState<HTMLVideoElement | null>(null);
@@ -400,6 +401,7 @@ function VideoViewer(props: Props) {
           playNext={handlePlayNextUri}
           playPrevious={handlePlayPreviousUri}
           embedded={isEmbedded}
+          externalEmbed={isExternalEmbed}
           embeddedInternal={isMarkdownOrComment}
           claimValues={claim.value}
           doAnalyticsViewForUri={doAnalyticsViewForUri}

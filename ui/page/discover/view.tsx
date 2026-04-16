@@ -1,7 +1,7 @@
 import React from 'react';
 import type { HomepageTitles } from 'util/buildHomepage';
 import classnames from 'classnames';
-import { DOMAIN, SIMPLE_SITE } from 'config';
+import { DOMAIN } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as CS from 'constants/claim_search';
@@ -238,10 +238,7 @@ function DiscoverPage(props: Props) {
           limitClaimsPerChannel={
             orderParam === CS.ORDER_BY_NEW
               ? 5
-              : SIMPLE_SITE
-                ? (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) ||
-                  3
-                : 3
+              : (dynamicRouteProps && dynamicRouteProps.options && dynamicRouteProps.options.limitClaimsPerChannel) || 3
           }
           meta={getMeta()}
           hasSource

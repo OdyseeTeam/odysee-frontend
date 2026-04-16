@@ -1373,6 +1373,12 @@ export const doPublish =
   };
 export const doPublishWithEarlyUpload =
   (tusUrlPromise: Promise<{ tusUrl: string }>, guid: string) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const myClaimForUri = state.publish.claimToEdit;
+    const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
+    const publishData = selectPublishFormValues(state);
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
+
     dispatch({ type: ACTIONS.PUBLISH_START });
     navigateTo(`/$/${PAGES.UPLOADS}`);
 
@@ -1383,12 +1389,7 @@ export const doPublishWithEarlyUpload =
         data: { id: guid, updates: { stage: 'processing', progress: 0 } },
       });
 
-      const state = getState();
-      const myClaimForUri = state.publish.claimToEdit;
-      const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
-      const publishData = selectPublishFormValues(state);
       const { memberRestrictionTierIds, name } = publishData;
-      const memberRestrictionStatus = selectMemberRestrictionStatus(state);
       const publishPayload = resolvePublishPayload(
         publishData,
         myClaimForUri,

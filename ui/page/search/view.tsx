@@ -1,4 +1,3 @@
-import { SIMPLE_SITE } from 'config';
 import React, { useEffect } from 'react';
 import Lbry from 'lbry';
 import { parseURI, isNameValid } from 'util/lbryURI';
@@ -129,9 +128,7 @@ export default function SearchPage() {
           // needs to be unique to indicate when a fetch is needed.
           page={from + 1}
           pageSize={SEARCH_PAGE_SIZE}
-          header={
-            <SearchOptions simple={SIMPLE_SITE} additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />
-          }
+          header={<SearchOptions simple additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />}
         />
         <div className="main--empty help">{__('These search results are provided by Odysee.')}</div>
       </section>

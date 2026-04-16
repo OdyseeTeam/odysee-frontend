@@ -70,7 +70,7 @@ function MarkdownLink(props: Props) {
   let lbryUrlFromLink;
 
   if (linkUrlObject && !href.startsWith('mailto:')) {
-    const linkDomain = linkUrlObject.host;
+    const linkDomain = linkUrlObject.hostname;
     const isKnownAppDomainLink = KNOWN_APP_DOMAINS.includes(linkDomain);
 
     if (isKnownAppDomainLink) {

@@ -76,6 +76,8 @@ export const doClearPlayingSource = () => (dispatch: Dispatch) =>
   dispatch(
     doChangePlayingUri({
       source: null,
+      sourceId: null,
+      commentId: null,
       collection: {},
     })
   );

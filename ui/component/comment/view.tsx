@@ -21,7 +21,7 @@ import {
   THRESHOLD_MS,
 } from 'constants/comment';
 import { FF_MAX_CHARS_IN_COMMENT } from 'constants/form-field';
-import { SITE_NAME, SIMPLE_SITE, ENABLE_COMMENT_REACTIONS } from 'config';
+import { SITE_NAME, ENABLE_COMMENT_REACTIONS } from 'config';
 import React, { useEffect, useState } from 'react';
 import { parseURI } from 'util/lbryURI';
 import DateTime from 'component/dateTime';
@@ -34,7 +34,7 @@ import { Menu, MenuButton } from 'component/common/menu';
 import Icon from 'component/common/icon';
 import { FormField, Form } from 'component/common/form';
 import classnames from 'classnames';
-import usePersistedState from 'effects/use-persisted-state';
+
 import CommentReactions from 'component/commentReactions';
 import CommentsReplies from 'component/commentsReplies';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -205,7 +205,7 @@ function CommentView(props: Props) {
   const [charCount, setCharCount] = useState(editedMessage.length);
   const [showReplies, setShowReplies] = useState(showRepliesOnMount);
   const [page, setPage] = useState(showRepliesOnMount ? 1 : 0);
-  const [advancedEditor] = usePersistedState('comment-editor-mode', false);
+
   const [displayDeadComment, setDisplayDeadComment] = React.useState(forceDisplayDeadComment);
   // Expand replies when linked comment ancestors arrive after mount (e.g. notification navigation)
   React.useEffect(() => {
@@ -275,7 +275,7 @@ function CommentView(props: Props) {
   }, [page, uri, commentId, dispatch]);
 
   function handleEditMessageChanged(event) {
-    setCommentValue(!SIMPLE_SITE && advancedEditor ? event : event.target.value);
+    setCommentValue(event.target.value);
   }
 
   function handleEditComment(isEditing: boolean) {
@@ -493,7 +493,7 @@ function CommentView(props: Props) {
                 />
                 <FormField
                   className="comment__edit-input"
-                  type={!SIMPLE_SITE && advancedEditor ? 'markdown' : 'textarea'}
+                  type={'textarea'}
                   name="editing_comment"
                   value={editedMessage}
                   charCount={charCount}

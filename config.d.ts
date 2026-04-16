@@ -76,7 +76,7 @@ interface Config {
   CHANNEL_CREATION_LIMIT: string | undefined;
   WEB_PUBLISH_SIZE_LIMIT_GB: string | undefined;
   LOADING_BAR_COLOR: string | undefined;
-  SIMPLE_SITE: boolean;
+
   SHOW_ADS: boolean;
   KNOWN_APP_DOMAINS: string[];
   STRIPE_PUBLIC_KEY: string | undefined;
