@@ -7,7 +7,6 @@ import SearchTopClaim from 'component/searchTopClaim';
 import * as CS from 'constants/claim_search';
 import Button from 'component/button';
 import * as MODALS from 'constants/modal_types';
-import { SIMPLE_SITE } from 'config';
 import { useLocation } from 'react-router-dom';
 import { useAppDispatch } from 'redux/hooks';
 import { doBeginPublish } from 'redux/actions/publish';
@@ -38,7 +37,7 @@ function TopPage() {
         name={channelActive ? `@${queryName}` : queryName}
         defaultFreshness={CS.FRESH_ALL}
         defaultOrderBy={CS.ORDER_BY_TOP}
-        streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+        streamType={CS.CONTENT_ALL}
         meta={
           <div className="search__top-links">
             <Button

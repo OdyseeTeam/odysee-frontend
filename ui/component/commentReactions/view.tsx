@@ -1,4 +1,4 @@
-import { ENABLE_CREATOR_REACTIONS, SIMPLE_SITE } from 'config';
+import { ENABLE_CREATOR_REACTIONS } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as REACTION_TYPES from 'constants/reactions';

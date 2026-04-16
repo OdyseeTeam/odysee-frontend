@@ -1,6 +1,6 @@
 import type { DoPublishDesktop } from 'redux/actions/publish';
 
-import { SITE_NAME, SIMPLE_SITE } from 'config';
+import { SITE_NAME } from 'config';
 import React, { useEffect, useState } from 'react';
 import { useStore } from 'react-redux';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';

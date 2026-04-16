@@ -1,4 +1,4 @@
-import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
+import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { BITRATE } from 'constants/publish';
 import * as ICONS from 'constants/icons';
 import React, { useState, useEffect } from 'react';
@@ -413,7 +413,7 @@ function PublishLivestream(props: Props) {
                     disabled={liveEditType !== 'upload_replay'}
                     currentPath={typeof filePath === 'string' ? filePath : filePath?.name}
                     onFileChosen={handleFileChange}
-                    accept={SIMPLE_SITE ? 'video/mp4,video/x-m4v,video/*' : undefined}
+                    accept={'video/mp4,video/x-m4v,video/*'}
                     placeholder={__('Select video replay file to upload')}
                   />
                   {getUploadMessage()}

@@ -4,7 +4,7 @@ import * as STRIPE from 'constants/stripe';
 import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
 import { createSelector } from 'reselect';
 import { EMPTY_ARRAY, EMPTY_OBJECT } from 'redux/selectors/empty';
-import { ENABLE_MATURE, SIMPLE_SITE } from 'config';
+import { ENABLE_MATURE } from 'config';
 import { getDefaultHomepageKey, getDefaultLanguage } from 'util/default-languages';
 import { selectClaimForId } from 'redux/selectors/claims';
 import { selectUserLocale } from 'redux/selectors/user';
@@ -39,7 +39,7 @@ export const selectUploadsFilteringSetting = (state) => {
 };
 // refactor me
 export const selectShowMatureContent = (state) => {
-  return !ENABLE_MATURE || SIMPLE_SITE ? false : selectClientSetting(state, SETTINGS.SHOW_MATURE);
+  return !ENABLE_MATURE ? false : selectClientSetting(state, SETTINGS.SHOW_MATURE);
 };
 export const selectTheme = (state) => {
   const theme = selectClientSetting(state, SETTINGS.THEME);

@@ -2,7 +2,6 @@ import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
 import * as CS from 'constants/claim_search';
 import * as SETTINGS from 'constants/settings';
-import { SIMPLE_SITE } from 'config';
 import React from 'react';
 import ClaimListDiscover from 'component/claimListDiscover';
 import Page from 'component/page';
@@ -70,7 +69,7 @@ function ChannelsFollowingPage() {
           />
 
           <ClaimListDiscover
-            streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+            streamType={CS.CONTENT_ALL}
             tileLayout={tileLayout}
             headerLabel={
               <h1 className="page__title">

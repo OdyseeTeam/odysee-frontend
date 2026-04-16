@@ -1,4 +1,4 @@
-import { SITE_NAME, SIMPLE_SITE } from 'config';
+import { SITE_NAME } from 'config';
 import * as PAGES from 'constants/pages';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
@@ -60,7 +60,7 @@ function UserEmailReturning() {
   return (
     <div
       className={classnames('main__sign-in', {
-        'main__sign-up--graphic': SIMPLE_SITE && !showEmailVerification,
+        'main__sign-up--graphic': !showEmailVerification,
       })}
     >
       {showEmailVerification ? (
@@ -116,7 +116,7 @@ function UserEmailReturning() {
               )}
             </>
           }
-          secondPane={SIMPLE_SITE && <LoginGraphic />}
+          secondPane={<LoginGraphic />}
         />
       )}
     </div>

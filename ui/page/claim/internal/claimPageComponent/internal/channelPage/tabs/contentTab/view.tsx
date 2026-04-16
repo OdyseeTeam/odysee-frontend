@@ -1,4 +1,3 @@
-import { SIMPLE_SITE } from 'config';
 import { SECTION_TAGS } from 'constants/collections';
 import * as CS from 'constants/claim_search';
 import * as ICONS from 'constants/icons';
@@ -199,7 +198,7 @@ function ContentTab(props: Props) {
             hideAdvancedFilter={!showFilters}
             tileLayout={tileLayout}
             uris={searchQuery.length > 2 || isSearching ? [] : null}
-            streamType={SIMPLE_SITE ? CS.CONTENT_ALL : undefined}
+            streamType={CS.CONTENT_ALL}
             channelIds={searchQuery.length < 3 ? ([claimId].filter(Boolean) as string[]) : undefined}
             claimType={claimType}
             feeAmount={undefined}
