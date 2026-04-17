@@ -975,6 +975,11 @@
   right: 0;
   bottom: 0;
   z-index: 1;
+  pointer-events: none;
+
+  * {
+    pointer-events: auto;
+  }
   border-radius: var(--border-radius);
   animation: blendin 1s forwards;
   padding: 3% 10%;

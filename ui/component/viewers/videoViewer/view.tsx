@@ -361,6 +361,7 @@ function VideoViewer(props: Props) {
         className={classnames('file-viewer', {
           'file-viewer--is-playing': isPlaying,
           'file-viewer--ended-embed': showEmbedEndOverlay,
+          'file-viewer--ended': showRecommendationOverlay,
         })}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
