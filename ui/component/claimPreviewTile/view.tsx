@@ -306,7 +306,7 @@ function ClaimPreviewTile(props: Props) {
                     <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
                   </>
                 )}
-                {media && <ButtonFloatingPlayer uri={repostedContentUri} />}
+                {media && (!isLivestream || isLivestreamActive) && <ButtonFloatingPlayer uri={repostedContentUri} />}
               </div>
 
               <div className="claim-preview__file-property-overlay">
