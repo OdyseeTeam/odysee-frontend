@@ -51,7 +51,8 @@ import FloatingShortsActions from './internal/floatingShortsActions';
 import FloatingReactions from './internal/floatingReactions';
 import { useLocation } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectClaimForUri, selectTitleForUri } from 'redux/selectors/claims';
+import { selectClaimForUri, selectTitleForUri, selectGeoRestrictionForUri } from 'redux/selectors/claims';
+import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
 import { selectCollectionForId, selectCollectionForIdHasClaimUrl } from 'redux/selectors/collections';
 import * as SETTINGS from 'constants/settings';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
@@ -206,6 +207,11 @@ function VideoRenderFloating(props: Props) {
   } = playingUri;
   const uri = (!playingUri.sourceId && playingUri.uri) || autoplayCountdownUri;
   const claim = useAppSelector((state) => uri && selectClaimForUri(state, uri));
+  const isBlacklisted = useAppSelector((state) => (uri ? Boolean(selectBlackListedDataForUri(state, uri)) : false));
+  const filterData = useAppSelector((state) => (uri ? selectFilteredDataForUri(state, uri) : null));
+  const isFiltered = filterData && filterData.tag_name !== 'internal-hide-trending';
+  const geoRestriction = useAppSelector((state) => (uri ? selectGeoRestrictionForUri(state, uri) : null));
+  const isBlocked = isBlacklisted || isFiltered || Boolean(geoRestriction);
   const { claim_id: claimId, signing_channel: channelClaim, permanent_url } = claim || {};
   const { canonical_url: channelUrl } = channelClaim || {};
   const playingFromQueue = playingUri.source === COLLECTIONS_CONSTS.QUEUE_ID;
@@ -800,7 +806,7 @@ function VideoRenderFloating(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [draggable]);
 
-  if (!uri || (isFloating && noFloatingPlayer)) {
+  if (!uri || (isFloating && noFloatingPlayer) || isBlocked) {
     return null;
   }
 
