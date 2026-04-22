@@ -138,7 +138,7 @@
     "tus-js-client": "^2.3.0",
     "twemoji": "^14.0.2",
     "unist-util-visit": "^5.1.0",
-    "uuid": "^9.0.1"
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
