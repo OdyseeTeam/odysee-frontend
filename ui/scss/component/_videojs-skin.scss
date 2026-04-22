@@ -127,6 +127,9 @@
 
   position: relative;
   isolation: isolate;
+  .file-viewer--ended & {
+    isolation: auto;
+  }
   display: block;
   height: 100%;
   width: 100%;

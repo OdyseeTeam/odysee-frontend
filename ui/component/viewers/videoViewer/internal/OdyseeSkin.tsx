@@ -1174,7 +1174,7 @@ export default function OdyseeSkin(props) {
     <Player.Container
       className={`media-default-skin media-default-skin--video odysee-skin ${
         isCasting ? 'odysee-skin--casting' : ''
-      } ${isVertical ? 'odysee-skin--portrait' : ''} ${className || ''}`}
+      } ${isVertical && isShorts ? 'odysee-skin--portrait' : ''} ${className || ''}`}
       {...rest}
     >
       {children}

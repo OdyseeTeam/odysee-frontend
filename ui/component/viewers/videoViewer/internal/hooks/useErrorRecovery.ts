@@ -48,15 +48,19 @@ export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVi
         if (hls) {
           if (errorType === 'networkError') {
             hls.startLoad();
+            media.play()?.catch(() => {});
           } else if (errorType === 'mediaError') {
             hls.recoverMediaError();
+            media.play()?.catch(() => {});
           } else {
             lastTimeRef.current = media.currentTime || 0;
             setReload(Date.now());
+            setTimeout(() => media.play()?.catch(() => {}), 500);
           }
         } else {
           lastTimeRef.current = media.currentTime || 0;
           setReload(Date.now());
+          setTimeout(() => media.play()?.catch(() => {}), 500);
         }
       }, delay);
     };
@@ -85,26 +89,32 @@ export default function useErrorRecovery(resolvedSrc, setReload, setTapToRetryVi
       }
     };
 
+    let hlsAttached = false;
+    let pollTimer: ReturnType<typeof setInterval> | null = null;
+
     const attachHlsHandler = () => {
-      const checkHls = () => {
-        const hls = media._hls;
-        if (hls) {
-          hls.on(HLS_EVENT_ERROR as any, onHlsError);
+      const hls = media._hls;
+      if (hls && !hlsAttached) {
+        hlsAttached = true;
+        hls.on(HLS_EVENT_ERROR as any, onHlsError);
+        if (pollTimer) {
+          clearInterval(pollTimer);
+          pollTimer = null;
         }
-      };
-      if (media._hls) {
-        checkHls();
-      } else {
-        setTimeout(checkHls, 100);
       }
     };
 
+    attachHlsHandler();
+    if (!hlsAttached) {
+      pollTimer = setInterval(attachHlsHandler, 200);
+    }
+
     media.addEventListener('error', onMediaError);
     media.addEventListener('playing', resetAttempts);
-    attachHlsHandler();
 
     return () => {
       clearTimer();
+      if (pollTimer) clearInterval(pollTimer);
       media.removeEventListener('error', onMediaError);
       media.removeEventListener('playing', resetAttempts);
       const hls = media._hls;

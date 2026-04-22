@@ -572,7 +572,9 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
                             <ButtonAddToQueue focusable={false} uri={repostedContentUri} />
                           </>
                         )}
-                        <ButtonFloatingPlayer uri={repostedContentUri} />
+                        {media && (!isLivestream || isLivestreamActive) && (
+                          <ButtonFloatingPlayer uri={repostedContentUri} />
+                        )}
                       </div>
                     )}
                     <div className="claim-preview__file-property-overlay">
