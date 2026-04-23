@@ -37,7 +37,9 @@ export default function MobilePanel(props: Props) {
     threadCommentId,
     isComments,
   } = props;
-  const modalRef = React.useRef();
+  const modalRef = React.useRef<HTMLDivElement | null>(null);
+  const contentRef = React.useRef<HTMLDivElement | null>(null);
+  const commentsRef = React.useRef<HTMLDivElement | null>(null);
   const [isClosing, setIsClosing] = React.useState(false);
   const handleClose = React.useCallback(() => {
     setIsClosing(true);
@@ -75,6 +77,30 @@ export default function MobilePanel(props: Props) {
       setIsClosing(false);
     }
   }, [isOpen]);
+
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const contentEl = contentRef.current;
+    if (!contentEl) return;
+
+    const raf = requestAnimationFrame(() => {
+      if (isComments && commentsRef.current) {
+        contentEl.scrollTo({
+          top: commentsRef.current.offsetTop,
+          behavior: 'smooth',
+        });
+      } else {
+        contentEl.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [isOpen, isComments, uri, linkedCommentId, threadCommentId]);
+
   if (!document.body) return null;
   return createPortal(
     <div className={`shorts-mobile-panel ${isOpen ? 'shorts-mobile-panel--modal-open' : ''}`}>
@@ -99,26 +125,25 @@ export default function MobilePanel(props: Props) {
               </div>
             </div>
 
-            <div className="shorts-page__side-panel-content">
-              {!isComments ? (
-                <FileTitleSection uri={uri} accessStatus={accessStatus} />
-              ) : (
-                <>
-                  {contentUnlocked &&
-                    (commentsDisabled ? (
-                      <Empty padded text={__('The creator of this content has disabled comments.')} />
-                    ) : (
-                      <React.Suspense fallback={null}>
-                        <CommentsList
-                          uri={uri}
-                          linkedCommentId={linkedCommentId}
-                          threadCommentId={threadCommentId}
-                          notInDrawer
-                        />
-                      </React.Suspense>
-                    ))}
-                </>
-              )}
+            <div ref={contentRef} className="shorts-mobile-panel__content">
+              <FileTitleSection uri={uri} accessStatus={accessStatus} />
+
+              <div ref={commentsRef} className="shorts-mobile-panel__comments-section">
+                <h4>{__('Comments')}</h4>
+                {contentUnlocked &&
+                  (commentsDisabled ? (
+                    <Empty padded text={__('The creator of this content has disabled comments.')} />
+                  ) : (
+                    <React.Suspense fallback={null}>
+                      <CommentsList
+                        uri={uri}
+                        linkedCommentId={linkedCommentId}
+                        threadCommentId={threadCommentId}
+                        notInDrawer
+                      />
+                    </React.Suspense>
+                  ))}
+              </div>
             </div>
           </div>
         </div>

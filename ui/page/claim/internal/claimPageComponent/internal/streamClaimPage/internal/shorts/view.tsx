@@ -8,7 +8,7 @@ import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
 import ShortsActions from 'component/shortsActions';
 import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
-import MobileTabView from 'component/mobileTabView';
+import ShortsMobileSidePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { NavigationType, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
@@ -53,10 +53,8 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectShortsSidePanelOpen, selectShortsPlaylist, selectShortsViewMode } from 'redux/selectors/shorts';
 import {
   doSetShortsSidePanel as doSetShortsSidePanelAction,
-  doToggleShortsSidePanel,
   doSetShortsPlaylist as doSetShortsPlaylistAction,
   doSetShortsViewMode as doSetShortsViewModeAction,
-  doSetShortsAutoplay as doSetShortsAutoplayAction,
   doClearShortsPlaylist as doClearShortsPlaylistAction,
 } from 'redux/actions/shorts';
 import { doClaimSearch as doClaimSearchAction, doResolveUri as doResolveUriAction } from 'redux/actions/claims';
@@ -204,7 +202,6 @@ export default function ShortsPage(props: Props) {
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
-  const drawerOpenRef = React.useRef<any>(null);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [transitionDirection, setTransitionDirection] = React.useState<ReelDirection | null | undefined>(null);
@@ -232,7 +229,6 @@ export default function ShortsPage(props: Props) {
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
   const PRELOAD_BATCH_SIZE = 3;
   const preloadedUrisRef = React.useRef(new Set());
-  const isFullscreen = !!document.fullscreenElement;
   const isSwipeEnabled = !(isMobile && sidePanelOpen);
   const hasEnsuredViewParam = React.useRef(false);
   const latestRouteRef = React.useRef({
@@ -330,21 +326,13 @@ export default function ShortsPage(props: Props) {
     );
   }, [claimIsMine, collectionId, dispatch, isUnlisted, uri, webShareable]);
   const handleCommentsClick = React.useCallback(() => {
-    if (sidePanelOpen && panelMode === 'comments') {
-      dispatch(doSetShortsSidePanelAction(false));
-    } else {
-      setPanelMode('comments');
-      dispatch(doSetShortsSidePanelAction(true));
-    }
-  }, [dispatch, sidePanelOpen, panelMode]);
+    setPanelMode('comments');
+    dispatch(doSetShortsSidePanelAction(true));
+  }, [dispatch]);
   const handleInfoButtonClick = React.useCallback(() => {
-    if (sidePanelOpen && panelMode === 'info') {
-      dispatch(doSetShortsSidePanelAction(false));
-    } else {
-      setPanelMode('info');
-      dispatch(doSetShortsSidePanelAction(true));
-    }
-  }, [dispatch, sidePanelOpen, panelMode]);
+    setPanelMode('info');
+    dispatch(doSetShortsSidePanelAction(true));
+  }, [dispatch]);
   const handleClosePanel = React.useCallback(() => {
     dispatch(doSetShortsSidePanelAction(false));
   }, [dispatch]);
@@ -355,7 +343,7 @@ export default function ShortsPage(props: Props) {
       setPanelMode('comments');
       dispatch(doSetShortsSidePanelAction(true));
     }
-  }, [linkedCommentId, isMobile, dispatch]);
+  }, [linkedCommentId, dispatch]);
   React.useEffect(() => {
     if (!shortsRecommendedUris || shortsRecommendedUris.length === 0) return;
     if (currentIndex < 0) return;
@@ -856,52 +844,19 @@ export default function ShortsPage(props: Props) {
             />
           )}
 
-          {isMobile &&
-            (() => {
-              const portalTarget = isFullscreen
-                ? document.querySelector('.player-fullscreen-target') || document.body
-                : document.body;
-              return portalTarget
-                ? createPortal(
-                    <MobileTabView
-                      useDrawer
-                      drawerOpenRef={drawerOpenRef}
-                      tabDefs={[
-                        { icon: ICONS.INFO, label: __('Details') },
-                        { icon: ICONS.COMMENTS_LIST, label: __('Comments') },
-                      ]}
-                      infoContent={
-                        <div className="file-page">
-                          <div className="card-stack">
-                            <section className="file-page__media-actions">
-                              <FileTitleSection uri={uri} accessStatus={accessStatus} />
-                            </section>
-                          </div>
-                        </div>
-                      }
-                      commentsContent={
-                        contentUnlocked ? (
-                          commentsDisabled ? (
-                            <Empty padded text={__('The creator of this content has disabled comments.')} />
-                          ) : (
-                            <React.Suspense fallback={null}>
-                              <CommentsList
-                                uri={uri}
-                                linkedCommentId={linkedCommentId}
-                                threadCommentId={threadCommentId}
-                                notInDrawer
-                              />
-                            </React.Suspense>
-                          )
-                        ) : null
-                      }
-                      relatedContent={null}
-                      onDrawerClose={handleClosePanel}
-                    />,
-                    portalTarget
-                  )
-                : null;
-            })()}
+          {isMobile && (
+            <ShortsMobileSidePanel
+              isOpen={sidePanelOpen}
+              onClose={handleClosePanel}
+              uri={uri}
+              accessStatus={accessStatus}
+              contentUnlocked={contentUnlocked}
+              commentsDisabled={commentsDisabled}
+              linkedCommentId={linkedCommentId}
+              threadCommentId={threadCommentId}
+              isComments={panelMode === 'comments'}
+            />
+          )}
         </div>
       </div>
     </>

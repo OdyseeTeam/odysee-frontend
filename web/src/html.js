@@ -232,7 +232,25 @@ function addPWA() {
   head += '<link rel="apple-touch-icon" sizes="180x180" href="/public/pwa/icon-180.png">';
   head += `<script>
       window.addEventListener('load', function() {
-        if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js", { scope: "/" })}
+        if (!("serviceWorker" in navigator)) return;
+
+        var isLocalDev =
+          location.hostname === 'localhost' ||
+          location.hostname === '127.0.0.1' ||
+          location.hostname === '::1';
+
+        if (isLocalDev) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(registration) {
+              if (registration && registration.active && registration.active.scriptURL.includes('/sw.js')) {
+                registration.unregister();
+              }
+            });
+          });
+          return;
+        }
+
+        navigator.serviceWorker.register("/sw.js", { scope: "/" });
       });
     </script>`;
   return head;
@@ -531,6 +549,54 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
 let html;
 const isDev = process.env.NODE_ENV === 'development';
 const HTML_PATH = path.join(__dirname, '/../dist/public/index-web.html');
+const DEV_RESET_SCRIPT = `<script>
+  (function() {
+    if (!('serviceWorker' in navigator)) return;
+
+    var isLocalDev =
+      location.hostname === 'localhost' ||
+      location.hostname === '127.0.0.1' ||
+      location.hostname === '::1';
+
+    if (!isLocalDev) return;
+
+    var resetKey = 'odysee-dev-sw-reset';
+
+    navigator.serviceWorker.getRegistrations().then(function(registrations) {
+      var hadController = !!navigator.serviceWorker.controller;
+      var hadRegistrations = registrations.length > 0;
+
+      return Promise.all(
+        registrations.map(function(registration) {
+          return registration.unregister().catch(function() {});
+        })
+      )
+        .then(function() {
+          if (!('caches' in window)) return;
+          return caches.keys().then(function(keys) {
+            return Promise.all(
+              keys.map(function(key) {
+                return caches.delete(key).catch(function() {});
+              })
+            );
+          });
+        })
+        .catch(function() {})
+        .then(function() {
+          if ((hadController || hadRegistrations) && sessionStorage.getItem(resetKey) !== 'done') {
+            sessionStorage.setItem(resetKey, 'done');
+            document.open();
+            document.write('<!doctype html><html><head><meta charset="utf-8"><title>Resetting Dev Cache...</title></head><body><p>Resetting local dev cache...</p></body></html>');
+            document.close();
+            location.replace(location.href);
+            return;
+          }
+
+          sessionStorage.removeItem(resetKey);
+        });
+    });
+  })();
+</script>`;
 
 async function getHtml(ctx) {
   // In development, always re-read so we pick up build changes immediately.
@@ -543,6 +609,9 @@ async function getHtml(ctx) {
           '</head>',
           `<script>(function(){var d=customElements.define.bind(customElements);customElements.define=function(n,c,o){if(!customElements.get(n))d(n,c,o)}})()</script></head>`
         );
+      }
+      if (isDev) {
+        rawHtml = rawHtml.replace('<head>', `<head>\n    ${DEV_RESET_SCRIPT}`);
       }
       // React Scan is opt-in in development. Always injecting it proved too expensive on some heavy pages.
       if (isDev && process.env.REACT_SCAN) {

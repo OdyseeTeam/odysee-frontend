@@ -296,6 +296,16 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-m);
+  scroll-behavior: smooth;
+}
+
+.shorts-page__side-panel-comments {
+  margin-top: var(--spacing-l);
+  padding-top: var(--spacing-m);
+}
+
+.shorts-page__side-panel-comments-title {
+  margin-bottom: var(--spacing-m);
 }
 
 .shorts-page__back-button {
