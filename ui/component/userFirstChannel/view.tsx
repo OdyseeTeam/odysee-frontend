@@ -144,7 +144,7 @@ function UserFirstChannel(props: Props) {
             <fieldset-section>
               <label>{__('Channel profile picture')}</label>
               <div className="form-field__avatar_upload">
-                <img className="form-field__avatar" src={thumbnailPreview} />
+                <img loading="lazy" className="form-field__avatar" src={thumbnailPreview} />
                 <Button
                   button="alt"
                   title={__('Edit')}

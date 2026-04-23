@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
+import debounce from 'util/debounce';
 import { fullscreenElement as getFullscreenElement, onFullscreenChange } from 'util/full-screen';
 
 const DRAWER_TRANSITION = 'transform 0.2s ease';
@@ -148,10 +149,12 @@ export default function MobileTabView(props: Props) {
 
     measure();
     const t = setTimeout(measure, 500);
-    window.addEventListener('resize', measure);
+    const debouncedMeasure = debounce(measure, 100);
+    window.addEventListener('resize', debouncedMeasure);
     return () => {
       clearTimeout(t);
-      window.removeEventListener('resize', measure);
+      debouncedMeasure.cancel();
+      window.removeEventListener('resize', debouncedMeasure);
     };
   }, [useDrawer]);
 

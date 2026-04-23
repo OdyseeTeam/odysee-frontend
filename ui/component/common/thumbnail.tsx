@@ -10,6 +10,7 @@ const Thumbnail = (props: Props) => {
   const { className, src, shouldObscure } = props;
   return (
     <img
+      loading="lazy"
       alt={__('Image thumbnail')}
       className={classnames(
         'card__media',

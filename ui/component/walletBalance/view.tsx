@@ -224,11 +224,23 @@ const WalletBalance = () => {
                   <div>{__(`Wander login${!isMobile ? ' or extension' : ''}`)}</div>
                   <div>
                     {!hasConnection && !isSigningIn ? (
-                      <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" alt="Failed" />
+                      <img
+                        loading="lazy"
+                        src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp"
+                        alt="Failed"
+                      />
                     ) : isSigningIn ? (
-                      <img src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp" alt="Loading..." />
+                      <img
+                        loading="lazy"
+                        src="https://thumbs.odycdn.com/fcf0fa003f3537b8e5d6acd1d5a96055.webp"
+                        alt="Loading..."
+                      />
                     ) : (
-                      <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" alt="Success" />
+                      <img
+                        loading="lazy"
+                        src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp"
+                        alt="Success"
+                      />
                     )}
                   </div>
                 </div>
@@ -237,9 +249,9 @@ const WalletBalance = () => {
                   <div>{__('Wander wallet connection')}</div>
                   <div>
                     {hasArConnection ? (
-                      <img src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
+                      <img loading="lazy" src="https://thumbs.odycdn.com/8ee966185b537b147fb7be4412b6bc68.webp" />
                     ) : (
-                      <img src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
+                      <img loading="lazy" src="https://thumbs.odycdn.com/bd2adbec2979b00b1fcb6794e118d5db.webp" />
                     )}
                   </div>
                 </div>
@@ -402,7 +414,10 @@ const WalletBalance = () => {
                     </I18nMessage>
                   </h2>
                   <h2 className="section__title--small">
-                    <img src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp" />
+                    <img
+                      loading="lazy"
+                      src="https://thumbnails.odycdn.com/optimize/s:40:0/quality:95/plain/https://thumbs.odycdn.com/6392753ffcf0f9318c3bded3b13388e6.webp"
+                    />
                     AR Price: ${Number(arStatus.exchangeRates.ar).toFixed(2)} USD
                   </h2>
                 </>

@@ -39,7 +39,7 @@ export default function TextareaSuggestionsItem(props: Props) {
             <Twemoji emoji={unicode} />
           </div>
         ) : (
-          <img className="emote" src={url} />
+          <img loading="lazy" className="emote" src={url} />
         )}
 
         <div className="textarea-suggestion__label">

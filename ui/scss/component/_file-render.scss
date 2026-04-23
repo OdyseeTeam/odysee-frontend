@@ -512,16 +512,6 @@
   }
 }
 
-.file-render__viewer--three {
-  position: relative;
-  overflow: hidden;
-
-  .three-viewer {
-    height: calc(100vh - var(--header-height) - var(--spacing-m) * 2);
-    max-height: var(--inline-player-max-height);
-  }
-}
-
 .file-viewer__overlay {
   position: absolute;
   left: auto;

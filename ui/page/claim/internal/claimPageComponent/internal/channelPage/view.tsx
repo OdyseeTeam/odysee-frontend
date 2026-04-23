@@ -175,19 +175,22 @@ function ChannelPage(props: Props) {
   }, [coverUrl]);
   const [scrollPast, setScrollPast] = React.useState<boolean>(false);
 
-  const onScroll = () => {
-    if (window.pageYOffset > 240) {
-      setScrollPast(true);
-    } else {
-      setScrollPast(false);
-    }
-  };
-
   React.useEffect(() => {
-    window.addEventListener('scroll', onScroll, {
-      passive: true,
-    });
-    return () => window.removeEventListener('scroll', onScroll);
+    let rafId: number | null = null;
+
+    const onScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        setScrollPast(window.pageYOffset > 240);
+      });
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
   const handleShortsLoaded = React.useCallback((count: number) => {
     setHasShorts(count > 0);

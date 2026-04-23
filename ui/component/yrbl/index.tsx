@@ -24,6 +24,7 @@ export default class extends React.PureComponent<Props> {
     return (
       <div className="yrbl__wrap">
         <img
+          loading="lazy"
           alt="Friendly gerbil"
           className={classnames('yrbl', className, {
             'yrbl--always-show': alwaysShow,

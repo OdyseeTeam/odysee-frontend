@@ -68,13 +68,13 @@ export function membershipIsExpired(ends_at: any) {
   const endsAt = new Date(ends_at);
   return now > endsAt;
 }
-export const getRenewByMoment = (membershipSub: MembershipSub) => {
+export const getRenewByDate = (membershipSub: MembershipSub) => {
   const fpda = membershipSub.membership.first_payment_due_at;
-  const fpdaMoment = dayjs(fpda);
-  const endsAtMoment = dayjs(membershipSub.subscription.ends_at);
-  const nowMoment = dayjs();
-  const fpdaInFuture = nowMoment.diff(fpdaMoment) < 0;
-  const endsAtInPast = endsAtMoment && nowMoment.diff(endsAtMoment) > 0;
+  const fpdaDate = dayjs(fpda);
+  const endsAtDate = dayjs(membershipSub.subscription.ends_at);
+  const now = dayjs();
+  const fpdaInFuture = now.diff(fpdaDate) < 0;
+  const endsAtInPast = endsAtDate && now.diff(endsAtDate) > 0;
   const hasPendingPayment = membershipSub.payments.some((m) => m.status === 'submitted');
 
   if (hasPendingPayment) {
@@ -86,17 +86,17 @@ export const getRenewByMoment = (membershipSub: MembershipSub) => {
   }
 
   if (fpdaInFuture && endsAtInPast) {
-    return fpdaMoment;
+    return fpdaDate;
   }
 
-  return endsAtMoment;
+  return endsAtDate;
 };
 export const getFormattedRenewBy = (membershipSub: MembershipSub) => {
-  const renewByMoment = getRenewByMoment(membershipSub);
+  const renewByDate = getRenewByDate(membershipSub);
 
-  if (renewByMoment === null) {
+  if (renewByDate === null) {
     return null;
   }
 
-  return renewByMoment.format('LL');
+  return renewByDate.format('LL');
 };

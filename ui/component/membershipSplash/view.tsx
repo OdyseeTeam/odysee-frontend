@@ -23,11 +23,11 @@ const MembershipSplash = (props: Props) => {
   return (
     <div className="membership-splash">
       <div className="membership-splash__banner">
-        <img width="1000" height="740" src={AstronautAndFriends} />
+        <img loading="lazy" width="1000" height="740" src={AstronautAndFriends} />
 
         <section className="membership-splash__title">
           <section>
-            <img width="1000" height="174" src={OdyseePremium} />
+            <img loading="lazy" width="1000" height="174" src={OdyseePremium} />
           </section>
 
           <section>
@@ -58,7 +58,7 @@ const MembershipSplash = (props: Props) => {
         <div className="membership-splash__info">
           <section className="membership-splash__info-header">
             <div className="membership-splash__info-price">
-              <img width="500" height="500" src={BadgePremium} />
+              <img loading="lazy" width="500" height="500" src={BadgePremium} />
 
               <section>
                 <I18nMessage
@@ -86,7 +86,7 @@ const MembershipSplash = (props: Props) => {
         <div className="membership-splash__info">
           <section className="membership-splash__info-header">
             <div className="membership-splash__info-price">
-              <img width="500" height="500" src={BadgePremiumPlus} />
+              <img loading="lazy" width="500" height="500" src={BadgePremiumPlus} />
 
               <section>
                 <I18nMessage

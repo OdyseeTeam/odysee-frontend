@@ -8,7 +8,7 @@ import {
   selectPendingClaims,
   selectClaimForUri,
   selectChannelClaimIdForUri,
-  selectMomentReleaseTimeForUri,
+  selectDayjsReleaseTimeForUri,
   selectClaimReleaseInFutureForUri,
   selectClaimReleaseInPastForUri,
   selectClaimIdForUri,
@@ -246,10 +246,10 @@ export const selectLatestLiveClaimForChannel = (state: State, channelId: string)
   const latestLiveUri = selectLatestLiveUriForChannel(state, channelId);
   return latestLiveUri && selectClaimForUri(state, latestLiveUri);
 };
-export const selectLiveClaimReleaseStartingSoonForUri = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
+export const selectLiveClaimReleaseStartingSoonForUri = createSelector(selectDayjsReleaseTimeForUri, (releaseTime) =>
   releaseTime.isBetween(dayjs().subtract(LIVESTREAM_STARTS_SOON_BUFFER, 'minutes'), dayjs())
 );
-export const selectLiveClaimReleaseStartedRecently = createSelector(selectMomentReleaseTimeForUri, (releaseTime) =>
+export const selectLiveClaimReleaseStartedRecently = createSelector(selectDayjsReleaseTimeForUri, (releaseTime) =>
   releaseTime.isBetween(dayjs().subtract(LIVESTREAM_STARTED_RECENTLY_BUFFER, 'minutes'), dayjs())
 );
 export const selectShouldShowLivestreamForUri = (state: State, uri: string) => {

@@ -4,7 +4,6 @@ import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from 'constants/search';
 import * as KEYCODES from 'constants/keycodes';
 import Autocomplete from '@mui/material/Autocomplete';
 import BusyIndicator from 'component/common/busy-indicator';
-// import EMOJIS from 'emoji-dictionary';
 import Popper from '@mui/material/Popper';
 import React from 'react';
 import useLighthouse from 'effects/use-lighthouse';

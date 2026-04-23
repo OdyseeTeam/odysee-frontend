@@ -132,7 +132,7 @@ export default function WatchHistoryPage() {
               textAlign: 'center',
             }}
           >
-            <img src={YRBL_SAD_IMG_URL} />
+            <img loading="lazy" src={YRBL_SAD_IMG_URL} />
             <h2
               className="main--empty empty"
               style={{
