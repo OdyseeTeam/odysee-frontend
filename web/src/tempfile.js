@@ -1,4 +1,5 @@
 const fs = require('fs');
+
 const path = require('path');
 
 async function getTempFile(ctx) {
@@ -6,4 +7,6 @@ async function getTempFile(ctx) {
   return fs.readFileSync(path.join(__dirname, `/../dist/${filename}`), 'utf8');
 }
 
-module.exports = { getTempFile };
+module.exports = {
+  getTempFile,
+};

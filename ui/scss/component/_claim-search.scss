@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .section__actions-span {
   width: 100%;
 }
@@ -397,4 +399,11 @@
     margin-bottom: var(--spacing-s);
     margin-top: var(--spacing-s);
   }
+}
+
+.additional-filters__notice {
+  display: block;
+  margin-top: var(--spacing-xs);
+  color: var(--color-text-subtitle);
+  font-size: var(--font-xsmall);
 }

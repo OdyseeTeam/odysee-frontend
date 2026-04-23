@@ -1,5 +1,5 @@
-// @import '~ui/scss/init/breakpoints';
-// @import '~ui/scss/init/mixins';
+// @import 'init/breakpoints';
+// @import 'init/mixins';
 
 .claim-preview__wrapper {
   position: relative;
@@ -63,8 +63,10 @@
     .menu__button {
       opacity: 1;
     }
-    .media__thumb {
+    .media__thumb:not(.media__thumb--has-preview) {
       background-size: 108%;
+    }
+    .media__thumb {
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
       .claim-preview__hover-actions-grid {
         opacity: 1;
@@ -104,18 +106,16 @@
 
 .claim-preview__wrapper--short {
   .media__thumb {
-    background-size: cover;
     aspect-ratio: 9 / 16;
-  }
-
-  &:hover {
-    .media__thumb {
-      background-size: cover;
-      aspect-ratio: 9 / 16;
-    }
   }
   @media (max-width: $breakpoint-small) {
     width: 48.5% !important;
+  }
+}
+
+.claim-preview__wrapper--short-cover {
+  .media__thumb.media__thumb--has-preview {
+    background-size: cover !important;
   }
 }
 
@@ -574,7 +574,7 @@
     }
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     .claim-preview__actions {
       margin: 0;
       margin-top: var(--spacing-xs) !important;
@@ -905,7 +905,7 @@
   justify-items: end;
   justify-content: space-between;
   opacity: 0;
-  z-index: 1;
+  z-index: 3;
 
   .claim-preview__hover-actions {
     display: block;
@@ -921,6 +921,11 @@
     &.third-item {
       grid-column: 2;
       grid-row: 2;
+    }
+
+    &.fourth-item {
+      grid-column: 2;
+      grid-row: 3;
     }
 
     .button--file-action,
@@ -981,8 +986,39 @@
   }
 }
 
-// @import '~ui/scss/init/breakpoints';
-// @import '~ui/scss/init/mixins';
+.compact-hover-actions .claim-preview__hover-actions-grid .button--file-action,
+.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action,
+.file-page__recommended .claim-preview__hover-actions-grid .button--file-action,
+.banner-latest-claims__tiles .claim-preview__hover-actions-grid .button--file-action {
+  max-width: 21px;
+  padding: calc(0.25rem - 1px) !important;
+
+  .icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+.compact-hover-actions .claim-preview__hover-actions-grid .button--file-action:hover,
+.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action:hover,
+.file-page__recommended .claim-preview__hover-actions-grid .button--file-action:hover,
+.banner-latest-claims__tiles .claim-preview__hover-actions-grid .button--file-action:hover {
+  min-width: 21px;
+}
+.compact-hover-actions .claim-preview__hover-actions-grid .claim-preview__hover-actions + .claim-preview__hover-actions,
+.channel-cover ~ * .claim-preview__hover-actions-grid .claim-preview__hover-actions + .claim-preview__hover-actions,
+.file-page__recommended
+  .claim-preview__hover-actions-grid
+  .claim-preview__hover-actions
+  + .claim-preview__hover-actions,
+.banner-latest-claims__tiles
+  .claim-preview__hover-actions-grid
+  .claim-preview__hover-actions
+  + .claim-preview__hover-actions {
+  margin-top: 1px;
+}
+
+// @import 'init/breakpoints';
+// @import 'init/mixins';
 
 .claim-list {
   width: 100%;
@@ -1098,7 +1134,7 @@
   }
   .media__thumb {
     background-color: #283263;
-    background-image: url('~ui/component/membershipSplash/internal/assets/astronaut_n_friends.png');
+    background-image: url('../../component/membershipSplash/internal/assets/astronaut_n_friends.png');
     background-size: 100%;
     transition: background 0.2s;
   }
@@ -1138,9 +1174,11 @@
     .claim-tile__title {
       color: var(--color-primary);
     }
+    .media__thumb:not(.media__thumb--has-preview) {
+      background-size: 108%;
+    }
     .media__thumb {
       box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-      background-size: 108%;
     }
   }
 }
@@ -1214,7 +1252,7 @@
       color: var(--color-link);
     }
 
-    .media__thumb {
+    .media__thumb:not(.media__thumb--has-preview) {
       background-size: 108%;
     }
   }
@@ -1584,7 +1622,7 @@
     color: rgba(var(--color-text-base) 0.7);
   }
 
-  @media (max-width: 1020px) {
+  @media (max-width: $breakpoint-shorts) {
     margin-top: 0px;
     padding-bottom: 0;
 
@@ -1667,7 +1705,7 @@
 
   .button {
     margin-top: var(--spacing-s);
-    background-image: var(--color-odysee-memberships);
+    background-image: var(--color-odysee-gradient);
   }
 
   @media (max-width: $breakpoint-small) {
@@ -1722,7 +1760,7 @@ $claim-preview-progress-bar-height: 5px;
 .claim-preview__progress-bar {
   height: $claim-preview-progress-bar-height;
   // background-color: var(--color-primary);
-  background-image: var(--color-odysee-memberships);
+  background-image: var(--color-odysee-gradient);
 }
 
 .claim-preview__claim-property-overlay {
@@ -1839,7 +1877,9 @@ $claim-preview-progress-bar-height: 5px;
     z-index: 1;
     font-size: 3rem;
     color: #fff;
-    text-shadow: 0 0 3px var(--color-primary), 0 0 5px var(--color-primary);
+    text-shadow:
+      0 0 3px var(--color-primary),
+      0 0 5px var(--color-primary);
     max-height: 100%;
 
     @media (max-width: $breakpoint-small) {
@@ -2024,6 +2064,42 @@ $claim-preview-progress-bar-height: 5px;
   }
 }
 
+.web-upload-item .claim-upload__progress--outer {
+  margin-top: 0;
+}
+
+.web-upload-item__round-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-card-background);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: var(--color-primary);
+    color: var(--color-primary-contrast);
+  }
+}
+
+.web-upload-item__stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  margin-top: var(--spacing-m);
+  margin-bottom: 0;
+}
+
 .claim-list__scroll-to-recent {
   position: absolute;
   display: flex;
@@ -2032,7 +2108,9 @@ $claim-preview-progress-bar-height: 5px;
   bottom: 0;
   z-index: 1600;
   justify-content: center;
-  transition: opacity 0.2s ease, visibility 0.2s ease;
+  transition:
+    opacity 0.2s ease,
+    visibility 0.2s ease;
 
   .button {
     background-color: var(--color-header-button) !important;
@@ -2299,9 +2377,11 @@ $claim-preview-progress-bar-height: 5px;
   &:hover {
     .content {
       .thumbnail {
+        .media__thumb:not(.media__thumb--has-preview) {
+          background-size: 108%;
+        }
         .media__thumb {
           box-shadow: 0 0 0 1px rgba(var(--color-primary-dynamic), 1) inset;
-          background-size: 108%;
         }
       }
       .text {
@@ -2389,14 +2469,14 @@ $claim-preview-progress-bar-height: 5px;
     color: var(--color-text);
     font-size: var(--font-body);
     max-width: 80%;
-    background: var(--color-odysee-memberships);
+    background: var(--color-odysee-gradient);
     transition: all 0.4s;
     opacity: 1;
 
     .protected-content__label-container {
       background: rgba(0, 0, 0, 0.95);
       .protected-content__label {
-        background-image: var(--color-odysee-memberships);
+        background-image: var(--color-odysee-gradient);
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;

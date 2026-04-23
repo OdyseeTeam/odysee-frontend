@@ -1,5 +1,5 @@
-@import '~ui/scss/init/breakpoints';
-@import '~ui/scss/init/mixins';
+@import 'init/breakpoints';
+@import 'init/mixins';
 
 $discussion-header__height: 3rem;
 $recent-msg-button__height: 2rem;
@@ -19,10 +19,18 @@ $recent-msg-button__height: 2rem;
     background-color: var(--color-header-button);
     border-radius: var(--border-radius) var(--border-radius) 0 0;
     justify-content: space-between;
+
+    @media (max-width: $breakpoint-small) {
+      border-radius: 0;
+    }
     flex-wrap: wrap;
 
     .chat__toggle-mode {
       margin: var(--spacing-xs);
+
+      @media (max-width: $breakpoint-small) {
+        margin: var(--spacing-xxs);
+      }
       .button-toggle {
         height: unset;
         padding: var(--spacing-xxxs) var(--spacing-s);
@@ -54,7 +62,11 @@ $recent-msg-button__height: 2rem;
       margin-right: var(--spacing-xxs);
       background-color: var(--color-background);
       padding: 8px;
-      border-radius: 50%;
+      border-radius: 50% !important;
+
+      @media (max-width: $breakpoint-small) {
+        margin-top: var(--spacing-xxs);
+      }
       opacity: 1;
 
       &:hover {
@@ -124,7 +136,7 @@ $recent-msg-button__height: 2rem;
     }
   }
 
-  @media (min-width: 1900px) {
+  @media (min-width: $breakpoint-desktop-xwide) {
     resize: horizontal;
     overflow: hidden;
     max-width: 30vw;
@@ -141,6 +153,7 @@ $recent-msg-button__height: 2rem;
   @media (min-width: $breakpoint-medium) {
     width: var(--livestream-comments-width);
     max-height: calc(100vh - var(--header-height) - var(--spacing-l));
+    max-height: calc(100dvh - var(--header-height) - var(--spacing-l));
     right: 0;
     top: 0px;
     bottom: 0;
@@ -196,6 +209,7 @@ $recent-msg-button__height: 2rem;
   padding: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
+  height: 100dvh !important;
   top: 0 !important;
   overflow: hidden;
   resize: none;
@@ -345,8 +359,6 @@ $recent-msg-button__height: 2rem;
   overflow-x: visible;
 
   width: 100%;
-  padding: 0 var(--spacing-xs) !important;
-  padding-top: var(--spacing-s);
 }
 
 .livestream-comments__scroll-to-recent {
@@ -376,6 +388,10 @@ $recent-msg-button__height: 2rem;
   padding: var(--spacing-xs);
   margin-top: auto;
   border-radius: 0 0 var(--border-radius) var(--border-radius);
+
+  @media (max-width: $breakpoint-small) {
+    border-radius: 0;
+  }
 
   .comment__char-count-mde {
     display: flex;
@@ -520,8 +536,8 @@ $recent-msg-button__height: 2rem;
 
   @media (max-width: $breakpoint-small) {
     padding: 0px;
-    margin-left: calc(var(--spacing-xxs) * -1);
-    width: calc(100% + (var(--spacing-xxs) * 2));
+    margin-left: 0;
+    width: 100%;
 
     span,
     select,
@@ -559,6 +575,10 @@ $recent-msg-button__height: 2rem;
   overflow: hidden;
   padding-top: 1px;
   padding-bottom: var(--spacing-xs) !important;
+
+  @media (max-width: $breakpoint-small) {
+    padding-left: var(--spacing-xxs);
+  }
   &::-webkit-scrollbar {
     width: 0px;
     height: 4px;
@@ -567,53 +587,10 @@ $recent-msg-button__height: 2rem;
 
 .livestream-hyperchats__wrapper--mobile {
   @extend .livestream-hyperchats__wrapper;
-
-  z-index: 9999999;
-  width: 100%;
-  background-color: transparent;
-  padding: 0px !important;
-  margin-top: 0 !important;
-  padding-left: var(--spacing-xs) !important;
-  left: 0 !important;
-  right: 0 !important;
-  border-right: unset;
-  border-bottom: none;
-  scrollbar-width: 0px;
 }
 
 .livestream-comments__top-actions--mobile {
-  display: grid;
-  border-bottom: 1px solid var(--color-header-button);
-
-  > div:not(:first-child) {
-    margin-top: var(--spacing-xxs);
-  }
-
-  .livestream-hyperchats {
-    padding: var(--spacing-xxs) 0;
-  }
-
-  .livestream__top-gradient {
-    width: calc(100% + 2px);
-    height: 44px;
-    max-height: 100%;
-    position: absolute;
-    top: -1px;
-    margin-left: -8px;
-
-    &:after {
-      position: absolute;
-      bottom: 0;
-      opacity: 1;
-      content: '';
-      height: 100%;
-      left: 0;
-      right: 0;
-      width: 100%;
-      z-index: 1;
-      background: linear-gradient(180deg, var(--mui-background) 80%, transparent 100%);
-    }
-  }
+  border-bottom: none;
 }
 
 .livestream-pinned__wrapper {
@@ -623,6 +600,10 @@ $recent-msg-button__height: 2rem;
   font-size: var(--font-small);
   background-color: var(--color-header-button);
   padding-bottom: var(--spacing-xxs) !important;
+
+  @media (max-width: $breakpoint-small) {
+    padding: 0 var(--spacing-xxs);
+  }
 
   .livestream__comment {
     width: 100%;
@@ -657,11 +638,13 @@ $recent-msg-button__height: 2rem;
     }
     .livestream-comment__menu {
       top: 8px !important;
-      right: 38px !important;
+      right: 44px !important;
       .menu__button,
       .menu__button:not(:focus):not([aria-expanded='true']) {
         opacity: 1;
         background: var(--color-header-button);
+        border-radius: 50% !important;
+        padding: 2px;
       }
       .menu__button[aria-expanded='true'] {
         .icon {
@@ -678,7 +661,7 @@ $recent-msg-button__height: 2rem;
   .livestream__comment > .close-button {
     position: absolute;
     top: 8px;
-    right: 4px;
+    right: 10px;
     color: var(--color-text);
     z-index: 1;
 
@@ -694,9 +677,7 @@ $recent-msg-button__height: 2rem;
     }
   }
 
-  @media (min-width: $breakpoint-small) {
-    padding: 0 var(--spacing-xs);
-  }
+  padding: 0 var(--spacing-xs);
 }
 
 .livestream__comment {
@@ -720,12 +701,18 @@ $recent-msg-button__height: 2rem;
 
   .livestream-comment__text {
     color: var(--color-text);
+    @media (max-width: $breakpoint-small) {
+      font-size: var(--font-xsmall);
+      .markdown-preview {
+        font-size: var(--font-xsmall);
+      }
+    }
     .empty__wrap {
       justify-content: left;
     }
   }
 
-  @media (mix-width: $breakpoint-small) {
+  @media (min-width: $breakpoint-small) {
     span {
       font-size: var(--font-xxsmall) !important;
     }
@@ -789,71 +776,6 @@ $recent-msg-button__height: 2rem;
     flex: 1;
     white-space: nowrap;
     margin-bottom: -5px;
-  }
-}
-
-.livestream-pinned__wrapper--mobile {
-  @extend .livestream-pinned__wrapper;
-  z-index: 1300;
-  min-width: 100%;
-  max-width: 100%;
-  padding: 0;
-  border-radius: var(--border-radius);
-  margin-bottom: var(--spacing-xs);
-  background-color: var(--color-background);
-
-  .livestream__comment {
-    overflow: hidden;
-
-    .livestream-comment__body {
-      margin: 0px;
-      width: 100%;
-      max-height: 120px;
-      overflow-y: scroll;
-
-      &::-webkit-scrollbar {
-        width: 0 !important;
-      }
-    }
-
-    .livestream-comment__meta-information {
-      .comment__author {
-        width: 100px;
-        flex-grow: 1;
-      }
-      .comment__pin {
-        margin-top: 0;
-        min-width: 22px;
-        max-width: 22px;
-        min-height: 22px;
-        max-height: 22px;
-        border-radius: 50%;
-        svg {
-          margin-bottom: unset;
-          margin-top: 1px;
-        }
-      }
-    }
-  }
-
-  .livestream__comment {
-    .livestream-comment__menu {
-      position: absolute;
-      top: 34px !important;
-      right: 10px !important;
-      // display: none;
-      z-index: 1;
-      button {
-        border-radius: 50%;
-        padding: 1px;
-      }
-    }
-  }
-
-  .close-button {
-    position: absolute;
-    top: 2px;
-    right: 2px;
   }
 }
 
@@ -927,6 +849,7 @@ $recent-msg-button__height: 2rem;
     flex-shrink: 0;
     .icon {
       stroke: white;
+      margin-left: 2px;
     }
     &:hover,
     &.active {
@@ -1119,7 +1042,7 @@ $recent-msg-button__height: 2rem;
 }
 
 .livestreamHyperchat__amount--large {
-  min-width: 2.5rem;
+  min-width: auto;
 }
 
 .livestream__comment--minimal {
@@ -1170,10 +1093,6 @@ $recent-msg-button__height: 2rem;
     font-size: var(--font-xsmall) !important;
     margin-top: 2px;
     margin-bottom: -3px;
-
-    @media (opacity > 0) {
-      background: red !important;
-    }
   }
   .channel-thumbnail {
     float: left;
@@ -1239,8 +1158,18 @@ $recent-msg-button__height: 2rem;
         padding: unset;
         margin: unset;
         color: var(--color-text);
-        font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-          'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+        font-family:
+          Inter,
+          -apple-system,
+          BlinkMacSystemFont,
+          'Segoe UI',
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif,
+          'Apple Color Emoji',
+          'Segoe UI Emoji',
+          'Segoe UI Symbol';
       }
 
       .button--external-link {
@@ -1334,6 +1263,7 @@ $recent-msg-button__height: 2rem;
   padding: 0 !important;
   width: 100vw !important;
   height: 100vh !important;
+  height: 100dvh !important;
 
   .livestream-hyperchats__wrapper {
     padding-top: 0;
@@ -1360,6 +1290,7 @@ $recent-msg-button__height: 2rem;
       border-radius: 0;
       .livestream-comments__wrapper {
         height: calc(100vh - 50px) !important;
+        height: calc(100dvh - 50px) !important;
       }
     }
     .chat__comment-create {
@@ -1377,6 +1308,7 @@ $recent-msg-button__height: 2rem;
       border-radius: 0;
       .livestream-comments__wrapper {
         height: calc(100vh - 55px) !important;
+        height: calc(100dvh - 55px) !important;
       }
     }
   }

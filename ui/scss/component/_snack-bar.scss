@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .snack-bar {
   position: absolute;
   bottom: 2rem;
@@ -10,7 +12,7 @@
   padding: var(--spacing-s) var(--spacing-m) var(--spacing-s) var(--spacing-m);
   position: fixed;
   transition: all var(--transition-duration) var(--transition-type);
-  z-index: 10001; // hack to get it over react modal
+  z-index: 100001; // keep above modal overlay (99999)
   display: flex;
   flex-direction: column;
   -webkit-backdrop-filter: blur(4px);
@@ -37,8 +39,7 @@
   }
 
   @media (max-width: $breakpoint-small) {
-    bottom: var(--spacing-xxs);
-    right: var(--spacing-xxs);
+    display: none;
   }
 }
 

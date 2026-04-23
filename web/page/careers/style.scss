@@ -1,3 +1,5 @@
+$breakpoint-tablet: 768px;
+
 .careers-overview-page {
   text-align: center;
   max-width: 900px;
@@ -215,7 +217,7 @@
 }
 
 // Responsive design
-@media (max-width: 768px) {
+@media (max-width: $breakpoint-tablet) {
   .careers-overview-page {
     .card__title {
       font-size: var(--font-base);

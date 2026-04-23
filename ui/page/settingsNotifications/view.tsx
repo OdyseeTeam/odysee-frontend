@@ -1,0 +1,206 @@
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as React from 'react';
+import Page from 'component/page';
+import { FormField } from 'component/common/form';
+import Card from 'component/common/card';
+import SettingsRow from 'component/settingsRow';
+import { Lbryio } from 'lbryinc';
+import { useLocation } from 'react-router-dom';
+import { Navigate } from 'react-router-dom';
+import Yrbl from 'component/yrbl';
+import Button from 'component/button';
+import BrowserNotificationSettings from '$web/component/browserNotificationSettings';
+import { useAppSelector } from 'redux/hooks';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+
+export default function NotificationSettingsPage() {
+  const isAuthenticated = Boolean(useAppSelector(selectUserVerifiedEmail));
+  const [error, setError] = React.useState<boolean>(false);
+  const [tagMap, setTagMap] = React.useState<{ [key: string]: boolean }>({});
+  const [tags, setTags] = React.useState<Array<{ name: string; description: string }> | undefined>();
+  const [enabledEmails, setEnabledEmails] = React.useState<Array<{ email: string; isEnabled: boolean }> | undefined>();
+  const location = useLocation();
+  const urlParams = new URLSearchParams(location.search);
+  const verificationToken = urlParams.get('verification_token');
+  const lbryIoParams = verificationToken
+    ? {
+        auth_token: verificationToken,
+      }
+    : undefined;
+  React.useEffect(() => {
+    if (lbryIoParams || isAuthenticated) {
+      Lbryio.call('tag', 'list', lbryIoParams)
+        .then(setTags)
+        .catch((e) => {
+          setError(true);
+        });
+      Lbryio.call('user_email', 'status', lbryIoParams)
+        .then((res) => {
+          const enabledEmails =
+            res.emails &&
+            Object.keys(res.emails).reduce((acc, email) => {
+              const isEnabled = res.emails[email];
+              return [
+                ...acc,
+                {
+                  email,
+                  isEnabled,
+                },
+              ];
+            }, []);
+          setTagMap(res.tags);
+          setEnabledEmails(enabledEmails);
+        })
+        .catch((e) => {
+          setError(true);
+        });
+    } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
+  }, []);
+
+  function handleChangeTag(name: string, newIsEnabled: boolean) {
+    const tagParams = newIsEnabled
+      ? {
+          add: name,
+        }
+      : {
+          remove: name,
+        };
+    Lbryio.call('user_tag', 'edit', { ...lbryIoParams, ...tagParams }).then(() => {
+      const newTagMap = { ...tagMap };
+      newTagMap[name] = newIsEnabled;
+      setTagMap(newTagMap);
+    });
+  }
+
+  function handleChangeEmail(email: string, newIsEnabled: boolean) {
+    Lbryio.call('user_email', 'edit', {
+      email: email,
+      enabled: newIsEnabled,
+      ...lbryIoParams,
+    })
+      .then(() => {
+        const newEnabledEmails = enabledEmails
+          ? enabledEmails.map((userEmail) => {
+              if (email === userEmail.email) {
+                return {
+                  email,
+                  isEnabled: newIsEnabled,
+                };
+              }
+
+              return userEmail;
+            })
+          : [];
+        setEnabledEmails(newEnabledEmails);
+      })
+      .catch((e) => {
+        setError(true);
+      });
+  }
+
+  if (!isAuthenticated && !verificationToken) {
+    return <Navigate replace to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${location.pathname}`} />;
+  }
+
+  return (
+    <Page
+      noFooter
+      noSideNavigation
+      settingsPage
+      className="card-stack"
+      backout={{
+        title: __('Manage notifications'),
+        backLabel: __('Back'),
+      }}
+    >
+      {error ? (
+        <Yrbl
+          type="sad"
+          title={__('Uh oh')}
+          subtitle={__('There was an error displaying this page.')}
+          actions={
+            <div className="section__actions">
+              <Button
+                button="secondary"
+                label={__('Refresh')}
+                icon={ICONS.REFRESH}
+                onClick={() => window.location.reload()}
+              />
+              <Button button="secondary" label={__('Go Home')} icon={ICONS.HOME} navigate={'/'} />
+            </div>
+          }
+        />
+      ) : (
+        <div className="card-stack">
+          <div>
+            <h2 className="card__title">{__('Notification Delivery')}</h2>
+            <div className="card__subtitle">{__("Choose how you'd like to receive your Odysee notifications.")}</div>
+          </div>
+          <Card
+            background
+            isBodyList
+            body={
+              <>
+                {enabledEmails && enabledEmails.length > 0 && (
+                  <>
+                    {enabledEmails.map(({ email, isEnabled }) => (
+                      <SettingsRow
+                        key={email}
+                        title={__('Email Notifications')}
+                        subtitle={__(`Receive notifications to the email address: %email%`, {
+                          email,
+                        })}
+                      >
+                        <FormField
+                          type="checkbox"
+                          name={`active-email:${email}`}
+                          key={email}
+                          onChange={() => handleChangeEmail(email, !isEnabled)}
+                          checked={isEnabled}
+                        />
+                      </SettingsRow>
+                    ))}
+                  </>
+                )}
+
+                <BrowserNotificationSettings />
+              </>
+            }
+          />
+
+          {tags && tags.length > 0 && (
+            <>
+              <div>
+                <h2 className="card__title">{__('Email Notification Topics')}</h2>
+                <div className="card__subtitle">{__('Choose which topics you’d like to be emailed about.')}</div>
+              </div>
+              <Card
+                background
+                isBodyList
+                body={
+                  <>
+                    {tags.map((tag) => {
+                      const isEnabled = tagMap[tag.name];
+                      return (
+                        <SettingsRow key={tag.name} subtitle={__(tag.description)}>
+                          <FormField
+                            type="checkbox"
+                            key={tag.name}
+                            name={tag.name}
+                            onChange={() => handleChangeTag(tag.name, !isEnabled)}
+                            checked={isEnabled}
+                          />
+                        </SettingsRow>
+                      );
+                    })}
+                  </>
+                }
+              />
+            </>
+          )}
+        </div>
+      )}
+    </Page>
+  );
+}

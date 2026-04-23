@@ -1,9 +1,13 @@
+@import 'init/breakpoints';
+
 .navigation__wrapper {
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
 
   @media (max-width: $breakpoint-small) {
     height: calc(100vh - var(--header-height-mobile));
+    height: calc(100dvh - var(--header-height-mobile));
   }
 
   *:focus-visible:not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(.button--secondary):not(
@@ -47,6 +51,7 @@
   top: var(--header-height);
   width: var(--side-nav-width);
   height: calc(100vh - var(--header-height));
+  height: calc(100dvh - var(--header-height));
   display: flex;
   flex-direction: column;
   background: var(--color-header-background);
@@ -89,6 +94,7 @@
   @media (max-width: $breakpoint-small) {
     top: var(--header-height-mobile);
     height: calc(100vh - var(--header-height-mobile));
+    height: calc(100dvh - var(--header-height-mobile));
     width: var(--side-nav-width);
   }
 
@@ -142,6 +148,14 @@
 .navigation--micro {
   @extend .navigation;
   transform: translateX(calc(var(--side-nav-width--micro) - var(--side-nav-width)));
+
+  @media (min-width: $breakpoint-medium) {
+    &:hover {
+      width: calc(var(--side-nav-width) + var(--scrollbar-width));
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+  }
 
   .navigation-inner-container {
     ul:nth-child(4) {
@@ -500,6 +514,7 @@
   position: fixed;
   width: 100vw;
   height: 100vh;
+  height: 100dvh;
   background-color: var(--color-background-overlay);
   z-index: 3;
   left: 0;
@@ -507,7 +522,9 @@
   visibility: hidden;
   opacity: 0;
   animation-timing-function: var(--resizing-animation-function);
-  transition: visibility var(--resizing-animation-timing), opacity var(--resizing-animation-timing);
+  transition:
+    visibility var(--resizing-animation-timing),
+    opacity var(--resizing-animation-timing);
   -webkit-backdrop-filter: blur(2px);
   backdrop-filter: blur(2px);
 

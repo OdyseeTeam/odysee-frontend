@@ -1,10 +1,13 @@
-const { CUSTOM_HOMEPAGE } = require('../../config');
+const { CUSTOM_HOMEPAGE } = require('../../config.cjs');
+
 const { getHomepageJsonV1, getHomepageJsonV2 } = require('./getHomepageJSON');
 
 async function getHomepage(ctx, version) {
   if (!CUSTOM_HOMEPAGE) {
     ctx.status = 404;
-    ctx.body = { message: 'Not Found' };
+    ctx.body = {
+      message: 'Not Found',
+    };
     return;
   }
 
@@ -27,4 +30,6 @@ async function getHomepage(ctx, version) {
   }
 }
 
-module.exports = { getHomepage };
+module.exports = {
+  getHomepage,
+};

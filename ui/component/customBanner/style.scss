@@ -209,64 +209,30 @@ $breakpoint-1280: 1280px;
   }
 }
 
-// Context menu styles
-.banner-context-menu {
+.banner-container .banner-close-button {
   position: absolute;
-  top: 15px;
-  right: 15px;
+  top: var(--spacing-s);
+  right: var(--spacing-s);
   z-index: 10;
-}
-
-.banner-menu-button {
-  background: var(--color-dropdown-background);
+  background: rgba(var(--color-header-background-base), 0.8);
   border: none;
   cursor: pointer;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--border-radius);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--banner-primary-info);
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 6px var(--color-banner-button-shadow);
+  color: var(--color-text);
   padding: 0;
 
-  &:hover {
-    background: var(--color-dropdown-background);
-    color: var(--banner-primary-button-hover);
+  .icon {
+    width: 14px;
+    height: 14px;
   }
-}
-
-.banner-menu-dropdown {
-  position: absolute;
-  top: calc(100% + 5px);
-  right: 0;
-  background-color: var(--color-dropdown-background);
-  border-radius: 6px;
-  box-shadow: 0 2px 6px var(--color-banner-button-shadow);
-  overflow: hidden;
-  min-width: 150px;
-  backdrop-filter: blur(8px);
-  z-index: 20;
-  padding: 2px 0;
-}
-
-.banner-menu-item {
-  display: block;
-  width: 100%;
-  padding: 10px 16px;
-  text-align: left;
-  background: none;
-  border: none;
-  font-size: 14px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  color: var(--color-menu-item-color);
 
   &:hover {
-    background-color: var(--color-menu-item-hover);
+    background: rgba(var(--color-header-background-base), 1);
   }
 }
 
@@ -337,7 +303,7 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 900px width
-@media (max-width: $breakpoint-medium) and (min-width: 769px) {
+@media (max-width: $breakpoint-medium) and (min-width: #{$breakpoint-small + 1}) {
   .banner-container {
     padding: 0 20px;
 
@@ -366,11 +332,6 @@ $breakpoint-1280: 1280px;
       padding: 9px 11px;
       font-size: 14px;
     }
-  }
-
-  .banner-context-menu {
-    top: 12px;
-    right: 12px;
   }
 }
 
@@ -403,7 +364,7 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 1280px width (HD displays)
-@media (max-width: $breakpoint-1280) and (min-width: 1151px) {
+@media (max-width: $breakpoint-1280) and (min-width: #{$breakpoint-1150 + 1}) {
   // Corregido: usando valor directo
   .banner-container {
     .banner-content-wrapper {
@@ -436,7 +397,7 @@ $breakpoint-1280: 1280px;
 }
 
 // Adjustments for 1150px width
-@media (max-width: $breakpoint-1150) and (min-width: 1025px) {
+@media (max-width: $breakpoint-1150) and (min-width: #{$breakpoint-tablet + 1}) {
   // $breakpoint-tablet + 1 = 1025px
   .banner-container {
     .banner-content-wrapper {
@@ -541,15 +502,5 @@ $breakpoint-1280: 1280px;
     &.variant-2 {
       background-image: none;
     }
-  }
-
-  .banner-context-menu {
-    top: 10px;
-    right: 10px;
-  }
-
-  .banner-menu-button {
-    width: 32px;
-    height: 32px;
   }
 }

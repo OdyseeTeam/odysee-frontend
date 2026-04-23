@@ -1,0 +1,42 @@
+services:
+  frontend:
+    image: odyseeteam/odysee-frontend:${ODYSEE_FRONTEND_TAG:-latest}
+    restart: unless-stopped
+    init: true
+    stop_grace_period: 15s
+    ports:
+      - '${FRONTEND_BIND:-127.0.0.1:1338:1337}'
+    build:
+      context: .
+      args:
+        TX_TOKEN: ${TX_TOKEN:-}
+    environment:
+      NODE_ENV: production
+      WEB_SERVER_PORT: 1337
+      WEB_CONCURRENCY: ${WEB_CONCURRENCY:-8}
+      CUSTOM_HOMEPAGE: 'true'
+      CHAINQUERY_MYSQL_PASSWORD: ${CHAINQUERY_MYSQL_PASSWORD:?set CHAINQUERY_MYSQL_PASSWORD}
+      LBRY_WEB_API: ${LBRY_WEB_API:-https://api.odysee.com}
+    volumes:
+      - ${HOMEPAGES_DIR:-./custom/homepages}:/app/custom/homepages:ro
+    labels:
+      com.centurylinklabs.watchtower.enable: 'true'
+      com.centurylinklabs.watchtower.stop-signal: SIGTERM
+
+  watchtower:
+    image: containrrr/watchtower:latest
+    restart: unless-stopped
+    command:
+      - --interval
+      - '${WATCHTOWER_POLL_INTERVAL:-300}'
+      - --cleanup
+      - --rolling-restart
+      - --label-enable
+    environment:
+      DOCKER_CONFIG: /config
+      DOCKER_API_VERSION: ${DOCKER_API_VERSION:-1.44}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ${DOCKER_CONFIG_DIR:?set DOCKER_CONFIG_DIR}:/config:ro
+    labels:
+      com.centurylinklabs.watchtower.enable: 'false'

@@ -49,10 +49,47 @@
     height: var(--input-height);
     padding: calc(var(--spacing-xxs) + 1px) var(--spacing-s);
   }
-  label {
+  > fieldset-section > label {
     font-size: var(--font-body);
-    font-weight: var(--font-weight-bold);
     margin-top: var(--spacing-l);
+  }
+
+  .checkbox {
+    margin-top: var(--spacing-s);
+
+    label {
+      font-size: var(--font-base);
+      font-weight: normal;
+    }
+  }
+
+  .form-field__hint {
+    svg {
+      margin-bottom: 2px;
+    }
+    span {
+      display: flex;
+      align-content: center;
+    }
+    .button__label {
+      margin-left: var(--spacing-xxs);
+      margin-top: 0;
+    }
+  }
+}
+
+.card--control-tags .tags__input-wrapper > fieldset-section:first-of-type {
+  display: none;
+}
+
+.control-tags {
+  columns: 270px 3;
+  gap: var(--spacing-l);
+
+  .checkbox {
+    margin-top: 0;
+    margin-bottom: var(--spacing-s);
+    break-inside: avoid;
   }
 }
 

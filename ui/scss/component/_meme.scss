@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .home__meme {
   text-align: center;
   font-weight: bold;
@@ -10,7 +12,7 @@
   }
 
   .button__content {
-    background-image: var(--color-odysee-memberships);
+    background-image: var(--color-odysee-gradient);
     background-clip: text;
     -webkit-background-clip: text;
     color: transparent;

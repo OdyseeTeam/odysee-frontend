@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 $actions-z-index: 2;
 
 .channelPage-wrapper {
@@ -382,7 +384,7 @@ $actions-z-index: 2;
     .claim-search__wrapper {
       .claim-search__header {
         .claim-search__top {
-          gap: 1;
+          gap: 1rem;
         }
       }
     }
@@ -496,18 +498,23 @@ $actions-z-index: 2;
   left: calc((100% - (var(--page-max-width))) / 2);
   top: -9.2rem;
   margin-top: var(--spacing-l);
-  box-shadow: 0 3px 6px 0 var(--color-shadow), 0 4px 10px 0 rgba(0, 0, 0, 0.6);
+  box-shadow:
+    0 3px 6px 0 var(--color-shadow),
+    0 4px 10px 0 rgba(0, 0, 0, 0.6);
   z-index: 11;
-  transition: width 0.2s, height 0.2s, top 0.2s;
+  transition:
+    width 0.2s,
+    height 0.2s,
+    top 0.2s;
   background-color: var(--color-header-background);
 
-  @media (min-width: 1600px) {
+  @media (min-width: $breakpoint-large) {
     left: calc((100% - (var(--page-max-width))) / 2);
   }
-  @media (min-width: 1450px) and (max-width: $breakpoint-large) {
+  @media (min-width: $breakpoint-desktop-compact) and (max-width: $breakpoint-large) {
     left: calc((100% - (var(--page-max-width))) / 2) !important;
   }
-  @media (min-width: $breakpoint-small) and (max-width: 1449px) {
+  @media (min-width: $breakpoint-small) and (max-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
   }
   @media (max-width: $breakpoint-small) {
@@ -518,7 +525,9 @@ $actions-z-index: 2;
   }
 
   &:active {
-    box-shadow: 0 0 0 0 var(--color-shadow), 0 0 0 0 rgba(0, 0, 0, 0.6);
+    box-shadow:
+      0 0 0 0 var(--color-shadow),
+      0 0 0 0 rgba(0, 0, 0, 0.6);
     border: 2px solid rgba(0, 0, 0, 0.6);
   }
   &:hover {
@@ -545,10 +554,10 @@ $actions-z-index: 2;
   width: 50px;
   top: -1.9rem;
 
-  @media (min-width: 1449px) {
+  @media (min-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((100% - (var(--page-max-width))) / 2);
   }
-  @media (min-width: $breakpoint-medium) and (max-width: 1449px) {
+  @media (min-width: $breakpoint-medium) and (max-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((100% - calc(100% - 2 * var(--spacing-l))) / 2);
   }
 
@@ -803,7 +812,7 @@ $actions-z-index: 2;
     }
   }
 
-  @media (max-width: 1449px) {
+  @media (max-width: #{$breakpoint-desktop-compact - 1}) {
     left: calc((var(--channel-thumbnail-width) / 2) + var(--spacing-m));
   }
 
@@ -822,8 +831,8 @@ $actions-z-index: 2;
 }
 
 .menu__list.channel-selector {
-  margin-left: 0;
-  padding: 0;
+  margin: 0 var(--spacing-xxs);
+  padding: var(--spacing-xs) 0;
   border-radius: var(--border-radius);
   background: transparent;
   max-height: 15rem;
@@ -1075,7 +1084,7 @@ $actions-z-index: 2;
   }
 
   .channel-selector__item {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
   }
 
   .icon--ChevronDown {
@@ -1112,13 +1121,13 @@ $actions-z-index: 2;
     .channel-thumbnail__custom {
       max-width: unset;
     }
-    @media (max-width: 1400px) {
+    @media (max-width: $breakpoint-shorts-xwide) {
       max-width: 160px;
     }
-    @media (max-width: 1150px) {
+    @media (max-width: $breakpoint-medium) {
       max-width: 280px;
     }
-    @media (max-width: 1000px) {
+    @media (max-width: $breakpoint-small-plus) {
       max-width: 220px;
     }
   }

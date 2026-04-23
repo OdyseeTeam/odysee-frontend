@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .card {
   position: relative;
 
@@ -11,9 +13,8 @@
   margin-bottom: var(--spacing-m);
 
   @media (max-width: $breakpoint-small) {
-    overflow-y: scroll;
+    overflow-y: auto;
     height: 100%;
-    border-top: 1px solid var(--color-border);
 
     .card__main-actions {
       margin-top: 0px !important;
@@ -114,6 +115,10 @@
 
   .form-field--copyable {
     border: unset !important;
+  }
+
+  textarea#embed-textarea.form-field--copyable {
+    padding: var(--spacing-s) !important;
   }
   .button--secondary {
     background-color: var(--color-primary) !important;
@@ -919,6 +924,15 @@
 
 .publish-row {
   padding: var(--spacing-s);
+
+  // Keep publish-description textarea spacing stable against global/form overrides.
+  textarea#content_description {
+    padding: var(--spacing-s) !important;
+    resize: vertical;
+    overflow-y: auto;
+    field-sizing: content;
+  }
+
   p {
     color: rgba(var(--color-text-base), 0.8);
     margin-top: var(--spacing-xxs);
@@ -969,14 +983,8 @@
 
 .publish__actions {
   gap: 0 !important;
-  flex-wrap: nowrap;
-  align-items: center !important;
   .button--primary {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-    margin: 0 !important;
-  }
-  .button--link {
-    margin: 0 0 0 var(--spacing-s) !important;
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 }
 

@@ -1,6 +1,6 @@
-const PAGES = require('../../ui/constants/pages');
-// const config = require('../../config');
+const PAGES = require('../../ui/constants/pages.cjs');
 
+// const config = require('../../config');
 function formatInAppUrl(path) {
   // Determine if we need to add a leading "/$/" for app pages
   const APP_PAGE_REGEX = /(\?)([a-z]*)(.*)/;
@@ -33,14 +33,13 @@ async function redirectMiddleware(ctx, next) {
   // Getting err: too many redirects on some urls because of this
   // Need a better solution
   // const decodedUrl = decodeURIComponent(url);
-
   // if (decodedUrl !== url) {
   //   ctx.redirect(decodedUrl);
   //   return;
   // }
-
   if (!path.startsWith('/$/') && path.match(/^([^@/:]+)\/([^:/]+)$/)) {
     ctx.redirect(url.replace(/^([^@/:]+)\/([^:/]+)(:(\/.*))/, '$1:$2')); // test against path, but use ctx.url to retain parameters
+
     return;
   }
 
@@ -55,6 +54,7 @@ async function redirectMiddleware(ctx, next) {
     } else {
       redirectUrl += openQuery;
     }
+
     ctx.status = 301;
     ctx.redirect(redirectUrl);
     return;

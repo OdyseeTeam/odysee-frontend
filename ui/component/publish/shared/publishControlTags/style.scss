@@ -1,0 +1,51 @@
+@import 'init/breakpoints';
+
+.publish-control-tags__groups {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-s);
+
+  @media (max-width: $breakpoint-tablet) {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--spacing-xs);
+  }
+
+  @media (max-width: $breakpoint-xxsmall) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.publish-control-tags__group {
+  padding: var(--spacing-s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  background: var(--color-card-background);
+
+  @media (max-width: $breakpoint-tablet) {
+    padding: var(--spacing-xs);
+  }
+}
+
+.publish-control-tags__group-header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  font-size: var(--font-small);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: var(--spacing-s);
+}
+
+.publish-control-tags__group-items {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+
+  .form-field--SimplePseudoCheckbox {
+    margin: 0;
+  }
+
+  label::before {
+    background-color: rgba(var(--color-text-base), 0.06) !important;
+  }
+}

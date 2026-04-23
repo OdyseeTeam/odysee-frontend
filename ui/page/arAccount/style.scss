@@ -1,4 +1,4 @@
-@import '~ui/scss/init/breakpoints';
+@import 'init/breakpoints';
 
 .paymentAccountPage-wrapper {
   width: 100%;
@@ -59,6 +59,10 @@
     background-color: var(--color-background);
     margin-bottom: var(--spacing-l);
     border-bottom: 1px solid var(--color-header-button);
+  }
+
+  .tab__divider {
+    display: none;
   }
 
   .tab__panel {

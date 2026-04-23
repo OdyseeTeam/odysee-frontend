@@ -1,0 +1,13 @@
+#!/bin/sh
+set -eu
+
+repo_root=$(git rev-parse --show-toplevel)
+cd "$repo_root"
+
+echo "Running pnpm check:fix..."
+pnpm check:fix
+
+git add --update
+
+echo "Verifying pnpm check..."
+pnpm check

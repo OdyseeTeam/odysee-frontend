@@ -1,0 +1,197 @@
+import { KNOWN_APP_DOMAINS } from 'config';
+import * as ICONS from 'constants/icons';
+import * as React from 'react';
+import { isURIValid } from 'util/lbryURI';
+import Button from 'component/button';
+import CommentMenuList from 'component/commentMenuList';
+import ChannelTitle from 'component/channelTitle';
+import ClaimLink from 'component/claimLink';
+import { Menu, MenuButton } from 'component/common/menu';
+import { useIsMobile } from 'effects/use-screensize';
+import { useAppSelector } from 'redux/hooks';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+type Props = {
+  href: string;
+  title?: string;
+  embed?: boolean;
+  allowPreview?: boolean;
+  children: React.ReactNode;
+  parentCommentId?: string;
+  simpleLinks?: boolean;
+  setUserMention?: (arg0: boolean) => void;
+  isComment?: boolean;
+};
+
+function isMe(claim, title) {
+  return claim && title && claim.replace('#', ':') === title;
+}
+
+function MarkdownLink(props: Props) {
+  const {
+    children,
+    href,
+    title,
+    embed = false,
+    allowPreview = false,
+    parentCommentId,
+    simpleLinks = false,
+    setUserMention,
+    isComment,
+  } = props;
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const isMobile = useIsMobile();
+  let decodedUri;
+
+  try {
+    decodedUri = decodeURI(href);
+  } catch (e) {}
+
+  const isChannel = decodedUri && decodedUri.replace('#', ':').substring(decodedUri.indexOf('@')).indexOf('/') === -1;
+  let element = <span>{children}</span>;
+  // Regex for url protocol
+  const protocolRegex = new RegExp('^(https?|lbry|mailto)+:', 'i');
+  const protocol = href ? protocolRegex.exec(href) : null;
+  const isMention = href && href.startsWith('lbry://@');
+  const mentionedMyChannel =
+    isMention &&
+    activeChannelClaim &&
+    activeChannelClaim.canonical_url &&
+    activeChannelClaim.canonical_url.replace('#', ':') === href;
+  React.useEffect(() => {
+    if (mentionedMyChannel && setUserMention) setUserMention(true);
+  }, [mentionedMyChannel, setUserMention]);
+  if (!href || !decodedUri) return children || null;
+  let linkUrlObject;
+
+  try {
+    linkUrlObject = new URL(decodedUri);
+  } catch (e) {}
+
+  let lbryUrlFromLink;
+
+  if (linkUrlObject && !href.startsWith('mailto:')) {
+    const linkDomain = linkUrlObject.hostname;
+    const isKnownAppDomainLink = KNOWN_APP_DOMAINS.includes(linkDomain);
+
+    if (isKnownAppDomainLink) {
+      let linkPathname;
+
+      try {
+        // This could be anything
+        linkPathname = decodeURIComponent(
+          linkUrlObject.pathname.startsWith('//') ? linkUrlObject.pathname.slice(2) : linkUrlObject.pathname.slice(1)
+        );
+      } catch (e) {}
+
+      const linkPathPlusHash = linkPathname ? `${linkPathname}${linkUrlObject.hash}` : undefined;
+      const possibleLbryUrl = linkPathPlusHash ? `lbry://${linkPathPlusHash.replace(/:/g, '#')}` : undefined;
+      const lbryLinkIsValid = possibleLbryUrl && isURIValid(possibleLbryUrl);
+      const isMarkdownLinkWithLabel =
+        children && Array.isArray(children) && React.Children.count(children) === 1 && children.toString() !== href;
+
+      if (lbryLinkIsValid && !isMarkdownLinkWithLabel) {
+        lbryUrlFromLink = possibleLbryUrl;
+      }
+    }
+  }
+
+  // Return timestamp link if it starts with '?t=' (only possible from remark-timestamp).
+  // Return plain text if no valid url.
+  // Return external link if protocol is http or https.
+  // Return local link if protocol is lbry uri.
+  if (href.startsWith('?t=')) {
+    // Video timestamp markers
+    element = (
+      <Button
+        button="link"
+        iconRight={undefined}
+        title={title || decodedUri}
+        label={children}
+        className="button--external-link"
+        onClick={() => {
+          if (window.player) {
+            window.player.currentTime(parseInt(href.substr(3)));
+            window.scrollTo(0, 0);
+          }
+        }}
+      />
+    );
+  } else if (!simpleLinks && ((protocol && protocol[0] === 'lbry:' && isURIValid(decodedUri)) || lbryUrlFromLink)) {
+    if (isComment && isChannel && isMention && setUserMention) {
+      element = (
+        <Menu>
+          <MenuButton className="menu__button" onClick={(e) => e.stopPropagation()}>
+            <ChannelTitle uri={decodedUri} fallback={children} isComment />
+          </MenuButton>
+
+          <CommentMenuList
+            uri={lbryUrlFromLink || decodedUri}
+            authorUri={lbryUrlFromLink || decodedUri}
+            commentIsMine={isMe(activeChannelClaim && activeChannelClaim.short_url, lbryUrlFromLink || decodedUri)}
+            isLiveComment
+          />
+        </Menu>
+      );
+    } else {
+      element = (
+        <ClaimLink
+          uri={lbryUrlFromLink || decodedUri}
+          parentCommentId={parentCommentId}
+          allowPreview={embed || allowPreview}
+        >
+          {children}
+        </ClaimLink>
+      );
+    }
+  } else if (
+    simpleLinks ||
+    (protocol && (protocol[0] === 'http:' || protocol[0] === 'https:' || protocol[0] === 'mailto:'))
+  ) {
+    const isLbryLink = href.startsWith('lbry://');
+    const isMailto = href.startsWith('mailto:');
+    const faviconUrl = !isLbryLink && !isMailto && linkUrlObject ? `/$/favicon?d=${linkUrlObject.host}` : null;
+    element = (
+      <span className="button--external-link-wrap">
+        {faviconUrl && (
+          <span
+            ref={(el) => {
+              if (!el || el.dataset.init) return;
+              el.dataset.init = '1';
+              const img = new Image();
+              img.addEventListener(
+                'load',
+                () => {
+                  el.style.backgroundImage = `url(${faviconUrl})`;
+                },
+                { once: true }
+              );
+              img.addEventListener(
+                'error',
+                () => {
+                  el.style.display = 'none';
+                },
+                { once: true }
+              );
+              img.src = faviconUrl;
+            }}
+            className="markdown-link-favicon"
+          />
+        )}
+        <Button
+          button="link"
+          iconRight={isLbryLink ? undefined : ICONS.EXTERNAL}
+          iconSize={isMobile && 12}
+          title={title || decodedUri}
+          label={children}
+          className="button--external-link"
+          navigate={isLbryLink ? href : undefined}
+          href={isLbryLink ? undefined : href}
+        />
+      </span>
+    );
+  }
+
+  return <>{element}</>;
+}
+
+export default MarkdownLink;

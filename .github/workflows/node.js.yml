@@ -1,69 +1,366 @@
-# This workflow will do a clean install of node dependencies, cache/restore them, build the source code and run tests across different versions of node
-# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+# CI for the Vite + pnpm stack
+# Node version is driven by .nvmrc (mirrors package.json#engines.node ^22.0.0).
+# pnpm version is driven by package.json#packageManager (read by pnpm/action-setup automatically).
 
 name: Node.js CI
 
 on:
   push:
-    branches: [master]
+    branches: ['**']
+    tags: ['v*']
   pull_request:
-    branches: [master]
+    branches: ['**']
+
+env:
+  DOCKERHUB_IMAGE: odyseeteam/odysee-frontend
 
 jobs:
+  # ─── Lint ────────────────────────────────────────────────────────────────────
   lint:
     name: lint
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - name: Set Node.js 18.x
-        uses: actions/setup-node@v3
+      # Install the pnpm version pinned in package.json#packageManager
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: 18.x
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
 
-      - name: Run "yarn install"
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: install
+      # Lockfile resolves odysee-media-usagi to SSH (git@github.com:) which
+      # fails without SSH keys. Rewrite to HTTPS so pnpm can clone it.
+      - name: Use HTTPS for git deps
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
 
-      - name: Run "yarn lint"
-        uses: borales/actions-yarn@v4
-        with:
-          cmd: lint
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
+      - name: Check (lint + format + typecheck)
+        run: pnpm check
+
+  # ─── Build ───────────────────────────────────────────────────────────────────
   build:
-    needs: ['lint']
-    name: 'build'
-    strategy:
-      matrix:
-        node-version: [18.x]
-        os:
-          - ubuntu-latest
-    runs-on: ${{ matrix.os }}
+    name: build
+    needs: [lint]
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2-beta
-        with:
-          node-version: ${{ matrix.node-version }}
+      - uses: actions/checkout@v4
 
-      - name: Build
-        run: |
-          yarn
-          yarn cross-env NODE_ENV=production yarn compile:web
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'pnpm'
+
+      - name: Use HTTPS for git deps
+        run: git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build (Vite)
+        run: pnpm build
         env:
-          # UI
-          WELCOME_VERSION: 1.0
-          DOMAIN: odysee.com
-          URL: https://odysee.com
-          SHARE_DOMAIN_URL: https://odysee.com
-          SITE_TITLE: Odysee
-          SITE_NAME: Odysee
-          SHOW_ADS: false
-          YRBL_HAPPY_IMG_URL: https://player.odycdn.com/api/v3/streams/free/yrbl-happy/7aa50a7e5adaf48691935d55e45d697547392929/839d9a
-          YRBL_SAD_IMG_URL: https://player.odycdn.com/api/v3/streams/free/yrbl-sad/c2d9649633d974e5ffb503925e1f17d951f1bd0f/f262dd
-          ENABLE_COMMENT_REACTIONS: true
-          ENABLE_NO_SOURCE_CLAIMS: true
-          DEFAULT_LANGUAGE: en
-          KNOWN_APP_DOMAINS: lbry.tv,lbry.lat,odysee.com
-          CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS: 4
+          NODE_ENV: production
+          COMMIT_ID: ${{ github.sha }}
+          BUILD_REV: ${{ github.sha }}
+          CUSTOM_HOMEPAGE: 'true'
+
+  # ─── Docker Image ────────────────────────────────────────────────────────────
+  docker:
+    name: docker
+    needs: [build]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push'
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.DOCKERHUB_IMAGE }}
+          tags: |
+            type=ref,event=branch,enable=${{ github.ref != 'refs/heads/master' }}
+            type=sha,prefix=sha-
+            type=raw,value=latest,enable=${{ github.ref == 'refs/heads/master' }}
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}},enable=${{ !startsWith(github.ref, 'refs/tags/v0.') }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          build-args: |
+            NODE_ENV=production
+            COMMIT_ID=${{ github.sha }}
+            BUILD_REV=${{ github.sha }}
+            CUSTOM_HOMEPAGE=true
+
+  notify-slack:
+    name: notify-slack
+    needs: [lint, build, docker]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Build Slack payload
+        id: payload
+        env:
+          LINT_RESULT: ${{ needs.lint.result }}
+          BUILD_RESULT: ${{ needs.build.result }}
+          DOCKER_RESULT: ${{ needs.docker.result }}
+          WORKFLOW_NAME: ${{ github.workflow }}
+          SERVER_URL: ${{ github.server_url }}
+          API_URL: ${{ github.api_url }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          EVENT_NAME: ${{ github.event_name }}
+          REF: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          SHA: ${{ github.sha }}
+          ACTOR: ${{ github.actor }}
+          HEAD_COMMIT_AUTHOR_NAME: ${{ github.event.head_commit.author.name }}
+          HEAD_COMMIT_AUTHOR_EMAIL: ${{ github.event.head_commit.author.email }}
+          PR_USER: ${{ github.event.pull_request.user.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HTML_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          python3 - <<'PY'
+          from datetime import datetime, timezone
+          import json
+          import os
+          import urllib.request
+          from urllib.parse import quote
+
+          lint_result = os.environ["LINT_RESULT"]
+          build_result = os.environ["BUILD_RESULT"]
+          docker_result = os.environ["DOCKER_RESULT"]
+
+          if "failure" in (lint_result, build_result, docker_result):
+              status = "failed"
+          elif "cancelled" in (lint_result, build_result, docker_result):
+              status = "cancelled"
+          else:
+              status = "succeeded"
+          status_emoji = {
+              "succeeded": ":white_check_mark:",
+              "failed": ":x:",
+              "cancelled": ":warning:",
+          }[status]
+          status_color = {
+              "succeeded": "good",
+              "failed": "danger",
+              "cancelled": "warning",
+          }[status]
+
+          def format_job(name, result):
+              emoji = {
+                  "success": ":white_check_mark:",
+                  "failure": ":x:",
+                  "cancelled": ":warning:",
+                  "skipped": ":fast_forward:",
+              }.get(result, ":grey_question:")
+              return f"{emoji} {name}: {result}"
+
+          def escape_mrkdwn(text):
+              return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+          def summarize_commit_message(message):
+              lines = [line.strip() for line in message.splitlines() if line.strip()]
+              return lines[0] if lines else ""
+
+          author = os.environ["ACTOR"]
+          if os.environ.get("HEAD_COMMIT_AUTHOR_NAME") and os.environ.get("HEAD_COMMIT_AUTHOR_EMAIL"):
+              author = f'{os.environ["HEAD_COMMIT_AUTHOR_NAME"]} <{os.environ["HEAD_COMMIT_AUTHOR_EMAIL"]}>'
+          elif os.environ.get("PR_USER"):
+              author = os.environ["PR_USER"]
+          author_text = escape_mrkdwn(author)
+
+          started_at = ""
+          api_url = os.environ.get("API_URL", "")
+          repository = os.environ["REPOSITORY"]
+          run_id = os.environ["RUN_ID"]
+          sha = os.environ["SHA"]
+          github_token = os.environ.get("GITHUB_TOKEN", "")
+          commit_message = summarize_commit_message(os.environ.get("HEAD_COMMIT_MESSAGE", ""))
+
+          if api_url and repository and run_id and github_token:
+              request = urllib.request.Request(
+                  f"{api_url}/repos/{repository}/actions/runs/{run_id}",
+                  headers={
+                      "Authorization": f"Bearer {github_token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=10) as response:
+                      run_data = json.load(response)
+                      started_at = run_data.get("run_started_at") or ""
+              except Exception:
+                  started_at = ""
+
+          if not commit_message and api_url and repository and sha and github_token:
+              request = urllib.request.Request(
+                  f"{api_url}/repos/{repository}/commits/{sha}",
+                  headers={
+                      "Authorization": f"Bearer {github_token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=10) as response:
+                      commit_data = json.load(response)
+                      commit_message = summarize_commit_message(commit_data.get("commit", {}).get("message", ""))
+              except Exception:
+                  commit_message = ""
+
+          duration = "unknown"
+          if started_at:
+              try:
+                  start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+                  elapsed_seconds = max(0, int((datetime.now(timezone.utc) - start).total_seconds()))
+                  hours, remainder = divmod(elapsed_seconds, 3600)
+                  minutes, seconds = divmod(remainder, 60)
+                  if hours:
+                      duration = f"{hours}h {minutes}m"
+                  elif minutes:
+                      duration = f"{minutes}m {seconds}s"
+                  else:
+                      duration = f"{seconds}s"
+              except ValueError:
+                  duration = "unknown"
+
+          workflow_name = os.environ["WORKFLOW_NAME"]
+          server_url = os.environ["SERVER_URL"]
+          short_sha = sha[:8]
+          repo_url = f"{server_url}/{repository}"
+          run_url = f"{repo_url}/actions/runs/{run_id}"
+          commit_url = f"{repo_url}/commit/{sha}"
+          commit_message_text = escape_mrkdwn(commit_message) if commit_message else "unknown"
+
+          ref_text = escape_mrkdwn(os.environ["REF"])
+          ref_name = os.environ.get("REF_NAME", "")
+          ref_type = os.environ.get("REF_TYPE", "")
+          event_name = os.environ.get("EVENT_NAME", "")
+          pr_number = os.environ.get("PR_NUMBER", "")
+          pr_html_url = os.environ.get("PR_HTML_URL", "")
+
+          if event_name == "pull_request" and pr_html_url:
+              label = f"PR #{pr_number}" if pr_number else ref_name or "pull request"
+              label = escape_mrkdwn(label)
+              ref_text = f"<{pr_html_url}|{label}>"
+          elif ref_name:
+              ref_name_text = escape_mrkdwn(ref_name)
+              if ref_type == "branch":
+                  ref_url = f"{repo_url}/tree/{quote(ref_name, safe='')}"
+                  ref_text = f"<{ref_url}|{ref_name_text}>"
+              elif ref_type == "tag":
+                  ref_url = f"{repo_url}/releases/tag/{quote(ref_name, safe='')}"
+                  ref_text = f"<{ref_url}|{ref_name_text}>"
+
+          text = (
+              f"CI/CD\n"
+              f"<{run_url}|{workflow_name}> "
+              f"(<{commit_url}|{short_sha}>) of "
+              f"<{repo_url}|{repository}>@{ref_text} by {author_text} "
+              f"{status} in {duration}\n"
+              f"Message: {commit_message_text}"
+          )
+
+          blocks = [
+              {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": f"{status_emoji} *<{run_url}|{workflow_name}>* {status} in *{duration}*",
+                  },
+              },
+              {
+                  "type": "section",
+                  "fields": [
+                      {"type": "mrkdwn", "text": f"*Repository*\n<{repo_url}|{repository}>"},
+                      {"type": "mrkdwn", "text": f"*Ref*\n{ref_text}"},
+                      {"type": "mrkdwn", "text": f"*Commit*\n<{commit_url}|{short_sha}>"},
+                      {"type": "mrkdwn", "text": f"*Author*\n{author_text}"},
+                  ],
+              },
+              {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": f"*Message*\n{commit_message_text}",
+                  },
+              },
+              {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": "\n".join(
+                          [
+                              "*Jobs*",
+                              format_job("Lint", lint_result),
+                              format_job("Build", build_result),
+                              format_job("Docker", docker_result),
+                          ]
+                      ),
+                  },
+              },
+          ]
+
+          with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
+              fh.write(
+                  f"payload={json.dumps({'text': text, 'attachments': [{'color': status_color, 'blocks': blocks}]})}\n"
+              )
+          PY
+
+      - name: Post to Slack
+        continue-on-error: true
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          PAYLOAD: ${{ steps.payload.outputs.payload }}
+        run: |
+          if [[ -z "$SLACK_WEBHOOK" ]]; then
+            exit 0
+          fi
+
+          curl --fail --silent --show-error \
+            -X POST \
+            -H 'Content-type: application/json' \
+            --data "$PAYLOAD" \
+            "$SLACK_WEBHOOK"

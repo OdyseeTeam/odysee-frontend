@@ -1,0 +1,555 @@
+import { Global } from '@emotion/react';
+import React from 'react';
+import classnames from 'classnames';
+import CollectionItemsList from 'component/collectionItemsList';
+import Card from 'component/common/card';
+import Button from 'component/button';
+import * as PAGES from 'constants/pages';
+import * as COLLECTIONS_CONSTS from 'constants/collections';
+import Icon from 'component/common/icon';
+import * as ICONS from 'constants/icons';
+import * as MODALS from 'constants/modal_types';
+import { NavLink } from 'react-router-dom';
+import UriIndicator from 'component/uriIndicator';
+import I18nMessage from 'component/i18nMessage';
+import ShuffleButton from './internal/shuffleButton';
+import LoopButton from './internal/loopButton';
+import usePersistedState from 'effects/use-persisted-state';
+import { HEADER_HEIGHT_MOBILE } from 'constants/player';
+import { getMaxLandscapeHeight } from 'util/window';
+import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
+import { getLocalizedNameForCollectionId } from 'util/collections';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import {
+  selectClaimForUri,
+  selectChannelNameForId,
+  selectThumbnailForUri,
+  selectClaimForClaimId,
+} from 'redux/selectors/claims';
+import {
+  selectUrlsForCollectionId,
+  selectCollectionTitleForId,
+  selectCollectionIsMine,
+  selectIsCollectionPrivateForId,
+  selectIndexForUrlInCollectionForId,
+  selectCollectionLengthForId,
+  selectCollectionIsEmptyForId,
+  selectCollectionForId,
+  selectCollectionSavedForId,
+  selectCollectionHasEditsForId,
+} from 'redux/selectors/collections';
+import { selectPlayingUri } from 'redux/selectors/content';
+import {
+  doCollectionEdit as doCollectionEditAction,
+  doClearQueueList as doClearQueueListAction,
+  doToggleCollectionSavedForId as doToggleCollectionSavedForIdAction,
+} from 'redux/actions/collections';
+import { doClearPlayingCollection as doClearPlayingCollectionAction } from 'redux/actions/content';
+import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
+import './style.lazy.scss';
+type Props = {
+  id: string;
+  uri?: string;
+  onClose?: () => void;
+  disableClickNavigation?: boolean;
+  useDrawer?: boolean;
+  isFloating?: boolean;
+  doDisablePlayerDrag?: (disable: boolean) => void;
+};
+export default function PlaylistCard(props: Props) {
+  const { id: collectionId, useDrawer, isFloating, disableClickNavigation, doDisablePlayerDrag } = props;
+  const dispatch = useAppDispatch();
+  const {
+    uri: playingUri,
+    collection: { collectionId: playingCollectionId },
+  } = useAppSelector(selectPlayingUri);
+  const playingCurrentPlaylist = collectionId === playingCollectionId;
+  const playingClaim = useAppSelector((state) => selectClaimForUri(state, playingUri));
+  const playingItemUrl = playingCurrentPlaylist ? playingClaim?.permanent_url : undefined;
+  const claim = useAppSelector((state) => selectClaimForClaimId(state, collectionId));
+  const collectionUri = (claim && (claim.canonical_url || claim.permanent_url)) || null;
+  const collectionUrls = useAppSelector((state) => selectUrlsForCollectionId(state, collectionId));
+  const collectionName = useAppSelector((state) => selectCollectionTitleForId(state, collectionId));
+  const isMyCollection = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
+  const isPrivateCollection = useAppSelector((state) => selectIsCollectionPrivateForId(state, collectionId));
+  const hasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
+  const publishedCollectionName = useAppSelector((state) => selectChannelNameForId(state, collectionId));
+  const playingItemIndex = useAppSelector((state) =>
+    selectIndexForUrlInCollectionForId(state, playingCollectionId, playingItemUrl)
+  );
+  const collectionLength = useAppSelector((state) => selectCollectionLengthForId(state, collectionId));
+  const collectionEmpty = useAppSelector((state) => selectCollectionIsEmptyForId(state, collectionId));
+  const hasCollectionById = Boolean(
+    useAppSelector((state) => (collectionId ? selectCollectionForId(state, collectionId) : undefined))
+  );
+  const collectionSavedForId = useAppSelector((state) => selectCollectionSavedForId(state, collectionId));
+  const thumbnailFromClaim = useAppSelector((state) => selectThumbnailForUri(state, playingItemUrl || collectionUri));
+
+  const doCollectionEdit = (id: string, params: CollectionEditParams) => dispatch(doCollectionEditAction(id, params));
+  const doClearPlayingCollection = () => dispatch(doClearPlayingCollectionAction());
+  const doClearQueueList = () => dispatch(doClearQueueListAction());
+  const doOpenModal = (id: string, modalProps: {}) => dispatch(doOpenModalAction(id, modalProps));
+  const doToggleCollectionSavedForId = (id: string) => dispatch(doToggleCollectionSavedForIdAction(id));
+
+  const id = collectionId;
+  const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
+  const [showEdit, setShowEdit] = React.useState(false);
+  if (!hasCollectionById) return null;
+  const currentIndexLabel = ` - ${Number.isInteger(playingItemIndex) ? playingItemIndex + 1 : 0}/${collectionLength} `;
+  const playlistCardProps = {
+    showEdit,
+    setShowEdit,
+    currentIndexLabel,
+    id,
+    playingItemUrl,
+    playingCurrentPlaylist,
+    collectionUrls,
+    collectionName,
+    isMyCollection,
+    isPrivateCollection,
+    hasEdits,
+    publishedCollectionName,
+    playingItemIndex,
+    collectionLength,
+    disableClickNavigation,
+    collectionEmpty,
+    isFloating,
+    playingCollectionId,
+    collectionSavedForId,
+    thumbnailFromClaim,
+    doCollectionEdit,
+    doDisablePlayerDrag,
+    doClearPlayingCollection,
+    doOpenModal,
+    doClearQueueList,
+    doToggleCollectionSavedForId,
+  };
+
+  return <PlaylistCardComponent {...(playlistCardProps as PlaylistCardProps)} className="playlist__wrapper" />;
+}
+type PlaylistCardProps = {
+  id: string;
+  playingItemUrl: string | undefined;
+  playingCurrentPlaylist: boolean;
+  isMyCollection: boolean;
+  collectionUrls: Array<Claim>;
+  collectionName: string;
+  isPrivateCollection: boolean;
+  hasEdits: boolean;
+  publishedCollectionName: string | boolean;
+  playingItemIndex: number | null | undefined;
+  collectionLength: number;
+  disableClickNavigation?: boolean;
+  collectionEmpty: boolean;
+  isFloating?: boolean;
+  playingCollectionId: string | null | undefined;
+  collectionSavedForId: boolean;
+  doCollectionEdit: (arg0: string, arg1: CollectionEditParams) => void;
+  doDisablePlayerDrag?: (disable: boolean) => void;
+  doClearPlayingCollection: () => void;
+  doOpenModal: (id: string, props: {}) => void;
+  doClearQueueList: () => void;
+  doToggleCollectionSavedForId: (id: string) => void;
+  thumbnailFromClaim: string;
+  titleOnly?: boolean;
+  bodyOnly?: boolean;
+  showEdit: boolean;
+  currentIndexLabel: string;
+  setShowEdit: React.Dispatch<React.SetStateAction<boolean>>;
+  className?: string;
+  onClose?: () => void;
+};
+
+const PlaylistCardComponent = (props: PlaylistCardProps) => {
+  const {
+    isMyCollection,
+    collectionUrls,
+    collectionName,
+    id,
+    playingItemUrl,
+    isPrivateCollection,
+    hasEdits,
+    publishedCollectionName,
+    doCollectionEdit,
+    playingItemIndex,
+    collectionLength,
+    currentIndexLabel,
+    disableClickNavigation,
+    titleOnly,
+    bodyOnly,
+    showEdit,
+    setShowEdit,
+    doDisablePlayerDrag,
+    collectionEmpty,
+    playingCurrentPlaylist,
+    isFloating,
+    playingCollectionId,
+    doClearPlayingCollection,
+    doOpenModal,
+    doClearQueueList,
+    doToggleCollectionSavedForId,
+    collectionSavedForId,
+    thumbnailFromClaim,
+    onClose,
+    ...cardProps
+  } = props;
+  const isMobile = useIsMobile();
+  const isSmallScreen = useIsSmallScreen() && !isMobile;
+  const usedCollectionName = getLocalizedNameForCollectionId(id) || collectionName;
+  const activeItemRef = React.useRef<HTMLElement | null>(null);
+  const scrollRestorePending = React.useRef<boolean>(false);
+  const listHasActive = React.useRef<boolean>(false);
+  const lengthRef = React.useRef(collectionLength);
+  const activeItemIndexRef = React.useRef(playingItemIndex);
+  const [floatingBodyOpen, setFloatingBodyOpen] = usePersistedState('playlist-card-open', true);
+  const [bodyOpen, setBodyOpen] = React.useState(isFloating ? floatingBodyOpen : true);
+  const [bodyRef, setBodyRef] = React.useState<HTMLElement | null>(null);
+  const [hasActive, setHasActive] = React.useState<boolean>(false);
+  const [scrolledPastActive, setScrolledPast] = React.useState<boolean>(false);
+
+  /*
+  // Disabled due to it blocking the clicking of the scrollbar
+  const backgroundImage = thumbnailFromClaim
+    ? 'https://thumbnails.odycdn.com/optimize/s:390:0/quality:85/plain/' + thumbnailFromClaim
+    : undefined;
+  */
+  function closePlaylist() {
+    if (collectionEmpty) {
+      doClearPlayingCollection();
+      return;
+    }
+
+    const isPlayingQueue = playingCollectionId === COLLECTIONS_CONSTS.QUEUE_ID;
+    const title = isPlayingQueue
+      ? __('Are you sure you want to quit and clear the current Queue?')
+      : __('Are you sure you want to quit the current playlist?');
+    doOpenModal(MODALS.CONFIRM, {
+      title: title,
+      subtitle: __('The current video will keep playing.'),
+      onConfirm: (closeModal) => {
+        doClearPlayingCollection();
+        if (isPlayingQueue) doClearQueueList();
+        closeModal();
+      },
+    });
+  }
+
+  const activeListItemRef = React.useCallback(
+    (node: HTMLElement | null) => {
+      if (node && bodyRef && Number.isInteger(playingItemIndex)) {
+        activeItemRef.current = node;
+        // without this, the list would scroll to the top of the item
+        // so make it so it's approximately centered instead
+        const listCenter = bodyRef.offsetHeight / 2;
+        let topToScroll = node.offsetTop - bodyRef.offsetTop - listCenter;
+
+        if (playingItemIndex === 1) {
+          topToScroll = 0;
+        } else if (playingItemIndex === collectionLength) {
+          topToScroll = bodyRef.scrollHeight;
+        }
+
+        try {
+          bodyRef.scrollTo({
+            top: topToScroll,
+            behavior: isSmallScreen ? 'instant' : 'smooth',
+          });
+        } catch (error) {}
+
+        setScrolledPast(false);
+        scrollRestorePending.current = true;
+      }
+    },
+    [bodyRef, collectionLength, isSmallScreen, playingItemIndex]
+  );
+  React.useEffect(() => {
+    if (bodyRef) {
+      const handleScroll = () => {
+        const currentActiveItem = activeItemRef.current;
+
+        if (currentActiveItem) {
+          const { top, height } = currentActiveItem.getBoundingClientRect();
+          const itemTop = currentActiveItem.offsetTop - bodyRef.offsetTop;
+          const itemBottom = itemTop + height;
+          let [playerTop, playerInfoTop] = [0, 0];
+
+          if (isFloating || isMobile) {
+            if (isFloating) {
+              const playerInfo = document.querySelector<HTMLElement>('.content__info');
+              if (playerInfo) playerInfoTop = playerInfo.offsetTop;
+              const playerElem = document.querySelector<HTMLElement>('.content__viewer');
+              const playerTransform = playerElem && playerElem.style.transform;
+
+              if (playerTransform) {
+                playerTop = Number(
+                  playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
+                );
+              }
+            }
+
+            if (isMobile) {
+              const contentHeight = HEADER_HEIGHT_MOBILE + getMaxLandscapeHeight();
+              playerTop += contentHeight;
+            }
+          }
+
+          const scrolled =
+            top - playerTop - height - bodyRef.offsetTop - playerInfoTop > bodyRef.offsetHeight ||
+            itemBottom < bodyRef.scrollTop;
+
+          if (!scrollRestorePending.current) {
+            setScrolledPast(scrolled);
+          } else {
+            scrollRestorePending.current = false;
+          }
+        }
+      };
+
+      const itemWasRemoved = collectionLength < lengthRef.current;
+      const itemWasAdded =
+        collectionLength > lengthRef.current &&
+        Number.isInteger(playingItemIndex) &&
+        playingItemIndex === activeItemIndexRef.current;
+      lengthRef.current = collectionLength;
+      activeItemIndexRef.current = playingItemIndex;
+
+      if (bodyOpen && listHasActive.current && !itemWasRemoved && !itemWasAdded) {
+        handleScroll();
+        if (activeItemRef.current) activeListItemRef(activeItemRef.current);
+      }
+
+      bodyRef.addEventListener('scroll', handleScroll);
+      window.addEventListener('resize', handleScroll);
+      return () => {
+        bodyRef.removeEventListener('scroll', handleScroll);
+        window.removeEventListener('resize', handleScroll);
+      };
+    }
+  }, [activeListItemRef, bodyOpen, bodyRef, collectionLength, isFloating, isMobile, playingItemIndex]);
+  // Prevent scroll events from propagating to the page behind the playlist (#2699)
+  const wrapperRef = React.useRef<HTMLDivElement>(null);
+  React.useEffect(() => {
+    const wrapper = wrapperRef.current;
+    if (!wrapper || !bodyRef) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const { scrollTop, scrollHeight, clientHeight } = bodyRef;
+      const atTop = scrollTop <= 0 && e.deltaY < 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight && e.deltaY > 0;
+
+      if (atTop || atBottom || scrollHeight <= clientHeight) {
+        e.stopPropagation();
+        e.preventDefault();
+      }
+    };
+
+    wrapper.addEventListener('wheel', handleWheel, {
+      passive: false,
+    });
+    return () => wrapper.removeEventListener('wheel', handleWheel);
+  }, [bodyRef]);
+  return (
+    <>
+      <Global
+        styles={{
+          '.claim-list__scroll-to-recent': {
+            opacity: !scrolledPastActive || !hasActive ? '0' : '0.9 !important',
+            // visibility also needed because it prevents clicking on the button
+            // opacity makes it invisible but still clickable
+            visibility: (!scrolledPastActive || !hasActive ? 'hidden' : 'visible !important') as any,
+            '&:hover': {
+              opacity: !scrolledPastActive || !hasActive ? '0' : '1 !important',
+            },
+          },
+          '.playlist__wrapper': {
+            '.claim-list': {
+              'li:last-child': {
+                marginBottom:
+                  scrolledPastActive && hasActive && playingItemIndex !== collectionLength
+                    ? '3rem !important'
+                    : undefined,
+              },
+            },
+          },
+        }}
+      />
+
+      <div ref={wrapperRef}>
+        <Card
+          {...cardProps}
+          smallTitle
+          slimHeader={!isFloating}
+          gridHeader={!titleOnly}
+          singlePane
+          headerActions={
+            !bodyOpen || bodyOnly ? undefined : (
+              <div className="playlist-card-actions">
+                <section>
+                  <LoopButton id={id} />
+                  <ShuffleButton url={playingItemUrl} id={id} />
+                </section>
+
+                <section>
+                  <Button
+                    requiresAuth
+                    title={__('Copy')}
+                    className="button-toggle"
+                    icon={ICONS.COPY}
+                    onClick={() =>
+                      doOpenModal(MODALS.COLLECTION_CREATE, {
+                        sourceId: id,
+                      })
+                    }
+                  />
+
+                  {isMyCollection
+                    ? !collectionEmpty && (
+                        <Button
+                          title={__('Arrange')}
+                          className={classnames('button-toggle', {
+                            'button-toggle--active': showEdit,
+                          })}
+                          icon={ICONS.ARRANGE}
+                          onClick={() => setShowEdit(!showEdit)}
+                        />
+                      )
+                    : id && (
+                        <Button
+                          requiresAuth
+                          title={__('Save')}
+                          className="button-toggle"
+                          icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
+                          onClick={() => doToggleCollectionSavedForId(id)}
+                        />
+                      )}
+                </section>
+              </div>
+            )
+          }
+          title={
+            bodyOnly ? undefined : (
+              <NavLink
+                to={`/$/${PAGES.PLAYLIST}/${id || ''}`}
+                className={classnames('playlist__title', {
+                  'align-end': isFloating,
+                })}
+              >
+                {isFloating ? (
+                  <>
+                    <Icon icon={ICONS.PLAYLIST_PLAYBACK} size={40} />
+                    <div className="playlist__title-text">
+                      <span className="text-ellipsis">
+                        {__('Now playing: --[Which Playlist is currently playing]--') + ' ' + usedCollectionName}
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <Icon
+                      icon={COLLECTIONS_CONSTS.PLAYLIST_ICONS[id] || ICONS.PLAYLIST}
+                      className="icon--margin-right"
+                    />
+                    <div className="playlist__title-text">
+                      <div className="playlist__title-text-list">
+                        <span className="text-ellipsis">{usedCollectionName}</span>
+                      </div>
+                      {bodyOnly ? undefined : (
+                        <>
+                          <div className="sub">
+                            {isPrivateCollection ? (
+                              <I18nMessage
+                                tokens={{
+                                  lock_icon: (
+                                    <Icon
+                                      icon={ICONS.LOCK}
+                                      style={{
+                                        transform: 'translateY(3px)',
+                                      }}
+                                    />
+                                  ),
+                                }}
+                              >
+                                Private %lock_icon%
+                              </I18nMessage>
+                            ) : (
+                              <UriIndicator link uri={publishedCollectionName as string} showHiddenAsAnonymous />
+                            )}
+
+                            {currentIndexLabel}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </>
+                )}
+
+                {hasEdits && (
+                  <Icon
+                    title={__('Pending edits')}
+                    icon={ICONS.PUBLISH}
+                    color="red"
+                    style={{
+                      marginLeft: 'var(--spacing-xxs)',
+                    }}
+                  />
+                )}
+              </NavLink>
+            )
+          }
+          titleActions={
+            bodyOnly || titleOnly ? undefined : (
+              <>
+                {!bodyOnly && (
+                  <Button
+                    className={classnames('button-toggle', {
+                      'button-toggle--active': !bodyOpen,
+                    })}
+                    icon={bodyOpen ? ICONS.UP : ICONS.DOWN}
+                    onClick={() => {
+                      if (isFloating) setFloatingBodyOpen(!floatingBodyOpen);
+                      setBodyOpen(!bodyOpen);
+                    }}
+                  />
+                )}
+
+                <Button
+                  title={onClose ? __('Close') : __('Close Playlist')}
+                  className="button-toggle"
+                  icon={ICONS.REMOVE}
+                  onClick={onClose || closePlaylist}
+                />
+              </>
+            )
+          }
+          body={
+            !bodyOpen || titleOnly ? undefined : (
+              <CollectionItemsList
+                collectionId={id}
+                {...({
+                  type: 'small',
+                  activeUri: playingItemUrl,
+                  empty: __('Playlist is Empty'),
+                  showEdit: showEdit,
+                  smallThumbnail: true,
+                  showIndexes: true,
+                  playItemsOnClick: playingCurrentPlaylist,
+                  disableClickNavigation: disableClickNavigation,
+                  doDisablePlayerDrag: doDisablePlayerDrag,
+                  setActiveListItemRef: bodyRef ? activeListItemRef : undefined,
+                  setListRef: (node: HTMLElement | null) => setBodyRef(node),
+                  scrolledPastActive: scrolledPastActive,
+                  restoreScrollPos: () => activeListItemRef(activeItemRef.current),
+                  setHasActive: (hasActive: boolean) => {
+                    listHasActive.current = hasActive;
+                    setHasActive(hasActive);
+                  },
+                } as any)}
+              />
+            )
+          } // Disabled due to it blocking the clicking of the scrollbar
+          // backgroundImage={backgroundImage}
+        />
+      </div>
+    </>
+  );
+};

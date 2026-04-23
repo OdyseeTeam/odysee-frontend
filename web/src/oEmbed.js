@@ -1,5 +1,6 @@
-const { URL, SITE_NAME, PROXY_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } = require('../../config.js');
-const PAGES = require('../../ui/constants/pages');
+const { URL, SITE_NAME, PROXY_URL, THUMBNAIL_HEIGHT, THUMBNAIL_WIDTH } = require('../../config.cjs');
+
+const PAGES = require('../../ui/constants/pages.cjs');
 
 const {
   generateEmbedIframeData,
@@ -7,8 +8,10 @@ const {
   getParameterByName,
   getThumbnailCardCdnUrl,
   escapeHtmlProperty,
-} = require('../../ui/util/web');
+} = require('../../ui/util/web.cjs');
+
 const { lbryProxy: Lbry } = require('../lbry');
+
 const { resolveSlashUrl } = require('./resolveSlashUrl');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
@@ -16,15 +19,13 @@ Lbry.setDaemonConnectionString(PROXY_URL);
 // ****************************************************************************
 // Fetch claim info
 // ****************************************************************************
-
 async function getClaim(requestUrl) {
   const webPath = requestUrl.replace(`${URL}/`, '');
   const uri = `lbry://${webPath}`;
-
   let claim, error;
-
   // Try alternate interpretations for ambiguous slash URLs (missing @, name/claimid)
   const resolved = await resolveSlashUrl(webPath);
+
   if (resolved) {
     claim = resolved.claim;
   }
@@ -32,7 +33,10 @@ async function getClaim(requestUrl) {
   // Fall back to resolving as-is (handles @channel/content, single-segment, etc.)
   if (!claim) {
     try {
-      const response = await Lbry.resolve({ urls: [uri] });
+      const response = await Lbry.resolve({
+        urls: [uri],
+      });
+
       if (response && response[uri] && !response[uri].error) {
         claim = response[uri];
       }
@@ -49,36 +53,38 @@ async function getClaim(requestUrl) {
     }
   }
 
-  return { claim, error };
+  return {
+    claim,
+    error,
+  };
 }
 
 // ****************************************************************************
 // Generate
 // ****************************************************************************
-
 function generateOEmbedData(claim, embedlyReferrer, timestamp, referral, collectionId) {
   const { value, signing_channel: authorClaim } = claim;
-
-  const claimTitle = value.title;
-  const authorName = authorClaim ? authorClaim.value.title || authorClaim.name : 'Anonymous';
-  const authorUrlPath = authorClaim && authorClaim.canonical_url.replace('lbry://', '').replace('#', ':');
+  const claimTitle = value?.title || claim.name || '';
+  const authorName = authorClaim ? authorClaim.value?.title || authorClaim.name : 'Anonymous';
+  const authorUrlPath = authorClaim && authorClaim.canonical_url?.replace('lbry://', '').replace('#', ':');
   const authorUrl = authorClaim ? `${URL}/${authorUrlPath}` : null;
-  const thumbnailUrl = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
+  const thumbnailUrl = value?.thumbnail?.url ? getThumbnailCardCdnUrl(value.thumbnail.url) : null;
   const autoplay = true;
-
   let embedUrl = generateEmbedUrlEncoded(claim.canonical_url, timestamp, referral, null, autoplay);
+
   // Add collection ID (lid) parameter if provided
   if (collectionId) {
     embedUrl += (embedUrl.includes('?') ? '&' : '?') + `lid=${collectionId}`;
   }
+
   let videoUrl = embedUrl;
+
   if (embedlyReferrer) {
     videoUrl +=
       (videoUrl.includes('?') ? '&' : '?') + `referrer=${encodeURIComponent(escapeHtmlProperty(embedlyReferrer))}`;
   }
 
   const { html } = generateEmbedIframeData(videoUrl);
-
   return {
     type: 'video',
     version: '1.0',
@@ -91,7 +97,8 @@ function generateOEmbedData(claim, embedlyReferrer, timestamp, referral, collect
     thumbnail_width: THUMBNAIL_WIDTH,
     thumbnail_height: THUMBNAIL_HEIGHT,
     html: html,
-    width: 560, // this is min width
+    width: 560,
+    // this is min width
     height: 315, // this is min height
   };
 }
@@ -112,7 +119,6 @@ function generateXmlData(oEmbedData) {
     width,
     height,
   } = oEmbedData;
-
   return (
     '<?xml version="1.0" encoding="utf-8"?>' +
     '<oembed>' +
@@ -137,25 +143,28 @@ async function getOEmbed(ctx) {
   const requestUrl = ctx.request.url;
   const urlQuery = getParameterByName('url', requestUrl);
   const embedlyReferrer = getParameterByName('referrer', requestUrl);
-
   const decodedQueryUri = decodeURIComponent(urlQuery);
-
   const paramsRegex = /[?&](?:\w=)?/g;
   const hasUrlParams = RegExp(paramsRegex).test(decodedQueryUri);
   const claimUrl = hasUrlParams ? decodedQueryUri.substring(0, decodedQueryUri.search(paramsRegex)) : decodedQueryUri;
-
   // Handle playlist URLs - resolve to first item
   const playlistPath = `/$/${PAGES.PLAYLIST}/`;
+
   if (claimUrl.includes(playlistPath)) {
     const collectionClaimId = claimUrl.match(/[a-f0-9]{40}/i)?.at(0);
+
     if (collectionClaimId) {
       try {
-        const collectionResponse = await Lbry.claim_search({ claim_ids: [collectionClaimId] });
+        const collectionResponse = await Lbry.claim_search({
+          claim_ids: [collectionClaimId],
+        });
         const collectionClaim = collectionResponse?.items?.at(0);
         const firstItemClaimId = collectionClaim?.value?.claims?.[0];
 
         if (firstItemClaimId) {
-          const firstItemResponse = await Lbry.claim_search({ claim_ids: [firstItemClaimId] });
+          const firstItemResponse = await Lbry.claim_search({
+            claim_ids: [firstItemClaimId],
+          });
           const firstItemClaim = firstItemResponse?.items?.at(0);
 
           if (firstItemClaim) {
@@ -169,8 +178,8 @@ async function getOEmbed(ctx) {
               queryReferralParam,
               collectionClaimId
             );
-
             const formatQuery = getParameterByName('format', requestUrl);
+
             if (formatQuery === 'xml') {
               ctx.set('Content-Type', 'application/xml');
               return generateXmlData(oEmbedData);
@@ -182,24 +191,24 @@ async function getOEmbed(ctx) {
         }
       } catch {}
     }
+
     ctx.status = 400;
     ctx.set('Content-Type', 'application/json');
-    return { error: 'The URL is invalid or the playlist is empty.' };
+    return {
+      error: 'The URL is invalid or the playlist is empty.',
+    };
   }
 
   const { claim, error } = await getClaim(claimUrl);
-
   if (error) return error;
-
   const queryTimestampParam = getParameterByName('t', decodedQueryUri);
   const queryReferralParam = getParameterByName('r', decodedQueryUri);
   const oEmbedData = generateOEmbedData(claim, embedlyReferrer, queryTimestampParam, queryReferralParam);
-
   const formatQuery = getParameterByName('format', requestUrl);
+
   if (formatQuery === 'xml') {
     ctx.set('Content-Type', 'application/xml');
     const xmlData = generateXmlData(oEmbedData);
-
     return xmlData;
   }
 
@@ -207,4 +216,6 @@ async function getOEmbed(ctx) {
   return oEmbedData;
 }
 
-module.exports = { getOEmbed };
+module.exports = {
+  getOEmbed,
+};

@@ -1,6 +1,8 @@
-const { URL, PROXY_URL, OG_IMAGE_URL } = require('../../config.js');
+const { URL, PROXY_URL, OG_IMAGE_URL } = require('../../config.cjs');
+
 const { lbryProxy: Lbry } = require('../lbry');
-const { getThumbnailCardCdnUrl } = require('../../ui/util/web');
+
+const { getThumbnailCardCdnUrl } = require('../../ui/util/web.cjs');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 
@@ -35,19 +37,21 @@ async function handleFramePost(ctx) {
   const body = ctx.request.body || {};
   const { claimUrl, channelId, index } = body.state || {};
   const nextIndex = typeof index === 'number' ? index + 1 : 0;
-
   let channelClaimId = channelId;
   let currentClaimUrl = claimUrl;
 
   if (!channelClaimId && currentClaimUrl) {
     try {
-      const response = await Lbry.resolve({ urls: [currentClaimUrl] });
+      const response = await Lbry.resolve({
+        urls: [currentClaimUrl],
+      });
       const claim = response && response[currentClaimUrl];
       channelClaimId = claim?.signing_channel?.claim_id;
     } catch (e) {}
   }
 
   let items = [];
+
   if (channelClaimId) {
     items = await getChannelLatestUploads(channelClaimId, 5);
   }
@@ -55,14 +59,15 @@ async function handleFramePost(ctx) {
   // Fallback: use current claim as the only item
   if (!items.length && currentClaimUrl) {
     try {
-      const response = await Lbry.resolve({ urls: [currentClaimUrl] });
+      const response = await Lbry.resolve({
+        urls: [currentClaimUrl],
+      });
       const claim = response && response[currentClaimUrl];
       if (claim) items = [claim];
     } catch (e) {}
   }
 
   const item = items.length ? items[nextIndex % items.length] : undefined;
-
   let image = OG_IMAGE_URL || `${URL}/public/v2-og.png`;
   let targetUrl = URL;
   let channelUrl = URL;
@@ -74,32 +79,43 @@ async function handleFramePost(ctx) {
     const odyUrl = `${URL}/${item.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
     targetUrl = odyUrl;
     const chan = item.signing_channel;
+
     if (chan) {
       channelUrl = `${URL}/${chan.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
     }
   }
 
   const buttons = [
-    { label: 'Watch on Odysee', action: 'link', target: targetUrl },
-    { label: 'More from Creator', action: 'link', target: channelUrl },
-    { label: 'Next ▶', action: 'post' },
+    {
+      label: 'Watch on Odysee',
+      action: 'link',
+      target: targetUrl,
+    },
+    {
+      label: 'More from Creator',
+      action: 'link',
+      target: channelUrl,
+    },
+    {
+      label: 'Next ▶',
+      action: 'post',
+    },
   ];
-
   const response = buildFrameResponse({
     image,
     buttons,
     postUrl: `${URL}/$/frame`,
   });
-
   // Include server-side state for the next turn
   response.state = {
     claimUrl: currentClaimUrl || (item && `lbry://${item.name}#${item.claim_id}`) || undefined,
     channelId: channelClaimId || item?.signing_channel?.claim_id || undefined,
     index: nextIndex,
   };
-
   ctx.set('Content-Type', 'application/json');
   ctx.body = JSON.stringify(response);
 }
 
-module.exports = { handleFramePost };
+module.exports = {
+  handleFramePost,
+};

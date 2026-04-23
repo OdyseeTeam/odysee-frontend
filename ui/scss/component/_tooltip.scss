@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 [data-reach-tooltip] {
   border-radius: var(--border-radius);
   border: none;
@@ -19,6 +21,12 @@
 .MuiTooltip-arrow {
   color: var(--color-text) !important;
   font-size: var(--font-xxsmall) !important;
+}
+
+@media (max-width: $breakpoint-small) {
+  .MuiTooltip-popper {
+    display: none !important;
+  }
 }
 
 .profile-badge__tooltip {

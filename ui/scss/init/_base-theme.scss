@@ -35,7 +35,7 @@
   --color-fire: #ff653e;
   --color-slime: #a6ff00;
   --color-transparent: rgba(0, 0, 0, 0);
-  --color-odysee-memberships: linear-gradient(147deg, var(--color-primary), #f77937);
+  --color-odysee-gradient: linear-gradient(147deg, var(--color-primary), #f77937);
 
   // Structure
   --color-text: var(--color-black);
@@ -183,10 +183,6 @@
   --color-fiat-payment: #ea580c; // #f77d35;
   --color-fiat-payment-decimal: 234, 88, 12;
   --color-visibility-label: #fff5f5;
-
-  // Ads
-  --color-ads-background: #fae5ff;
-  --color-ads-link: var(--color-link);
 
   // Scrollbar
   --color-scrollbar-thumb-bg: rgba(0, 0, 0, 0.2);

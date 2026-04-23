@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .tabs {
   position: relative;
 }
@@ -113,6 +115,10 @@
   @media (max-width: $breakpoint-xsmall) {
     margin-right: var(--spacing-s);
   }
+}
+
+.tab--selected {
+  background-color: var(--color-background);
 }
 
 .tab--hidden {

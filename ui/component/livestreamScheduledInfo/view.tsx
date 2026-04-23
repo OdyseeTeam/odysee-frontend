@@ -1,0 +1,66 @@
+import React from 'react';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
+import dayjs from 'util/dayjs';
+import I18nMessage from 'component/i18nMessage';
+import { getTimeAgoStr } from 'util/time';
+import { useAppSelector } from 'redux/hooks';
+import { selectMomentReleaseTimeForUri } from 'redux/selectors/claims';
+import './style.lazy.scss';
+
+const CALC_TIME_INTERVAL_MS = 1000;
+type Props = {
+  uri: string;
+};
+export default function LivestreamScheduledInfo(props: Props) {
+  const { uri } = props;
+  const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
+  const releaseTimeMs = releaseTime ? releaseTime.unix() * 1000 : 0;
+
+  const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();
+  const [inPast, setInPast] = React.useState<boolean | undefined>();
+  const startDate = React.useMemo(() => dayjs(releaseTimeMs).format('LLL'), [releaseTimeMs]);
+  React.useEffect(() => {
+    const calcTime = () => {
+      const zeroDurationStr = '---';
+      const timeAgoStr = getTimeAgoStr(releaseTimeMs, true, true, zeroDurationStr);
+      const isZeroDuration = timeAgoStr === zeroDurationStr;
+
+      if (isZeroDuration) {
+        setInPast(true);
+      } else {
+        setStartDateFromNow(timeAgoStr);
+        setInPast(releaseTimeMs < Date.now());
+      }
+    };
+
+    calcTime();
+    const intervalId = setInterval(calcTime, CALC_TIME_INTERVAL_MS);
+    return () => clearInterval(intervalId);
+  }, [releaseTimeMs]);
+  if (!startDateFromNow) return null;
+  return (
+    <div className="livestream-scheduled">
+      <Icon icon={ICONS.LIVESTREAM_SOLID} size={32} />
+      <p className="livestream-scheduled__time">
+        <span>
+          {!inPast ? (
+            <>
+              <I18nMessage
+                tokens={{
+                  time_date: startDateFromNow,
+                }}
+              >
+                Live %time_date%
+              </I18nMessage>
+              <br />
+              <span className="livestream-scheduled__date">{startDate}</span>
+            </>
+          ) : (
+            __('Starting Soon')
+          )}
+        </span>
+      </p>
+    </div>
+  );
+}

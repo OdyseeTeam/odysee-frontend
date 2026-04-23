@@ -1,3 +1,5 @@
+@import 'init/breakpoints';
+
 .upload-templates-manage {
   min-height: 100px;
 }
@@ -241,7 +243,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: $breakpoint-small) {
   .upload-templates-manage__display-row {
     flex-direction: column;
     align-items: flex-start;

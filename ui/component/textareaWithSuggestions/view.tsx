@@ -1,0 +1,464 @@
+import { EMOTES_48px as EMOTES, TWEMOTENAMES } from 'constants/emotes';
+import { matchSorter } from 'match-sorter';
+import { LIGHTHOUSE_MIN_CHARACTERS, SEARCH_OPTIONS } from 'constants/search';
+import * as KEYCODES from 'constants/keycodes';
+import Autocomplete from '@mui/material/Autocomplete';
+import BusyIndicator from 'component/common/busy-indicator';
+// import EMOJIS from 'emoji-dictionary';
+import Popper from '@mui/material/Popper';
+import React from 'react';
+import useLighthouse from 'effects/use-lighthouse';
+import useThrottle from 'effects/use-throttle';
+import { parseURI } from 'util/lbryURI';
+import TextareaSuggestionsOption from './render-option';
+import TextareaSuggestionsInput from './render-input';
+import TextareaSuggestionsGroup from './render-group';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+import { doResolveUris as doResolveUrisAction } from 'redux/actions/claims';
+import { doSetMentionSearchResults as doSetMentionSearchResultsAction } from 'redux/actions/search';
+import { makeSelectWinningUriForQuery } from 'redux/selectors/search';
+import { MAX_LIVESTREAM_COMMENTS } from 'constants/livestream';
+import { selectChannelMentionData } from 'redux/selectors/comments';
+const SUGGESTION_REGEX = new RegExp(
+  '((?:^| |\n)@[^\\s=&#$@%?:;/\\"<>%{}|^~[]*(?::[\\w]+)?)|((?:^| |\n):[\\w+-]*:?)',
+  'gm'
+);
+
+/** Regex Explained step-by-step:
+ *
+ * 1) ()|() = different capturing groups (either Mention or Emote)
+ * 2) (?:^| |\n) = only allow for: sentence beginning, space or newline before the match (no words or symbols)
+ * 3) [^\s=&#$@%?:;/\\"<>%{}|^~[]* = anything, except the characters inside
+ * 4) (?::[\w]+)? = A mention can be matched with a ':' as a claim modifier with words or digits after as ID digits,
+ * or else it's everything before the ':' (will then match the winning uri for the mention behind since has no canonical ID)
+ * 5) :\w*:? = the emote Regex, possible to be matched with a ':' at the end to consider previously typed emotes
+ *
+ */
+const SEARCH_SIZE = 10;
+const INPUT_DEBOUNCE_MS = 1000;
+type Props = {
+  className?: string;
+  disabled?: boolean;
+  id: string;
+  inputRef: any;
+  isLivestream?: boolean;
+  maxLength?: number;
+  placeholder?: string;
+  type?: string;
+  uri?: string;
+  value: any;
+  autoFocus?: boolean;
+  submitButtonRef?: any;
+  spellCheck?: boolean;
+  claimIsMine?: boolean;
+  slimInput?: boolean;
+  onBlur: (arg0: any) => any;
+  onChange: (arg0: any) => any;
+  onFocus: (arg0: any) => any;
+  toggleSelectors: () => any;
+  handleTip: (isLBC: boolean) => any;
+  handleSubmit: () => any;
+  handlePreventClick?: () => void;
+};
+export default function TextareaWithSuggestions(props: Props) {
+  const {
+    className,
+    disabled,
+    id,
+    inputRef,
+    isLivestream,
+    maxLength,
+    placeholder,
+    type,
+    uri,
+    value: messageValue = '',
+    autoFocus,
+    submitButtonRef,
+    spellCheck,
+    claimIsMine,
+    slimInput,
+    onBlur,
+    onChange,
+    onFocus,
+    toggleSelectors,
+    handleTip,
+    handleSubmit,
+    handlePreventClick,
+  } = props;
+  const dispatch = useAppDispatch();
+  const maxComments = isLivestream ? MAX_LIVESTREAM_COMMENTS : -1;
+  const mentionData = useAppSelector((state) => selectChannelMentionData(state, uri, maxComments));
+  const {
+    canonicalCommentors,
+    canonicalCreatorUri,
+    canonicalSearch,
+    canonicalSubscriptions: canonicalSubs,
+    commentorUris,
+    hasNewResolvedResults,
+    query: searchQuery,
+  } = mentionData;
+  const canonicalTop = useAppSelector((state) => makeSelectWinningUriForQuery(searchQuery)(state));
+  const inputDefaultProps = {
+    className,
+    placeholder,
+    maxLength,
+    spellCheck,
+    type,
+    disabled,
+  };
+  const [suggestionValue, setSuggestionValue] = React.useState<any>(undefined);
+  const [highlightedSuggestion, setHighlightedSuggestion] = React.useState<any>('');
+  const [shouldClose, setClose] = React.useState<boolean>(false);
+  const [debouncedTerm, setDebouncedTerm] = React.useState('');
+  const suggestionTerm = suggestionValue && suggestionValue.term;
+  const isEmote = Boolean(suggestionValue && suggestionValue.isEmote);
+  const isMention = suggestionValue && !suggestionValue.isEmote;
+  let invalidTerm = suggestionTerm && isMention && suggestionTerm.charAt(1) === ':';
+
+  if (isMention && suggestionTerm) {
+    try {
+      parseURI(suggestionTerm);
+    } catch (error) {
+      invalidTerm = true;
+    }
+  }
+
+  const additionalOptions = {
+    isBackgroundSearch: false,
+    [SEARCH_OPTIONS.CLAIM_TYPE]: SEARCH_OPTIONS.INCLUDE_CHANNELS,
+  };
+  const { results, loading } = useLighthouse(debouncedTerm, false, SEARCH_SIZE, additionalOptions, 0) as {
+    results: string[] | undefined;
+    loading: boolean;
+  };
+  const stringifiedResults = JSON.stringify(results);
+  const hasMinLength = suggestionTerm && isMention && suggestionTerm.length >= LIGHTHOUSE_MIN_CHARACTERS;
+  const isTyping = isMention && debouncedTerm !== suggestionTerm;
+  const showPlaceholder =
+    isMention && !invalidTerm && (isTyping || loading || (results && results.length > 0 && !hasNewResolvedResults));
+
+  const shouldFilter = (uri: string, previous?: string[]) =>
+    uri !== canonicalCreatorUri && (!previous || !previous.includes(uri));
+
+  const filteredCommentors = canonicalCommentors && canonicalCommentors.filter((uri: string) => shouldFilter(uri));
+  const filteredSubs = canonicalSubs && canonicalSubs.filter((uri) => shouldFilter(uri, filteredCommentors));
+  const filteredTop =
+    canonicalTop &&
+    shouldFilter(canonicalTop, filteredSubs) &&
+    shouldFilter(canonicalTop, filteredCommentors) &&
+    canonicalTop;
+  const filteredSearch =
+    canonicalSearch &&
+    canonicalSearch.filter(
+      (uri) => shouldFilter(uri, filteredSubs) && shouldFilter(uri, filteredCommentors) && uri !== filteredTop
+    );
+  let emoteNames;
+  // let emojiNames;
+  const allOptions = [];
+
+  if (isEmote) {
+    emoteNames = EMOTES.map(({ name }) => name);
+    const emotesAndEmojis = [...emoteNames, ...TWEMOTENAMES];
+    allOptions.push(...emotesAndEmojis);
+  } else {
+    if (canonicalCreatorUri) allOptions.push(canonicalCreatorUri);
+    if (filteredSubs) allOptions.push(...filteredSubs);
+    if (filteredCommentors) allOptions.push(...filteredCommentors);
+    if (filteredTop) allOptions.push(filteredTop);
+    if (filteredSearch) allOptions.push(...filteredSearch);
+  }
+
+  const allOptionsGrouped =
+    allOptions.length > 0
+      ? allOptions.map((option) => {
+          const groupName = isEmote
+            ? (emoteNames.includes(option) && __('Emotes')) || (TWEMOTENAMES.includes(option) && __('Emojis'))
+            : (canonicalCreatorUri === option && __('Creator')) ||
+              (filteredSubs && filteredSubs.includes(option) && __('Following')) ||
+              (filteredCommentors && filteredCommentors.includes(option) && __('From Comments')) ||
+              (filteredTop && filteredTop === option && 'Top') ||
+              (filteredSearch && filteredSearch.includes(option) && __('From Search'));
+          let emoteLabel;
+
+          if (isEmote) {
+            emoteLabel = `:${option.replace(/:/g, '')}:`;
+          }
+
+          return {
+            label: emoteLabel || option.replace('lbry://', '').replace('#', ':'),
+            group: groupName,
+          };
+        })
+      : [];
+  const allMatches =
+    useSuggestionMatch(
+      suggestionTerm || '',
+      allOptionsGrouped.map(({ label }) => label)
+    ) || [];
+
+  const restoreCursorPosition = (cursorIndex) => {
+    if (inputRef && inputRef.current && typeof cursorIndex === 'number' && cursorIndex >= 0) {
+      queueMicrotask(() => {
+        inputRef.current.setSelectionRange(cursorIndex, cursorIndex);
+      });
+    }
+  };
+
+  /** --------- **/
+
+  /** Functions **/
+
+  /** --------- **/
+  function handleInputChange(value: string) {
+    onChange?.({
+      target: {
+        value,
+      },
+    });
+    const cursorIndex = inputRef && inputRef.current && inputRef.current.selectionStart;
+    const suggestionMatches = value.match(SUGGESTION_REGEX);
+
+    if (!suggestionMatches) {
+      if (suggestionValue) {
+        setSuggestionValue(null);
+        restoreCursorPosition(cursorIndex);
+      }
+
+      return; // Exit here and avoid unnecessary behavior
+    }
+
+    const exec = SUGGESTION_REGEX.exec(value);
+    const previousLastIndexes = [];
+    let isEmote = exec && exec[2];
+    let currentSuggestionIndex = exec && exec.index;
+    let currentLastIndex = exec && SUGGESTION_REGEX.lastIndex;
+    let currentSuggestionValue =
+      cursorIndex >= currentSuggestionIndex &&
+      cursorIndex <= currentLastIndex &&
+      suggestionMatches &&
+      suggestionMatches[0];
+
+    if (suggestionMatches && suggestionMatches.length > 1) {
+      currentSuggestionValue = suggestionMatches.find((match, index) => {
+        const previousLastIndex = previousLastIndexes[index - 1] || 0;
+        const valueWithoutPrevious = value.substring(previousLastIndex);
+        const tempRe = new RegExp(SUGGESTION_REGEX);
+        const tempExec = tempRe.exec(valueWithoutPrevious);
+
+        if (tempExec) {
+          isEmote = tempExec && tempExec[2];
+          currentSuggestionIndex = previousLastIndex + tempExec.index;
+          currentLastIndex = previousLastIndex + tempRe.lastIndex;
+          previousLastIndexes.push(currentLastIndex);
+        }
+
+        // the current mention term will be the one on the text cursor's range,
+        // in case of there being more in the same comment message
+        if (previousLastIndexes) {
+          return cursorIndex >= currentSuggestionIndex && cursorIndex <= currentLastIndex;
+        }
+      });
+    }
+
+    if (currentSuggestionValue) {
+      const token = isEmote ? ':' : '@';
+      const tokenIndex = currentSuggestionValue.indexOf(token);
+      if (inputRef && inputRef.current) inputRef.current.setAttribute('typing-term', '');
+      setSuggestionValue({
+        beforeTerm: currentSuggestionValue.substring(0, tokenIndex),
+        // in case of a space or newline
+        term: currentSuggestionValue.substring(tokenIndex),
+        index: currentSuggestionIndex,
+        lastIndex: currentLastIndex,
+        isEmote,
+      });
+    } else if (suggestionValue) {
+      inputRef.current.removeAttribute('typing-term');
+      setSuggestionValue(null);
+    }
+
+    restoreCursorPosition(cursorIndex);
+  }
+
+  const handleSelect = React.useCallback(
+    (selectedValue: string, key?: number) => {
+      if (!suggestionValue) return;
+
+      if (!selectedValue) {
+        setSuggestionValue(undefined);
+        setClose(true);
+        return;
+      }
+
+      const elem = inputRef && inputRef.current;
+      const newCursorPos =
+        suggestionValue &&
+        suggestionValue.beforeTerm &&
+        suggestionValue.beforeTerm.length + suggestionValue.index + selectedValue.length + 1;
+      const contentBegin = messageValue.substring(0, suggestionValue.index);
+      const replaceValue = suggestionValue.beforeTerm + selectedValue;
+      const endTo = messageValue.substring(suggestionValue.lastIndex, messageValue.length);
+      const contentEnd = endTo.startsWith(' ') ? endTo : ' ' + endTo;
+      const newValue = contentBegin + replaceValue + contentEnd;
+      onChange({
+        target: {
+          value: newValue,
+        },
+      });
+      setSuggestionValue(null);
+      // no keycode === was selected with TAB (function was called by effect) or on click
+      // ENTER is handled on commentCreate after attempting to send on livestream
+      if (!key && inputRef && inputRef.current) inputRef.current.removeAttribute('typing-term');
+      elem.focus();
+      restoreCursorPosition(newCursorPos);
+    }, // eslint-disable-next-line react-hooks/exhaustive-deps -- restoreCursorPosition excluded, just a helper function
+    [messageValue, inputRef, onChange, suggestionValue]
+  );
+
+  /** ------- **/
+
+  /** Effects **/
+
+  /** ------- **/
+  React.useEffect(() => {
+    if (!autoFocus) return;
+    const inputElement = inputRef && inputRef.current;
+
+    if (inputElement) {
+      inputElement.focus();
+      if (messageValue) inputElement.setSelectionRange(messageValue.length, messageValue.length);
+    } // eslint-disable-next-line react-hooks/exhaustive-deps -- do NOT listen to messageValue, otherwise will autofocus while typing
+  }, [autoFocus, inputRef]);
+  React.useEffect(() => {
+    if (!isMention) return;
+
+    if (isTyping && suggestionTerm && !invalidTerm) {
+      const timer = setTimeout(() => {
+        setDebouncedTerm(!hasMinLength ? '' : suggestionTerm);
+      }, INPUT_DEBOUNCE_MS);
+      return () => clearTimeout(timer);
+    }
+  }, [hasMinLength, invalidTerm, isMention, isTyping, suggestionTerm]);
+  React.useEffect(() => {
+    if (!stringifiedResults) return;
+    const arrayResults = JSON.parse(stringifiedResults);
+
+    if (debouncedTerm && arrayResults && arrayResults.length > 0) {
+      dispatch(doResolveUrisAction([debouncedTerm, ...arrayResults], true));
+      dispatch(doSetMentionSearchResultsAction(debouncedTerm, arrayResults));
+    }
+  }, [debouncedTerm, dispatch, stringifiedResults, suggestionTerm]);
+  // Only resolve commentors on Livestreams when first trying to mention/looking for it
+  React.useEffect(() => {
+    if (isLivestream && commentorUris && suggestionTerm) dispatch(doResolveUrisAction(commentorUris, true));
+  }, [commentorUris, dispatch, isLivestream, suggestionTerm]);
+  // Allow selecting with TAB key
+  React.useEffect(() => {
+    if (!suggestionTerm) return; // only if there is a term, or else can't tab to navigate page
+
+    function handleKeyDown(e: KeyboardEvent) {
+      const { keyCode } = e;
+
+      if (highlightedSuggestion && keyCode === KEYCODES.TAB) {
+        e.preventDefault();
+        handleSelect(highlightedSuggestion.label);
+      }
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [handleSelect, highlightedSuggestion, suggestionTerm]);
+  // Prevent keyboard keys Up and Down being overriden by MUI listeners when not in use
+  React.useEffect(() => {
+    const inputElement = inputRef && inputRef.current;
+
+    function overrideKeyHandling(event) {
+      const { keyCode } = event;
+
+      if (!suggestionTerm && (keyCode === KEYCODES.UP || keyCode === KEYCODES.DOWN)) {
+        event.stopPropagation();
+      }
+    }
+
+    if (inputElement) {
+      inputElement.addEventListener('keydown', overrideKeyHandling);
+    }
+
+    return () => {
+      if (inputElement) {
+        inputElement.removeEventListener('keydown', overrideKeyHandling);
+      }
+    };
+  }, [inputRef, suggestionTerm]);
+
+  /** ------ **/
+
+  /** Render **/
+
+  /** ------ **/
+  return (
+    <Autocomplete<{ label: string; group: any }, false, true, true>
+      PopperComponent={AutocompletePopper}
+      autoHighlight
+      disableClearable
+      filterOptions={(options) => options.filter((opt) => typeof opt !== 'string' && allMatches.includes(opt.label))}
+      freeSolo
+      fullWidth
+      getOptionLabel={(option) => (typeof option === 'string' ? option : option.label || '')}
+      groupBy={(option) => (typeof option === 'string' ? '' : option.group)}
+      id={id}
+      inputValue={messageValue}
+      loading={allMatches.length === 0 || showPlaceholder}
+      loadingText={showPlaceholder ? <BusyIndicator message={__('Searching...')} /> : __('Nothing found')}
+      onBlur={() => onBlur && onBlur(undefined)}
+      /* Different from onInputChange, onChange is only used for the selected value,
+    so here it is acting simply as a selection handler (see it as onSelect) */
+      onChange={(event: any, value: any) => handleSelect(value.label, event.keyCode)}
+      onClose={(event, reason) => reason !== 'selectOption' && setClose(true)}
+      onFocus={() => onFocus && onFocus(undefined)}
+      onHighlightChange={(event, option) => setHighlightedSuggestion(option)}
+      onInputChange={(event, value, reason) => reason === 'input' && handleInputChange(value)}
+      onOpen={() => suggestionTerm && setClose(false)}
+      /* 'open' is for the popper box component, set to check for a valid term
+    or else it will be displayed all the time as empty (no options) */
+      open={!!suggestionTerm && !shouldClose}
+      options={allOptionsGrouped}
+      renderGroup={({ group, children }) => (
+        <TextareaSuggestionsGroup groupName={group} suggestionTerm={suggestionTerm} searchQuery={searchQuery}>
+          {children}
+        </TextareaSuggestionsGroup>
+      )}
+      renderInput={(params) => (
+        <TextareaSuggestionsInput
+          params={params}
+          messageValue={messageValue}
+          inputRef={inputRef}
+          inputDefaultProps={inputDefaultProps}
+          toggleSelectors={toggleSelectors}
+          handleTip={handleTip}
+          handleSubmit={handleSubmit}
+          handlePreventClick={handlePreventClick}
+          submitButtonRef={submitButtonRef}
+          claimIsMine={claimIsMine}
+          slimInput={slimInput}
+        />
+      )}
+      renderOption={(optionProps, option) => (
+        <TextareaSuggestionsOption label={option.label} isEmote={isEmote} optionProps={optionProps} />
+      )}
+    />
+  );
+}
+
+const AutocompletePopper = (props: any) => <Popper {...props} placement="top" />;
+
+function useSuggestionMatch(term: string, list: Array<string>) {
+  const throttledTerm = useThrottle(term);
+  return React.useMemo(() => {
+    return !throttledTerm || throttledTerm.trim() === ''
+      ? undefined
+      : matchSorter(list, term, {
+          keys: [(item) => item],
+        });
+  }, [list, term, throttledTerm]);
+}

@@ -1,5 +1,4 @@
 const SIX_MONTHS_IN_SECONDS = 15552000;
-
 const STATIC_ASSET_PATHS = [
   '/public/font/font-v1.css',
   '/public/font/v1/300.woff',
@@ -23,15 +22,22 @@ const STATIC_ASSET_PATHS = [
   '/public/img/cookie.svg',
 ];
 
+const IS_DEV = (process.env.NODE_ENV || 'development') === 'development';
+
 async function redirectMiddleware(ctx, next) {
   const {
     request: { url },
   } = ctx;
+  const HASHED_ASSET_REGEX = /^\/public\/(assets\/.*|.*[a-fA-F0-9]{8,}\.(js|css))$/i;
 
-  const HASHED_JS_REGEX = /^\/public\/.*[a-fA-F0-9]{12}\.js$/i;
-
-  if (STATIC_ASSET_PATHS.includes(url) || HASHED_JS_REGEX.test(url)) {
-    ctx.set('Cache-Control', `public, max-age=${SIX_MONTHS_IN_SECONDS}`);
+  if (STATIC_ASSET_PATHS.includes(url) || HASHED_ASSET_REGEX.test(url)) {
+    if (IS_DEV) {
+      // In dev, don't cache hashed assets — vite rebuild produces new hashes
+      // and stale cached chunks cause duplicate/broken loads after livereload
+      ctx.set('Cache-Control', 'no-store');
+    } else {
+      ctx.set('Cache-Control', `public, max-age=${SIX_MONTHS_IN_SECONDS}`);
+    }
   }
 
   return next();

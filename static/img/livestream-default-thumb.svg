@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="720" viewBox="0 0 1280 720">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1a0a2e"/>
+      <stop offset="50%" stop-color="#16213e"/>
+      <stop offset="100%" stop-color="#0f3460"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="45%">
+      <stop offset="0%" stop-color="#e6004680"/>
+      <stop offset="100%" stop-color="#e6004600"/>
+    </radialGradient>
+  </defs>
+  <rect width="1280" height="720" fill="url(#bg)"/>
+  <rect width="1280" height="720" fill="url(#glow)"/>
+  <circle cx="640" cy="280" r="48" fill="none" stroke="#e60046" stroke-width="4" opacity="0.9"/>
+  <circle cx="640" cy="280" r="18" fill="#e60046" opacity="0.9"/>
+  <text x="640" y="400" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="64" font-weight="800" fill="#ffffff" letter-spacing="2">LIVE</text>
+  <text x="640" y="460" text-anchor="middle" font-family="system-ui,-apple-system,sans-serif" font-size="28" font-weight="500" fill="#ffffff" opacity="0.6" letter-spacing="4">ON ODYSEE</text>
+</svg>

@@ -1,0 +1,90 @@
+import React from 'react';
+import UriIndicator from 'component/uriIndicator';
+import ChannelThumbnail from 'component/channelThumbnail';
+import { buildURI } from 'util/lbryURI';
+import dayjs from 'util/dayjs';
+import CopyableText from 'component/copyableText';
+import Tooltip from 'component/common/tooltip';
+import { toCapitalCase } from 'util/string';
+import Button from 'component/button';
+import { useAppSelector } from 'redux/hooks';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
+import { selectMembershipForId } from 'redux/selectors/memberships';
+interface IProps {
+  transaction: MembershipPayment;
+  longList: boolean;
+}
+
+// takes a claimId, selects the claim for it
+// renders the name, thumb, etc, waits for it
+function View(props: IProps) {
+  const { longList, transaction } = props;
+  const recipientChannel = useAppSelector((state) =>
+    selectClaimForClaimId(state, transaction?.creator_channel_claim_id)
+  );
+  const senderChannel = useAppSelector((state) =>
+    selectClaimForClaimId(state, transaction?.subscriber_channel_claim_id)
+  );
+  const membership = useAppSelector((state) => selectMembershipForId(state, transaction.membership_id));
+  const { name: recipientName, claim_id: recipientClaimId } = recipientChannel || {};
+  const { name: senderName, claim_id: senderClaimId } = senderChannel || {};
+  const recipientUri = recipientChannel
+    ? buildURI({
+        channelName: recipientName,
+        channelClaimId: recipientClaimId,
+      })
+    : null;
+  const senderUri = senderChannel
+    ? buildURI({
+        channelName: senderName,
+        channelClaimId: senderClaimId,
+      })
+    : null;
+  return (
+    <tr key={transaction.transaction_id}>
+      <td>
+        <Tooltip title={dayjs(new Date(transaction.initiated_at)).format('LLL')}>
+          <div>{dayjs(new Date(transaction.initiated_at)).format('LL')}</div>
+        </Tooltip>
+      </td>
+      <td className="channelThumbnail">
+        {recipientUri ? (
+          longList ? (
+            <Button button={'link'} label={recipientName} navigate={recipientUri} />
+          ) : (
+            <UriIndicator focusable={false} uri={recipientUri} link>
+              <ChannelThumbnail xsmall link uri={recipientUri} />
+              <label>{recipientChannel?.name}</label>
+            </UriIndicator>
+          )
+        ) : (
+          <div>Anon</div>
+        )}
+      </td>
+      <td className="channelThumbnail">
+        {senderUri ? (
+          longList ? (
+            <Button button={'link'} label={senderName} navigate={senderUri} />
+          ) : (
+            <UriIndicator focusable={false} uri={senderUri} link>
+              <ChannelThumbnail xsmall link uri={senderUri} />
+              <label>{senderChannel?.name}</label>
+            </UriIndicator>
+          )
+        ) : (
+          <div>Anon</div>
+        )}
+      </td>
+      <td>{membership && membership.name}</td>
+      <td className="payment-txid">
+        {!transaction.transaction_id.startsWith('in_') && (
+          <CopyableText hideValue linkTo={`https://viewblock.io/arweave/tx/`} copyable={transaction.transaction_id} />
+        )}
+      </td>
+      <td>${(transaction.usd_amount / 100).toFixed(2)} USD</td>
+      <td>{transaction.status ? toCapitalCase(transaction.status) : '...'}</td>
+    </tr>
+  );
+}
+
+export default View;

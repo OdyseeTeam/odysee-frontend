@@ -5,4 +5,3 @@ module.exports = {
   // Use ISO language code keys. Add more languages as needed.
   en: require('./odysee-en.js'),
 };
-

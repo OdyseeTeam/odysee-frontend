@@ -1,31 +1,102 @@
+const fs = require('fs');
+const os = require('os');
 const path = require('path');
-const memo = {};
 
-const FORMAT = { ROKU: 'roku' };
+const memo = {};
+const FORMAT = {
+  ROKU: 'roku',
+};
+
+function walkFiles(dir, handler) {
+  const entries = fs.readdirSync(dir, { withFileTypes: true });
+
+  entries.forEach((entry) => {
+    const fullPath = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      walkFiles(fullPath, handler);
+      return;
+    }
+
+    handler(fullPath);
+  });
+}
+
+function normalizeHomepageDir(dir) {
+  walkFiles(dir, (fullPath) => {
+    if (fullPath.endsWith('.js')) {
+      fs.renameSync(fullPath, fullPath.replace(/\.js$/, '.cjs'));
+    }
+  });
+
+  walkFiles(dir, (fullPath) => {
+    if (fullPath.endsWith('.cjs')) {
+      const content = fs.readFileSync(fullPath, 'utf8');
+      const fixed = content.replace(/require\((['"])(.+?)\.js\1\)/g, 'require($1$2.cjs$1)');
+
+      if (fixed !== content) {
+        fs.writeFileSync(fullPath, fixed);
+      }
+    }
+  });
+}
+
+function getHomepageSourceDir() {
+  return process.env.CUSTOM_HOMEPAGE_DIR || path.resolve(__dirname, '../../custom/homepages/v2');
+}
+
+function getPreparedHomepageDir() {
+  if (memo.preparedHomepageDir && fs.existsSync(memo.preparedHomepageDir)) {
+    return memo.preparedHomepageDir;
+  }
+
+  const sourceDir = getHomepageSourceDir();
+  if (!fs.existsSync(sourceDir)) {
+    return null;
+  }
+
+  const runtimeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'odysee-homepages-'));
+  fs.cpSync(sourceDir, runtimeDir, { recursive: true });
+  normalizeHomepageDir(runtimeDir);
+  memo.preparedHomepageDir = runtimeDir;
+  return memo.preparedHomepageDir;
+}
 
 const loadAnnouncements = (homepageKeys) => {
-  const fs = require('fs');
   const announcements = {};
-
   homepageKeys.forEach((key) => {
     const file = path.join(__dirname, `../dist/announcement/${key.toLowerCase()}.md`);
     let announcement;
+
     try {
       announcement = fs.readFileSync(file, 'utf8');
     } catch {}
+
     announcements[key] = announcement ? announcement.trim() : '';
   });
-
   return announcements;
 };
 
-// this didn't seem to help.
-if (!memo.homepageData) {
-  if (process.env.CUSTOM_HOMEPAGE === 'true') {
-    try {
-      memo.homepageData = require('../../custom/homepages/v2');
-      memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
-    } catch (err) {
+function loadHomepageData() {
+  if (process.env.CUSTOM_HOMEPAGE !== 'true' || memo.homepageData) {
+    return;
+  }
+
+  try {
+    const preparedDir = getPreparedHomepageDir();
+    const customPath = preparedDir && path.join(preparedDir, 'index.cjs');
+
+    if (!customPath) {
+      throw new Error(`Custom homepage directory not found at ${getHomepageSourceDir()}`);
+    }
+
+    memo.homepageData = require(customPath);
+    memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
+    memo.lastLoadError = undefined;
+  } catch (err) {
+    const message = err && err.stack ? err.stack : String(err);
+
+    if (memo.lastLoadError !== message) {
+      memo.lastLoadError = message;
       console.log('getHomepageJSON:', err); // eslint-disable-line no-console
     }
   }
@@ -34,8 +105,9 @@ if (!memo.homepageData) {
 // ****************************************************************************
 // v1
 // ****************************************************************************
-
 const getHomepageJsonV1 = () => {
+  loadHomepageData();
+
   if (!memo.homepageData) {
     return {};
   }
@@ -51,7 +123,6 @@ const getHomepageJsonV1 = () => {
 // ****************************************************************************
 // v2
 // ****************************************************************************
-
 const reformatV2Categories = (categories, format) => {
   if (format === FORMAT.ROKU) {
     return categories && Object.entries(categories).map(([key, value]) => value);
@@ -71,13 +142,14 @@ const reformatV2Categories = (categories, format) => {
  * @returns {{}}
  */
 const getHomepageJsonV2 = (format, lang) => {
+  loadHomepageData();
+
   if (!memo.homepageData) {
     return {};
   }
 
   const v2 = {};
   const homepageKeys = Object.keys(memo.homepageData);
-
   homepageKeys.forEach((hp) => {
     if (!lang || lang === hp) {
       v2[hp] = {
@@ -97,8 +169,10 @@ const getHomepageJsonV2 = (format, lang) => {
       v2[hp] = null;
     }
   });
-
   return v2;
 };
 
-module.exports = { getHomepageJsonV1, getHomepageJsonV2 };
+module.exports = {
+  getHomepageJsonV1,
+  getHomepageJsonV2,
+};

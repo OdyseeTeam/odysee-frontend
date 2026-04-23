@@ -1,0 +1,654 @@
+/**
+ * Comment component.
+ *
+ * Notes:
+ * - Filtration is not done at this component level. Comments are filtered
+ *   in the selector through `filterComments()`. This saves the need to handle
+ *   it from the render loop, but also means we cannot render it differently
+ *   (e.g. displaying as "Comment has been blocked") since the component doesn't
+ *   see it.
+ */
+import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
+import * as KEYCODES from 'constants/keycodes';
+import { COMMENT_HIGHLIGHTED } from 'constants/classnames';
+import { INLINE_PLAYER_WRAPPER_CLASS } from 'constants/player';
+import {
+  SORT_BY,
+  COMMENT_PAGE_SIZE_REPLIES,
+  LINKED_COMMENT_QUERY_PARAM,
+  THREAD_COMMENT_QUERY_PARAM,
+  THRESHOLD_MS,
+} from 'constants/comment';
+import { FF_MAX_CHARS_IN_COMMENT } from 'constants/form-field';
+import { SITE_NAME, ENABLE_COMMENT_REACTIONS } from 'config';
+import React, { useEffect, useState } from 'react';
+import { parseURI } from 'util/lbryURI';
+import DateTime from 'component/dateTime';
+import Button from 'component/button';
+import Expandable from 'component/common/expandable';
+import DeferredMarkdown from 'component/common/deferredMarkdown';
+import CommentBadge from 'component/common/comment-badge';
+import ChannelThumbnail from 'component/channelThumbnail';
+import { Menu, MenuButton } from 'component/common/menu';
+import Icon from 'component/common/icon';
+import { FormField, Form } from 'component/common/form';
+import classnames from 'classnames';
+
+import CommentReactions from 'component/commentReactions';
+import CommentsReplies from 'component/commentsReplies';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { NavigationPrompt } from 'component/common/navigation-prompt';
+import CommentMenuList from 'component/commentMenuList';
+import CreditAmount from 'component/common/credit-amount';
+import OptimizedImage from 'component/optimizedImage';
+import { getChannelFromClaim } from 'util/claim';
+import { parseSticker } from 'util/comments';
+import { useIsMobile } from 'effects/use-screensize';
+import MembershipBadge from 'component/membershipBadge';
+import Spinner from 'component/spinner';
+import { lazyImport } from 'util/lazyImport';
+import { BeforeUnload } from 'util/beforeUnload';
+import {
+  selectStakedLevelForChannelUri,
+  selectClaimForUri,
+  selectHasChannels,
+  selectMyClaimIdsRaw,
+  selectTitleForUri,
+  selectDateForUri,
+} from 'redux/selectors/claims';
+import { doCommentUpdate, doCommentList } from 'redux/actions/comments';
+import { doToast } from 'redux/actions/notifications';
+import { doClearPlayingUri, doClearPlayingSource } from 'redux/actions/content';
+import {
+  selectFetchedCommentAncestors,
+  selectOthersReactsForComment,
+  makeSelectTotalReplyPagesForParentId,
+  selectIsFetchingCommentsForParentId,
+  selectRepliesForParentId,
+} from 'redux/selectors/comments';
+import { selectMembershipForCreatorOnlyIdAndChannelId, selectUserOdyseeMembership } from 'redux/selectors/memberships';
+import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectPlayingUri } from 'redux/selectors/content';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { getChannelIdFromClaim } from 'util/claim';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
+
+const CommentCreate = lazyImport(
+  () =>
+    import(
+      'component/commentCreate'
+      /* webpackChunkName: "comments" */
+    )
+);
+// ****************************************************************************
+// ****************************************************************************
+type CommentData = {
+  comment_id: string;
+  channel_url: string;
+  channel_id: string;
+  channel_name: string;
+  comment: string;
+  is_fiat: boolean;
+  is_global_mod: boolean;
+  is_moderator: boolean;
+  is_pinned: boolean;
+  support_amount: number;
+  replies: number;
+  timestamp: number;
+  signing_ts: string;
+  [key: string]: any;
+};
+
+export type Props = {
+  comment: CommentData;
+  uri?: string;
+  forceDisplayDeadComment?: boolean;
+  linkedCommentId?: string;
+  threadCommentId?: string | null | undefined;
+  isTopLevel?: boolean;
+  hideActions?: boolean;
+  hideContextMenu?: boolean;
+  supportDisabled?: boolean;
+  setQuickReply?: (arg0: any) => void;
+  quickReply?: any;
+  threadLevel?: number;
+  threadDepthLevel?: number;
+  disabled?: boolean;
+  updateUiFilteredComments?: (commentIds: Array<string>) => void;
+};
+
+// ****************************************************************************
+// Comment
+// ****************************************************************************
+function CommentView(props: Props) {
+  const {
+    comment,
+    forceDisplayDeadComment = false,
+    uri,
+    linkedCommentId,
+    threadCommentId,
+    isTopLevel,
+    hideActions,
+    hideContextMenu,
+    supportDisabled,
+    setQuickReply,
+    quickReply,
+    threadLevel = 0,
+    threadDepthLevel = 0,
+    disabled,
+    updateUiFilteredComments,
+  } = props;
+
+  const dispatch = useAppDispatch();
+  const {
+    comment_id: commentId,
+    channel_url: channelUrl,
+    channel_id: channelId,
+  } = comment || ({} as Partial<CommentData>);
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
+  const reactionKey = activeChannelId ? `${commentId}:${activeChannelId}` : commentId;
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const creatorId = getChannelIdFromClaim(claim);
+  const channelAge = useAppSelector((state) => selectDateForUri(state, channelUrl));
+  const myChannelIds = useAppSelector(selectMyClaimIdsRaw);
+  const commentingEnabled = Boolean(useAppSelector(selectUserVerifiedEmail));
+  const othersReacts = useAppSelector((state) => selectOthersReactsForComment(state, reactionKey));
+  const hasChannels = useAppSelector(selectHasChannels);
+  const playingUri = useAppSelector(selectPlayingUri);
+  const stakedLevel = useAppSelector((state) => selectStakedLevelForChannelUri(state, channelUrl));
+  const isCommenterChannelDeleted = useAppSelector((state) => selectClaimForUri(state, channelUrl) === null);
+  const linkedCommentAncestors = useAppSelector(selectFetchedCommentAncestors);
+  const totalReplyPages = useAppSelector((state) => makeSelectTotalReplyPagesForParentId(commentId)(state));
+  const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, channelId)) || '';
+  const creatorMembership =
+    useAppSelector((state) => selectMembershipForCreatorOnlyIdAndChannelId(state, creatorId || '', channelId)) || '';
+  const repliesFetching = useAppSelector((state) => selectIsFetchingCommentsForParentId(state, commentId));
+  const fetchedReplies = useAppSelector((state) => selectRepliesForParentId(state, commentId)) as Array<CommentData>;
+  const authorTitle = useAppSelector((state) => (channelUrl ? selectTitleForUri(state, channelUrl) : null));
+  const commentElemRef = React.useRef<HTMLDivElement>(null);
+  const {
+    channel_url: authorUri,
+    channel_name: author,
+    comment: message,
+    is_fiat: isFiat,
+    is_global_mod: isGlobalMod,
+    is_moderator: isModerator,
+    is_pinned: isPinned,
+    support_amount: supportAmount,
+    replies: numDirectReplies,
+  } = comment;
+  const claimName = authorTitle || author;
+  const timePosted = comment.timestamp * 1000;
+  const commentIsEdited = parseInt(comment.signing_ts) - comment.timestamp > THRESHOLD_MS.IS_EDITED / 1000;
+  const commentIsMine = channelId && myChannelIds && myChannelIds.includes(channelId);
+  const isMobile = useIsMobile();
+  const ROUGH_HEADER_HEIGHT = isMobile ? 56 : 60; // @see: --header-height
+
+  const lastThreadLevel = threadDepthLevel - 1;
+  // Mobile: 0, 1, 2 -> new thread....., so each 3 comments
+  const openNewThread = threadLevel > 0 && threadLevel % lastThreadLevel === 0;
+  const navigate = useNavigate();
+  const { pathname, search } = useLocation();
+  const urlParams = new URLSearchParams(search);
+  const isLinkedComment = linkedCommentId && linkedCommentId === commentId;
+  const isThreadComment = threadCommentId && threadCommentId === commentId;
+  const isInLinkedCommentChain =
+    linkedCommentId &&
+    linkedCommentAncestors[linkedCommentId] &&
+    linkedCommentAncestors[linkedCommentId].includes(commentId);
+  const showRepliesOnMount = isThreadComment || isInLinkedCommentChain || (threadLevel === 0 && !!comment.replies);
+  const [isReplying, setReplying] = React.useState(false);
+  const [isEditing, setEditing] = useState(false);
+  const [editedMessage, setCommentValue] = useState(message);
+  const [charCount, setCharCount] = useState(editedMessage.length);
+  const [showReplies, setShowReplies] = useState(showRepliesOnMount);
+  const [page, setPage] = useState(showRepliesOnMount ? 1 : 0);
+
+  const [displayDeadComment, setDisplayDeadComment] = React.useState(forceDisplayDeadComment);
+  // Expand replies when linked comment ancestors arrive after mount (e.g. notification navigation)
+  React.useEffect(() => {
+    if (isInLinkedCommentChain) {
+      setShowReplies(true);
+      setPage((prev) => prev || 1);
+    }
+  }, [isInLinkedCommentChain]);
+  const likesCount = (othersReacts && othersReacts.like) || 0;
+  const dislikesCount = (othersReacts && othersReacts.dislike) || 0;
+  const totalLikesAndDislikes = likesCount + dislikesCount;
+  const contentChannelClaim = getChannelFromClaim(claim);
+  const commentByOwnerOfContent = contentChannelClaim && contentChannelClaim.permanent_url === authorUri;
+  const slimedToDeath =
+    !commentByOwnerOfContent && totalLikesAndDislikes >= 5 && dislikesCount / totalLikesAndDislikes > 0.8;
+  const stickerFromMessage = parseSticker(message);
+  const isSprout =
+    channelAge && Math.round((new Date().getTime() - new Date(channelAge).getTime()) / (1000 * 60 * 60 * 24)) < 7;
+  let channelOwnerOfContent;
+
+  try {
+    if (uri) {
+      const { channelName } = parseURI(uri);
+
+      if (channelName) {
+        channelOwnerOfContent = channelName;
+      }
+    }
+  } catch (e) {}
+
+  useEffect(() => {
+    if (isEditing) {
+      setCharCount(editedMessage.length);
+
+      // a user will try and press the escape key to cancel editing their comment
+      const handleEscape = (event) => {
+        if (event.keyCode === KEYCODES.ESCAPE) {
+          setEditing(false);
+        }
+      };
+
+      window.addEventListener('keydown', handleEscape);
+      // removes the listener so it doesn't cause problems elsewhere in the app
+      return () => {
+        window.removeEventListener('keydown', handleEscape);
+      };
+    }
+  }, [editedMessage, isEditing, setEditing]);
+  useEffect(() => {
+    // For Refresh
+    const handleRefresh = (event) => {
+      if (isEditing) {
+        event.preventDefault();
+        event.returnValue = '';
+      }
+    };
+
+    BeforeUnload.register(handleRefresh, 'Editing message');
+    return () => {
+      BeforeUnload.unregister(handleRefresh);
+    };
+  }, [isEditing]);
+  useEffect(() => {
+    if (uri && page > 0) {
+      dispatch(doCommentList(uri, commentId, page, COMMENT_PAGE_SIZE_REPLIES, SORT_BY.OLDEST));
+    }
+  }, [page, uri, commentId, dispatch]);
+
+  function handleEditMessageChanged(event) {
+    setCommentValue(event.target.value);
+  }
+
+  function handleEditComment(isEditing: boolean) {
+    if (playingUri.source === 'comment' && commentElemRef.current) {
+      const claimLink = commentElemRef.current.querySelector(`.${INLINE_PLAYER_WRAPPER_CLASS}`);
+
+      if (isEditing && playingUri.sourceId === claimLink?.id) {
+        dispatch(doClearPlayingUri());
+      } else {
+        dispatch(doClearPlayingSource());
+      }
+    }
+
+    setEditing(isEditing);
+  }
+
+  function handleSubmit() {
+    dispatch(doCommentUpdate(commentId, editedMessage));
+    if (setQuickReply)
+      setQuickReply({
+        ...quickReply,
+        comment_id: commentId,
+        comment: editedMessage,
+      });
+    setEditing(false);
+    dispatch(doClearPlayingSource());
+  }
+
+  function handleCommentReply() {
+    if (!hasChannels) {
+      navigate(`/$/${PAGES.CHANNEL_NEW}?redirect=${pathname}`);
+      dispatch(
+        doToast({
+          message: __('A channel is required to comment on %SITE_NAME%', {
+            SITE_NAME,
+          }),
+        })
+      );
+    } else {
+      setReplying(!isReplying);
+    }
+
+    dispatch(doClearPlayingSource());
+  }
+
+  function handleTimeClick() {
+    urlParams.set(LINKED_COMMENT_QUERY_PARAM, commentId);
+    navigate(`${pathname}?${urlParams.toString()}`, { replace: true });
+  }
+
+  function handleOpenNewThread() {
+    urlParams.set(LINKED_COMMENT_QUERY_PARAM, commentId);
+    urlParams.set(THREAD_COMMENT_QUERY_PARAM, commentId);
+    navigate({
+      pathname,
+      search: urlParams.toString(),
+    });
+  }
+
+  const handleShowMore = React.useCallback(() => setPage((prev) => prev + 1), []);
+  const linkedCommentRef = React.useCallback(
+    (node: HTMLDivElement | null) => {
+      if (node) commentElemRef.current = node;
+
+      if (node !== null && window.pendingLinkedCommentScroll) {
+        delete window.pendingLinkedCommentScroll;
+        const mobileChatElem = document.querySelector('.MuiPaper-root .card--enable-overflow');
+        const elem = (isMobile && mobileChatElem) || window;
+
+        if (elem) {
+          elem.scrollTo({
+            top:
+              node.getBoundingClientRect().top + (mobileChatElem ? 0 : (elem as Window).scrollY) - ROUGH_HEADER_HEIGHT,
+            left: 0,
+            behavior: 'smooth',
+          });
+        }
+      }
+    },
+    [ROUGH_HEADER_HEIGHT, isMobile]
+  );
+
+  useEffect(() => {
+    if (isCommenterChannelDeleted && updateUiFilteredComments) {
+      const fetchedReplyIds = fetchedReplies.map((r) => r.comment_id);
+      updateUiFilteredComments([...fetchedReplyIds, commentId]);
+    }
+  }, [isCommenterChannelDeleted, updateUiFilteredComments, fetchedReplies, commentId]);
+
+  if (isCommenterChannelDeleted) {
+    return null;
+  }
+
+  return (
+    <li
+      className={classnames('comment', {
+        'comment--top-level': isTopLevel,
+        'comment--reply': !isTopLevel,
+      })}
+      id={commentId}
+    >
+      <div className="comment__thumbnail-wrapper">
+        {authorUri ? (
+          <ChannelThumbnail uri={authorUri} xsmall className="comment__author-thumbnail" />
+        ) : (
+          <ChannelThumbnail uri="" xsmall className="comment__author-thumbnail" />
+        )}
+
+        {numDirectReplies > 0 && showReplies && (
+          <Button className="comment__threadline" aria-label="Hide Replies" onClick={() => setShowReplies(false)} />
+        )}
+      </div>
+
+      <div className="comment__content" ref={isLinkedComment || isThreadComment ? linkedCommentRef : commentElemRef}>
+        <div
+          className={classnames('comment__body-container', {
+            [COMMENT_HIGHLIGHTED]: isLinkedComment || (isThreadComment && !linkedCommentId),
+            'comment--slimed': slimedToDeath && !displayDeadComment,
+          })}
+        >
+          <div className="comment__meta">
+            <div className="comment__meta-information">
+              {!author ? (
+                <span className="comment__author">{__('Anonymous')}</span>
+              ) : (
+                <Menu>
+                  <MenuButton
+                    className={classnames('button--uri-indicator comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {claimName}
+                  </MenuButton>
+
+                  <CommentMenuList
+                    uri={uri}
+                    commentId={commentId}
+                    authorUri={authorUri}
+                    commentIsMine={!!commentIsMine}
+                    isPinned={!!isPinned}
+                    isTopLevel={!!isTopLevel}
+                    isUserLabel
+                    isLiveComment={false}
+                    channelIsMine={false}
+                    handleEditComment={() => handleEditComment(true)}
+                    setQuickReply={setQuickReply as (arg0: any) => void}
+                    className={classnames('comment__author', {
+                      'comment__author--creator': commentByOwnerOfContent,
+                    })}
+                  />
+                </Menu>
+              )}
+              {isSprout && <CommentBadge label={__('Sprout')} icon={ICONS.BADGE_SPROUT} size={14} />}
+              {isGlobalMod && <CommentBadge label={__('Admin')} icon={ICONS.BADGE_ADMIN} />}
+              {isModerator && <CommentBadge label={__('Moderator')} icon={ICONS.BADGE_MOD} />}
+              {odyseeMembership && <MembershipBadge membershipName={odyseeMembership} linkPage />}
+              {creatorMembership && <MembershipBadge membershipName={creatorMembership} linkPage uri={uri} />}
+              <Button
+                className="comment__time"
+                onClick={handleTimeClick}
+                label={
+                  (
+                    <>
+                      <DateTime date={timePosted} timeAgo />
+                      {commentIsEdited && <span className="comment__edited">{__('(edited)')}</span>}
+                    </>
+                  ) as any
+                }
+              />
+
+              {supportAmount > 0 && <CreditAmount isFiat={isFiat} amount={supportAmount} superChatLight size={12} />}
+
+              {isPinned && (
+                <span className="comment__pin">
+                  <Icon icon={ICONS.PIN} size={14} />
+                  {channelOwnerOfContent
+                    ? __('Pinned by @%channel%', {
+                        channel: channelOwnerOfContent,
+                      })
+                    : __('Pinned by creator')}
+                </span>
+              )}
+            </div>
+            {!hideContextMenu && (
+              <div className="comment__menu">
+                <Menu>
+                  <MenuButton className="menu__button">
+                    <Icon size={18} icon={ICONS.MORE_VERTICAL} />
+                  </MenuButton>
+                  <CommentMenuList
+                    uri={uri}
+                    isTopLevel={!!isTopLevel}
+                    isPinned={!!isPinned}
+                    commentId={commentId}
+                    authorUri={authorUri}
+                    commentIsMine={!!commentIsMine}
+                    channelIsMine={false}
+                    isLiveComment={false}
+                    isUserLabel={false}
+                    handleEditComment={() => handleEditComment(true)}
+                    supportAmount={supportAmount}
+                    setQuickReply={setQuickReply as (arg0: any) => void}
+                  />
+                </Menu>
+              </div>
+            )}
+          </div>
+          <div>
+            {isEditing ? (
+              <Form onSubmit={handleSubmit}>
+                <NavigationPrompt
+                  when={isEditing}
+                  message={__('You are still editing this message, are you sure you want to leave?')}
+                />
+                <FormField
+                  className="comment__edit-input"
+                  type={'textarea'}
+                  name="editing_comment"
+                  value={editedMessage}
+                  charCount={charCount}
+                  onChange={handleEditMessageChanged}
+                  textAreaMaxLength={FF_MAX_CHARS_IN_COMMENT}
+                  handleSubmit={handleSubmit}
+                />
+                <div className="section__actions section__actions--no-margin">
+                  <Button
+                    button="primary"
+                    type="submit"
+                    label={__('Done')}
+                    requiresAuth={IS_WEB}
+                    disabled={message === editedMessage}
+                  />
+                  <Button button="link" label={__('Cancel')} onClick={() => handleEditComment(false)} />
+                </div>
+              </Form>
+            ) : (
+              <>
+                <div className="comment__message">
+                  {slimedToDeath && !displayDeadComment ? (
+                    <div onClick={() => setDisplayDeadComment(true)} className="comment__dead">
+                      {__('This comment was slimed to death. (Click to view)')} <Icon icon={ICONS.SLIME_ACTIVE} />
+                    </div>
+                  ) : stickerFromMessage ? (
+                    <div className="sticker__comment">
+                      <OptimizedImage src={stickerFromMessage.url} waitLoad />
+                    </div>
+                  ) : (
+                    <Expandable>
+                      <DeferredMarkdown
+                        content={message}
+                        parentCommentId={commentId}
+                        stakedLevel={stakedLevel}
+                        hasMembership={Boolean(odyseeMembership)}
+                      />
+                    </Expandable>
+                  )}
+                </div>
+
+                {!hideActions && (
+                  <div
+                    className={classnames('comment__actions', {
+                      'comment__actions--disabled': disabled,
+                    })}
+                  >
+                    <Button
+                      requiresAuth={IS_WEB}
+                      label={commentingEnabled ? __('Reply') : __('Log in to reply')}
+                      className="comment__action"
+                      onClick={handleCommentReply}
+                      icon={ICONS.REPLY}
+                      iconSize={isMobile && 12}
+                    />
+                    {ENABLE_COMMENT_REACTIONS && (
+                      <CommentReactions uri={uri} commentId={commentId} hideCreatorLike={false} />
+                    )}
+                  </div>
+                )}
+
+                {numDirectReplies > 0 && !hideActions && (
+                  <div
+                    className={classnames('comment__actions', {
+                      'comment__actions--disabled': disabled,
+                    })}
+                  >
+                    {!showReplies ? (
+                      openNewThread ? (
+                        <Button
+                          label={__('Continue Thread')}
+                          button="link"
+                          onClick={handleOpenNewThread}
+                          iconRight={ICONS.ARROW_RIGHT}
+                        />
+                      ) : (
+                        <Button
+                          label={
+                            numDirectReplies < 2
+                              ? __('Show reply')
+                              : __('Show %count% replies', {
+                                  count: numDirectReplies,
+                                })
+                          }
+                          button="link"
+                          onClick={() => {
+                            setShowReplies(true);
+
+                            if (page === 0) {
+                              setPage(1);
+                            }
+                          }}
+                          iconRight={ICONS.DOWN}
+                        />
+                      )
+                    ) : (
+                      <Button
+                        label={__('Hide replies')}
+                        button="link"
+                        onClick={() => setShowReplies(false)}
+                        iconRight={ICONS.UP}
+                      />
+                    )}
+                  </div>
+                )}
+
+                {isReplying && (
+                  <React.Suspense fallback={null}>
+                    {React.createElement(CommentCreate as any, {
+                      isReply: true,
+                      uri,
+                      parentId: commentId,
+                      onDoneReplying: () => {
+                        if (openNewThread) {
+                          handleOpenNewThread();
+                        } else {
+                          setShowReplies(true);
+                        }
+
+                        setReplying(false);
+                      },
+                      onCancelReplying: () => {
+                        setReplying(false);
+                      },
+                      supportDisabled,
+                    })}
+                  </React.Suspense>
+                )}
+              </>
+            )}
+          </div>
+        </div>
+
+        {showReplies &&
+          (repliesFetching && (!fetchedReplies || fetchedReplies.length === 0) ? (
+            <div className="empty empty--centered-tight">
+              <Spinner type="small" />
+            </div>
+          ) : (
+            <CommentsReplies
+              threadLevel={threadLevel}
+              uri={uri}
+              parentId={commentId}
+              linkedCommentId={linkedCommentId}
+              threadCommentId={threadCommentId}
+              numDirectReplies={numDirectReplies}
+              onShowMore={handleShowMore}
+              hasMore={page < totalReplyPages}
+              threadDepthLevel={threadDepthLevel}
+              updateUiFilteredComments={updateUiFilteredComments}
+            />
+          ))}
+      </div>
+    </li>
+  );
+}
+
+export default React.memo(CommentView);

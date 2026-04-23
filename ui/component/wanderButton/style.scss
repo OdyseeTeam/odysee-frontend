@@ -11,7 +11,10 @@
   border-radius: 50%;
   position: relative;
   overflow: hidden;
-  transition: border-radius 0.4s, padding 0.4s, max-width 0.4s;
+  transition:
+    border-radius 0.4s,
+    padding 0.4s,
+    max-width 0.4s;
   padding: 0 0;
   color: var(--color-text);
 

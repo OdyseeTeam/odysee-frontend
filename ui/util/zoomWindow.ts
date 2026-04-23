@@ -1,0 +1,70 @@
+import * as SETTINGS from 'constants/settings';
+import { LocalStorage } from 'util/storage';
+
+const isDev = process.env.NODE_ENV !== 'production';
+const ZOOM_DFLT_FACTOR = 1.0;
+
+export const ZOOM = {
+  INCREMENT: 'INCREMENT',
+  DECREMENT: 'DECREMENT',
+  RESET: 'RESET',
+  LOAD_FROM_LOCAL_STORAGE: 'LOAD_FROM_LOCAL_STORAGE',
+};
+
+function getNextZoomFactor(curFactor: number, isIncreasing: boolean): number {
+  const zoomTable = [0.25, 0.33, 0.5, 0.67, 0.75, 0.8, 0.9, 1.0, 1.1, 1.25, 1.5, 1.75, 2.0, 2.5, 3.0];
+  const rounded = parseFloat(curFactor.toPrecision(3));
+  let i = zoomTable.length;
+
+  while (rounded < zoomTable[--i]) {}
+
+  if (isIncreasing) {
+    return zoomTable[Math.min(zoomTable.length - 1, i + 1)];
+  }
+
+  return zoomTable[Math.max(0, i - 1)];
+}
+
+function getCurrentZoomFactor(): number {
+  const zoom = document.documentElement.style.zoom;
+  if (!zoom) return ZOOM_DFLT_FACTOR;
+  const parsed = parseFloat(String(zoom));
+  return Number.isFinite(parsed) ? parsed : ZOOM_DFLT_FACTOR;
+}
+
+function setZoomFactor(factor: number): void {
+  document.documentElement.style.zoom = String(factor);
+}
+
+export function changeZoomFactor(action: string): void {
+  const curFactor = getCurrentZoomFactor();
+  let newFactor = null;
+
+  switch (action) {
+    case ZOOM.INCREMENT:
+      newFactor = getNextZoomFactor(curFactor, true);
+      break;
+
+    case ZOOM.DECREMENT:
+      newFactor = getNextZoomFactor(curFactor, false);
+      break;
+
+    case ZOOM.RESET:
+      newFactor = ZOOM_DFLT_FACTOR;
+      break;
+
+    case ZOOM.LOAD_FROM_LOCAL_STORAGE:
+      newFactor = parseFloat(LocalStorage.getItem(SETTINGS.DESKTOP_WINDOW_ZOOM));
+      if (isNaN(newFactor)) {
+        newFactor = ZOOM_DFLT_FACTOR;
+      }
+      break;
+
+    default:
+      if (isDev) throw new Error('changeZoomFactor: unexpected action');
+      return;
+  }
+
+  setZoomFactor(newFactor);
+  window.localStorage.setItem(SETTINGS.DESKTOP_WINDOW_ZOOM, String(newFactor));
+}

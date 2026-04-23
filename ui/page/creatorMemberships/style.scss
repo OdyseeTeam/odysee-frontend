@@ -1,4 +1,4 @@
-@import '~ui/scss/init/breakpoints';
+@import 'init/breakpoints';
 
 .memberships-wrapper {
   margin-right: auto;
@@ -38,7 +38,9 @@
         padding: var(--spacing-m);
         border-radius: var(--border-radius);
         padding: var(--spacing-m);
-        box-shadow: 0 3px 6px 0 var(--color-shadow), 0 4px 10px 0 rgba(0, 0, 0, 0.6);
+        box-shadow:
+          0 3px 6px 0 var(--color-shadow),
+          0 4px 10px 0 rgba(0, 0, 0, 0.6);
         color: white;
 
         svg {
@@ -179,7 +181,9 @@
           height: 2px;
           background-image: linear-gradient(147deg, var(--color-primary), rgb(247, 121, 55));
           margin: 0 10px;
-          transition: width 0.2s, margin-left 0.2s;
+          transition:
+            width 0.2s,
+            margin-left 0.2s;
         }
       }
     }

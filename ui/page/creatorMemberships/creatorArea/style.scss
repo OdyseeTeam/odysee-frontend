@@ -1,13 +1,12 @@
-@import '~ui/scss/init/breakpoints';
+@import 'init/breakpoints';
 
 .membership-explainer {
   border-radius: var(--border-radius);
   border: 1px solid white;
-  padding:var(--spacing-l);
+  padding: var(--spacing-l);
   margin: var(--spacing-l);
   background-color: rgba(255, 221, 162, 0.1);
   .membership-explainer__header {
-
   }
   > * {
     margin-bottom: var(--spacing-m);
@@ -139,10 +138,6 @@
           border-bottom: 2px solid rgba(var(--color-primary-static), 0.4) !important;
         }
       }
-    }
-
-    .button--secondary{
-      border-radius:var(--border-radius) !important;
     }
 
     .button--secondary {
@@ -311,14 +306,12 @@
 
     button {
       margin-bottom: var(--spacing-s);
-
     }
   }
 
-
-  .creator-header{
-    position:relative;
-    margin-left:auto;
+  .creator-header {
+    position: relative;
+    margin-left: auto;
     margin-right: auto;
     width: calc(100% - 2 * var(--spacing-l));
     max-width: var(--page-max-width);

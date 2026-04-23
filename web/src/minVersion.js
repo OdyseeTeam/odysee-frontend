@@ -1,9 +1,11 @@
-const { MINIMUM_VERSION } = require('../../config');
+const { MINIMUM_VERSION } = require('../../config.cjs');
 
 async function getMinVersion(ctx, version) {
   if (!MINIMUM_VERSION) {
     ctx.status = 404;
-    ctx.body = { message: 'Not Found' };
+    ctx.body = {
+      message: 'Not Found',
+    };
     return;
   }
 
@@ -22,4 +24,6 @@ async function getMinVersion(ctx, version) {
   }
 }
 
-module.exports = { getMinVersion };
+module.exports = {
+  getMinVersion,
+};

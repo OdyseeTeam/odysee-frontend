@@ -1,10 +1,9 @@
 ---
-name: "❤️Say thank you"
+name: '❤️Say thank you'
 about: If you enjoy using Odysee's website, let us know!
 title: Odysee rocks!
 labels: ''
 assignees: ''
-
 ---
 
 If you are using the Odysee's website - please let us know. We'd love to hear from you!

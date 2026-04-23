@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html dir="ltr">
   <head>
     <meta charset="utf-8" />
@@ -6,14 +6,43 @@
     <meta http-equiv="Pragma" content="no-cache" />
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
     <meta http-equiv="Expires" content="0" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 
     <link rel="preload" href="/public/font/v1/300.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="/public/font/v1/300i.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="/public/font/v1/400.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="/public/font/v1/400i.woff" as="font" type="font/woff" crossorigin />
     <link rel="preload" href="/public/font/v1/700.woff" as="font" type="font/woff" crossorigin />
-    <link rel="preload" href="/public/font/v1/700i.woff" as="font" type="font/woff" crossorigin />    
+    <link rel="preload" href="/public/font/v1/700i.woff" as="font" type="font/woff" crossorigin />
+
+    <script>
+      (function () {
+        if (window.cordova) return;
+        var isProductionHost =
+          window.location.hostname === 'odysee.com' || window.location.hostname.endsWith('.odysee.com');
+
+        if (!isProductionHost) {
+          return;
+        }
+
+        var gtagScript = document.createElement('script');
+        gtagScript.async = true;
+        gtagScript.src = 'https://www.googletagmanager.com/gtag/js?id=G-BB8DNPB73F';
+        document.head.appendChild(gtagScript);
+
+        window.dataLayer = window.dataLayer || [];
+        window.gtag = function gtag() {
+          window.dataLayer.push(arguments);
+        };
+
+        window.gtag('consent', 'default', {
+          ad_storage: 'denied',
+          analytics_storage: 'denied',
+        });
+        window.gtag('js', new Date());
+        window.gtag('config', 'G-BB8DNPB73F');
+      })();
+    </script>
 
     <link rel="shortcut icon" href="/public/favicon_128.png" />
 
@@ -69,7 +98,7 @@
 
     <!-- VARIABLE_HEAD_BEGIN -->
     <!-- VARIABLE_HEAD_END -->
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
   </head>
 
   <body>

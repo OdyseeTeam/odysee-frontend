@@ -1,3 +1,5 @@
+@import 'breakpoints';
+
 // component specific styling should go in the component scss file
 
 *::selection {
@@ -26,13 +28,25 @@ body {
   cursor: default;
   line-height: 1.5;
   font-weight: 400 !important;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif,
-    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol' !important;
+  font-family:
+    Inter,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif,
+    'Apple Color Emoji',
+    'Segoe UI Emoji',
+    'Segoe UI Symbol' !important;
 
-  // The W3C future standard; currently supported by Firefox only.
-  // It'll hopefully auto fallback to this when 'webkit-scrollbar' below is deprecated in the future.
   scrollbar-width: 6px;
   scrollbar-color: var(--color-scrollbar-thumb-bg) var(--color-scrollbar-track-bg);
+
+  @media (max-width: $breakpoint-small) {
+    scrollbar-width: none;
+  }
 }
 
 body::-webkit-scrollbar {
@@ -266,7 +280,7 @@ img {
   margin: -1rem 0;
   padding: 0 30px;
 
-  background: url('~static/img/busy.gif') no-repeat center center;
+  background: url('/img/busy.gif') no-repeat center center;
   display: inline-block;
   vertical-align: middle;
 
@@ -533,24 +547,6 @@ img {
   }
 }
 
-.ads-test {
-  height: 50vh;
-  position: relative;
-
-  .video-js {
-    height: 50vh;
-  }
-
-  .video-js .vjs-tech {
-    height: 50vh;
-  }
-}
-
-.adspruce-bannerspot {
-  height: 5rem;
-  width: 100%;
-}
-
 .release__notes {
   max-height: 50vh;
   overflow: auto;
@@ -733,6 +729,24 @@ img {
   }
 }
 
+.button--external-link-wrap {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+.markdown-link-favicon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 4px;
+  vertical-align: middle;
+  flex-shrink: 0;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
 .comments .markdown-preview .claim-link,
 .content__viewer--secondary {
   li,
@@ -780,7 +794,9 @@ img {
 
 input:-webkit-autofill,
 input:-webkit-autofill:focus {
-  transition: background-color 600000s 0s, color 600000s 0s;
+  transition:
+    background-color 600000s 0s,
+    color 600000s 0s;
 }
 
 // Remove tap focus on mobile devices
@@ -792,12 +808,6 @@ a {
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 }
 
-.video-js .vjs-volume-level {
-  &::before {
-    color: white !important;
-  }
-}
-
 // Temporary fix for focus-visible
 *:focus-visible:not(.modal):not(.card):not(.wunderbar__input):not(.menu__list):not(.menu__list--header):not(
     .button--secondary
@@ -805,7 +815,7 @@ a {
     [data-reach-tab-panels]
   ):not([data-reach-tabs]):not([data-reach-tab-panel]):not(.CodeMirror-code):not(.MuiModal-root):not(
     .MuiPaper-root
-  ):not(.card):not(#onetrust-banner-sdk):not(.vjs-touch-overlay) {
+  ):not(.card):not(#onetrust-banner-sdk):not(.media-slider__thumb) {
   background-color: rgba(var(--color-primary-dynamic), 0.2) !important;
   color: var(--color-text) !important;
   box-shadow: 0px 0px 0px 2px var(--color-primary) inset;
@@ -857,7 +867,7 @@ input:not(input:-webkit-autofill)::-webkit-contacts-auto-fill-button {
     margin-right: 30px;
     width: 150px;
     height: 150px;
-    background-image: url('~static/img/cookie.svg');
+    background-image: url('/img/cookie.svg');
     background-size: contain;
     background-repeat: no-repeat;
   }
@@ -983,6 +993,8 @@ video {
 .page__title {
   display: flex;
   flex-flow: row;
+  align-items: center;
+  min-height: 36px;
 
   svg {
     width: 2rem;
@@ -1004,6 +1016,8 @@ video {
     font-size: var(--font-large) !important;
     font-weight: var(--font-weight-bold) !important;
     flex: 1;
+    display: flex;
+    align-items: center;
     margin: 0 !important;
   }
 
@@ -1028,43 +1042,6 @@ video {
       padding-right: 0;
       margin: 0;
       stroke: white;
-    }
-  }
-}
-
-.page__title--upload {
-  align-items: center;
-  gap: var(--spacing-s);
-  flex-wrap: wrap;
-
-  label {
-    min-width: 0;
-  }
-
-  .page__title-actions {
-    display: inline-flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: var(--spacing-xxs);
-    margin-left: auto;
-    flex-wrap: wrap;
-  }
-
-  .page__title-actions > .button {
-    margin-top: 0;
-    float: none;
-  }
-}
-
-@media (max-width: $breakpoint-small) {
-  .page__title--upload {
-    gap: var(--spacing-xs);
-
-    .page__title-actions {
-      width: 100%;
-      margin-left: 0;
-      justify-content: flex-start;
-      gap: var(--spacing-xs);
     }
   }
 }
@@ -1153,5 +1130,5 @@ video {
 }
 
 .loading-bar {
-  background-image: var(--color-odysee-memberships) !important;
+  background-image: var(--color-odysee-gradient) !important;
 }

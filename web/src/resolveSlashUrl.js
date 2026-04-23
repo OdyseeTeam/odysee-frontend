@@ -18,6 +18,7 @@ const { lbryProxy: Lbry } = require('../lbry');
  */
 async function resolveSlashUrl(webPath) {
   const slashIdx = webPath.indexOf('/');
+
   if (slashIdx <= 0 || webPath.startsWith('@')) {
     return null;
   }
@@ -31,9 +32,16 @@ async function resolveSlashUrl(webPath) {
   if (isFullClaimId) {
     try {
       const fixedUri = `lbry://${webPath.substring(0, slashIdx)}#${secondPart}`;
-      const response = await Lbry.resolve({ urls: [fixedUri] });
+      const response = await Lbry.resolve({
+        urls: [fixedUri],
+      });
+
       if (response && response[fixedUri] && !response[fixedUri].error) {
-        return { claim: response[fixedUri], uri: fixedUri, type: 'claimid' };
+        return {
+          claim: response[fixedUri],
+          uri: fixedUri,
+          type: 'claimid',
+        };
       }
     } catch {}
   }
@@ -41,9 +49,16 @@ async function resolveSlashUrl(webPath) {
   // Try as @channel/content (malformed URLs from Grok/Twitter)
   try {
     const withAtUri = `lbry://@${webPath}`;
-    const response = await Lbry.resolve({ urls: [withAtUri] });
+    const response = await Lbry.resolve({
+      urls: [withAtUri],
+    });
+
     if (response && response[withAtUri] && !response[withAtUri].error) {
-      return { claim: response[withAtUri], uri: withAtUri, type: 'channel' };
+      return {
+        claim: response[withAtUri],
+        uri: withAtUri,
+        type: 'channel',
+      };
     }
   } catch {}
 
@@ -51,9 +66,16 @@ async function resolveSlashUrl(webPath) {
   if (isHexClaimId && !isFullClaimId) {
     try {
       const fixedUri = `lbry://${webPath.substring(0, slashIdx)}#${secondPart}`;
-      const response = await Lbry.resolve({ urls: [fixedUri] });
+      const response = await Lbry.resolve({
+        urls: [fixedUri],
+      });
+
       if (response && response[fixedUri] && !response[fixedUri].error) {
-        return { claim: response[fixedUri], uri: fixedUri, type: 'claimid' };
+        return {
+          claim: response[fixedUri],
+          uri: fixedUri,
+          type: 'claimid',
+        };
       }
     } catch {}
   }
@@ -61,4 +83,6 @@ async function resolveSlashUrl(webPath) {
   return null;
 }
 
-module.exports = { resolveSlashUrl };
+module.exports = {
+  resolveSlashUrl,
+};

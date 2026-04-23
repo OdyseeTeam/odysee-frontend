@@ -10,27 +10,37 @@ const {
   SITE_NAME,
   SITE_TITLE,
   URL,
-} = require('../../config.js');
+} = require('../../config.cjs');
+
 const {
   generateEmbedUrlEncoded,
   getParameterByName,
   getThumbnailCardCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
-} = require('../../ui/util/web');
+} = require('../../ui/util/web.cjs');
+
 const { fetchStreamUrl } = require('./fetchStreamUrl');
+
 const { lbryProxy: Lbry } = require('../lbry');
+
 const { getHomepageJsonV1 } = require('./getHomepageJSON');
+
 const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
+
 const { resolveSlashUrl } = require('./resolveSlashUrl');
+
 const fs = require('fs');
-const PAGES = require('../../ui/constants/pages');
+
+const PAGES = require('../../ui/constants/pages.cjs');
+
 const path = require('path');
+
 const removeMd = require('remove-markdown');
+
 const { buildGoogleVideoMetadata } = require('./metadata/googleVideo');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
-
 const BEGIN_STR = '<!-- VARIABLE_HEAD_BEGIN -->';
 const FINAL_STR = '<!-- VARIABLE_HEAD_END -->';
 const DOUBLE_TAB = '    ';
@@ -38,19 +48,15 @@ const DOUBLE_TAB = '    ';
 // ****************************************************************************
 // Helpers
 // ****************************************************************************
-
-function insertToHead(fullHtml, htmlToInsert, buildRev = '') {
+function insertToHead(fullHtml, htmlToInsert) {
   const beginIndex = fullHtml.indexOf(BEGIN_STR);
   const finalIndex = fullHtml.indexOf(FINAL_STR);
 
   if (beginIndex > -1 && finalIndex > -1 && finalIndex > beginIndex) {
-    const uiScript = buildRev ? `<script src="/public/ui-${buildRev}.js" defer></script>` : '';
-
     return (
       `${fullHtml.slice(0, beginIndex)}` +
       `${htmlToInsert || buildOgMetadata()}\n` +
       `${DOUBLE_TAB}` +
-      `${uiScript}` +
       `${fullHtml.slice(finalIndex + FINAL_STR.length)}`
     );
   }
@@ -59,7 +65,6 @@ function insertToHead(fullHtml, htmlToInsert, buildRev = '') {
 function truncateDescription(description, maxChars = 200) {
   description = description.trim().split('\n');
   description = description[0].trim();
-
   const chars = [...description];
   // Use slice array instead of substring to prevent breaking emojis
   let truncated = chars.slice(0, maxChars).join('');
@@ -77,6 +82,7 @@ function getCategoryMeta(path) {
     };
   } else if (homepage && homepage.en) {
     const data = Object.values(homepage.en).find((x) => path === `/$/${x.name}` || path === `/$/${x.name}/`);
+
     if (data) {
       return {
         title: data.label,
@@ -135,7 +141,6 @@ function buildOgMetadata(overrideOptions = {}) {
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
   const url = (path ? `${BASE}${path}` : BASE) + (urlQueryString ? `?${urlQueryString}` : '');
-
   const head =
     `<title>${SITE_TITLE}</title>\n` +
     `<meta name="description" content="${cleanDescription}" />\n` +
@@ -164,6 +169,7 @@ function buildOgMetadata(overrideOptions = {}) {
   // Add Farcaster Mini App embed meta for generic pages
   const ogImageUrl = getThumbnailCardCdnUrl(image) || OG_IMAGE_URL || `${BASE}/public/v2-og.png`;
   const splashImageUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
+
   try {
     const miniApp = {
       version: '1',
@@ -203,11 +209,15 @@ function buildOgMetadata(overrideOptions = {}) {
     out += `\n<meta name="fc:frame:button:1:action" content="link"/>`;
     out += `\n<meta name="fc:frame:button:1:target" content="${fcActionUrl || url}"/>`;
 
-    // Load SDK for embed pages (always) or Farcaster-enabled pages (with iframe check)
     if (isEmbed) {
+      out += '\n<meta name="darkreader-lock">';
       out += '\n' + buildFarcasterEmbedScripts();
     } else if (fcActionUrl) {
-      out += '\n' + buildFarcasterEmbedScripts({ requireIframe: true });
+      out +=
+        '\n' +
+        buildFarcasterEmbedScripts({
+          requireIframe: true,
+        });
     }
 
     return out;
@@ -222,7 +232,7 @@ function addPWA() {
   head += '<link rel="apple-touch-icon" sizes="180x180" href="/public/pwa/icon-180.png">';
   head += `<script>
       window.addEventListener('load', function() {
-        if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js")}
+        if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js", { scope: "/" })}
       });
     </script>`;
   return head;
@@ -254,6 +264,22 @@ function buildBasicOgMetadata(overrideOptions = {}) {
 // Metadata used for urls that need claim information
 // Also has option to override defaults
 //
+const getOgType = (streamType, liveStream) => {
+  if (liveStream) return 'video.other';
+
+  switch (streamType) {
+    // https://ogp.me/?fbclid=IwAR0Dr3Rb3tw1W5wjFtuRMZfwewM2vlrSnNp-_ZKlvCzo5nKuX2TuTqt0kU8#types
+    case 'video':
+      return 'video.other';
+
+    case 'audio':
+      return 'music.song';
+
+    default:
+      return 'website';
+  }
+};
+
 async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQuery) {
   // Initial setup for claim based og metadata
   const { userAgent, baseUrl, isEmbed } = overrideOptions;
@@ -274,15 +300,12 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const liveStream = isStream && !source;
   const mediaHeight = (media && media.height) || '720';
   const mediaWidth = (media && media.width) || '1280';
-
   const claimDescription =
     value && value.description && value.description.length > 0
       ? escapeHtmlProperty(truncateDescription(value.description))
       : `View on ${SITE_NAME}: ${claimTitle}`;
-
   const claimLanguage =
     value && value.languages && value.languages.length > 0 ? escapeHtmlProperty(value.languages[0]) : 'en_US';
-
   let imageThumbnail;
 
   if (fee <= 0 && mediaType && mediaType.startsWith('image/')) {
@@ -294,31 +317,17 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     getThumbnailCardCdnUrl(imageThumbnail) ||
     OG_IMAGE_URL ||
     `${URL}/public/v2-og.png`;
+
   if (userAgent && userAgent.includes('Discordbot')) {
     claimThumbnail = claimThumbnail.substring(claimThumbnail.lastIndexOf('https://'));
   }
-
-  const getOgType = (streamType, liveStream) => {
-    if (liveStream) return 'video.other';
-    switch (streamType) {
-      // https://ogp.me/?fbclid=IwAR0Dr3Rb3tw1W5wjFtuRMZfwewM2vlrSnNp-_ZKlvCzo5nKuX2TuTqt0kU8#types
-      case 'video':
-        return 'video.other';
-      case 'audio':
-        return 'music.song';
-      default:
-        return 'website';
-    }
-  };
 
   // Allow for overriding default claim based og metadata
   const title = overrideOptions.title || claimTitle;
   const description = overrideOptions.description || claimDescription;
   const cleanDescription = removeMd(description);
   const claimPath = `${BASE}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
-
   let head = '';
-
   head += `${addFavicon()}`;
   head += '<meta charset="utf8"/>';
   head += `<title>${title}</title>`;
@@ -327,8 +336,8 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   if (tags && tags.length > 0) {
     head += `<meta name="keywords" content="${escapeHtmlProperty(tags.toString())}"/>`;
   }
-  head += `<meta name="theme-color" content="#ca004b">`;
 
+  head += `<meta name="theme-color" content="#ca004b">`;
   head += `<meta property="og:description" content="${cleanDescription}"/>`;
   head += `<meta property="og:image" content="${claimThumbnail}"/>`;
   head += `<meta property="og:image:secure_url" content="${claimThumbnail}"/>`;
@@ -339,7 +348,6 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   head += `<meta property="og:type" content="${getOgType(value?.stream_type, liveStream)}"/>`;
   head += `<meta property="og:title" content="${title}"/>`;
   head += `<meta property="og:url" content="${claimPath}"/>`;
-
   head += `<link rel="canonical" content="${claimPath}"/>`;
   head += `<link rel="alternate" type="application/json+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(
     claimPath
@@ -353,15 +361,19 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta property="og:video" content="${videoUrl}" />`;
     head += `<meta property="og:video:secure_url" content="${videoUrl}" />`;
     head += `<meta property="og:video:type" content="text/html" />`;
+
     if (channel) {
       head += `<meta name="og:video:series" content="${channel}"/>`;
     }
+
     head += `<meta property="og:video:width" content="${mediaWidth}"/>`;
     head += `<meta property="og:video:height" content="${mediaHeight}"/>`;
+
     if (releaseTime) {
       var release = new Date(releaseTime * 1000).toISOString();
       head += `<meta property="og:video:release_date" content="${release}"/>`;
     }
+
     if (mediaDuration) {
       head += `<meta property="og:video:duration" content="${mediaDuration}"/>`;
     }
@@ -371,11 +383,13 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta name="twitter:player:image" content="${claimThumbnail}"/>`;
     head += `<meta name="twitter:site" content="@OdyseeTeam"/>`;
     head += `<meta name="twitter:url" content="${claimPath}"/>`;
+
     if (userAgent && userAgent.includes('Discordbot')) {
       head += `<meta name="twitter:card" content="summary_large_image"/>`;
     } else {
       head += `<meta name="twitter:card" content="player"/>`;
     }
+
     head += `<meta name="twitter:player" content="${videoUrl}" />`;
     head += `<meta name="twitter:player:width" content="${mediaWidth}">`;
     head += `<meta name="twitter:player:height" content="${mediaHeight}">`;
@@ -431,13 +445,14 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta name="fc:frame:button:2:action" content="post"/>`;
     head += `<meta name="fc:frame:post_url" content="${BASE}/$/frame"/>`;
 
-    // Only load SDK and ready script for actual embed pages
     if (isEmbed) {
+      head += '<meta name="darkreader-lock">';
       head += buildFarcasterEmbedScripts();
     }
   } catch (e) {
     console.error('MiniApp embed meta failed:', e);
   }
+
   return head;
 }
 
@@ -447,7 +462,8 @@ function buildSearchPageHead(html, requestPath, queryStr) {
       ? {
           title: `"${queryStr}" Search Results`,
           description: `Find the best "${queryStr}" content on Odysee`,
-          image: '', // TODO: get Search Page image
+          image: '',
+          // TODO: get Search Page image
           urlQueryString: `q=${queryStr}`,
         }
       : {}),
@@ -468,15 +484,19 @@ function buildCategoryPageHead(html, requestPath, categoryMeta) {
 
 async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false) {
   let claim;
-
   const isClaimId = Boolean(urlOrClaimId?.match(/^[a-f0-9]{40}$/));
+
   if (isClaimId) {
     try {
       const claimId = urlOrClaimId;
-      const response = await Lbry.claim_search({ claim_ids: [claimId] });
+      const response = await Lbry.claim_search({
+        claim_ids: [claimId],
+      });
+
       if (response && response.items?.at(0) && !response.error) {
         claim = response.items[0];
         const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
+
         if (isRepost && !ignoreRedirect) {
           ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
           return;
@@ -486,10 +506,14 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
   } else {
     try {
       const url = urlOrClaimId;
-      const response = await Lbry.resolve({ urls: [url] });
+      const response = await Lbry.resolve({
+        urls: [url],
+      });
+
       if (response && response[url] && !response[url].error) {
         claim = response && response[url];
         const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
+
         if (isRepost && !ignoreRedirect) {
           ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
           return;
@@ -497,17 +521,51 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
       }
     } catch {}
   }
+
   return claim;
 }
 
 // ****************************************************************************
 // getHtml
 // ****************************************************************************
-
 let html;
+const isDev = process.env.NODE_ENV === 'development';
+const HTML_PATH = path.join(__dirname, '/../dist/public/index-web.html');
+
 async function getHtml(ctx) {
-  if (!html) {
-    html = fs.readFileSync(path.join(__dirname, '/../dist/index.html'), 'utf8');
+  // In development, always re-read so we pick up build changes immediately.
+  // In production, cache after first read.
+  if (!html || isDev) {
+    try {
+      let rawHtml = fs.readFileSync(HTML_PATH, 'utf8');
+      if (!rawHtml.includes('cast_sender.js')) {
+        rawHtml = rawHtml.replace(
+          '</head>',
+          `<script>(function(){var d=customElements.define.bind(customElements);customElements.define=function(n,c,o){if(!customElements.get(n))d(n,c,o)}})()</script></head>`
+        );
+      }
+      // React Scan is opt-in in development. Always injecting it proved too expensive on some heavy pages.
+      if (isDev && process.env.REACT_SCAN) {
+        rawHtml = rawHtml.replace(
+          '<head>',
+          `<head>\n    <script>window.__REACT_SCAN__ = { enabled: true, showToolbar: true };</script>` +
+            `\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>`
+        );
+      }
+      if (isDev) {
+        rawHtml = rawHtml.replace(
+          '</body>',
+          `<script>(function(){var t,r=false;new EventSource('/__livereload').onmessage=function(){if(r)return;r=true;clearTimeout(t);t=setTimeout(function(){location.reload()},1500)}})()</script></body>`
+        );
+      }
+      html = rawHtml;
+    } catch (e) {
+      // Build hasn't produced the file yet — return a loading page that auto-retries
+      return (
+        '<!doctype html><html><head><meta charset="utf-8"><title>Building...</title></head>' +
+        '<body><p>Waiting for build to complete...</p><script>setTimeout(()=>location.reload(),2000)</script></body></html>'
+      );
+    }
   }
 
   const query = ctx.query;
@@ -517,7 +575,10 @@ async function getHtml(ctx) {
     // Keep basic OG for non-Farcaster while setting Mini App action to homepage embed
     // Use current origin to avoid pointing to production URL in dev.
     const homeFcActionUrl = `${ctx.origin}/$/embed/home`;
-    let ogMetadata = buildBasicOgMetadata({ baseUrl: ctx.origin, fcActionUrl: homeFcActionUrl });
+    let ogMetadata = buildBasicOgMetadata({
+      baseUrl: ctx.origin,
+      fcActionUrl: homeFcActionUrl,
+    });
     return insertToHead(html, ogMetadata);
   }
 
@@ -526,7 +587,6 @@ async function getHtml(ctx) {
   }
 
   const userAgent = ctx && ctx.request && ctx.request.header ? ctx.request.header['user-agent'] : undefined;
-
   const invitePath = `/$/${PAGES.INVITE}/`;
   const embedPath = `/$/${PAGES.EMBED}/`;
   const playlistPath = `/$/${PAGES.PLAYLIST}/`;
@@ -542,7 +602,6 @@ async function getHtml(ctx) {
         userAgent: userAgent,
         baseUrl: ctx.origin,
       });
-
       return insertToHead(html, invitePageMetadata);
     } catch (e) {
       // Something about the invite channel is messed up
@@ -569,20 +628,24 @@ async function getHtml(ctx) {
 
     // Special-case: playlist embed - redirect to first item with lid parameter
     const embedPlaylistMatch = requestPath.match(/\/\$\/embed\/playlist\/([a-f0-9]{40})/i);
+
     if (embedPlaylistMatch) {
       const collectionClaimId = embedPlaylistMatch[1];
       const collectionClaim = await resolveClaimOrRedirect(ctx, collectionClaimId, true);
 
       if (collectionClaim) {
         const firstItemClaimId = collectionClaim.value?.claims?.[0];
+
         if (firstItemClaimId) {
           try {
-            const response = await Lbry.claim_search({ claim_ids: [firstItemClaimId] });
+            const response = await Lbry.claim_search({
+              claim_ids: [firstItemClaimId],
+            });
+
             if (response && response.items?.at(0) && !response.error) {
               const firstItemClaim = response.items[0];
               const firstItemPath = firstItemClaim.canonical_url?.replace('lbry://', '/')?.replace(/#/g, ':');
               const fcActionUrl = `${ctx.origin}/$/embed${firstItemPath}?lid=${collectionClaimId}`;
-
               const ogMetadata = await buildClaimOgMetadata(firstItemClaim.canonical_url, firstItemClaim, {
                 userAgent: userAgent,
                 baseUrl: ctx.origin,
@@ -600,18 +663,20 @@ async function getHtml(ctx) {
     }
 
     // Otherwise, try to resolve an embed claim
-    const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, '').replace('/', '#'));
-    const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
+    try {
+      const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, ''));
+      const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
-    if (claim) {
-      const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
-        userAgent: userAgent,
-        baseUrl: ctx.origin,
-        isEmbed: true,
-      });
-      const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
-      return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
-    }
+      if (claim) {
+        const ogMetadata = await buildClaimOgMetadata(claimUri, claim, {
+          userAgent: userAgent,
+          baseUrl: ctx.origin,
+          isEmbed: true,
+        });
+        const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
+        return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+      }
+    } catch {}
 
     return insertToHead(html);
   }
@@ -628,7 +693,10 @@ async function getHtml(ctx) {
 
       if (firstItemClaimId) {
         try {
-          const response = await Lbry.claim_search({ claim_ids: [firstItemClaimId] });
+          const response = await Lbry.claim_search({
+            claim_ids: [firstItemClaimId],
+          });
+
           if (response && response.items?.at(0) && !response.error) {
             firstItemClaim = response.items[0];
             // Build fcActionUrl pointing to the first item's embed with lid parameter
@@ -641,7 +709,6 @@ async function getHtml(ctx) {
       // Use first item for OG metadata if available, otherwise fall back to collection
       const metadataClaim = firstItemClaim || collectionClaim;
       const metadataUri = firstItemClaim?.canonical_url || collectionClaim.canonical_url;
-
       const ogMetadata = await buildClaimOgMetadata(metadataUri, metadataClaim, {
         userAgent: userAgent,
         baseUrl: ctx.origin,
@@ -654,6 +721,7 @@ async function getHtml(ctx) {
   }
 
   const categoryMeta = getCategoryMeta(requestPath);
+
   if (categoryMeta) {
     return buildCategoryPageHead(html, requestPath, categoryMeta);
   }
@@ -691,10 +759,12 @@ async function getHtml(ctx) {
       if (resolved.type === 'claimid') {
         // name/claimid — redirect to canonical URL so the client-side app works
         const canonicalPath = resolved.claim.canonical_url?.replace('lbry://', '').replace(/#/g, ':');
+
         if (canonicalPath) {
           ctx.redirect(`/${canonicalPath}` + queryString);
           return;
         }
+
         claim = resolved.claim;
         claimUri = resolved.uri;
       }
@@ -725,4 +795,8 @@ async function getHtml(ctx) {
   return insertToHead(html, ogMetadataAndPWA);
 }
 
-module.exports = { insertToHead, buildHead, getHtml };
+module.exports = {
+  insertToHead,
+  buildHead,
+  getHtml,
+};

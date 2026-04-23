@@ -69,7 +69,7 @@ const REPOST_1 = '3511b71e5843ae53c35a5fff3e6ef7a3377dd0f7';
 // const REPOST_2 = 'bc935e4482c6bf70d14dd872fae159a65c552eb3';
 
 const PRIMARY_CONTENT_CHANNEL_IDS = [
-// '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8', //odysee
+  // '80d2590ad04e36fb1d077a9b9e3a8bba76defdf8', //odysee
   '5b0b41c364c89c5cb13f011823e0d6ee9b89af26',
   'c5cd9b63e2ba0abc191feae48238f464baecb147',
   '589276465a23c589801d874f484cc39f307d7ec7',
@@ -8647,7 +8647,7 @@ function getDiscoverNewIds() {
   }
 
   // Filter out REPOST_1 if it exists in the array
-  const filteredIds = newestChannelIds.filter(x => x !== REPOST_1);
+  const filteredIds = newestChannelIds.filter((x) => x !== REPOST_1);
 
   // Ensure the total number of channel IDs doesn't exceed 2047
   return filteredIds.slice(0, 2047);
