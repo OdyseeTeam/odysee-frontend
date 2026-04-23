@@ -368,7 +368,7 @@ function Overview(props: Props) {
                   <div className="transaction-history__target">{transaction.target}</div>
                   <div className="transaction-history__viewblock">
                     <a href={`https://viewblock.io/arweave/tx/${transaction.txId}`} target="_blank" rel="noreferrer">
-                      <img src="https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp" />
+                      <img loading="lazy" src="https://thumbs.odycdn.com/ea5d40b35d7355f25d0199ed4832f77b.webp" />
                     </a>
                   </div>
                 </div>

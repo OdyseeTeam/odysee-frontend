@@ -1,5 +1,6 @@
 import React from 'react';
 import { useOnResize } from 'effects/use-on-resize';
+import debounce from 'util/debounce';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import { NavLink } from 'react-router-dom';
@@ -144,8 +145,12 @@ export default function FeaturedBanner(props: Props) {
       }
     }
     measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    const debouncedMeasure = debounce(measure, 100);
+    window.addEventListener('resize', debouncedMeasure);
+    return () => {
+      debouncedMeasure.cancel();
+      window.removeEventListener('resize', debouncedMeasure);
+    };
   }, []);
 
   function handleAnchor(e, uri) {

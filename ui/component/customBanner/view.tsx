@@ -43,7 +43,7 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
       </button>
 
       <div className="banner-content-wrapper">
-        <img className="banner-image" src={image.url} alt={image.alt} />
+        <img loading="lazy" className="banner-image" src={image.url} alt={image.alt} />
         <div className="banner-text-container">
           <div className="banner-label">{label}</div>
           <div className="banner-description">{description}</div>
@@ -52,7 +52,7 @@ const CustomBanner = ({ image, label, description, tag, button, background, isSe
             {button.text}
           </a>
         </div>
-        <img className="banner-background" src={background.url} alt={background.alt} />
+        <img loading="lazy" className="banner-background" src={background.url} alt={background.alt} />
       </div>
     </div>
   );

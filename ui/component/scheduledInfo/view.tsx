@@ -6,7 +6,7 @@ import I18nMessage from 'component/i18nMessage';
 import * as ICONS from 'constants/icons';
 import { getTimeAgoStr } from 'util/time';
 import { useAppSelector } from 'redux/hooks';
-import { selectIsLivestreamClaimForUri, selectMomentReleaseTimeForUri } from 'redux/selectors/claims';
+import { selectIsLivestreamClaimForUri, selectDayjsReleaseTimeForUri } from 'redux/selectors/claims';
 const CALC_TIME_INTERVAL_MS = 1000;
 type Props = {
   uri: string | null | undefined;
@@ -14,7 +14,7 @@ type Props = {
 
 function ScheduledInfo(props: Props) {
   const { uri } = props;
-  const releaseTime = useAppSelector((state) => selectMomentReleaseTimeForUri(state, uri));
+  const releaseTime = useAppSelector((state) => selectDayjsReleaseTimeForUri(state, uri));
   const releaseTimeMs = releaseTime ? releaseTime.unix() * 1000 : 0;
   const isLivestream = useAppSelector((state) => selectIsLivestreamClaimForUri(state, uri));
   const [startDateFromNow, setStartDateFromNow] = React.useState<string | undefined>();

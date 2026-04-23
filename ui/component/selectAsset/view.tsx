@@ -293,11 +293,11 @@ function SelectAsset(props: Props) {
         </div>
         <div className="channel-preview__thumbnail">
           {otherValue && assetName === 'Cover Image' ? (
-            <img src={String(otherValue)} />
+            <img loading="lazy" src={String(otherValue)} />
           ) : !isAnimated ? (
             <canvas ref={previewCanvasRef} />
           ) : (
-            <img src={String(currentPlaceholder)} />
+            <img loading="lazy" src={String(currentPlaceholder)} />
           )}
         </div>
         <div className="channel-preview__grid">
@@ -361,7 +361,11 @@ function SelectAsset(props: Props) {
                 />
                 <div className="preview-image__wrapper">
                   <div className="preview-image__container">
-                    {url ? <img className="preview-image" src={String(url)} /> : <Icon icon={ICONS.IMAGE} />}
+                    {url ? (
+                      <img loading="lazy" className="preview-image" src={String(url)} />
+                    ) : (
+                      <Icon icon={ICONS.IMAGE} />
+                    )}
                   </div>
                 </div>
               </div>
@@ -412,7 +416,7 @@ function SelectAsset(props: Props) {
                 <div className="preview-image__wrapper">
                   <div className="preview-image__container">
                     {currentPlaceholder ? (
-                      <img className="preview-image" src={String(currentPlaceholder)} />
+                      <img loading="lazy" className="preview-image" src={String(currentPlaceholder)} />
                     ) : (
                       <Icon icon={ICONS.IMAGE} />
                     )}

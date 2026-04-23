@@ -51,7 +51,7 @@ export default function ChannelSectionsEdit(props: Props) {
               <p>{__('Uploaded image will be visible in a few minutes after you submit this form.')}</p>
             </div>
           ) : (
-            <img className="channel-cover__custom" src={coverSrc} onError={() => setCoverError(true)} />
+            <img loading="lazy" className="channel-cover__custom" src={coverSrc} onError={() => setCoverError(true)} />
           ))}
         <div className="channel__primary-info">
           <ChannelThumbnail

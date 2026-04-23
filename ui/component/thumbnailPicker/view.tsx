@@ -564,7 +564,12 @@ function ThumbnailPicker(props: Props) {
                   type="button"
                 >
                   {uploadedThumbUrl ? (
-                    <img src={uploadedThumbUrl} className="thumbnail-picker__image" alt={__('Uploaded thumbnail')} />
+                    <img
+                      loading="lazy"
+                      src={uploadedThumbUrl}
+                      className="thumbnail-picker__image"
+                      alt={__('Uploaded thumbnail')}
+                    />
                   ) : (
                     <div className="thumbnail-picker__action-content">
                       <Icon icon={ICONS.PUBLISH} size={24} />
@@ -595,7 +600,12 @@ function ThumbnailPicker(props: Props) {
                   type="button"
                 >
                   {urlThumbUrl ? (
-                    <img src={urlThumbUrl} className="thumbnail-picker__image" alt={__('URL thumbnail')} />
+                    <img
+                      loading="lazy"
+                      src={urlThumbUrl}
+                      className="thumbnail-picker__image"
+                      alt={__('URL thumbnail')}
+                    />
                   ) : (
                     <div className="thumbnail-picker__action-content">
                       <Icon icon={ICONS.COPY_LINK} size={24} />
@@ -614,7 +624,12 @@ function ThumbnailPicker(props: Props) {
                     }}
                     type="button"
                   >
-                    <img src={currentThumbnail} className="thumbnail-picker__image" alt={__('Current thumbnail')} />
+                    <img
+                      loading="lazy"
+                      src={currentThumbnail}
+                      className="thumbnail-picker__image"
+                      alt={__('Current thumbnail')}
+                    />
                     <span className="thumbnail-picker__label">{__('Current')}</span>
                   </button>
                 )}
@@ -636,7 +651,12 @@ function ThumbnailPicker(props: Props) {
                     }}
                     type="button"
                   >
-                    <img src={imagePreviewUrl} className="thumbnail-picker__image" alt={__('Source image')} />
+                    <img
+                      loading="lazy"
+                      src={imagePreviewUrl}
+                      className="thumbnail-picker__image"
+                      alt={__('Source image')}
+                    />
                     <span className="thumbnail-picker__label">{__('Source')}</span>
                   </button>
                 )}

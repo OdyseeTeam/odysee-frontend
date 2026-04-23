@@ -2,13 +2,20 @@
 // be triggered. The function will be called after it stops being called for
 // N milliseconds. If `immediate` is passed, trigger the function on the
 // leading edge, instead of the trailing.
-export default function debouce(
+
+interface DebouncedFunction {
+  (...args: unknown[]): void;
+  cancel: () => void;
+}
+
+export default function debounce(
   func: (...args: unknown[]) => void,
   wait: number,
   immediate?: boolean
-): (...args: unknown[]) => void {
+): DebouncedFunction {
   let timeout: ReturnType<typeof setTimeout> | null;
-  return function () {
+
+  const debounced = function () {
     const context = this; // eslint-disable-line no-this-alias
     const args = arguments;
 
@@ -21,5 +28,14 @@ export default function debouce(
     clearTimeout(timeout);
     timeout = setTimeout(later, wait);
     if (callNow) func.apply(context, args);
+  } as DebouncedFunction;
+
+  debounced.cancel = () => {
+    if (timeout) {
+      clearTimeout(timeout);
+      timeout = null;
+    }
   };
+
+  return debounced;
 }

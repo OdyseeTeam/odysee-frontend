@@ -138,15 +138,6 @@ function StreamClaimRenderInline(props: Props) {
               }}
             />
           </React.Suspense>
-          /*
-        <ThreeViewer
-          source={{
-            fileType: fileExtension,
-            downloadPath,
-          }}
-          theme={currentTheme}
-        />
-        */
         );
 
       case RENDER_MODES.COMIC:

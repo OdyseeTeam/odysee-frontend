@@ -8,9 +8,14 @@ import { platform } from 'util/platform';
 const IOS_FS_CLASS = 'ios-fullscreen';
 let iosFsElement = null;
 
+let viewportSyncRaf: number | null = null;
 function syncViewportHeight() {
-  const docEl = document.documentElement;
-  if (docEl) docEl.style.setProperty('--ios-fs-height', window.innerHeight + 'px');
+  if (viewportSyncRaf !== null) return;
+  viewportSyncRaf = requestAnimationFrame(() => {
+    viewportSyncRaf = null;
+    const docEl = document.documentElement;
+    if (docEl) docEl.style.setProperty('--ios-fs-height', window.innerHeight + 'px');
+  });
 }
 
 const prefixes = {

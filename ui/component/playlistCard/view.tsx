@@ -17,6 +17,7 @@ import LoopButton from './internal/loopButton';
 import usePersistedState from 'effects/use-persisted-state';
 import { HEADER_HEIGHT_MOBILE } from 'constants/player';
 import { getMaxLandscapeHeight } from 'util/window';
+import throttle from 'util/throttle';
 import { useIsMobile, useIsSmallScreen } from 'effects/use-screensize';
 import { getLocalizedNameForCollectionId } from 'util/collections';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -264,46 +265,50 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
   );
   React.useEffect(() => {
     if (bodyRef) {
-      const handleScroll = () => {
-        const currentActiveItem = activeItemRef.current;
+      const handleScroll = throttle(
+        () => {
+          const currentActiveItem = activeItemRef.current;
 
-        if (currentActiveItem) {
-          const { top, height } = currentActiveItem.getBoundingClientRect();
-          const itemTop = currentActiveItem.offsetTop - bodyRef.offsetTop;
-          const itemBottom = itemTop + height;
-          let [playerTop, playerInfoTop] = [0, 0];
+          if (currentActiveItem) {
+            const { top, height } = currentActiveItem.getBoundingClientRect();
+            const itemTop = currentActiveItem.offsetTop - bodyRef.offsetTop;
+            const itemBottom = itemTop + height;
+            let [playerTop, playerInfoTop] = [0, 0];
 
-          if (isFloating || isMobile) {
-            if (isFloating) {
-              const playerInfo = document.querySelector<HTMLElement>('.content__info');
-              if (playerInfo) playerInfoTop = playerInfo.offsetTop;
-              const playerElem = document.querySelector<HTMLElement>('.content__viewer');
-              const playerTransform = playerElem && playerElem.style.transform;
+            if (isFloating || isMobile) {
+              if (isFloating) {
+                const playerInfo = document.querySelector<HTMLElement>('.content__info');
+                if (playerInfo) playerInfoTop = playerInfo.offsetTop;
+                const playerElem = document.querySelector<HTMLElement>('.content__viewer');
+                const playerTransform = playerElem && playerElem.style.transform;
 
-              if (playerTransform) {
-                playerTop = Number(
-                  playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
-                );
+                if (playerTransform) {
+                  playerTop = Number(
+                    playerTransform.substring(playerTransform.indexOf(', ') + 2, playerTransform.indexOf('px)'))
+                  );
+                }
+              }
+
+              if (isMobile) {
+                const contentHeight = HEADER_HEIGHT_MOBILE + getMaxLandscapeHeight();
+                playerTop += contentHeight;
               }
             }
 
-            if (isMobile) {
-              const contentHeight = HEADER_HEIGHT_MOBILE + getMaxLandscapeHeight();
-              playerTop += contentHeight;
+            const scrolled =
+              top - playerTop - height - bodyRef.offsetTop - playerInfoTop > bodyRef.offsetHeight ||
+              itemBottom < bodyRef.scrollTop;
+
+            if (!scrollRestorePending.current) {
+              setScrolledPast(scrolled);
+            } else {
+              scrollRestorePending.current = false;
             }
           }
-
-          const scrolled =
-            top - playerTop - height - bodyRef.offsetTop - playerInfoTop > bodyRef.offsetHeight ||
-            itemBottom < bodyRef.scrollTop;
-
-          if (!scrollRestorePending.current) {
-            setScrolledPast(scrolled);
-          } else {
-            scrollRestorePending.current = false;
-          }
-        }
-      };
+        },
+        100,
+        { trailing: true }
+      );
 
       const itemWasRemoved = collectionLength < lengthRef.current;
       const itemWasAdded =
@@ -321,6 +326,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
       bodyRef.addEventListener('scroll', handleScroll);
       window.addEventListener('resize', handleScroll);
       return () => {
+        handleScroll.cancel();
         bodyRef.removeEventListener('scroll', handleScroll);
         window.removeEventListener('resize', handleScroll);
       };
