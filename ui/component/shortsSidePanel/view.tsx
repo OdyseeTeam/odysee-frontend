@@ -4,7 +4,9 @@ import FileTitleSection from 'component/fileTitleSection';
 import Empty from 'component/common/empty';
 import Button from 'component/button';
 import * as ICONS from 'constants/icons';
+
 const CommentsList = lazyImport(() => import('component/commentsList'));
+
 type Props = {
   isOpen: boolean;
   uri: string;
@@ -16,6 +18,7 @@ type Props = {
   isComments?: boolean;
   onClose?: () => void;
 };
+
 const ShortsSidePanel = React.memo<Props>(
   ({
     isOpen,

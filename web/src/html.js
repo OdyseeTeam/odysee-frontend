@@ -549,6 +549,7 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
 let html;
 const isDev = process.env.NODE_ENV === 'development';
 const HTML_PATH = path.join(__dirname, '/../dist/public/index-web.html');
+
 const DEV_RESET_SCRIPT = `<script>
   (function() {
     if (!('serviceWorker' in navigator)) return;

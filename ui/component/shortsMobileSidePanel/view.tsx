@@ -7,6 +7,7 @@ import Empty from 'component/common/empty';
 import Button from 'component/button';
 import { lockBodyScroll, unlockBodyScroll } from 'util/body-scroll-lock';
 import './style.scss';
+
 const CommentsList = lazyImport(
   () =>
     import(
@@ -14,6 +15,7 @@ const CommentsList = lazyImport(
       /* webpackChunkName: "comments" */
     )
 );
+
 type Props = {
   isOpen: boolean;
   onClose: () => void;
@@ -25,6 +27,7 @@ type Props = {
   threadCommentId?: string;
   isComments?: boolean;
 };
+
 export default function MobilePanel(props: Props) {
   const {
     isOpen,
@@ -77,7 +80,6 @@ export default function MobilePanel(props: Props) {
       setIsClosing(false);
     }
   }, [isOpen]);
-
   React.useEffect(() => {
     if (!isOpen) return;
 
