@@ -1,4 +1,4 @@
-@import 'init/breakpoints';
+@import "init/breakpoints";
 
 .shorts-transition-preview {
   --shorts-preview-translate-x: calc(-50% - 6px);
@@ -630,7 +630,10 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
 @media (max-width: $breakpoint-shorts-xwide) and (min-width: $breakpoint-shorts) {
   .shorts-page__side-panel {
-    width: min(calc(100vw - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) - 40px), 640px);
+    width: min(
+      calc(100vw - var(--shorts-viewer-width, var(--shorts-viewer-width-default)) - 40px),
+      640px
+    );
     right: calc(var(--shorts-viewer-width, var(--shorts-viewer-width-default)) + 40px - 100vw);
     .claim-preview__text {
       flex-direction: column !important;
@@ -685,8 +688,8 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
       bottom: 50%;
     }
 
-    [class^='button__fire-particle'],
-    [class^='button__slime-drop'],
+    [class^="button__fire-particle"],
+    [class^="button__slime-drop"],
     .button__slime-stain {
       left: 50%;
       top: 50%;
@@ -719,12 +722,15 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     position: relative;
 
     &::before {
-      content: '';
+      content: "";
       position: absolute;
       inset: 0;
       border-radius: 30px;
       padding: 2px;
-      background: var(--ratings-gradient, linear-gradient(to bottom, var(--color-fire) 35%, var(--color-slime) 65%));
+      background: var(
+        --ratings-gradient,
+        linear-gradient(to bottom, var(--color-fire) 35%, var(--color-slime) 65%)
+      );
       -webkit-mask:
         linear-gradient(#fff 0 0) content-box,
         linear-gradient(#fff 0 0);
@@ -856,7 +862,9 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
     grid-row: 2;
   }
 
-  .shorts-page__navigation .shorts-actions__group:not(.shorts-actions__group--bottom) > .shorts-actions__item {
+  .shorts-page__navigation
+    .shorts-actions__group:not(.shorts-actions__group--bottom)
+    > .shorts-actions__item {
     grid-column: 1;
   }
 
@@ -942,7 +950,7 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 .shorts-page__view-toggle {
-  &[data-panelopen='true'] {
+  &[data-panelopen="true"] {
     display: none !important;
   }
 }
@@ -1035,9 +1043,13 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 
   .shorts-page__container--panel-open {
     .shorts-page__navigation {
-      right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px);
+      right: calc(
+        50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 75px
+      );
       @media (max-height: 750px) {
-        right: calc(50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 100px);
+        right: calc(
+          50% + var(--shorts-viewer-width, var(--shorts-viewer-width-default)) * 0.3 - 100px
+        );
       }
     }
   }

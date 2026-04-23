@@ -2,22 +2,26 @@
  * This module is responsible for managing browser push notification
  * subscriptions via the firebase SDK.
  */
-import { Lbryio } from 'lbryinc';
-import { initializeApp } from 'firebase/app';
-import { getMessaging, getToken, deleteToken } from 'firebase/messaging';
-import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
-import { addRegistration, removeRegistration, hasRegistration } from '$web/src/push-notifications/fcm-management';
-import { browserData } from '$web/src/ua';
-import { isPushSupported } from '$web/src/push-notifications/push-supported';
+import { Lbryio } from "lbryinc";
+import { initializeApp } from "firebase/app";
+import { getMessaging, getToken, deleteToken } from "firebase/messaging";
+import { firebaseConfig, vapidKey } from "$web/src/firebase-config";
+import {
+  addRegistration,
+  removeRegistration,
+  hasRegistration,
+} from "$web/src/push-notifications/fcm-management";
+import { browserData } from "$web/src/ua";
+import { isPushSupported } from "$web/src/push-notifications/push-supported";
 
 let messaging: any = null;
 let pushSystem: Record<string, any> | null = null;
-const PUSH_SERVICE_WORKER_URL = '/sw.js';
-const PUSH_SERVICE_WORKER_SCOPE = '/';
+const PUSH_SERVICE_WORKER_URL = "/sw.js";
+const PUSH_SERVICE_WORKER_SCOPE = "/";
 
 const getTokenList = (value: unknown): Array<any> => {
   if (Array.isArray(value)) return value;
-  if (value && typeof value === 'object') {
+  if (value && typeof value === "object") {
     if (Array.isArray((value as any).items)) return (value as any).items;
     if (Array.isArray((value as any).data)) return (value as any).data;
     if (Array.isArray((value as any).result)) return (value as any).result;
@@ -27,18 +31,24 @@ const getTokenList = (value: unknown): Array<any> => {
 
 const subscriptionMetaData = () => {
   const isMobile = (window.navigator as any).userAgentData?.mobile || false;
-  const browserName = browserData.browser?.name || 'unknown';
-  const osName = browserData.os?.name || 'unknown';
+  const browserName = browserData.browser?.name || "unknown";
+  const osName = browserData.os?.name || "unknown";
   return {
-    type: `web-${isMobile ? 'mobile' : 'desktop'}`,
+    type: `web-${isMobile ? "mobile" : "desktop"}`,
     name: `${browserName}-${osName}`,
   };
 };
 
 const getPushServiceWorkerRegistration = async (): Promise<ServiceWorkerRegistration | null> => {
-  if (!('serviceWorker' in navigator)) return null;
+  if (!("serviceWorker" in navigator)) return null;
+  const isLocalDev =
+    location.hostname === "localhost" ||
+    location.hostname === "127.0.0.1" ||
+    location.hostname === "::1";
+  if (isLocalDev) return null;
 
-  const existingRegistration = await navigator.serviceWorker.getRegistration(PUSH_SERVICE_WORKER_SCOPE);
+  const existingRegistration =
+    await navigator.serviceWorker.getRegistration(PUSH_SERVICE_WORKER_SCOPE);
   if (existingRegistration) return existingRegistration;
 
   return navigator.serviceWorker.register(PUSH_SERVICE_WORKER_URL, {
@@ -59,7 +69,7 @@ const subscribe = async (userId: number, permanent: boolean = true): Promise<boo
   try {
     const fcmToken = await getFcmToken();
     if (!fcmToken) return false;
-    await Lbryio.call('cfm', 'add', {
+    await Lbryio.call("cfm", "add", {
       token: fcmToken,
       ...subscriptionMetaData(),
     });
@@ -75,7 +85,7 @@ const unsubscribe = async (userId: number, permanent: boolean = true): Promise<b
     const fcmToken = await getFcmToken();
     if (!fcmToken) return false;
     await deleteToken(messaging);
-    await Lbryio.call('cfm', 'remove', {
+    await Lbryio.call("cfm", "remove", {
       token: fcmToken,
     });
     if (permanent) removeRegistration(userId);
@@ -108,12 +118,14 @@ const validate = async (userId: number) => {
 
   const runValidation = async () => {
     try {
-      const serverTokensRaw = await Lbryio.call('cfm', 'list');
+      const serverTokensRaw = await Lbryio.call("cfm", "list");
       const serverTokens = getTokenList(serverTokensRaw);
       const fcmToken = await getFcmToken();
       if (!fcmToken) return;
 
-      const exists = serverTokens.find((item) => item?.value === fcmToken || item?.token === fcmToken);
+      const exists = serverTokens.find(
+        (item) => item?.value === fcmToken || item?.token === fcmToken,
+      );
       if (!exists) {
         await subscribe(userId, false);
       }
@@ -122,7 +134,7 @@ const validate = async (userId: number) => {
     }
   };
 
-  if (typeof window.requestIdleCallback === 'function') {
+  if (typeof window.requestIdleCallback === "function") {
     window.requestIdleCallback(() => {
       void runValidation();
     });
@@ -164,12 +176,15 @@ export type PushNotificationsApi = {
 
 export default new Proxy({} as PushNotificationsApi, {
   get(target, prop) {
-    if (prop === 'ready') return initPromise;
+    if (prop === "ready") return initPromise;
     if (pushSystem) {
       return pushSystem[prop as string];
     } else {
-      if (prop === 'supported') return false;
-      return () => Promise.reject(new Error('Push notifications are not supported in this browser environment.'));
+      if (prop === "supported") return false;
+      return () =>
+        Promise.reject(
+          new Error("Push notifications are not supported in this browser environment."),
+        );
     }
   },
 });

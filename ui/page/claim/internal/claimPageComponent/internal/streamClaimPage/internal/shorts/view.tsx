@@ -1,32 +1,36 @@
-import * as React from 'react';
-import { createPortal } from 'react-dom';
-import { createSelector } from 'reselect';
-import { useIsShortsMobile } from 'effects/use-screensize';
-import RecSys from 'recsys';
-import { v4 as Uuidv4 } from 'uuid';
-import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
-import ShortsActions from 'component/shortsActions';
-import ShortsVideoPlayer from 'component/shortsVideoPlayer';
-import ShortsSidePanel from 'component/shortsSidePanel';
-import ShortsMobileSidePanel from 'component/shortsMobileSidePanel';
-import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
-import { NavigationType, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
-import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
-import { lockBodyScroll, unlockBodyScroll } from 'util/body-scroll-lock';
-import * as ICONS from 'constants/icons';
-import * as MODALS from 'constants/modal_types';
-import * as TAGS from 'constants/tags';
-import * as SETTINGS_CONST from 'constants/settings';
-import { FYP_ID } from 'constants/urlParams';
-import { getThumbnailCdnUrl } from 'util/thumbnail';
-import { useOnResize } from 'effects/use-on-resize';
-import classnames from 'classnames';
-import ChannelThumbnail from 'component/channelThumbnail';
-import { Link } from 'react-router-dom';
-import ViewModeToggle from 'component/shortsActions/swipeNavigation/viewModeToggle';
-import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort as isClaimShortUtil } from 'util/claim';
-import { doFileGetForUri as doFileGetForUriAction } from 'redux/actions/file';
+import * as React from "react";
+import { createPortal } from "react-dom";
+import { createSelector } from "reselect";
+import { useIsShortsMobile } from "effects/use-screensize";
+import RecSys from "recsys";
+import { v4 as Uuidv4 } from "uuid";
+import { PRIMARY_PLAYER_WRAPPER_CLASS } from "../videoPlayers/view";
+import ShortsActions from "component/shortsActions";
+import ShortsVideoPlayer from "component/shortsVideoPlayer";
+import ShortsSidePanel from "component/shortsSidePanel";
+import ShortsMobileSidePanel from "component/shortsMobileSidePanel";
+import SwipeNavigationPortal from "component/shortsActions/swipeNavigation";
+import { NavigationType, useLocation, useNavigate, useNavigationType } from "react-router-dom";
+import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from "constants/comment";
+import { lockBodyScroll, unlockBodyScroll } from "util/body-scroll-lock";
+import * as ICONS from "constants/icons";
+import * as MODALS from "constants/modal_types";
+import * as TAGS from "constants/tags";
+import * as SETTINGS_CONST from "constants/settings";
+import { FYP_ID } from "constants/urlParams";
+import { getThumbnailCdnUrl } from "util/thumbnail";
+import { useOnResize } from "effects/use-on-resize";
+import classnames from "classnames";
+import ChannelThumbnail from "component/channelThumbnail";
+import { Link } from "react-router-dom";
+import ViewModeToggle from "component/shortsActions/swipeNavigation/viewModeToggle";
+import { useAppSelector, useAppDispatch } from "redux/hooks";
+import {
+  getChannelIdFromClaim,
+  createNormalizedClaimSearchKey,
+  isClaimShort as isClaimShortUtil,
+} from "util/claim";
+import { doFileGetForUri as doFileGetForUriAction } from "redux/actions/file";
 import {
   selectClaimIsNsfwForUri,
   selectClaimForUri,
@@ -35,35 +39,45 @@ import {
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
   selectTitleForUri,
-} from 'redux/selectors/claims';
+} from "redux/selectors/claims";
 import {
   selectContentPositionForUri,
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
   selectIsAutoplayCountdownForUri,
-} from 'redux/selectors/content';
-import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
-import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
+} from "redux/selectors/content";
+import {
+  selectCommentsListTitleForUri,
+  selectCommentsDisabledSettingForChannelId,
+} from "redux/selectors/comments";
+import { selectNoRestrictionOrUserIsMemberForContentClaimId } from "redux/selectors/memberships";
 import {
   clearPosition as clearPositionAction,
   doClearPlayingUri as doClearPlayingUriAction,
-} from 'redux/actions/content';
-import { selectIsSearching } from 'redux/selectors/search';
-import { selectClientSetting } from 'redux/selectors/settings';
-import { selectShortsSidePanelOpen, selectShortsPlaylist, selectShortsViewMode } from 'redux/selectors/shorts';
+} from "redux/actions/content";
+import { selectIsSearching } from "redux/selectors/search";
+import { selectClientSetting } from "redux/selectors/settings";
+import {
+  selectShortsSidePanelOpen,
+  selectShortsPlaylist,
+  selectShortsViewMode,
+} from "redux/selectors/shorts";
 import {
   doSetShortsSidePanel as doSetShortsSidePanelAction,
   doSetShortsPlaylist as doSetShortsPlaylistAction,
   doSetShortsViewMode as doSetShortsViewModeAction,
   doClearShortsPlaylist as doClearShortsPlaylistAction,
-} from 'redux/actions/shorts';
-import { doClaimSearch as doClaimSearchAction, doResolveUri as doResolveUriAction } from 'redux/actions/claims';
-import { toggleAutoplayNextShort } from 'redux/actions/settings';
-import { doFetchShortsRecommendedContent as doFetchShortsRecommendedContentAction } from 'redux/actions/search';
-import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
-import FileTitleSection from 'component/fileTitleSection';
-import Empty from 'component/common/empty';
-import CommentsList from 'component/commentsList';
+} from "redux/actions/shorts";
+import {
+  doClaimSearch as doClaimSearchAction,
+  doResolveUri as doResolveUriAction,
+} from "redux/actions/claims";
+import { toggleAutoplayNextShort } from "redux/actions/settings";
+import { doFetchShortsRecommendedContent as doFetchShortsRecommendedContentAction } from "redux/actions/search";
+import { doOpenModal as doOpenModalAction } from "redux/actions/app";
+import FileTitleSection from "component/fileTitleSection";
+import Empty from "component/common/empty";
+import CommentsList from "component/commentsList";
 
 const EMPTY_ARRAY: string[] = [];
 
@@ -95,10 +109,10 @@ const selectShortsChannelUris = createSelector(
       channel_ids: [channelId],
       duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
       content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
-      order_by: ['release_time'],
+      order_by: ["release_time"],
       page_size: 50,
       page: 1,
-      claim_type: ['stream'],
+      claim_type: ["stream"],
       has_source: true,
     });
     return selectClaimSearchByQuery(state)[searchKey];
@@ -110,19 +124,21 @@ const selectShortsChannelUris = createSelector(
       const c = selectClaimForUri(state, u);
       return c?.permanent_url;
     });
-  }
+  },
 );
 
 const selectShortsRecommendedContent = (state: any, uri: string) => {
   const shortsPlaylist = selectShortsPlaylist(state);
   if (shortsPlaylist.length > 0) return shortsPlaylist;
   const viewMode = selectShortsViewMode(state);
-  return viewMode === 'channel' ? selectShortsChannelUris(state, uri) : selectShortsRelatedUris(state, uri);
+  return viewMode === "channel"
+    ? selectShortsChannelUris(state, uri)
+    : selectShortsRelatedUris(state, uri);
 };
-export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
+export const SHORTS_PLAYER_WRAPPER_CLASS = "shorts-page__video-container";
 const REEL_TRANSITION_MS = 320;
 const REEL_NAVIGATION_FALLBACK_MS = 1200;
-type ReelDirection = 'next' | 'previous';
+type ReelDirection = "next" | "previous";
 type Props = {
   uri: string;
   accessStatus: string | null | undefined;
@@ -134,8 +150,12 @@ export default function ShortsPage(props: Props) {
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const channelId = getChannelIdFromClaim(claim);
   const claimId = claim?.claim_id;
-  const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
-  const shortsRecommendedUris = useAppSelector((state) => selectShortsRecommendedContent(state, uri));
+  const commentSettingDisabled = useAppSelector((state) =>
+    selectCommentsDisabledSettingForChannelId(state, channelId),
+  );
+  const shortsRecommendedUris = useAppSelector((state) =>
+    selectShortsRecommendedContent(state, uri),
+  );
   const currentIndex = shortsRecommendedUris.findIndex((shortUri: string) => shortUri === uri);
   const title = claim?.value?.title;
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
@@ -145,8 +165,12 @@ export default function ShortsPage(props: Props) {
       ? shortsRecommendedUris[currentIndex + 1]
       : null;
   const prevShortUri = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
-  const nextShortClaimValue = useAppSelector((state) => (nextShortUri ? selectClaimForUri(state, nextShortUri) : null));
-  const prevShortClaimValue = useAppSelector((state) => (prevShortUri ? selectClaimForUri(state, prevShortUri) : null));
+  const nextShortClaimValue = useAppSelector((state) =>
+    nextShortUri ? selectClaimForUri(state, nextShortUri) : null,
+  );
+  const prevShortClaimValue = useAppSelector((state) =>
+    prevShortUri ? selectClaimForUri(state, prevShortUri) : null,
+  );
   const nextThumbnail = nextShortClaimValue?.value?.thumbnail?.url || null;
   const previousThumbnail = prevShortClaimValue?.value?.thumbnail?.url || null;
   const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
@@ -155,30 +179,39 @@ export default function ShortsPage(props: Props) {
   const playingCollectionId = useAppSelector(selectPlayingCollectionId);
   const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
   const commentsDisabledTag = useAppSelector((state) =>
-    makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state)
+    makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state),
   );
   const commentsDisabled = commentSettingDisabled || commentsDisabledTag;
   const contentUnlockedValue = useAppSelector((state) =>
-    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined
+    claimId ? selectNoRestrictionOrUserIsMemberForContentClaimId(state, claimId) : undefined,
   );
   const contentUnlocked = claimId && contentUnlockedValue;
-  const isAutoplayCountdownForUri = useAppSelector((state) => selectIsAutoplayCountdownForUri(state, uri));
+  const isAutoplayCountdownForUri = useAppSelector((state) =>
+    selectIsAutoplayCountdownForUri(state, uri),
+  );
   const sidePanelOpen = useAppSelector(selectShortsSidePanelOpen);
   const nextRecommendedShort =
     currentIndex >= 0 && currentIndex < shortsRecommendedUris.length - 1
       ? shortsRecommendedUris[currentIndex + 1]
       : null;
-  const previousRecommendedShort = currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
+  const previousRecommendedShort =
+    currentIndex > 0 ? shortsRecommendedUris[currentIndex - 1] : null;
   const channelName = claim?.signing_channel?.name;
   const channelTitleFromState = useAppSelector((state) =>
-    channelUri ? selectTitleForUri(state, channelUri) : undefined
+    channelUri ? selectTitleForUri(state, channelUri) : undefined,
   );
   const channelDisplayName = (channelUri && channelTitleFromState) || claim?.signing_channel?.name;
   const isSearchingRecommendations = useAppSelector(selectIsSearching);
-  const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS_CONST.SEARCH_IN_LANGUAGE));
+  const searchInLanguage = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS_CONST.SEARCH_IN_LANGUAGE),
+  );
   const reduxViewMode = useAppSelector(selectShortsViewMode);
-  const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS_CONST.AUTOPLAY_NEXT_SHORTS));
-  const disableShortsView = useAppSelector((state) => selectClientSetting(state, SETTINGS_CONST.DISABLE_SHORTS_VIEW));
+  const autoPlayNextShort = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS_CONST.AUTOPLAY_NEXT_SHORTS),
+  );
+  const disableShortsView = useAppSelector((state) =>
+    selectClientSetting(state, SETTINGS_CONST.DISABLE_SHORTS_VIEW),
+  );
   const isClaimShortValue = isClaimShortUtil(claim);
   const webShareable = true;
 
@@ -192,20 +225,25 @@ export default function ShortsPage(props: Props) {
   const urlParams = new URLSearchParams(search);
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM) || undefined;
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM) || undefined;
-  const isShortFromChannelPage = urlParams.get('from') === 'channel';
+  const isShortFromChannelPage = urlParams.get("from") === "channel";
   const isMobile = useIsShortsMobile();
   const shortsContainerRef = React.useRef<any>();
   const fypId = urlParams.get(FYP_ID);
-  const [uuid] = React.useState(fypId ? Uuidv4() : '');
+  const [uuid] = React.useState(fypId ? Uuidv4() : "");
   const wheelLockRef = React.useRef(false);
   const [localViewMode, setLocalViewMode] = React.useState(
-    isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
+    isShortFromChannelPage ? "channel" : reduxViewMode || "related",
   );
-  const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
-  const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
+  const [panelMode, setPanelMode] = React.useState<"info" | "comments">("info");
+  const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } =
+    RecSys;
   const [isTransitioning, setIsTransitioning] = React.useState(false);
-  const [transitionDirection, setTransitionDirection] = React.useState<ReelDirection | null | undefined>(null);
-  const [transitionThumbnailUrl, setTransitionThumbnailUrl] = React.useState<string | null | undefined>(null);
+  const [transitionDirection, setTransitionDirection] = React.useState<
+    ReelDirection | null | undefined
+  >(null);
+  const [transitionThumbnailUrl, setTransitionThumbnailUrl] = React.useState<
+    string | null | undefined
+  >(null);
   const transitionQueueRef = React.useRef<Array<ReelDirection>>([]);
   const transitionTimerRef = React.useRef<TimeoutID | null | undefined>(null);
   const transitionFallbackTimerRef = React.useRef<TimeoutID | null | undefined>(null);
@@ -239,13 +277,14 @@ export default function ShortsPage(props: Props) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     const viewer =
-      document.querySelector('.shorts__viewer .content__wrapper') || document.querySelector('.shorts__viewer');
-    const cover = document.querySelector('.content__cover--shorts');
+      document.querySelector(".shorts__viewer .content__wrapper") ||
+      document.querySelector(".shorts__viewer");
+    const cover = document.querySelector(".content__cover--shorts");
     const target = viewer || cover || null;
     setOverlayTarget((prev) => (prev !== target ? target : prev));
   });
   const setShortViewerWidthFromVideo = React.useCallback(() => {
-    const video = document.querySelector('.shorts__viewer')?.querySelector('video');
+    const video = document.querySelector(".shorts__viewer")?.querySelector("video");
     if (!(video instanceof HTMLVideoElement)) return;
     const videoW = video?.videoWidth;
     const videoH = video?.videoHeight;
@@ -263,14 +302,14 @@ export default function ShortsPage(props: Props) {
     const clampedVW = Math.min(widthVW, maxWidth); // Avoid overflow
 
     requestAnimationFrame(() => {
-      document.documentElement?.style?.setProperty('--shorts-viewer-width', `${clampedVW}vw`);
+      document.documentElement?.style?.setProperty("--shorts-viewer-width", `${clampedVW}vw`);
     });
   }, [sidePanelOpen]);
   useOnResize(setShortViewerWidthFromVideo);
   const isSwipeInsideSidePanel = React.useCallback((clientX, clientY) => {
     const el = document.elementFromPoint(clientX, clientY);
     if (!el) return false;
-    return !!el.closest('.shorts-page__side-panel, .shorts-page__side-panel--open');
+    return !!el.closest(".shorts-page__side-panel, .shorts-page__side-panel--open");
   }, []);
   const fetchForMode = React.useCallback(
     (mode) => {
@@ -282,24 +321,24 @@ export default function ShortsPage(props: Props) {
             }
           : null;
 
-      if (mode === 'channel' && channelId) {
+      if (mode === "channel" && channelId) {
         dispatch(
           doClaimSearchAction({
             channel_ids: [channelId],
             duration: `<=${SETTINGS_CONST.SHORTS_DURATION_LTE}`,
             content_aspect_ratio: `<=${SETTINGS_CONST.SHORTS_ASPECT_RATIO_LTE}`,
-            order_by: ['release_time'],
+            order_by: ["release_time"],
             page_size: 50,
             page: 1,
-            claim_type: ['stream'],
+            claim_type: ["stream"],
             has_source: true,
-          })
+          }),
         );
       } else {
         dispatch(doFetchShortsRecommendedContentAction(uri, fypParam));
       }
     },
-    [channelId, uri, uuid, fypId, dispatch]
+    [channelId, uri, uuid, fypId, dispatch],
   );
   const handleViewModeChange = React.useCallback(
     (mode) => {
@@ -308,7 +347,7 @@ export default function ShortsPage(props: Props) {
       dispatch(doSetShortsPlaylistAction([]));
       fetchForMode(mode);
     },
-    [dispatch, fetchForMode, setLocalViewMode]
+    [dispatch, fetchForMode, setLocalViewMode],
   );
   const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
   const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
@@ -322,15 +361,15 @@ export default function ShortsPage(props: Props) {
         uri,
         webShareable,
         collectionId,
-      })
+      }),
     );
   }, [claimIsMine, collectionId, dispatch, isUnlisted, uri, webShareable]);
   const handleCommentsClick = React.useCallback(() => {
-    setPanelMode('comments');
+    setPanelMode("comments");
     dispatch(doSetShortsSidePanelAction(true));
   }, [dispatch]);
   const handleInfoButtonClick = React.useCallback(() => {
-    setPanelMode('info');
+    setPanelMode("info");
     dispatch(doSetShortsSidePanelAction(true));
   }, [dispatch]);
   const handleClosePanel = React.useCallback(() => {
@@ -340,7 +379,7 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     if (linkedCommentId && linkedCommentId !== handledLinkedCommentIdRef.current) {
       handledLinkedCommentIdRef.current = linkedCommentId;
-      setPanelMode('comments');
+      setPanelMode("comments");
       dispatch(doSetShortsSidePanelAction(true));
     }
   }, [linkedCommentId, dispatch]);
@@ -349,7 +388,10 @@ export default function ShortsPage(props: Props) {
     if (currentIndex < 0) return;
     const currentBatch = Math.floor(currentIndex / PRELOAD_BATCH_SIZE);
     const nextBatchStart = (currentBatch + 1) * PRELOAD_BATCH_SIZE;
-    const preloadEndIndex = Math.min(nextBatchStart + PRELOAD_BATCH_SIZE, shortsRecommendedUris.length);
+    const preloadEndIndex = Math.min(
+      nextBatchStart + PRELOAD_BATCH_SIZE,
+      shortsRecommendedUris.length,
+    );
     const urisToPreload = [];
 
     for (let i = currentIndex + 1; i < preloadEndIndex; i++) {
@@ -402,14 +444,14 @@ export default function ShortsPage(props: Props) {
     const previousRoute = latestRouteRef.current;
 
     if (previousRoute.pathname !== pathname || previousRoute.search !== search) {
-      const currentSearch = previousRoute.search || '';
-      const nextSearch = search || '';
+      const currentSearch = previousRoute.search || "";
+      const nextSearch = search || "";
       const currentParams = new URLSearchParams(currentSearch);
       const nextParams = new URLSearchParams(nextSearch);
-      const isCurrentlyInShortsPlayer = currentParams.get('view') === 'shorts';
-      const isNavigatingToShortsPlayer = nextParams.get('view') === 'shorts';
-      const isNavigatingToShortsTab = nextParams.get('view') === 'shortsTab';
-      const isNavigatingToHome = pathname === '/' && !nextSearch;
+      const isCurrentlyInShortsPlayer = currentParams.get("view") === "shorts";
+      const isNavigatingToShortsPlayer = nextParams.get("view") === "shorts";
+      const isNavigatingToShortsTab = nextParams.get("view") === "shortsTab";
+      const isNavigatingToHome = pathname === "/" && !nextSearch;
       const isBackNavigation = navigationType === NavigationType.Pop;
       const shouldCleanup =
         (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer) ||
@@ -430,12 +472,12 @@ export default function ShortsPage(props: Props) {
 
   React.useEffect(() => {
     return () => {
-      const currentUrl = latestRouteRef.current.search || '';
-      const currentPath = latestRouteRef.current.pathname || '/';
+      const currentUrl = latestRouteRef.current.search || "";
+      const currentPath = latestRouteRef.current.pathname || "/";
       const currentParams = new URLSearchParams(currentUrl);
-      const isInShortsPlayer = currentParams.get('view') === 'shorts';
-      const isInShortsTab = currentParams.get('view') === 'shortsTab';
-      const isHomePage = currentPath === '/' && !currentUrl;
+      const isInShortsPlayer = currentParams.get("view") === "shorts";
+      const isInShortsTab = currentParams.get("view") === "shortsTab";
+      const isHomePage = currentPath === "/" && !currentUrl;
       const shouldCleanupOnUnmount =
         (!isInShortsPlayer && !isInShortsTab) || (!isInShortsPlayer && isInShortsTab) || isHomePage;
 
@@ -446,12 +488,12 @@ export default function ShortsPage(props: Props) {
   }, [dispatch]);
   React.useEffect(() => {
     const docEl = document.documentElement;
-    if (docEl) docEl.style.removeProperty('--shorts-viewer-width');
+    if (docEl) docEl.style.removeProperty("--shorts-viewer-width");
 
     let timeoutId;
 
     function loop() {
-      const video = document.querySelector('.shorts__viewer')?.querySelector('video');
+      const video = document.querySelector(".shorts__viewer")?.querySelector("video");
 
       if (!(video instanceof HTMLVideoElement) || !video?.videoWidth || !video?.videoHeight) {
         timeoutId = setTimeout(loop, 300);
@@ -475,7 +517,7 @@ export default function ShortsPage(props: Props) {
       hasInitializedRef.current = true;
 
       if (isShortFromChannelPage) {
-        dispatch(doSetShortsViewModeAction('channel'));
+        dispatch(doSetShortsViewModeAction("channel"));
       }
 
       fetchForMode(localViewMode);
@@ -504,12 +546,13 @@ export default function ShortsPage(props: Props) {
   React.useEffect(() => {
     if (!entryUrlRef.current) {
       const urlParams = new URLSearchParams(search);
-      const fromChannel = urlParams.get('from') === 'channel';
+      const fromChannel = urlParams.get("from") === "channel";
 
       if (fromChannel && channelUri) {
-        entryUrlRef.current = channelUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shortsTab';
+        entryUrlRef.current =
+          channelUri.replace("lbry://", "/").replace(/#/g, ":") + "?view=shortsTab";
       } else {
-        entryUrlRef.current = '/';
+        entryUrlRef.current = "/";
       }
     }
   }, [search, channelUri]);
@@ -517,21 +560,21 @@ export default function ShortsPage(props: Props) {
     if (hasEnsuredViewParam.current) return;
     const urlParams = new URLSearchParams(search);
 
-    if (urlParams.get('view') !== 'shorts') {
-      urlParams.set('view', 'shorts');
+    if (urlParams.get("view") !== "shorts") {
+      urlParams.set("view", "shorts");
       navigate(
         {
           pathname,
           search: `?${urlParams.toString()}`,
         },
-        { replace: true }
+        { replace: true },
       );
     }
 
     hasEnsuredViewParam.current = true;
   }, [navigate, pathname, search]);
   const getShortsUrl = React.useCallback((shortUri: string) => {
-    return shortUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+    return shortUri.replace("lbry://", "/").replace(/#/g, ":") + "?view=shorts";
   }, []);
   const clearTransitionTimers = React.useCallback(() => {
     if (transitionTimerRef.current) {
@@ -561,7 +604,7 @@ export default function ShortsPage(props: Props) {
         });
       }
     },
-    [clearTransitionTimers]
+    [clearTransitionTimers],
   );
   finishTransitionRef.current = finishTransition;
   const processNextQueuedTransition = React.useCallback(() => {
@@ -570,9 +613,9 @@ export default function ShortsPage(props: Props) {
     while (transitionQueueRef.current.length > 0) {
       const direction = transitionQueueRef.current.shift();
       if (!direction) continue;
-      const targetUri = direction === 'next' ? nextRecommendedShort : previousRecommendedShort;
+      const targetUri = direction === "next" ? nextRecommendedShort : previousRecommendedShort;
       if (!targetUri) continue;
-      const transitionThumb = direction === 'next' ? nextThumbnail : previousThumbnail;
+      const transitionThumb = direction === "next" ? nextThumbnail : previousThumbnail;
       const previewSrc = transitionThumb
         ? getThumbnailCdnUrl({
             thumbnail: transitionThumb,
@@ -603,9 +646,10 @@ export default function ShortsPage(props: Props) {
         doClearPlayingUri();
         navigate(getShortsUrl(activeTransition.targetUri), { replace: true });
 
-        if (activeTransition.direction === 'next' && claimId) {
+        if (activeTransition.direction === "next" && claimId) {
           const nextClaimId =
-            activeTransition.targetUri.split('#').pop() || activeTransition.targetUri.split('/').pop();
+            activeTransition.targetUri.split("#").pop() ||
+            activeTransition.targetUri.split("/").pop();
           onRecommendationClicked(claimId, nextClaimId);
         }
 
@@ -640,11 +684,11 @@ export default function ShortsPage(props: Props) {
       return;
     }
 
-    queueTransition('next');
+    queueTransition("next");
   }, [nextRecommendedShort, isAtEnd, queueTransition]);
   const goToPrevious = React.useCallback(() => {
     if (!isTransitioningRef.current && (!previousRecommendedShort || isAtStart)) return;
-    queueTransition('previous');
+    queueTransition("previous");
   }, [previousRecommendedShort, isAtStart, queueTransition]);
   React.useEffect(() => {
     const activeTransition = activeTransitionRef.current;
@@ -687,22 +731,22 @@ export default function ShortsPage(props: Props) {
         wheelLockRef.current = false;
       }, 120);
     },
-    [goToNext, goToPrevious, isMobile, sidePanelOpen, isSwipeInsideSidePanel]
+    [goToNext, goToPrevious, isMobile, sidePanelOpen, isSwipeInsideSidePanel],
   );
   React.useEffect(() => {
     const container = shortsContainerRef.current;
     if (!container) return;
-    container.addEventListener('wheel', handleScroll, {
+    container.addEventListener("wheel", handleScroll, {
       passive: false,
     });
-    return () => container.removeEventListener('wheel', handleScroll);
+    return () => container.removeEventListener("wheel", handleScroll);
   }, [handleScroll]);
   const transitionPreviewStyle = transitionThumbnailUrl
     ? {
         backgroundImage: `url(${String(transitionThumbnailUrl)})`,
       }
     : undefined;
-  const transitionPreviewTarget = typeof document !== 'undefined' ? document.body : null;
+  const transitionPreviewTarget = typeof document !== "undefined" ? document.body : null;
   return (
     <>
       <SwipeNavigationPortal
@@ -719,28 +763,30 @@ export default function ShortsPage(props: Props) {
         doToggleShortsAutoplay={doToggleShortsAutoplay}
         onInfoButtonClick={handleInfoButtonClick}
         onCommentsClick={handleCommentsClick}
-        isComments={panelMode === 'comments'}
+        isComments={panelMode === "comments"}
         handleShareClick={handleShareClick}
       />
       {transitionPreviewTarget &&
         createPortal(
           <div
-            className={classnames('shorts-transition-preview', {
-              'shorts-transition-preview--next': isTransitioning && transitionDirection === 'next',
-              'shorts-transition-preview--previous': isTransitioning && transitionDirection === 'previous',
-              'shorts-transition-preview--panel-open': sidePanelOpen,
+            className={classnames("shorts-transition-preview", {
+              "shorts-transition-preview--next": isTransitioning && transitionDirection === "next",
+              "shorts-transition-preview--previous":
+                isTransitioning && transitionDirection === "previous",
+              "shorts-transition-preview--panel-open": sidePanelOpen,
             })}
             style={transitionPreviewStyle}
           />,
-          transitionPreviewTarget
+          transitionPreviewTarget,
         )}
       {transitionPreviewTarget &&
         createPortal(
           <div
-            className={classnames('shorts-transition-current', {
-              'shorts-transition-current--next': isTransitioning && transitionDirection === 'next',
-              'shorts-transition-current--previous': isTransitioning && transitionDirection === 'previous',
-              'shorts-transition-current--panel-open': sidePanelOpen,
+            className={classnames("shorts-transition-current", {
+              "shorts-transition-current--next": isTransitioning && transitionDirection === "next",
+              "shorts-transition-current--previous":
+                isTransitioning && transitionDirection === "previous",
+              "shorts-transition-current--panel-open": sidePanelOpen,
             })}
             style={
               thumbnail
@@ -749,28 +795,30 @@ export default function ShortsPage(props: Props) {
                       getThumbnailCdnUrl({
                         thumbnail,
                         isShorts: true,
-                      })
+                      }),
                     )})`,
                   }
                 : undefined
             }
           />,
-          transitionPreviewTarget
+          transitionPreviewTarget,
         )}
       {channelName &&
         overlayTarget &&
         createPortal(
           <>
-            {overlayTarget.closest('.shorts__viewer') && (
+            {overlayTarget.closest(".shorts__viewer") && (
               <div className="shorts-viewer__content-info">
                 {channelUri && (
                   <Link
-                    to={channelUri.replace('lbry://', '/').replace(/#/g, ':')}
+                    to={channelUri.replace("lbry://", "/").replace(/#/g, ":")}
                     className="shorts-viewer__channel"
                     onClick={(e) => e.stopPropagation()}
                   >
                     <ChannelThumbnail uri={channelUri} xxsmall checkMembership={false} />
-                    <span className="shorts-viewer__channel-name">{channelDisplayName || channelName}</span>
+                    <span className="shorts-viewer__channel-name">
+                      {channelDisplayName || channelName}
+                    </span>
                   </Link>
                 )}
                 <span className="shorts-viewer__title">{title}</span>
@@ -785,15 +833,17 @@ export default function ShortsPage(props: Props) {
               />
             )}
           </>,
-          overlayTarget
+          overlayTarget,
         )}
       <div
-        className={classnames('shorts-page', {
-          'shorts-page--transitioning': isTransitioning,
+        className={classnames("shorts-page", {
+          "shorts-page--transitioning": isTransitioning,
         })}
         ref={shortsContainerRef}
       >
-        <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>
+        <div
+          className={`shorts-page__container ${sidePanelOpen ? "shorts-page__container--panel-open" : ""}`}
+        >
           <div className="shorts-page__main-content">
             <div className="shorts-page__video-section">
               <ShortsVideoPlayer
@@ -839,7 +889,7 @@ export default function ShortsPage(props: Props) {
               commentsDisabled={commentsDisabled}
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
-              isComments={panelMode === 'comments'}
+              isComments={panelMode === "comments"}
               onClose={handleClosePanel}
             />
           )}
@@ -854,7 +904,7 @@ export default function ShortsPage(props: Props) {
               commentsDisabled={commentsDisabled}
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
-              isComments={panelMode === 'comments'}
+              isComments={panelMode === "comments"}
             />
           )}
         </div>

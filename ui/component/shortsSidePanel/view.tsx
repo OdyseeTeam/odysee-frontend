@@ -1,11 +1,11 @@
-import React from 'react';
-import { lazyImport } from 'util/lazyImport';
-import FileTitleSection from 'component/fileTitleSection';
-import Empty from 'component/common/empty';
-import Button from 'component/button';
-import * as ICONS from 'constants/icons';
+import React from "react";
+import { lazyImport } from "util/lazyImport";
+import FileTitleSection from "component/fileTitleSection";
+import Empty from "component/common/empty";
+import Button from "component/button";
+import * as ICONS from "constants/icons";
 
-const CommentsList = lazyImport(() => import('component/commentsList'));
+const CommentsList = lazyImport(() => import("component/commentsList"));
 
 type Props = {
   isOpen: boolean;
@@ -42,14 +42,16 @@ const ShortsSidePanel = React.memo<Props>(
 
       const raf = requestAnimationFrame(() => {
         if (isComments && commentsRef.current) {
+          const contentRect = contentEl.getBoundingClientRect();
+          const commentsRect = commentsRef.current.getBoundingClientRect();
           contentEl.scrollTo({
-            top: commentsRef.current.offsetTop,
-            behavior: 'smooth',
+            top: commentsRect.top - contentRect.top + contentEl.scrollTop,
+            behavior: "smooth",
           });
         } else {
           contentEl.scrollTo({
             top: 0,
-            behavior: 'smooth',
+            behavior: "smooth",
           });
         }
       });
@@ -58,14 +60,14 @@ const ShortsSidePanel = React.memo<Props>(
     }, [isOpen, isComments, uri, linkedCommentId, threadCommentId]);
 
     return (
-      <div className={`shorts-page__side-panel ${isOpen ? 'shorts-page__side-panel--open' : ''}`}>
+      <div className={`shorts-page__side-panel ${isOpen ? "shorts-page__side-panel--open" : ""}`}>
         <div className="shorts-page__close-button-container">
           <Button
             className="shorts-page__close-button"
             onClick={onClose}
             icon={ICONS.REMOVE}
             iconSize={20}
-            title={'Close'}
+            title={"Close"}
           />
         </div>
 
@@ -73,10 +75,11 @@ const ShortsSidePanel = React.memo<Props>(
           <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
           <div ref={commentsRef} className="shorts-page__side-panel-comments">
-            <h2 className="shorts-page__side-panel-comments-title">{__('Comments')}</h2>
-            {contentUnlocked &&
+            <h2 className="shorts-page__side-panel-comments-title">{__("Comments")}</h2>
+            {isOpen &&
+              contentUnlocked &&
               (commentsDisabled ? (
-                <Empty padded text={__('The creator of this content has disabled comments.')} />
+                <Empty padded text={__("The creator of this content has disabled comments.")} />
               ) : (
                 <React.Suspense fallback={null}>
                   <CommentsList
@@ -91,6 +94,6 @@ const ShortsSidePanel = React.memo<Props>(
         </div>
       </div>
     );
-  }
+  },
 );
 export default ShortsSidePanel;

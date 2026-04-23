@@ -10,7 +10,7 @@ const {
   SITE_NAME,
   SITE_TITLE,
   URL,
-} = require('../../config.cjs');
+} = require("../../config.cjs");
 
 const {
   generateEmbedUrlEncoded,
@@ -18,32 +18,32 @@ const {
   getThumbnailCardCdnUrl,
   escapeHtmlProperty,
   unscapeHtmlProperty,
-} = require('../../ui/util/web.cjs');
+} = require("../../ui/util/web.cjs");
 
-const { fetchStreamUrl } = require('./fetchStreamUrl');
+const { fetchStreamUrl } = require("./fetchStreamUrl");
 
-const { lbryProxy: Lbry } = require('../lbry');
+const { lbryProxy: Lbry } = require("../lbry");
 
-const { getHomepageJsonV1 } = require('./getHomepageJSON');
+const { getHomepageJsonV1 } = require("./getHomepageJSON");
 
-const { buildURI, parseURI, normalizeClaimUrl } = require('./lbryURI');
+const { buildURI, parseURI, normalizeClaimUrl } = require("./lbryURI");
 
-const { resolveSlashUrl } = require('./resolveSlashUrl');
+const { resolveSlashUrl } = require("./resolveSlashUrl");
 
-const fs = require('fs');
+const fs = require("fs");
 
-const PAGES = require('../../ui/constants/pages.cjs');
+const PAGES = require("../../ui/constants/pages.cjs");
 
-const path = require('path');
+const path = require("path");
 
-const removeMd = require('remove-markdown');
+const removeMd = require("remove-markdown");
 
-const { buildGoogleVideoMetadata } = require('./metadata/googleVideo');
+const { buildGoogleVideoMetadata } = require("./metadata/googleVideo");
 
 Lbry.setDaemonConnectionString(PROXY_URL);
-const BEGIN_STR = '<!-- VARIABLE_HEAD_BEGIN -->';
-const FINAL_STR = '<!-- VARIABLE_HEAD_END -->';
-const DOUBLE_TAB = '    ';
+const BEGIN_STR = "<!-- VARIABLE_HEAD_BEGIN -->";
+const FINAL_STR = "<!-- VARIABLE_HEAD_END -->";
+const DOUBLE_TAB = "    ";
 
 // ****************************************************************************
 // Helpers
@@ -63,12 +63,12 @@ function insertToHead(fullHtml, htmlToInsert) {
 }
 
 function truncateDescription(description, maxChars = 200) {
-  description = description.trim().split('\n');
+  description = description.trim().split("\n");
   description = description[0].trim();
   const chars = [...description];
   // Use slice array instead of substring to prevent breaking emojis
-  let truncated = chars.slice(0, maxChars).join('');
-  return chars.length > maxChars ? truncated + '...' : truncated;
+  let truncated = chars.slice(0, maxChars).join("");
+  return chars.length > maxChars ? truncated + "..." : truncated;
 }
 
 function getCategoryMeta(path) {
@@ -76,12 +76,14 @@ function getCategoryMeta(path) {
 
   if (path === `/$/${PAGES.WILD_WEST}` || path === `/$/${PAGES.WILD_WEST}/`) {
     return {
-      title: 'Wild West',
-      description: 'Boosted by user credits, this is what the community promotes on Odysee',
-      image: 'https://player.odycdn.com/speech/category-wildwest:1.jpg',
+      title: "Wild West",
+      description: "Boosted by user credits, this is what the community promotes on Odysee",
+      image: "https://player.odycdn.com/speech/category-wildwest:1.jpg",
     };
   } else if (homepage && homepage.en) {
-    const data = Object.values(homepage.en).find((x) => path === `/$/${x.name}` || path === `/$/${x.name}/`);
+    const data = Object.values(homepage.en).find(
+      (x) => path === `/$/${x.name}` || path === `/$/${x.name}/`,
+    );
 
     if (data) {
       return {
@@ -97,7 +99,7 @@ function getCategoryMeta(path) {
 
 function buildFarcasterEmbedScripts(options = {}) {
   const { requireIframe } = options;
-  const iframeCheck = requireIframe ? '\n  if (window.self === window.top) return;' : '';
+  const iframeCheck = requireIframe ? "\n  if (window.self === window.top) return;" : "";
   return `<script src="https://cdn.jsdelivr.net/npm/@farcaster/miniapp-sdk/dist/index.min.js"></script>
 <script>
 (function() {${iframeCheck}
@@ -136,11 +138,12 @@ function buildFarcasterEmbedScripts(options = {}) {
 // Normal metadata with option to override certain values
 //
 function buildOgMetadata(overrideOptions = {}) {
-  const { title, description, image, path, urlQueryString, baseUrl, fcActionUrl, isEmbed } = overrideOptions;
+  const { title, description, image, path, urlQueryString, baseUrl, fcActionUrl, isEmbed } =
+    overrideOptions;
   const BASE = baseUrl || URL;
   const cleanDescription = escapeHtmlProperty(removeMd(description || SITE_DESCRIPTION));
   const cleanTitle = escapeHtmlProperty(title);
-  const url = (path ? `${BASE}${path}` : BASE) + (urlQueryString ? `?${urlQueryString}` : '');
+  const url = (path ? `${BASE}${path}` : BASE) + (urlQueryString ? `?${urlQueryString}` : "");
   const head =
     `<title>${SITE_TITLE}</title>\n` +
     `<meta name="description" content="${cleanDescription}" />\n` +
@@ -155,7 +158,7 @@ function buildOgMetadata(overrideOptions = {}) {
     `<meta property="og:type" content="website"/>\n` +
     '<meta name="twitter:card" content="summary_large_image"/>\n' +
     `<meta name="twitter:title" content="${
-      (cleanTitle && cleanTitle + ' ' + OG_TITLE_SUFFIX) || OG_HOMEPAGE_TITLE || SITE_TITLE
+      (cleanTitle && cleanTitle + " " + OG_TITLE_SUFFIX) || OG_HOMEPAGE_TITLE || SITE_TITLE
     }" />\n` +
     `<meta name="twitter:description" content="${cleanDescription}" />\n` +
     `<meta name="twitter:image" content="${
@@ -172,16 +175,16 @@ function buildOgMetadata(overrideOptions = {}) {
 
   try {
     const miniApp = {
-      version: '1',
+      version: "1",
       imageUrl: ogImageUrl,
       button: {
-        title: 'Open on Odysee',
+        title: "Open on Odysee",
         action: {
-          type: 'launch_miniapp',
-          name: SITE_NAME || 'Odysee',
+          type: "launch_miniapp",
+          name: SITE_NAME || "Odysee",
           url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
-          splashBackgroundColor: '#ffffff',
+          splashBackgroundColor: "#ffffff",
         },
       },
     };
@@ -189,16 +192,16 @@ function buildOgMetadata(overrideOptions = {}) {
     let out = head + `\n<meta name="fc:miniapp" content='${miniAppJson}'/>`;
     // Frames JSON (v2-style) for clients expecting fc:frame as an object
     const frameJsonGeneric = JSON.stringify({
-      version: 'next',
+      version: "next",
       imageUrl: ogImageUrl,
       button: {
-        title: 'Open on Odysee',
+        title: "Open on Odysee",
         action: {
-          type: 'launch_frame',
-          name: SITE_NAME || 'Odysee',
+          type: "launch_frame",
+          name: SITE_NAME || "Odysee",
           url: fcActionUrl || url,
           splashImageUrl: splashImageUrl,
-          splashBackgroundColor: '#ffffff',
+          splashBackgroundColor: "#ffffff",
         },
       },
     });
@@ -211,10 +214,10 @@ function buildOgMetadata(overrideOptions = {}) {
 
     if (isEmbed) {
       out += '\n<meta name="darkreader-lock">';
-      out += '\n' + buildFarcasterEmbedScripts();
+      out += "\n" + buildFarcasterEmbedScripts();
     } else if (fcActionUrl) {
       out +=
-        '\n' +
+        "\n" +
         buildFarcasterEmbedScripts({
           requireIframe: true,
         });
@@ -227,7 +230,7 @@ function buildOgMetadata(overrideOptions = {}) {
 }
 
 function addPWA() {
-  let head = '';
+  let head = "";
   head += '<link rel="manifest" href="/public/pwa/manifest.json"/>';
   head += '<link rel="apple-touch-icon" sizes="180x180" href="/public/pwa/icon-180.png">';
   head += `<script>
@@ -257,8 +260,8 @@ function addPWA() {
 }
 
 function addFavicon() {
-  let head = '';
-  head += `<link rel="icon" type="image/png" href="${FAVICON || './public/favicon.png'}" />`;
+  let head = "";
+  head += `<link rel="icon" type="image/png" href="${FAVICON || "./public/favicon.png"}" />`;
   return head;
 }
 
@@ -283,18 +286,18 @@ function buildBasicOgMetadata(overrideOptions = {}) {
 // Also has option to override defaults
 //
 const getOgType = (streamType, liveStream) => {
-  if (liveStream) return 'video.other';
+  if (liveStream) return "video.other";
 
   switch (streamType) {
     // https://ogp.me/?fbclid=IwAR0Dr3Rb3tw1W5wjFtuRMZfwewM2vlrSnNp-_ZKlvCzo5nKuX2TuTqt0kU8#types
-    case 'video':
-      return 'video.other';
+    case "video":
+      return "video.other";
 
-    case 'audio':
-      return 'music.song';
+    case "audio":
+      return "music.song";
 
     default:
-      return 'website';
+      return "website";
   }
 };
 
@@ -309,24 +312,27 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   const media = value && (value.video || value.audio || value.image);
   const source = value && value.source;
   const channel = signing_channel && signing_channel.name;
-  let thumbnail = value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
+  let thumbnail =
+    value && value.thumbnail && value.thumbnail.url && getThumbnailCardCdnUrl(value.thumbnail.url);
   const mediaType = source && source.media_type;
   const mediaDuration = media && media.duration;
   const claimTitle = escapeHtmlProperty((value && value.title) || claimName);
   const releaseTime = (value && value.release_time) || (meta && meta.creation_timestamp) || 0;
-  const isStream = claim && claim.value_type === 'stream';
+  const isStream = claim && claim.value_type === "stream";
   const liveStream = isStream && !source;
-  const mediaHeight = (media && media.height) || '720';
-  const mediaWidth = (media && media.width) || '1280';
+  const mediaHeight = (media && media.height) || "720";
+  const mediaWidth = (media && media.width) || "1280";
   const claimDescription =
     value && value.description && value.description.length > 0
       ? escapeHtmlProperty(truncateDescription(value.description))
       : `View on ${SITE_NAME}: ${claimTitle}`;
   const claimLanguage =
-    value && value.languages && value.languages.length > 0 ? escapeHtmlProperty(value.languages[0]) : 'en_US';
+    value && value.languages && value.languages.length > 0
+      ? escapeHtmlProperty(value.languages[0])
+      : "en_US";
   let imageThumbnail;
 
-  if (fee <= 0 && mediaType && mediaType.startsWith('image/')) {
+  if (fee <= 0 && mediaType && mediaType.startsWith("image/")) {
     imageThumbnail = await fetchStreamUrl(claim.name, claim.claim_id);
   }
 
@@ -336,16 +342,16 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     OG_IMAGE_URL ||
     `${URL}/public/v2-og.png`;
 
-  if (userAgent && userAgent.includes('Discordbot')) {
-    claimThumbnail = claimThumbnail.substring(claimThumbnail.lastIndexOf('https://'));
+  if (userAgent && userAgent.includes("Discordbot")) {
+    claimThumbnail = claimThumbnail.substring(claimThumbnail.lastIndexOf("https://"));
   }
 
   // Allow for overriding default claim based og metadata
   const title = overrideOptions.title || claimTitle;
   const description = overrideOptions.description || claimDescription;
   const cleanDescription = removeMd(description);
-  const claimPath = `${BASE}/${claim.canonical_url.replace('lbry://', '').replace(/#/g, ':')}`;
-  let head = '';
+  const claimPath = `${BASE}/${claim.canonical_url.replace("lbry://", "").replace(/#/g, ":")}`;
+  let head = "";
   head += `${addFavicon()}`;
   head += '<meta charset="utf8"/>';
   head += `<title>${title}</title>`;
@@ -368,13 +374,16 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   head += `<meta property="og:url" content="${claimPath}"/>`;
   head += `<link rel="canonical" content="${claimPath}"/>`;
   head += `<link rel="alternate" type="application/json+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(
-    claimPath
-  )}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
+    claimPath,
+  )}&format=json${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ""}" title="${title}" />`;
   head += `<link rel="alternate" type="text/xml+oembed" href="${BASE}/$/oembed?url=${encodeURIComponent(
-    claimPath
-  )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ''}" title="${title}" />`;
+    claimPath,
+  )}&format=xml${referrerQuery ? `&r=${encodeURIComponent(referrerQuery)}` : ""}" title="${title}" />`;
 
-  if ((mediaType && (mediaType.startsWith('video/') || mediaType.startsWith('audio/'))) || liveStream) {
+  if (
+    (mediaType && (mediaType.startsWith("video/") || mediaType.startsWith("audio/"))) ||
+    liveStream
+  ) {
     const videoUrl = generateEmbedUrlEncoded(claim.canonical_url);
     head += `<meta property="og:video" content="${videoUrl}" />`;
     head += `<meta property="og:video:secure_url" content="${videoUrl}" />`;
@@ -402,7 +411,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta name="twitter:site" content="@OdyseeTeam"/>`;
     head += `<meta name="twitter:url" content="${claimPath}"/>`;
 
-    if (userAgent && userAgent.includes('Discordbot')) {
+    if (userAgent && userAgent.includes("Discordbot")) {
       head += `<meta name="twitter:card" content="summary_large_image"/>`;
     } else {
       head += `<meta name="twitter:card" content="player"/>`;
@@ -420,19 +429,19 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
   try {
     const splashImageUrl = FARCASTER_ICON_URL || `https://odysee.com/public/favicon_128.png`;
     // Use a literal, unencoded embed URL (clients seem to prefer this format)
-    const embedUriPath = claim.canonical_url.replace('lbry://', '').replace(/#/g, ':');
+    const embedUriPath = claim.canonical_url.replace("lbry://", "").replace(/#/g, ":");
     const embedUrl = `${BASE}/$/embed/${embedUriPath}`;
     const miniApp = {
-      version: '1',
+      version: "1",
       imageUrl: claimThumbnail,
       button: {
-        title: isStream ? 'Watch on Odysee' : 'Open on Odysee',
+        title: isStream ? "Watch on Odysee" : "Open on Odysee",
         action: {
-          type: 'launch_miniapp',
+          type: "launch_miniapp",
           name: SITE_NAME,
           url: embedUrl,
           splashImageUrl: splashImageUrl,
-          splashBackgroundColor: '#ffffff',
+          splashBackgroundColor: "#ffffff",
         },
       },
     };
@@ -440,23 +449,23 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
     head += `<meta name="fc:miniapp" content='${miniAppJson}'/>`;
     // Frames JSON (v2-style) for clients expecting fc:frame as an object
     const frameJson = JSON.stringify({
-      version: 'next',
+      version: "next",
       imageUrl: claimThumbnail,
       button: {
-        title: isStream ? 'Watch on Odysee' : 'Open on Odysee',
+        title: isStream ? "Watch on Odysee" : "Open on Odysee",
         action: {
-          type: 'launch_frame',
+          type: "launch_frame",
           name: SITE_NAME,
           url: embedUrl,
           splashImageUrl: splashImageUrl,
-          splashBackgroundColor: '#ffffff',
+          splashBackgroundColor: "#ffffff",
         },
       },
     });
     head += `<meta name="fc:frame" content='${frameJson}'/>`;
     // Legacy Frames meta (link + post button) for clients that still rely on v1 tags
     head += `<meta name="fc:frame:image" content="${claimThumbnail}"/>`;
-    head += `<meta name="fc:frame:button:1" content="${isStream ? 'Watch on Odysee' : 'Open on Odysee'}"/>`;
+    head += `<meta name="fc:frame:button:1" content="${isStream ? "Watch on Odysee" : "Open on Odysee"}"/>`;
     head += `<meta name="fc:frame:button:1:action" content="link"/>`;
     head += `<meta name="fc:frame:button:1:target" content="${embedUrl}"/>`;
     head += `<meta name="fc:frame:button:2" content="Next ▶"/>`;
@@ -468,7 +477,7 @@ async function buildClaimOgMetadata(uri, claim, overrideOptions = {}, referrerQu
       head += buildFarcasterEmbedScripts();
     }
   } catch (e) {
-    console.error('MiniApp embed meta failed:', e);
+    console.error("MiniApp embed meta failed:", e);
   }
 
   return head;
@@ -480,7 +489,7 @@ function buildSearchPageHead(html, requestPath, queryStr) {
       ? {
           title: `"${queryStr}" Search Results`,
           description: `Find the best "${queryStr}" content on Odysee`,
-          image: '',
+          image: "",
           // TODO: get Search Page image
           urlQueryString: `q=${queryStr}`,
         }
@@ -513,7 +522,8 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
 
       if (response && response.items?.at(0) && !response.error) {
         claim = response.items[0];
-        const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
+        const isRepost =
+          claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
 
         if (isRepost && !ignoreRedirect) {
           ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
@@ -530,7 +540,8 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
 
       if (response && response[url] && !response[url].error) {
         claim = response && response[url];
-        const isRepost = claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
+        const isRepost =
+          claim.reposted_claim && claim.reposted_claim.name && claim.reposted_claim.claim_id;
 
         if (isRepost && !ignoreRedirect) {
           ctx.redirect(`/${claim.reposted_claim.name}:${claim.reposted_claim.claim_id}`);
@@ -547,8 +558,8 @@ async function resolveClaimOrRedirect(ctx, urlOrClaimId, ignoreRedirect = false)
 // getHtml
 // ****************************************************************************
 let html;
-const isDev = process.env.NODE_ENV === 'development';
-const HTML_PATH = path.join(__dirname, '/../dist/public/index-web.html');
+const isDev = process.env.NODE_ENV === "development";
+const HTML_PATH = path.join(__dirname, "/../dist/public/index-web.html");
 
 const DEV_RESET_SCRIPT = `<script>
   (function() {
@@ -604,28 +615,28 @@ async function getHtml(ctx) {
   // In production, cache after first read.
   if (!html || isDev) {
     try {
-      let rawHtml = fs.readFileSync(HTML_PATH, 'utf8');
-      if (!rawHtml.includes('cast_sender.js')) {
+      let rawHtml = fs.readFileSync(HTML_PATH, "utf8");
+      if (!rawHtml.includes("cast_sender.js")) {
         rawHtml = rawHtml.replace(
-          '</head>',
-          `<script>(function(){var d=customElements.define.bind(customElements);customElements.define=function(n,c,o){if(!customElements.get(n))d(n,c,o)}})()</script></head>`
+          "</head>",
+          `<script>(function(){var d=customElements.define.bind(customElements);customElements.define=function(n,c,o){if(!customElements.get(n))d(n,c,o)}})()</script></head>`,
         );
       }
       if (isDev) {
-        rawHtml = rawHtml.replace('<head>', `<head>\n    ${DEV_RESET_SCRIPT}`);
+        rawHtml = rawHtml.replace("<head>", `<head>\n    ${DEV_RESET_SCRIPT}`);
       }
       // React Scan is opt-in in development. Always injecting it proved too expensive on some heavy pages.
       if (isDev && process.env.REACT_SCAN) {
         rawHtml = rawHtml.replace(
-          '<head>',
+          "<head>",
           `<head>\n    <script>window.__REACT_SCAN__ = { enabled: true, showToolbar: true };</script>` +
-            `\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>`
+            `\n    <script src="https://unpkg.com/react-scan/dist/auto.global.js" crossorigin="anonymous"></script>`,
         );
       }
       if (isDev) {
         rawHtml = rawHtml.replace(
-          '</body>',
-          `<script>(function(){var t,r=false;new EventSource('/__livereload').onmessage=function(){if(r)return;r=true;clearTimeout(t);t=setTimeout(function(){location.reload()},1500)}})()</script></body>`
+          "</body>",
+          `<script>(function(){var t,r=false;new EventSource('/__livereload').onmessage=function(){if(r)return;r=true;clearTimeout(t);t=setTimeout(function(){location.reload()},1500)}})()</script></body>`,
         );
       }
       html = rawHtml;
@@ -633,7 +644,7 @@ async function getHtml(ctx) {
       // Build hasn't produced the file yet — return a loading page that auto-retries
       return (
         '<!doctype html><html><head><meta charset="utf-8"><title>Building...</title></head>' +
-        '<body><p>Waiting for build to complete...</p><script>setTimeout(()=>location.reload(),2000)</script></body></html>'
+        "<body><p>Waiting for build to complete...</p><script>setTimeout(()=>location.reload(),2000)</script></body></html>"
       );
     }
   }
@@ -641,7 +652,7 @@ async function getHtml(ctx) {
   const query = ctx.query;
   const requestPath = unscapeHtmlProperty(decodeURIComponent(ctx.path));
 
-  if (requestPath === '/' || requestPath.length === 0) {
+  if (requestPath === "/" || requestPath.length === 0) {
     // Keep basic OG for non-Farcaster while setting Mini App action to homepage embed
     // Use current origin to avoid pointing to production URL in dev.
     const homeFcActionUrl = `${ctx.origin}/$/embed/home`;
@@ -656,7 +667,8 @@ async function getHtml(ctx) {
     ctx.request.url = encodeURIComponent(escapeHtmlProperty(decodeURIComponent(ctx.request.url)));
   }
 
-  const userAgent = ctx && ctx.request && ctx.request.header ? ctx.request.header['user-agent'] : undefined;
+  const userAgent =
+    ctx && ctx.request && ctx.request.header ? ctx.request.header["user-agent"] : undefined;
   const invitePath = `/$/${PAGES.INVITE}/`;
   const embedPath = `/$/${PAGES.EMBED}/`;
   const playlistPath = `/$/${PAGES.PLAYLIST}/`;
@@ -687,7 +699,7 @@ async function getHtml(ctx) {
 
   if (requestPath.includes(embedPath)) {
     // Special-case: homepage embed (early) only when enabled
-    if (requestPath === '/$/embed/home' || requestPath === '/$/embed/home/') {
+    if (requestPath === "/$/embed/home" || requestPath === "/$/embed/home/") {
       const ogMetadata = buildOgMetadata({
         baseUrl: ctx.origin,
         fcActionUrl: `${ctx.origin}/$/embed/home`,
@@ -714,16 +726,25 @@ async function getHtml(ctx) {
 
             if (response && response.items?.at(0) && !response.error) {
               const firstItemClaim = response.items[0];
-              const firstItemPath = firstItemClaim.canonical_url?.replace('lbry://', '/')?.replace(/#/g, ':');
+              const firstItemPath = firstItemClaim.canonical_url
+                ?.replace("lbry://", "/")
+                ?.replace(/#/g, ":");
               const fcActionUrl = `${ctx.origin}/$/embed${firstItemPath}?lid=${collectionClaimId}`;
-              const ogMetadata = await buildClaimOgMetadata(firstItemClaim.canonical_url, firstItemClaim, {
-                userAgent: userAgent,
-                baseUrl: ctx.origin,
-                isEmbed: true,
-                fcActionUrl: fcActionUrl,
-              });
-              const googleVideoMetadata = await buildGoogleVideoMetadata(firstItemClaim.canonical_url, firstItemClaim);
-              return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+              const ogMetadata = await buildClaimOgMetadata(
+                firstItemClaim.canonical_url,
+                firstItemClaim,
+                {
+                  userAgent: userAgent,
+                  baseUrl: ctx.origin,
+                  isEmbed: true,
+                  fcActionUrl: fcActionUrl,
+                },
+              );
+              const googleVideoMetadata = await buildGoogleVideoMetadata(
+                firstItemClaim.canonical_url,
+                firstItemClaim,
+              );
+              return insertToHead(html, ogMetadata.concat("\n", googleVideoMetadata));
             }
           } catch {}
         }
@@ -734,7 +755,7 @@ async function getHtml(ctx) {
 
     // Otherwise, try to resolve an embed claim
     try {
-      const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, ''));
+      const claimUri = normalizeClaimUrl(requestPath.replace(embedPath, ""));
       const claim = await resolveClaimOrRedirect(ctx, claimUri, true);
 
       if (claim) {
@@ -744,7 +765,7 @@ async function getHtml(ctx) {
           isEmbed: true,
         });
         const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
-        return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+        return insertToHead(html, ogMetadata.concat("\n", googleVideoMetadata));
       }
     } catch {}
 
@@ -770,7 +791,9 @@ async function getHtml(ctx) {
           if (response && response.items?.at(0) && !response.error) {
             firstItemClaim = response.items[0];
             // Build fcActionUrl pointing to the first item's embed with lid parameter
-            const firstItemPath = firstItemClaim.canonical_url?.replace('lbry://', '/')?.replace(/#/g, ':');
+            const firstItemPath = firstItemClaim.canonical_url
+              ?.replace("lbry://", "/")
+              ?.replace(/#/g, ":");
             fcActionUrl = `${ctx.origin}/$/embed${firstItemPath}?lid=${collectionClaimId}`;
           }
         } catch {}
@@ -800,7 +823,7 @@ async function getHtml(ctx) {
     return buildSearchPageHead(html, requestPath, encodeURIComponent(escapeHtmlProperty(query.q)));
   }
 
-  if (!requestPath.includes('$')) {
+  if (!requestPath.includes("$")) {
     let parsedUri, claimUri;
     let pathToUse = requestPath.slice(1);
 
@@ -818,17 +841,19 @@ async function getHtml(ctx) {
     const resolved = await resolveSlashUrl(pathToUse);
 
     if (resolved) {
-      const queryString = ctx.querystring ? `?${ctx.querystring}` : '';
+      const queryString = ctx.querystring ? `?${ctx.querystring}` : "";
 
-      if (resolved.type === 'channel') {
+      if (resolved.type === "channel") {
         // Malformed channel URL — redirect to the corrected @-prefixed path
         ctx.redirect(encodeURI(`/@${pathToUse}`) + queryString);
         return;
       }
 
-      if (resolved.type === 'claimid') {
+      if (resolved.type === "claimid") {
         // name/claimid — redirect to canonical URL so the client-side app works
-        const canonicalPath = resolved.claim.canonical_url?.replace('lbry://', '').replace(/#/g, ':');
+        const canonicalPath = resolved.claim.canonical_url
+          ?.replace("lbry://", "")
+          .replace(/#/g, ":");
 
         if (canonicalPath) {
           ctx.redirect(`/${canonicalPath}` + queryString);
@@ -844,7 +869,7 @@ async function getHtml(ctx) {
       claim = await resolveClaimOrRedirect(ctx, claimUri);
     }
 
-    const referrerQuery = escapeHtmlProperty(getParameterByName('r', ctx.request.url));
+    const referrerQuery = escapeHtmlProperty(getParameterByName("r", ctx.request.url));
 
     if (claim) {
       const ogMetadata = await buildClaimOgMetadata(
@@ -854,10 +879,10 @@ async function getHtml(ctx) {
           userAgent: userAgent,
           baseUrl: ctx.origin,
         },
-        referrerQuery
+        referrerQuery,
       );
       const googleVideoMetadata = await buildGoogleVideoMetadata(claimUri, claim);
-      return insertToHead(html, ogMetadata.concat('\n', googleVideoMetadata));
+      return insertToHead(html, ogMetadata.concat("\n", googleVideoMetadata));
     }
   }
 

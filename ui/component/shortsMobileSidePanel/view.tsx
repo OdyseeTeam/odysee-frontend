@@ -1,19 +1,19 @@
-import * as React from 'react';
-import { createPortal } from 'react-dom';
-import { lazyImport } from 'util/lazyImport';
-import * as ICONS from 'constants/icons';
-import FileTitleSection from 'component/fileTitleSection';
-import Empty from 'component/common/empty';
-import Button from 'component/button';
-import { lockBodyScroll, unlockBodyScroll } from 'util/body-scroll-lock';
-import './style.scss';
+import * as React from "react";
+import { createPortal } from "react-dom";
+import { lazyImport } from "util/lazyImport";
+import * as ICONS from "constants/icons";
+import FileTitleSection from "component/fileTitleSection";
+import Empty from "component/common/empty";
+import Button from "component/button";
+import { lockBodyScroll, unlockBodyScroll } from "util/body-scroll-lock";
+import "./style.scss";
 
 const CommentsList = lazyImport(
   () =>
     import(
-      'component/commentsList'
+      "component/commentsList"
       /* webpackChunkName: "comments" */
-    )
+    ),
 );
 
 type Props = {
@@ -53,18 +53,18 @@ export default function MobilePanel(props: Props) {
   }, [onClose]);
   React.useEffect(() => {
     const handleEscape: any = (e) => {
-      if (e.key === 'Escape') {
+      if (e.key === "Escape") {
         handleClose();
       }
     };
 
     if (isOpen) {
-      document.addEventListener('keydown', handleEscape);
+      document.addEventListener("keydown", handleEscape);
       lockBodyScroll();
     }
 
     return () => {
-      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener("keydown", handleEscape);
       if (isOpen) unlockBodyScroll();
     };
   }, [isOpen, handleClose]);
@@ -88,14 +88,16 @@ export default function MobilePanel(props: Props) {
 
     const raf = requestAnimationFrame(() => {
       if (isComments && commentsRef.current) {
+        const contentRect = contentEl.getBoundingClientRect();
+        const commentsRect = commentsRef.current.getBoundingClientRect();
         contentEl.scrollTo({
-          top: commentsRef.current.offsetTop,
-          behavior: 'smooth',
+          top: commentsRect.top - contentRect.top + contentEl.scrollTop,
+          behavior: "smooth",
         });
       } else {
         contentEl.scrollTo({
           top: 0,
-          behavior: 'smooth',
+          behavior: "smooth",
         });
       }
     });
@@ -105,24 +107,26 @@ export default function MobilePanel(props: Props) {
 
   if (!document.body) return null;
   return createPortal(
-    <div className={`shorts-mobile-panel ${isOpen ? 'shorts-mobile-panel--modal-open' : ''}`}>
+    <div className={`shorts-mobile-panel ${isOpen ? "shorts-mobile-panel--modal-open" : ""}`}>
       {(isOpen || isClosing) && (
         <div
-          className={`shorts-mobile-panel__backdrop ${isClosing ? 'shorts-mobile-panel__backdrop--closing' : ''}`}
+          className={`shorts-mobile-panel__backdrop ${isClosing ? "shorts-mobile-panel__backdrop--closing" : ""}`}
           ref={modalRef}
           onClick={handleBackdropClick}
         >
-          <div className={`shorts-mobile-panel__modal ${isClosing ? 'shorts-mobile-panel__modal--closing' : ''}`}>
+          <div
+            className={`shorts-mobile-panel__modal ${isClosing ? "shorts-mobile-panel__modal--closing" : ""}`}
+          >
             <div className="shorts-mobile-panel__header">
               <div className="shorts-mobile-panel__drag-handle" />
               <div className="shorts-mobile-panel__title-section">
-                <div>{isComments ? __('Comments') : __('Video Details')}</div>
+                <div>{isComments ? __("Comments") : __("Video Details")}</div>
                 <Button
                   className="shorts-mobile-panel__close-button"
                   onClick={handleClose}
                   icon={ICONS.REMOVE}
                   iconSize={20}
-                  title={__('Close')}
+                  title={__("Close")}
                 />
               </div>
             </div>
@@ -131,10 +135,10 @@ export default function MobilePanel(props: Props) {
               <FileTitleSection uri={uri} accessStatus={accessStatus} />
 
               <div ref={commentsRef} className="shorts-mobile-panel__comments-section">
-                <h4>{__('Comments')}</h4>
+                <h4>{__("Comments")}</h4>
                 {contentUnlocked &&
                   (commentsDisabled ? (
-                    <Empty padded text={__('The creator of this content has disabled comments.')} />
+                    <Empty padded text={__("The creator of this content has disabled comments.")} />
                   ) : (
                     <React.Suspense fallback={null}>
                       <CommentsList
@@ -151,6 +155,6 @@ export default function MobilePanel(props: Props) {
         </div>
       )}
     </div>,
-    document.body
+    document.body,
   );
 }
