@@ -21,7 +21,7 @@ import analytics from 'analytics';
 import LbcSymbol from 'component/common/lbc-symbol';
 import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import WalletSpendableBalanceHelp from 'component/walletSpendableBalanceHelp';
-import { SIMPLE_SITE, THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
+import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import { sortLanguageMap } from 'util/default-languages';
 import ThumbnailBrokenImage from 'component/selectThumbnail/thumbnail-broken.png';
 import Gerbil from 'component/channelThumbnail/gerbil.png';
@@ -105,7 +105,15 @@ function ChannelForm(props: Props) {
   const [thumbError, setThumbError] = React.useState(false);
   const [bidHasExceededDefaultAmount] = React.useState(Boolean(amount && amount > MINIMUM_PUBLISH_BID));
   const { claim_id: claimId } = claim || {};
-  const [params, setParams]: [any, (arg0: any) => void] = React.useState(getChannelParams());
+  const [params, setParams] = React.useState<any>(() => {
+    const base = getChannelParams();
+    if ((window as any).__pendingChannelEdit) {
+      const pending = (window as any).__pendingChannelEdit;
+      if (pending.coverUrl) base.coverUrl = pending.coverUrl;
+      if (pending.thumbnailUrl) base.thumbnailUrl = pending.thumbnailUrl;
+    }
+    return base;
+  });
   const { channelName } = parseURI(uri);
   const name = params.name;
   const isNewChannel = !uri;
@@ -238,18 +246,21 @@ function ChannelForm(props: Props) {
   }
 
   function handleThumbnailChange(thumbnailUrl: string, uploadSelected: boolean) {
-    setParams({ ...params, thumbnailUrl });
-    setIsUpload({ ...isUpload, thumbnail: uploadSelected });
+    (window as any).__pendingChannelEdit = { ...(window as any).__pendingChannelEdit, thumbnailUrl };
+    setParams((prev) => ({ ...prev, thumbnailUrl }));
+    setIsUpload((prev) => ({ ...prev, thumbnail: uploadSelected }));
     setThumbError(false);
   }
 
   function handleCoverChange(coverUrl: string, uploadSelected: boolean) {
-    setParams({ ...params, coverUrl });
-    setIsUpload({ ...isUpload, cover: uploadSelected });
+    (window as any).__pendingChannelEdit = { ...(window as any).__pendingChannelEdit, coverUrl };
+    setParams((prev) => ({ ...prev, coverUrl }));
+    setIsUpload((prev) => ({ ...prev, cover: uploadSelected }));
     setCoverError(false);
   }
 
   function handleSubmit() {
+    delete (window as any).__pendingChannelEdit;
     if (uri) {
       updateChannel(params).then((success) => {
         if (success) {
@@ -364,7 +375,7 @@ function ChannelForm(props: Props) {
           </div>
         </header>
 
-        <Tabs index={tabIndex}>
+        <Tabs index={tabIndex} onChange={onTabChange}>
           <div
             className={classnames('tab__wrapper', {
               'tab__wrapper--fixed': scrollPast,
@@ -521,7 +532,7 @@ function ChannelForm(props: Props) {
                 body={
                   <div className="publish-row">
                     <TagsSearch
-                      suggestMature={!SIMPLE_SITE}
+                      suggestMature={false}
                       disableAutoFocus
                       limitSelect={MAX_TAG_SELECT}
                       tagsPassedIn={params.tags || []}

@@ -382,24 +382,19 @@ export default function UploadManagerMenu(props: Props) {
   React.useEffect(() => {
     if (allComplete && !pulseSeenRef.current) {
       setPulsing(true);
-      if (open) {
-        const timer = setTimeout(() => setPulsing(false), 3500);
-        pulseSeenRef.current = true;
-        return () => clearTimeout(timer);
-      }
     }
     if (!allComplete) {
       pulseSeenRef.current = false;
       setPulsing(false);
     }
-  }, [allComplete, open]);
+  }, [allComplete]);
 
   React.useEffect(() => {
     if (open && pulsing) {
       setPulsing(false);
       pulseSeenRef.current = true;
     }
-  }, [open]);
+  }, [open, pulsing]);
 
   const readyCount = pipelineItems.filter((item) => item.stage === 'ready').length;
 

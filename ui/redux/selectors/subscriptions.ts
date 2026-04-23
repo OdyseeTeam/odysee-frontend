@@ -20,7 +20,7 @@ const selectState = (state) => state.subscriptions || EMPTY_OBJECT;
 // Returns the list of channel uris a user is subscribed to
 export const selectSubscriptions = createSelector(
   selectState,
-  (state) => state.subscriptions && state.subscriptions.toSorted((a, b) => a.channelName.localeCompare(b.channelName))
+  (state) => state.subscriptions && [...state.subscriptions].sort((a, b) => a.channelName.localeCompare(b.channelName))
 );
 export const selectSubscriptionUris = createSelector(
   selectSubscriptions,

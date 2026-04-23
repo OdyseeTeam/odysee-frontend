@@ -12,7 +12,7 @@ import { useNavigate } from 'react-router-dom';
 import { formatLbryUrlForWeb } from 'util/url';
 import Comments from 'comments';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { makeSelectClaimForUri, selectClaimsById } from 'redux/selectors/claims';
+import { makeSelectClaimForUri, selectClaimsById, selectClaimForUri } from 'redux/selectors/claims';
 import { doResolveUris as doResolveUrisAction, doFetchClaimListMine } from 'redux/actions/claims';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import {
@@ -70,6 +70,10 @@ function TrendIndicator({ value, suffix = '' }: { value: number; suffix?: string
   );
 }
 
+function normalizeUri(u: string) {
+  return u && !u.startsWith('lbry://') ? `lbry://${u}` : u;
+}
+
 export default function CreatorAnalytics(props: Props) {
   const { uri } = props;
   const dispatch = useAppDispatch();
@@ -94,10 +98,19 @@ export default function CreatorAnalytics(props: Props) {
   const claimsById = useAppSelector(selectClaimsById);
   const [channelClaimIds, setChannelClaimIds] = React.useState<string[]>([]);
   const viewCountById = useAppSelector(selectViewCount);
+  const topNewClaim = useAppSelector((state) =>
+    stats?.VideoURITopNew ? selectClaimForUri(state, stats.VideoURITopNew) : undefined
+  );
+  const topCommentClaim = useAppSelector((state) =>
+    stats?.VideoURITopCommentNew ? selectClaimForUri(state, stats.VideoURITopCommentNew) : undefined
+  );
+  const topAllTimeClaim = useAppSelector((state) =>
+    stats?.VideoURITopAllTime ? selectClaimForUri(state, stats.VideoURITopAllTime) : undefined
+  );
 
   React.useEffect(() => {
     if (!claimId) return;
-    dispatch(doFetchClaimListMine(1, 20, true, ['stream'], true, [claimId]));
+    dispatch(doFetchClaimListMine(1, 99999, true, ['stream'], true, [claimId]));
   }, [claimId, dispatch]);
 
   React.useEffect(() => {
@@ -105,9 +118,15 @@ export default function CreatorAnalytics(props: Props) {
     const ids = Object.keys(claimsById)
       .filter((id) => {
         const c = claimsById[id];
-        return c && c.signing_channel?.claim_id === claimId && c.value_type === 'stream';
+        return (
+          c &&
+          c.signing_channel?.claim_id === claimId &&
+          c.value_type === 'stream' &&
+          !id.startsWith('pending-') &&
+          c.confirmations > 0
+        );
       })
-      .toSorted((a, b) => (claimsById[b]?.timestamp || 0) - (claimsById[a]?.timestamp || 0));
+      .sort((a, b) => (claimsById[b]?.timestamp || 0) - (claimsById[a]?.timestamp || 0));
     setChannelClaimIds(ids);
   }, [claimId, claimsById]);
 
@@ -133,6 +152,9 @@ export default function CreatorAnalytics(props: Props) {
       .then((res: ChannelStats) => {
         setStats(res);
         setFetching(false);
+        res.VideoURITopNew = normalizeUri(res.VideoURITopNew);
+        res.VideoURITopCommentNew = normalizeUri(res.VideoURITopCommentNew);
+        res.VideoURITopAllTime = normalizeUri(res.VideoURITopAllTime);
         const uris = [res.VideoURITopNew, res.VideoURITopCommentNew, res.VideoURITopAllTime].filter(Boolean);
         if (uris.length > 0) dispatch(doResolveUrisAction(uris));
       })
@@ -283,7 +305,7 @@ export default function CreatorAnalytics(props: Props) {
           <div className="dashboard__section">
             <h2 className="dashboard__section-title">{__('Top Content')}</h2>
             <div className="dashboard__top-content">
-              {stats.VideoURITopNew && (
+              {stats.VideoURITopNew && topNewClaim && (
                 <div className="dashboard__top-item">
                   <span className="dashboard__top-badge">{__('Trending')}</span>
                   <ClaimPreview uri={stats.VideoURITopNew} />
@@ -297,7 +319,7 @@ export default function CreatorAnalytics(props: Props) {
                 </div>
               )}
 
-              {stats.VideoURITopCommentNew && stats.VideoCommentTopCommentNew > 0 && (
+              {stats.VideoURITopCommentNew && stats.VideoCommentTopCommentNew > 0 && topCommentClaim && (
                 <div className="dashboard__top-item">
                   <span className="dashboard__top-badge">{__('Most Discussed')}</span>
                   <ClaimPreview uri={stats.VideoURITopCommentNew} />
@@ -311,7 +333,7 @@ export default function CreatorAnalytics(props: Props) {
                 </div>
               )}
 
-              {stats.VideoURITopAllTime && (
+              {stats.VideoURITopAllTime && topAllTimeClaim && (
                 <div className="dashboard__top-item">
                   <span className="dashboard__top-badge">{__('All-Time Best')}</span>
                   <ClaimPreview uri={stats.VideoURITopAllTime} />

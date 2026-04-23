@@ -60,7 +60,7 @@ export const selectPublishFormValues = createSelector(
     // in the View. Later, when creating the SDK payload, do the logic below.
     const { languages, ...formValues } = publishState;
     const language = languages && languages.length && languages[0];
-    const { clientSettings } = settingsState;
+    const { clientSettings = {} } = settingsState || {};
     const { language: languageSet } = clientSettings;
     let actualLanguage;
 
@@ -253,6 +253,18 @@ export const selectCurrentUploads = (state: State) => selectState(state).current
 export const selectUploadCount = createSelector(
   selectCurrentUploads,
   (currentUploads) => currentUploads && Object.keys(currentUploads).length
+);
+export const selectActiveUploadActivity = createSelector(
+  selectCurrentUploads,
+  (state: State) => state.publish.pipelineItems,
+  (currentUploads, pipelineItems) => {
+    const legacyCount = currentUploads ? Object.keys(currentUploads).length : 0;
+    const items = pipelineItems ? Object.values(pipelineItems) : [];
+    const activeCount = (items as any[]).filter(
+      (item) => item.stage !== 'published' && item.stage !== 'error' && item.stage !== 'idle'
+    ).length;
+    return legacyCount + activeCount;
+  }
 );
 // ****************************************************************************
 // ****************************************************************************

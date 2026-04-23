@@ -23,7 +23,7 @@ export const selectMutedAndBlockedChannelIds = createSelector(
         if (channelClaimId) uniqueSet.add(channelClaimId);
       } catch {}
     });
-    return Container.Arr.useStableEmpty(Array.from(uniqueSet).toSorted((a, b) => a.localeCompare(b)));
+    return Container.Arr.useStableEmpty([...uniqueSet].sort((a, b) => a.localeCompare(b)));
   }
 );
 export const selectGblAvailable = (state: State) => {

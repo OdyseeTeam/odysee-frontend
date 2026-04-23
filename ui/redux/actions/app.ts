@@ -368,7 +368,7 @@ export function doToggleSearchExpanded() {
     type: ACTIONS.TOGGLE_SEARCH_EXPANDED,
   };
 }
-export function doAnalyticsViewForUri(uri: string) {
+export function doAnalyticsViewForUri(uri: string, preview?: boolean) {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const claim = selectClaimForUri(state, uri);
@@ -385,7 +385,7 @@ export function doAnalyticsViewForUri(uri: string) {
 
     const position = selectContentPositionForUri(state, uri);
 
-    return analytics.apiLog.view(uri, outpoint, claimId, position, undefined);
+    return analytics.apiLog.view(uri, outpoint, claimId, position, undefined, preview);
   };
 }
 
@@ -501,9 +501,19 @@ function doSignOutAction() {
       Lbryio.call('user', 'signout')
         .then(doSignOutCleanup)
         .then(async () => {
+          const volume = getState().app?.volume;
+          const muted = getState().app?.muted;
+          const homepage = getState().settings?.clientSettings?.homepage;
+
           window.persistor.pause();
           await window.persistor.flush();
           await window.persistor.purge();
+
+          try {
+            const localForage = (await import('localforage')).default;
+            const preserved = { volume, muted, homepage };
+            await localForage.setItem('preservedAcrossLogout', preserved);
+          } catch (e) {}
         })
         .catch((err) => {
           analytics.error(`\`doSignOut\`: ${err.message || err}`);

@@ -1,4 +1,3 @@
-import { SIMPLE_SITE } from 'config';
 import * as PAGES from 'constants/pages';
 import React from 'react';
 import { Modal } from 'modal/modal';
@@ -21,27 +20,14 @@ const YoutubeWelcome = () => {
         numberOfPieces={100}
       />
       <Card
-        title={!SIMPLE_SITE ? __("You're free!") : __('Welcome to Odysee')}
+        title={__('Welcome to Odysee')}
         subtitle={
-          !SIMPLE_SITE ? (
-            <React.Fragment>
-              <p>
-                {__("You've escaped the land of spying, censorship, and exploitation.")}
-                <span className="emoji"> 💩</span>
-              </p>
-              <p>
-                {__('Welcome to the land of content freedom.')}
-                <span className="emoji"> 🌈</span>
-              </p>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <p>
-                {__('You make the party extra special!')}
-                <span className="emoji"> 💖</span>
-              </p>
-            </React.Fragment>
-          )
+          <React.Fragment>
+            <p>
+              {__('You make the party extra special!')}
+              <span className="emoji"> 💖</span>
+            </p>
+          </React.Fragment>
         }
         actions={
           <div className="card__actions">

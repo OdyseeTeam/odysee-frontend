@@ -13,6 +13,12 @@ export function doToast(params: ToastParams) {
     throw Error("'params' object is required to create a toast notification");
   }
 
+  const msg = params.message || '';
+  const sub = (params as any).subMessage || '';
+  if (/pending-/.test(msg) || /pending-/.test(sub)) {
+    return { type: 'NOOP' };
+  }
+
   return {
     type: ACTIONS.CREATE_TOAST,
     data: {
@@ -109,7 +115,7 @@ export function doNotificationCategories() {
         dispatch({
           type: ACTIONS.NOTIFICATION_CATEGORIES_COMPLETED,
           data: {
-            notificationCategories: notificationCategories.toReversed(),
+            notificationCategories: notificationCategories.slice().reverse(),
           },
         });
       }

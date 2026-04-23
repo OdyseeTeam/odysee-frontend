@@ -12,7 +12,12 @@ import Card from 'component/common/card';
 import Button from 'component/button';
 import Yrbl from 'component/yrbl';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectHasClaimForId, selectClaimForId, selectGeoRestrictionForUri } from 'redux/selectors/claims';
+import {
+  selectHasClaimForId,
+  selectClaimForId,
+  selectClaimIsPendingForId,
+  selectGeoRestrictionForUri,
+} from 'redux/selectors/claims';
 import {
   selectCollectionForId,
   selectBrokenUrlsForCollectionId,
@@ -57,6 +62,7 @@ const CollectionPage = (props: Props) => {
   const publishPage = editing || publishing;
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
+  const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
   const isResolvingCollection = hasClaim === undefined;
 
   function togglePublicCollection() {
@@ -117,6 +123,14 @@ const CollectionPage = (props: Props) => {
   }
 
   if (!collection && !isResolvingCollection) {
+    if (isClaimPending) {
+      return (
+        <div className="main--empty">
+          <Spinner />
+        </div>
+      );
+    }
+
     return (
       <Page noSideNavigation={isEmbedPath}>
         <div className="main--empty empty">{__('Nothing here')}</div>
@@ -128,12 +142,18 @@ const CollectionPage = (props: Props) => {
     const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
 
     const doReturnForId = (id) => navigate(getPagePath(id));
+    const closePublishView = () => {
+      dispatch(doRemoveUnsavedAction(collectionId));
+      window.location.assign(getPagePath(collectionId));
+    };
 
     return (
       <Page
         noFooter
         noSideNavigation
         backout={{
+          backNavDefault: `/$/${PAGES.PLAYLIST}/${collectionId}`,
+          onBack: closePublishView,
           title: (editing ? __('Editing') : hasClaim ? __('Updating') : __('Publishing')) + ' ' + name,
         }}
       >

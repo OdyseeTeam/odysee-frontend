@@ -36,7 +36,7 @@ export function doRemoveAccountSequence() {
         const id = activeMembershipIds[i];
 
         try {
-          await dispatch(doMembershipCancelForMembershipId(id));
+          await dispatch(doMembershipCancelForMembershipId(id, false));
         } catch (err) {
           analytics.error(`doRemoveAccountSequence: ${err.message || err}`);
           return 'error_occurred';

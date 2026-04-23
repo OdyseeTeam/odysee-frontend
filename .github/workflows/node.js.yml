@@ -129,6 +129,9 @@ jobs:
     needs: [lint, build, docker]
     if: ${{ always() }}
     runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
 
     steps:
       - name: Build Slack payload
@@ -138,45 +141,212 @@ jobs:
           BUILD_RESULT: ${{ needs.build.result }}
           DOCKER_RESULT: ${{ needs.docker.result }}
           WORKFLOW_NAME: ${{ github.workflow }}
+          SERVER_URL: ${{ github.server_url }}
+          API_URL: ${{ github.api_url }}
           REPOSITORY: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          EVENT_NAME: ${{ github.event_name }}
           REF: ${{ github.ref }}
+          REF_NAME: ${{ github.ref_name }}
+          REF_TYPE: ${{ github.ref_type }}
           SHA: ${{ github.sha }}
-          RUN_STARTED_AT: ${{ github.run_started_at }}
           ACTOR: ${{ github.actor }}
           HEAD_COMMIT_AUTHOR_NAME: ${{ github.event.head_commit.author.name }}
           HEAD_COMMIT_AUTHOR_EMAIL: ${{ github.event.head_commit.author.email }}
           PR_USER: ${{ github.event.pull_request.user.login }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_HTML_URL: ${{ github.event.pull_request.html_url }}
+          HEAD_COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          if [[ "$LINT_RESULT" == "failure" || "$BUILD_RESULT" == "failure" || "$DOCKER_RESULT" == "failure" ]]; then
-            STATUS="failure"
-          elif [[ "$LINT_RESULT" == "cancelled" || "$BUILD_RESULT" == "cancelled" || "$DOCKER_RESULT" == "cancelled" ]]; then
-            STATUS="cancelled"
-          else
-            STATUS="success"
-          fi
-
-          AUTHOR="$ACTOR"
-          if [[ -n "$HEAD_COMMIT_AUTHOR_NAME" && -n "$HEAD_COMMIT_AUTHOR_EMAIL" ]]; then
-            AUTHOR="$HEAD_COMMIT_AUTHOR_NAME <$HEAD_COMMIT_AUTHOR_EMAIL>"
-          elif [[ -n "$PR_USER" ]]; then
-            AUTHOR="$PR_USER"
-          fi
-
-          START_EPOCH=$(date -u -d "$RUN_STARTED_AT" +%s)
-          NOW_EPOCH=$(date -u +%s)
-          ELAPSED_MINUTES=$(( (NOW_EPOCH - START_EPOCH + 59) / 60 ))
-          if (( ELAPSED_MINUTES < 1 )); then
-            ELAPSED_MINUTES=1
-          fi
-
-          TEXT=$(printf 'CI/CD\n%s (%s) of %s@%s by %s %s in %s min' "$WORKFLOW_NAME" "${SHA::8}" "$REPOSITORY" "$REF" "$AUTHOR" "$STATUS" "$ELAPSED_MINUTES")
-          export TEXT
           python3 - <<'PY'
+          from datetime import datetime, timezone
           import json
           import os
+          import urllib.request
+          from urllib.parse import quote
+
+          lint_result = os.environ["LINT_RESULT"]
+          build_result = os.environ["BUILD_RESULT"]
+          docker_result = os.environ["DOCKER_RESULT"]
+
+          if "failure" in (lint_result, build_result, docker_result):
+              status = "failed"
+          elif "cancelled" in (lint_result, build_result, docker_result):
+              status = "cancelled"
+          else:
+              status = "succeeded"
+          status_emoji = {
+              "succeeded": ":white_check_mark:",
+              "failed": ":x:",
+              "cancelled": ":warning:",
+          }[status]
+          status_color = {
+              "succeeded": "good",
+              "failed": "danger",
+              "cancelled": "warning",
+          }[status]
+
+          def format_job(name, result):
+              emoji = {
+                  "success": ":white_check_mark:",
+                  "failure": ":x:",
+                  "cancelled": ":warning:",
+                  "skipped": ":fast_forward:",
+              }.get(result, ":grey_question:")
+              return f"{emoji} {name}: {result}"
+
+          def escape_mrkdwn(text):
+              return text.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+          def summarize_commit_message(message):
+              lines = [line.strip() for line in message.splitlines() if line.strip()]
+              return lines[0] if lines else ""
+
+          author = os.environ["ACTOR"]
+          if os.environ.get("HEAD_COMMIT_AUTHOR_NAME") and os.environ.get("HEAD_COMMIT_AUTHOR_EMAIL"):
+              author = f'{os.environ["HEAD_COMMIT_AUTHOR_NAME"]} <{os.environ["HEAD_COMMIT_AUTHOR_EMAIL"]}>'
+          elif os.environ.get("PR_USER"):
+              author = os.environ["PR_USER"]
+          author_text = escape_mrkdwn(author)
+
+          started_at = ""
+          api_url = os.environ.get("API_URL", "")
+          repository = os.environ["REPOSITORY"]
+          run_id = os.environ["RUN_ID"]
+          sha = os.environ["SHA"]
+          github_token = os.environ.get("GITHUB_TOKEN", "")
+          commit_message = summarize_commit_message(os.environ.get("HEAD_COMMIT_MESSAGE", ""))
+
+          if api_url and repository and run_id and github_token:
+              request = urllib.request.Request(
+                  f"{api_url}/repos/{repository}/actions/runs/{run_id}",
+                  headers={
+                      "Authorization": f"Bearer {github_token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=10) as response:
+                      run_data = json.load(response)
+                      started_at = run_data.get("run_started_at") or ""
+              except Exception:
+                  started_at = ""
+
+          if not commit_message and api_url and repository and sha and github_token:
+              request = urllib.request.Request(
+                  f"{api_url}/repos/{repository}/commits/{sha}",
+                  headers={
+                      "Authorization": f"Bearer {github_token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                  },
+              )
+              try:
+                  with urllib.request.urlopen(request, timeout=10) as response:
+                      commit_data = json.load(response)
+                      commit_message = summarize_commit_message(commit_data.get("commit", {}).get("message", ""))
+              except Exception:
+                  commit_message = ""
+
+          duration = "unknown"
+          if started_at:
+              try:
+                  start = datetime.fromisoformat(started_at.replace("Z", "+00:00"))
+                  elapsed_seconds = max(0, int((datetime.now(timezone.utc) - start).total_seconds()))
+                  hours, remainder = divmod(elapsed_seconds, 3600)
+                  minutes, seconds = divmod(remainder, 60)
+                  if hours:
+                      duration = f"{hours}h {minutes}m"
+                  elif minutes:
+                      duration = f"{minutes}m {seconds}s"
+                  else:
+                      duration = f"{seconds}s"
+              except ValueError:
+                  duration = "unknown"
+
+          workflow_name = os.environ["WORKFLOW_NAME"]
+          server_url = os.environ["SERVER_URL"]
+          short_sha = sha[:8]
+          repo_url = f"{server_url}/{repository}"
+          run_url = f"{repo_url}/actions/runs/{run_id}"
+          commit_url = f"{repo_url}/commit/{sha}"
+          commit_message_text = escape_mrkdwn(commit_message) if commit_message else "unknown"
+
+          ref_text = escape_mrkdwn(os.environ["REF"])
+          ref_name = os.environ.get("REF_NAME", "")
+          ref_type = os.environ.get("REF_TYPE", "")
+          event_name = os.environ.get("EVENT_NAME", "")
+          pr_number = os.environ.get("PR_NUMBER", "")
+          pr_html_url = os.environ.get("PR_HTML_URL", "")
+
+          if event_name == "pull_request" and pr_html_url:
+              label = f"PR #{pr_number}" if pr_number else ref_name or "pull request"
+              label = escape_mrkdwn(label)
+              ref_text = f"<{pr_html_url}|{label}>"
+          elif ref_name:
+              ref_name_text = escape_mrkdwn(ref_name)
+              if ref_type == "branch":
+                  ref_url = f"{repo_url}/tree/{quote(ref_name, safe='')}"
+                  ref_text = f"<{ref_url}|{ref_name_text}>"
+              elif ref_type == "tag":
+                  ref_url = f"{repo_url}/releases/tag/{quote(ref_name, safe='')}"
+                  ref_text = f"<{ref_url}|{ref_name_text}>"
+
+          text = (
+              f"CI/CD\n"
+              f"<{run_url}|{workflow_name}> "
+              f"(<{commit_url}|{short_sha}>) of "
+              f"<{repo_url}|{repository}>@{ref_text} by {author_text} "
+              f"{status} in {duration}\n"
+              f"Message: {commit_message_text}"
+          )
+
+          blocks = [
+              {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": f"{status_emoji} *<{run_url}|{workflow_name}>* {status} in *{duration}*",
+                  },
+              },
+              {
+                  "type": "section",
+                  "fields": [
+                      {"type": "mrkdwn", "text": f"*Repository*\n<{repo_url}|{repository}>"},
+                      {"type": "mrkdwn", "text": f"*Ref*\n{ref_text}"},
+                      {"type": "mrkdwn", "text": f"*Commit*\n<{commit_url}|{short_sha}>"},
+                      {"type": "mrkdwn", "text": f"*Author*\n{author_text}"},
+                  ],
+              },
+              {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": f"*Message*\n{commit_message_text}",
+                  },
+              },
+              {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": "\n".join(
+                          [
+                              "*Jobs*",
+                              format_job("Lint", lint_result),
+                              format_job("Build", build_result),
+                              format_job("Docker", docker_result),
+                          ]
+                      ),
+                  },
+              },
+          ]
 
           with open(os.environ["GITHUB_OUTPUT"], "a", encoding="utf-8") as fh:
-              fh.write(f"payload={json.dumps({'text': os.environ['TEXT']})}\n")
+              fh.write(
+                  f"payload={json.dumps({'text': text, 'attachments': [{'color': status_color, 'blocks': blocks}]})}\n"
+              )
           PY
 
       - name: Post to Slack

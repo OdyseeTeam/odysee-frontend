@@ -241,5 +241,6 @@ type DoClaimSearchSettings = {
 };
 
 type ShortUrlResponse = {
-  short_url: string;
+  short_url?: string;
+  shortUrl?: string;
 };

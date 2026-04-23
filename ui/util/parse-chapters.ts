@@ -1,5 +1,5 @@
 function strToSeconds(stime) {
-  const tt = stime.split(':').toReversed();
+  const tt = stime.split(':').reverse();
   return (tt.length >= 3 ? +tt[2] : 0) * 60 * 60 + (tt.length >= 2 ? +tt[1] : 0) * 60 + (tt.length >= 1 ? +tt[0] : 0);
 }
 

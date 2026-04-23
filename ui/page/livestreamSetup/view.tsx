@@ -25,6 +25,7 @@ import { selectPendingLivestreamsForChannelId, selectLivestreamsForChannelId } f
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
 import LivestreamStudio from 'component/livestreamStudio';
+import ClaimPreview from 'component/claimPreview';
 import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
 import usePersistedState from 'effects/use-persisted-state';
 import { WEBRTC_PUBLISH_PRESET_ORDER, type WebrtcPublishPresetId } from 'constants/webrtcPublish';
@@ -177,9 +178,9 @@ export default function LivestreamSetupPage() {
 
       <div className="livestream-setup__header">
         <div className="livestream-setup__heading">
-          <h1 className="livestream-setup__title">
-            <Icon icon={ICONS.LIVESTREAM_MONOCHROME} size={28} />
-            <span>{formTitle}</span>
+          <h1 className="page__title page__title--margin">
+            <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
+            <label>{formTitle}</label>
           </h1>
           <p className="livestream-setup__subtitle">
             {__('Stream directly from your browser or use RTMP with OBS/Restream.')}
@@ -401,6 +402,16 @@ export default function LivestreamSetupPage() {
 
                   {/* Stream Health Metrics */}
                   <LivestreamMetrics metrics={serverMetrics} mode="card" />
+
+                  {/* Recent Streams */}
+                  {totalLivestreamClaims.length > 0 && (
+                    <div className="livestream-setup__recent">
+                      <h3 className="livestream-setup__recent-title">{__('Recent Streams')}</h3>
+                      {totalLivestreamClaims.slice(0, 5).map((c: any) => (
+                        <ClaimPreview key={c.claim_id} uri={c.permanent_url} />
+                      ))}
+                    </div>
+                  )}
 
                   {/* No claims warning */}
                   {totalLivestreamClaims.length === 0 && (

@@ -3,6 +3,7 @@ import analytics from 'analytics';
 import classnames from 'classnames';
 import * as MODALS from 'constants/modal_types';
 import * as ICONS from 'constants/icons';
+import * as PAGES from 'constants/pages';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Tabs, TabList, Tab, TabPanels, TabPanel } from 'component/common/tabs';
 import { Form, Submit, FormErrors } from 'component/common/form';
@@ -88,6 +89,11 @@ const CollectionPublishForm = (props: Props) => {
     JSON.stringify(initialParams.current) !== JSON.stringify(formParams);
   const publishingClaimWithNoChanges = publishing && hasClaim && !collectionHasEdits && !hasChanges;
 
+  function navigateToCollectionView() {
+    const target = `/$/${PAGES.PLAYLIST}/${collectionId}`;
+    window.location.assign(target);
+  }
+
   function updateFormParams(newParams: {}) {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
   }
@@ -111,14 +117,15 @@ const CollectionPublishForm = (props: Props) => {
   }
 
   function handleSubmitForm() {
-    if (!hasChanges) return navigate(-1);
+    if (!hasChanges) return navigateToCollectionView();
     const trimmedParams = { ...formParams };
     if (trimmedParams.title) trimmedParams.title = trimmedParams.title.trim();
     setFormParams(trimmedParams);
 
     if (editing) {
       dispatch(doCollectionEdit(collectionId, trimmedParams));
-      return onDoneForId(collectionId);
+      navigate(`/$/${PAGES.PLAYLIST}/${collectionId}`);
+      return;
     }
 
     if (hasUnavailableClaims) {
@@ -141,7 +148,7 @@ const CollectionPublishForm = (props: Props) => {
 
   function handleCancelButton() {
     dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
-    navigate(-1);
+    navigateToCollectionView();
   }
 
   function onTabChange(newTabIndex) {

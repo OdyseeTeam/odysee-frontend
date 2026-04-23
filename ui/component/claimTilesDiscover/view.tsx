@@ -21,7 +21,7 @@ import { doFetchOdyseeMembershipForChannelIds as doFetchOdyseeMembershipForChann
 import * as SETTINGS from 'constants/settings';
 import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
-import { ENABLE_NO_SOURCE_CLAIMS, SIMPLE_SITE } from 'config';
+import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import { createNormalizedClaimSearchKey } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
 import * as CS from 'constants/claim_search';
@@ -148,7 +148,7 @@ function resolveSearchOptions(resolveProps: any) {
 
   if (streamTypes) {
     streamTypesParam = streamTypes;
-  } else if (SIMPLE_SITE && !hasNoSource && streamTypes !== null) {
+  } else if (!hasNoSource && streamTypes !== null) {
     streamTypesParam = undefined;
   }
 

@@ -70,11 +70,31 @@ export default function useHlsVideoPreview(
   videoRef: React.RefObject<HTMLVideoElement>;
   isReady: boolean;
   isHlsAvailable: boolean | null;
+  progress: number;
+  thumbnailBasePath: string | null;
 } {
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const hlsRef = React.useRef<any>(null);
   const [isReady, setIsReady] = React.useState(false);
   const [isHlsAvailable, setIsHlsAvailable] = React.useState<boolean | null>(null);
+  const [thumbnailBasePath, setThumbnailBasePath] = React.useState<string | null>(null);
+  const [progress, setProgress] = React.useState(0);
+
+  React.useEffect(() => {
+    const video = videoRef.current;
+    if (!isReady || !video) {
+      setProgress(0);
+      return;
+    }
+    const onTime = () => {
+      const dur = video.duration;
+      if (dur && isFinite(dur) && dur > 0) {
+        setProgress(video.currentTime / dur);
+      }
+    };
+    video.addEventListener('timeupdate', onTime);
+    return () => video.removeEventListener('timeupdate', onTime);
+  }, [isReady]);
 
   React.useEffect(() => {
     if (!enabled || (!streamingUrl && !uri)) {
@@ -104,6 +124,7 @@ export default function useHlsVideoPreview(
         }
 
         setIsHlsAvailable(true);
+        setThumbnailBasePath(manifest.basePath);
 
         if (!videoRef.current || !Hls.isSupported()) return;
 
@@ -164,5 +185,5 @@ export default function useHlsVideoPreview(
     };
   }, [enabled, streamingUrl, uri]);
 
-  return { videoRef, isReady, isHlsAvailable };
+  return { videoRef, isReady, isHlsAvailable, progress, thumbnailBasePath };
 }

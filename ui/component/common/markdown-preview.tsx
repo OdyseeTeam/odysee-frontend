@@ -31,7 +31,7 @@ function isEmote(title, src) {
 }
 
 function isStakeEnoughForPreview(stakedLevel) {
-  return !stakedLevel || stakedLevel >= CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS;
+  return !stakedLevel || stakedLevel >= (Number(CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS) || 4);
 }
 
 type SimpleTextProps = {
@@ -239,7 +239,7 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
   // and can lock up pages with 50+ comments containing URLs/timestamps.
   const isCommentBody = Boolean(parentCommentId);
   const remarkPlugins = isCommentBody
-    ? [formattedLinks, formattedEmote, remarkEmoji, remarkBreaks]
+    ? [formattedLinks, formattedTimestamp, formattedEmote, remarkEmoji, remarkBreaks]
     : [
         remarkGfm,
         formattedLinks,

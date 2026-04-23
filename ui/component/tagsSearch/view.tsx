@@ -111,6 +111,7 @@ export default function TagsSearch(props: Props) {
   const INTERNAL_PREFIXES = [PURCHASE_TAG, PURCHASE_TAG_OLD, RENTAL_TAG, RENTAL_TAG_OLD];
 
   for (const tag of selectedTagsSet) {
+    if (!tag) continue;
     INTERNAL_PREFIXES.forEach((prefix) => {
       if (tag.startsWith(prefix)) {
         --countWithoutSpecialTags;

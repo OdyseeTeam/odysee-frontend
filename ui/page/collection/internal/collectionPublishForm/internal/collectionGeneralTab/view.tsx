@@ -1,6 +1,5 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import { SIMPLE_SITE } from 'config';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { COLLECTION_PAGE } from 'constants/urlParams';
@@ -170,7 +169,7 @@ function CollectionGeneralTab(props: Props) {
         body={
           <div className="publish-row">
             <TagsSelect
-              suggestMature={!SIMPLE_SITE}
+              suggestMature={false}
               disableAutoFocus
               hideHeader
               label={__('Selected Tags')}

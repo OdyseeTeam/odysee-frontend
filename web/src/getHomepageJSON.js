@@ -45,14 +45,13 @@ function getHomepageSourceDir() {
 }
 
 function getPreparedHomepageDir() {
-  if (memo.preparedHomepageDir !== undefined) {
+  if (memo.preparedHomepageDir && fs.existsSync(memo.preparedHomepageDir)) {
     return memo.preparedHomepageDir;
   }
 
   const sourceDir = getHomepageSourceDir();
   if (!fs.existsSync(sourceDir)) {
-    memo.preparedHomepageDir = null;
-    return memo.preparedHomepageDir;
+    return null;
   }
 
   const runtimeDir = fs.mkdtempSync(path.join(os.tmpdir(), 'odysee-homepages-'));
@@ -77,20 +76,27 @@ const loadAnnouncements = (homepageKeys) => {
   return announcements;
 };
 
-// this didn't seem to help.
-if (!memo.homepageData) {
-  if (process.env.CUSTOM_HOMEPAGE === 'true') {
-    try {
-      const preparedDir = getPreparedHomepageDir();
-      const customPath = preparedDir && path.join(preparedDir, 'index.cjs');
+function loadHomepageData() {
+  if (process.env.CUSTOM_HOMEPAGE !== 'true' || memo.homepageData) {
+    return;
+  }
 
-      if (!customPath) {
-        throw new Error(`Custom homepage directory not found at ${getHomepageSourceDir()}`);
-      }
+  try {
+    const preparedDir = getPreparedHomepageDir();
+    const customPath = preparedDir && path.join(preparedDir, 'index.cjs');
 
-      memo.homepageData = require(customPath);
-      memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
-    } catch (err) {
+    if (!customPath) {
+      throw new Error(`Custom homepage directory not found at ${getHomepageSourceDir()}`);
+    }
+
+    memo.homepageData = require(customPath);
+    memo.announcements = loadAnnouncements(Object.keys(memo.homepageData));
+    memo.lastLoadError = undefined;
+  } catch (err) {
+    const message = err && err.stack ? err.stack : String(err);
+
+    if (memo.lastLoadError !== message) {
+      memo.lastLoadError = message;
       console.log('getHomepageJSON:', err); // eslint-disable-line no-console
     }
   }
@@ -100,6 +106,8 @@ if (!memo.homepageData) {
 // v1
 // ****************************************************************************
 const getHomepageJsonV1 = () => {
+  loadHomepageData();
+
   if (!memo.homepageData) {
     return {};
   }
@@ -134,6 +142,8 @@ const reformatV2Categories = (categories, format) => {
  * @returns {{}}
  */
 const getHomepageJsonV2 = (format, lang) => {
+  loadHomepageData();
+
   if (!memo.homepageData) {
     return {};
   }

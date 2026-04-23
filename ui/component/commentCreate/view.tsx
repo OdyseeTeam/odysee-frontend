@@ -3,7 +3,6 @@ import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { NavigationPrompt } from 'component/common/navigation-prompt';
 import * as ICONS from 'constants/icons';
@@ -14,7 +13,7 @@ import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CommentSelectors, { SELECTOR_TABS } from './internal/comment-selectors';
-import usePersistedState from 'effects/use-persisted-state';
+
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import { useIsMobile } from 'effects/use-screensize';
 import { StickerReviewBox, StickerActionButton } from './internal/sticker-contents';
@@ -233,7 +232,6 @@ export function CommentCreate(props: Props) {
   const { pathname } = useLocation();
   const { activeArStatus } = useArStatus();
   const isMobile = useIsMobile();
-  const formFieldRef = React.useRef<any>(null);
   const buttonRef = React.useRef<HTMLButtonElement | null>(null);
   const slimInputButtonRef = React.useRef<HTMLDivElement | null>(null);
   const [isSubmitting, setSubmitting] = React.useState(false);
@@ -249,7 +247,7 @@ export function CommentCreate(props: Props) {
   const [tipAmount, setTipAmount] = React.useState(1);
   // const [convertedAmount, setConvertedAmount] = React.useState();
   const [commentValue, setCommentValue] = React.useState('');
-  const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
+
   const [activeTab, setActiveTab] = React.useState<string | undefined>();
   const [tipError, setTipError] = React.useState<any>();
   const [deletedComment, setDeletedComment] = React.useState(false);
@@ -292,9 +290,49 @@ export function CommentCreate(props: Props) {
     disableInput;
   const minUSDAmountRef = React.useRef(minUSDAmount);
   minUSDAmountRef.current = minUSDAmount;
-  const addEmoteToComment = React.useCallback((emote: string) => {
-    setCommentValue((prev) => prev + (prev && prev.charAt(prev.length - 1) !== ' ' ? ` ${emote} ` : `${emote} `));
-  }, []);
+  const cursorPosRef = React.useRef<number | null>(null);
+  React.useEffect(() => {
+    const cls = isReply ? 'create__reply' : 'create__comment';
+    const textarea = document.querySelector<HTMLTextAreaElement>(`.${cls} textarea, textarea.${cls}, textarea#${cls}`);
+    if (!textarea) return;
+    const saveCursor = () => {
+      cursorPosRef.current = textarea.selectionStart;
+    };
+    textarea.addEventListener('keyup', saveCursor);
+    textarea.addEventListener('click', saveCursor);
+    textarea.addEventListener('blur', saveCursor);
+    return () => {
+      textarea.removeEventListener('keyup', saveCursor);
+      textarea.removeEventListener('click', saveCursor);
+      textarea.removeEventListener('blur', saveCursor);
+    };
+  });
+  const addEmoteToComment = React.useCallback(
+    (emote: string) => {
+      const cls = isReply ? 'create__reply' : 'create__comment';
+      const textarea = document.querySelector<HTMLTextAreaElement>(
+        `.${cls} textarea, textarea.${cls}, textarea#${cls}`
+      );
+      const pos = cursorPosRef.current ?? textarea?.value?.length ?? 0;
+
+      setCommentValue((prev) => {
+        const before = prev.substring(0, pos);
+        const after = prev.substring(pos);
+        const spaceBefore = before.length > 0 && before.charAt(before.length - 1) !== ' ' ? ' ' : '';
+        const spaceAfter = after.length > 0 && after.charAt(0) !== ' ' ? ' ' : '';
+        const insertion = spaceBefore + emote + spaceAfter;
+        const newPos = pos + insertion.length;
+        requestAnimationFrame(() => {
+          if (textarea) {
+            textarea.focus();
+            textarea.setSelectionRange(newPos, newPos);
+          }
+        });
+        return before + insertion + after;
+      });
+    },
+    [isReply]
+  );
   const handleSelectSticker = React.useCallback(
     (sticker: any) => {
       setSelectedSticker(sticker);
@@ -818,9 +856,9 @@ export function CommentCreate(props: Props) {
   // Handle keyboard shortcut comment creation
   React.useEffect(() => {
     function altEnterListener(e: any) {
-      const inputRef = formFieldRef && formFieldRef.current && formFieldRef.current.input;
+      const inputEl = document.getElementById(isReply ? 'create__reply' : 'create__comment');
 
-      if (inputRef && inputRef.current === document.activeElement) {
+      if (inputEl && inputEl === document.activeElement) {
         const isTyping = Boolean(e.target.attributes['typing-term']);
 
         if (((isLivestream && !isTyping) || e.ctrlKey || e.metaKey) && e.keyCode === KEYCODES.ENTER) {
@@ -829,7 +867,8 @@ export function CommentCreate(props: Props) {
         }
 
         if (isLivestream && isTyping && e.keyCode === KEYCODES.ENTER) {
-          inputRef.current.removeAttribute('typing-term');
+          const inputEl = document.getElementById(isReply ? 'create__reply' : 'create__comment');
+          if (inputEl) inputEl.removeAttribute('typing-term');
         }
       }
     }
@@ -855,7 +894,13 @@ export function CommentCreate(props: Props) {
             ? commentValue + textInjection + ' '
             : commentValue + ' ' + textInjection + ' '
       );
-      return formFieldRef?.current?.input?.current?.focus();
+      requestAnimationFrame(() => {
+        const cls = isReply ? 'create__reply' : 'create__comment';
+        const textarea = document.querySelector<HTMLTextAreaElement>(
+          `.${cls} textarea, textarea.${cls}, textarea#${cls}`
+        );
+        if (textarea) textarea.focus();
+      });
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [textInjection]);
   const notAuthedToLiveChat = Boolean(
@@ -990,7 +1035,7 @@ export function CommentCreate(props: Props) {
                 )
               }
               name={isReply ? 'create__reply' : 'create__comment'}
-              onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
+              onChange={(e) => setCommentValue(e.target.value)}
               handleTip={() => handleSelectTipComment(TAB_USD)}
               handleSubmit={handleCreateComment}
               slimInput={isMobile && !!uri} // "uri": make sure it's on a file page
@@ -1002,13 +1047,10 @@ export function CommentCreate(props: Props) {
               showSelectors={showSelectors}
               tipModalOpen={tipModalOpen}
               placeholder={__(commentLabelText)}
-              quickActionHandler={!SIMPLE_SITE ? () => setAdvancedEditor(!advancedEditor) : undefined}
-              quickActionLabel={
-                !SIMPLE_SITE && (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
-              }
-              ref={formFieldRef}
+              quickActionHandler={undefined}
+              quickActionLabel={undefined}
               textAreaMaxLength={isLivestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
-              type={!SIMPLE_SITE && advancedEditor && !isReply ? 'markdown' : 'textarea'}
+              type={'textarea'}
               value={commentValue}
               uri={uri}
             />

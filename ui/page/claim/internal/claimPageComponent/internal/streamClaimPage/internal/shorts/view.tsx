@@ -30,6 +30,8 @@ import { doFileGetForUri as doFileGetForUriAction } from 'redux/actions/file';
 import {
   selectClaimIsNsfwForUri,
   selectClaimForUri,
+  selectClaimIsMineForUri,
+  selectIsUriUnlisted,
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
   selectTitleForUri,
@@ -312,7 +314,13 @@ export default function ShortsPage(props: Props) {
     },
     [dispatch, fetchForMode, setLocalViewMode]
   );
+  const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
+  const isUnlisted = useAppSelector((state) => selectIsUriUnlisted(state, uri));
   const handleShareClick = React.useCallback(() => {
+    if (isUnlisted && !claimIsMine) {
+      return;
+    }
+
     dispatch(
       doOpenModalAction(MODALS.SOCIAL_SHARE, {
         uri,
@@ -320,7 +328,7 @@ export default function ShortsPage(props: Props) {
         collectionId,
       })
     );
-  }, [dispatch, uri, webShareable, collectionId]);
+  }, [claimIsMine, collectionId, dispatch, isUnlisted, uri, webShareable]);
   const handleCommentsClick = React.useCallback(() => {
     if (sidePanelOpen && panelMode === 'comments') {
       dispatch(doSetShortsSidePanelAction(false));

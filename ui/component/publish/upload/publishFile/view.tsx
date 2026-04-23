@@ -1,4 +1,4 @@
-import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB, SIMPLE_SITE } from 'config';
+import { SITE_NAME, WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import * as ICONS from 'constants/icons';
 import { BITRATE } from 'constants/publish';
 import React, { useEffect } from 'react';
@@ -286,9 +286,7 @@ function PublishFile(props: Props) {
                 disabled={disabled}
                 currentPath={currentPath}
                 onFileChosen={handleFileChange}
-                placeholder={
-                  SIMPLE_SITE ? __('Select video, audio or image file to upload') : __('Select a file to upload')
-                }
+                placeholder={__('Select video, audio or image file to upload')}
                 autoFocus
               />
               {/* Inline codec/format info strip */}

@@ -14,7 +14,7 @@ import { doToast } from 'redux/actions/notifications';
 import './style.lazy.scss';
 
 const DEFAULT_PERCENTAGES = [0.1, 0.25, 0.5, 0.75, 0.9];
-const THUMBNAIL_WIDTH = 320;
+const THUMBNAIL_MAX_WIDTH = 1920;
 
 type FrameData = {
   blobUrl: string;
@@ -34,14 +34,18 @@ function formatTimestamp(seconds: number): string {
 type Props = {
   filePath?: File;
   hasVideo?: boolean;
+  remoteVideoUrl?: string;
+  imageFile?: File;
   onThumbnailSelected?: (thumbnailUrl: string) => void;
 };
 
 function ThumbnailPicker(props: Props) {
-  const { filePath, hasVideo = false, onThumbnailSelected } = props;
+  const { filePath, hasVideo = false, remoteVideoUrl, imageFile, onThumbnailSelected } = props;
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploadedThumbUrl, setUploadedThumbUrl] = useState<string | null>(null);
   const [urlThumbUrl, setUrlThumbUrl] = useState<string | null>(null);
+  const currentThumbnail = useAppSelector((state) => state.publish.thumbnail);
+  const editingURI = useAppSelector((state) => state.publish.editingURI);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState('');
   const dispatch = useAppDispatch();
@@ -57,6 +61,9 @@ function ThumbnailPicker(props: Props) {
   const [manualTimestamp, setManualTimestamp] = useState(0);
   const [manualFrame, setManualFrame] = useState<FrameData | null>(null);
   const [manualLoading, setManualLoading] = useState(false);
+  const [extractorExpanded, setExtractorExpanded] = useState(false);
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const expandedVideoRef = useRef<HTMLVideoElement>(null);
 
   const inputRef = useRef<Input | null>(null);
   const frameUrlsRef = useRef<string[]>([]);
@@ -97,6 +104,10 @@ function ThumbnailPicker(props: Props) {
       URL.revokeObjectURL(manualVideoUrlRef.current);
       manualVideoUrlRef.current = null;
     }
+    setImagePreviewUrl((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return null;
+    });
   }, [cleanupFrameUrls, cleanupInput, cleanupManualFrame]);
 
   const extractFrames = useCallback(
@@ -179,9 +190,55 @@ function ThumbnailPicker(props: Props) {
           setError(__('Could not extract any frames from the video.'));
         }
       } catch (err) {
-        console.warn('[ThumbnailPicker] Frame extraction not supported for this format'); // eslint-disable-line no-console
+        console.warn('[ThumbnailPicker] WebCodecs failed, falling back to video element'); // eslint-disable-line no-console
         cleanupFrameUrls(newFrameUrls);
-        if (extractionId === extractionIdRef.current) {
+        if (extractionId === extractionIdRef.current && filePath) {
+          try {
+            const videoUrl = URL.createObjectURL(filePath);
+            const video = document.createElement('video');
+            video.muted = true;
+            video.preload = 'auto';
+            video.src = videoUrl;
+            await new Promise<void>((resolve, reject) => {
+              video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+              video.addEventListener('error', () => reject(new Error('Failed to load video')), { once: true });
+            });
+            const dur = video.duration;
+            if (extractionId === extractionIdRef.current) setDuration(dur);
+            const timestamps = percentages.map((p) => p * dur);
+            const fallbackFrames: FrameData[] = [];
+            const fallbackUrls: string[] = [];
+            for (const ts of timestamps) {
+              if (extractionId !== extractionIdRef.current) break;
+              video.currentTime = ts;
+              await new Promise<void>((resolve) => {
+                video.addEventListener('seeked', () => resolve(), { once: true });
+              });
+              const canvas = new OffscreenCanvas(video.videoWidth || 320, video.videoHeight || 180);
+              const ctx = canvas.getContext('2d');
+              if (ctx) {
+                ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+                const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+                const blobUrl = URL.createObjectURL(blob);
+                fallbackUrls.push(blobUrl);
+                fallbackFrames.push({ blobUrl, blob, timestamp: ts, label: formatTimestamp(ts) });
+              }
+            }
+            URL.revokeObjectURL(videoUrl);
+            if (extractionId === extractionIdRef.current) {
+              frameUrlsRef.current = fallbackUrls;
+              setFrames(fallbackFrames);
+              if (fallbackFrames.length > 0) {
+                setSelectedIndex(0);
+                uploadFrame(fallbackFrames[0]);
+              }
+            } else {
+              fallbackUrls.forEach((u) => URL.revokeObjectURL(u));
+            }
+          } catch {
+            if (extractionId === extractionIdRef.current) setExtractionFailed(true);
+          }
+        } else if (extractionId === extractionIdRef.current) {
           setExtractionFailed(true);
         }
       } finally {
@@ -199,12 +256,88 @@ function ThumbnailPicker(props: Props) {
     [cleanupFrameUrls, cleanupInput, filePath]
   );
 
+  const extractRemoteFrames = useCallback(
+    async (videoUrl: string, percentages: number[]) => {
+      const extractionId = extractionIdRef.current + 1;
+      extractionIdRef.current = extractionId;
+      setLoading(true);
+      setError(null);
+      setExtractionFailed(false);
+      setSelectedIndex(null);
+      setFrames([]);
+      cleanupFrameUrls();
+
+      try {
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.muted = true;
+        video.preload = 'auto';
+        video.src = videoUrl;
+
+        await new Promise<void>((resolve, reject) => {
+          video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+          video.addEventListener('error', () => reject(new Error('Failed to load video')), { once: true });
+        });
+
+        const dur = video.duration;
+        if (extractionId === extractionIdRef.current) setDuration(dur);
+        const timestamps = percentages.map((p) => p * dur);
+        const newFrames: FrameData[] = [];
+        const newUrls: string[] = [];
+
+        for (const ts of timestamps) {
+          if (extractionId !== extractionIdRef.current) break;
+          video.currentTime = ts;
+          await new Promise<void>((resolve) => {
+            video.addEventListener('seeked', () => resolve(), { once: true });
+          });
+          const canvas = new OffscreenCanvas(video.videoWidth || 320, video.videoHeight || 180);
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const blob = await canvas.convertToBlob({ type: 'image/jpeg', quality: 0.9 });
+            const blobUrl = URL.createObjectURL(blob);
+            newUrls.push(blobUrl);
+            newFrames.push({ blobUrl, blob, timestamp: ts, label: formatTimestamp(ts) });
+          }
+        }
+
+        if (extractionId === extractionIdRef.current) {
+          frameUrlsRef.current = newUrls;
+          setFrames(newFrames);
+          if (newFrames.length > 0) {
+            setSelectedIndex(0);
+            uploadFrame(newFrames[0]);
+          }
+        }
+      } catch {
+        if (extractionId === extractionIdRef.current) {
+          setExtractionFailed(true);
+        }
+      }
+
+      if (extractionId === extractionIdRef.current) setLoading(false);
+    },
+    [cleanupFrameUrls]
+  );
+
   useEffect(() => {
     setMode('auto');
     setManualTimestamp(0);
     setManualFrame(null);
-    if (hasVideo && filePath) {
+    if (editingURI && currentThumbnail) {
+      setSelectedIndex(-4);
+      setLoading(false);
+    } else if (hasVideo && filePath) {
       extractFrames(DEFAULT_PERCENTAGES);
+    } else if (hasVideo && remoteVideoUrl) {
+      extractRemoteFrames(remoteVideoUrl, DEFAULT_PERCENTAGES);
+    } else if (imageFile) {
+      const url = URL.createObjectURL(imageFile);
+      setImagePreviewUrl(url);
+      setSelectedIndex(-5);
+      setLoading(false);
+      uploadFrame({ blobUrl: url, blob: imageFile, timestamp: 0, label: __('Source image') });
     } else {
       setLoading(false);
     }
@@ -213,10 +346,10 @@ function ThumbnailPicker(props: Props) {
       cleanup();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filePath]);
+  }, [filePath, remoteVideoUrl, imageFile]);
 
   function handleRegenerate() {
-    const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).toSorted((a, b) => a - b);
+    const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).sort((a, b) => a - b);
     extractFrames(randomPercentages);
   }
 
@@ -311,7 +444,7 @@ function ThumbnailPicker(props: Props) {
   async function captureCustomFrame(): Promise<FrameData | null> {
     const video = manualVideoRef.current;
     if (!video || !video.videoWidth) return null;
-    const scale = Math.min(1, THUMBNAIL_WIDTH / video.videoWidth);
+    const scale = Math.min(1, THUMBNAIL_MAX_WIDTH / video.videoWidth);
     const w = Math.round(video.videoWidth * scale);
     const h = Math.round(video.videoHeight * scale);
     const canvas = new OffscreenCanvas(w, h);
@@ -470,7 +603,44 @@ function ThumbnailPicker(props: Props) {
                     </div>
                   )}
                 </button>
-                {hasVideo && filePath && !extractionFailed && (
+                {editingURI && currentThumbnail && (
+                  <button
+                    className={
+                      'thumbnail-picker__item' + (selectedIndex === -4 ? ' thumbnail-picker__item--selected' : '')
+                    }
+                    onClick={() => {
+                      setSelectedIndex(-4);
+                      onThumbnailSelected?.(currentThumbnail);
+                    }}
+                    type="button"
+                  >
+                    <img src={currentThumbnail} className="thumbnail-picker__image" alt={__('Current thumbnail')} />
+                    <span className="thumbnail-picker__label">{__('Current')}</span>
+                  </button>
+                )}
+                {imagePreviewUrl && (
+                  <button
+                    className={
+                      'thumbnail-picker__item' + (selectedIndex === -5 ? ' thumbnail-picker__item--selected' : '')
+                    }
+                    onClick={() => {
+                      setSelectedIndex(-5);
+                      if (imageFile) {
+                        uploadFrame({
+                          blobUrl: imagePreviewUrl,
+                          blob: imageFile,
+                          timestamp: 0,
+                          label: __('Source image'),
+                        });
+                      }
+                    }}
+                    type="button"
+                  >
+                    <img src={imagePreviewUrl} className="thumbnail-picker__image" alt={__('Source image')} />
+                    <span className="thumbnail-picker__label">{__('Source')}</span>
+                  </button>
+                )}
+                {hasVideo && (filePath || remoteVideoUrl) && !extractionFailed && (
                   <button
                     className={
                       'thumbnail-picker__item thumbnail-picker__item--custom' +
@@ -487,14 +657,21 @@ function ThumbnailPicker(props: Props) {
                       ref={(el) => {
                         manualVideoRef.current = el;
                         if (el && !manualVideoUrlRef.current) {
-                          manualVideoUrlRef.current = URL.createObjectURL(filePath);
-                          el.src = manualVideoUrlRef.current;
-                          el.currentTime = 0;
+                          if (filePath) {
+                            manualVideoUrlRef.current = URL.createObjectURL(filePath);
+                          } else if (remoteVideoUrl) {
+                            manualVideoUrlRef.current = remoteVideoUrl;
+                          }
+                          if (manualVideoUrlRef.current) {
+                            el.src = manualVideoUrlRef.current;
+                            el.currentTime = 0;
+                          }
                         }
                       }}
                       className="thumbnail-picker__custom-video"
                       muted
                       playsInline
+                      disablePictureInPicture
                     />
                     <div className="thumbnail-picker__custom-overlay">
                       <Icon icon={ICONS.CAMERA} size={24} />
@@ -523,6 +700,30 @@ function ThumbnailPicker(props: Props) {
                         if (frame) uploadFrame(frame);
                       }}
                     />
+                    <button
+                      className="thumbnail-picker__expand-btn"
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setExtractorExpanded(true);
+                      }}
+                    >
+                      <svg
+                        width={14}
+                        height={14}
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth={2.5}
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <polyline points="15 3 21 3 21 9" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </svg>
+                    </button>
                   </button>
                 )}
                 {frames.map((frame, index) => (
@@ -643,6 +844,64 @@ function ThumbnailPicker(props: Props) {
           )}
         </div>
       )}
+
+      {extractorExpanded && (filePath || remoteVideoUrl) && (
+        <div className="thumbnail-picker__lightbox" onClick={() => setExtractorExpanded(false)}>
+          <div className="thumbnail-picker__lightbox-content" onClick={(e) => e.stopPropagation()}>
+            <video
+              ref={(el) => {
+                expandedVideoRef.current = el;
+                if (el && manualVideoUrlRef.current) {
+                  el.src = manualVideoUrlRef.current;
+                  el.currentTime = manualTimestamp;
+                }
+              }}
+              className="thumbnail-picker__lightbox-video"
+              muted
+              playsInline
+              disablePictureInPicture
+            />
+            <input
+              className="thumbnail-picker__lightbox-slider"
+              type="range"
+              min={0}
+              max={duration || 1}
+              step={Math.max((duration || 1) / 500, 0.1)}
+              value={manualTimestamp}
+              onChange={(e) => {
+                const ts = Number(e.target.value);
+                setManualTimestamp(ts);
+                if (expandedVideoRef.current) expandedVideoRef.current.currentTime = ts;
+                if (manualVideoRef.current) manualVideoRef.current.currentTime = ts;
+              }}
+            />
+            <div className="thumbnail-picker__lightbox-info">
+              <span className="thumbnail-picker__lightbox-timestamp">{formatTimestamp(manualTimestamp)}</span>
+            </div>
+            <div className="thumbnail-picker__lightbox-actions">
+              <Button
+                button="primary"
+                label={uploading ? __('Uploading...') : __('Use this frame')}
+                disabled={uploading}
+                onClick={async () => {
+                  setSelectedIndex(-1);
+                  const frame = await captureCustomFrame();
+                  if (frame) uploadFrame(frame);
+                  setExtractorExpanded(false);
+                }}
+              />
+              <Button button="secondary" label={__('Close')} onClick={() => setExtractorExpanded(false)} />
+            </div>
+            <button
+              className="thumbnail-picker__lightbox-close"
+              type="button"
+              onClick={() => setExtractorExpanded(false)}
+            >
+              <Icon icon={ICONS.REMOVE} size={20} />
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -656,7 +915,7 @@ async function videoSampleToBlob(sample: VideoSample): Promise<Blob | null> {
       return null;
     }
 
-    const scale = Math.min(1, THUMBNAIL_WIDTH / width);
+    const scale = Math.min(1, THUMBNAIL_MAX_WIDTH / width);
     const canvasWidth = Math.round(width * scale);
     const canvasHeight = Math.round(height * scale);
 

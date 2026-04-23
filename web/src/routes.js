@@ -59,6 +59,81 @@ const fcManifestMiddleware = async (ctx) => {
   ctx.body = manifest;
 };
 
+router.get(`/$/favicon`, async (ctx) => {
+  const domain = ctx.query.d;
+  if (!domain || typeof domain !== 'string' || !/^[a-z0-9.-]+$/i.test(domain)) {
+    ctx.status = 400;
+    return;
+  }
+
+  const faviconCache = router._faviconCache || (router._faviconCache = new Map());
+  const cached = faviconCache.get(domain);
+  if (cached) {
+    if (cached.status === 404) {
+      ctx.status = 404;
+      ctx.body = '';
+      return;
+    }
+    ctx.set('Content-Type', cached.contentType);
+    ctx.set('Cache-Control', 'public, max-age=604800');
+    ctx.body = cached.buffer;
+    return;
+  }
+
+  async function tryFetch(url) {
+    const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(2000) });
+    if (res.ok) {
+      const ct = res.headers.get('content-type') || '';
+      if (ct.startsWith('image/') || ct.includes('icon')) {
+        return { buffer: Buffer.from(await res.arrayBuffer()), contentType: ct };
+      }
+    }
+    return null;
+  }
+
+  function serve(result) {
+    faviconCache.set(domain, result);
+    ctx.set('Content-Type', result.contentType);
+    ctx.set('Cache-Control', 'public, max-age=604800');
+    ctx.body = result.buffer;
+  }
+
+  // Try common paths in parallel
+  const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
+  const results = await Promise.allSettled(paths.map((p) => tryFetch(`https://${domain}${p}`)));
+  for (const r of results) {
+    if (r.status === 'fulfilled' && r.value) {
+      serve(r.value);
+      return;
+    }
+  }
+
+  // Fallback: parse HTML for <link rel="icon">
+  try {
+    const html = await fetch(`https://${domain}`, { redirect: 'follow', signal: AbortSignal.timeout(3000) }).then((r) =>
+      r.text()
+    );
+    const match =
+      html.match(/<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i) ||
+      html.match(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i);
+    if (match && match[1]) {
+      let iconUrl = match[1];
+      if (iconUrl.startsWith('//')) iconUrl = 'https:' + iconUrl;
+      else if (iconUrl.startsWith('/')) iconUrl = `https://${domain}${iconUrl}`;
+      else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
+      const result = await tryFetch(iconUrl);
+      if (result) {
+        serve(result);
+        return;
+      }
+    }
+  } catch {}
+
+  faviconCache.set(domain, { status: 404 });
+  ctx.status = 404;
+  ctx.body = '';
+});
+
 router.get(`/$/minVersion/v1/get`, async (ctx) => getMinVersion(ctx));
 router.get(`/$/api/content/v1/get`, async (ctx) => getHomepage(ctx, 1));
 router.get(`/$/api/content/v2/get`, async (ctx) => getHomepage(ctx, 2));
@@ -84,8 +159,12 @@ router.get(`/$/activate`, async (ctx) => {
 // to add a path for a temp file on the server, customize this path
 router.get('/.well-known/farcaster.json', fcManifestMiddleware);
 router.get('/.well-known/:filename', tempfileMiddleware);
+router.get(`/rss/:claimName/:claimId`, rssMiddleware);
+router.get(`/rss/:claimName::claimId`, rssMiddleware);
+router.get(`/rss/:channelRef`, rssMiddleware);
 router.get(`/$/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/$/rss/:claimName::claimId`, rssMiddleware);
+router.get(`/$/rss/:channelRef`, rssMiddleware);
 router.get(`/$/oembed`, oEmbedMiddleware);
 router.get(`/$/spinner`, async (ctx) => {
   ctx.set('Content-Type', 'text/html');

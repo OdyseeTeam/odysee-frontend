@@ -314,6 +314,8 @@ reach-portal {
   }
 
   &:hover {
+    color: var(--color-primary-contrast) !important;
+
     .icon {
       stroke: var(--color-primary-contrast);
       margin-right: var(--spacing-s);

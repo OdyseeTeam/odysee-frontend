@@ -23,7 +23,7 @@ type Props = {
   activeArStatus?: any;
 };
 
-const sortByDateDesc = (txs) => [...txs].toSorted((a, b) => b.date - a.date);
+const sortByDateDesc = (txs) => [...txs].sort((a, b) => b.date - a.date);
 
 const isValidArweaveAddress = (address) => /^[A-Za-z0-9_-]{43}$/.test(String(address));
 

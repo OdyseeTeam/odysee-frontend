@@ -1,7 +1,6 @@
 import React from 'react';
 import Skeleton from '@mui/material/Skeleton';
-import { SIMPLE_SITE } from 'config';
-import HelpLink from 'component/common/help-link';
+
 import Tooltip from 'component/common/tooltip';
 import { toCompactNotation } from 'util/string';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -63,7 +62,6 @@ function FileViewCount(props: Props) {
       <span className="media__subtitle--centered">
         {isLivestreamClaim && getLivestreamViewCountElem()}
         {!isLivestreamClaim && activeViewers === undefined && getRegularViewCountElem()}
-        {!SIMPLE_SITE && <HelpLink href="https://help.odysee.tv/category-basics/" />}
       </span>
     </Tooltip>
   );

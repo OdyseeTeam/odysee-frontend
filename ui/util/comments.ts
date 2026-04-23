@@ -20,7 +20,7 @@ type SortProps = {
 export function sortComments(sortProps: SortProps): Array<CommentItem> {
   const { comments, reactionsById, sort, isMyComment } = sortProps;
   if (!comments) return [];
-  return comments.slice().toSorted((a: CommentItem, b: CommentItem) => {
+  return comments.slice().sort((a: CommentItem, b: CommentItem) => {
     if (a.is_pinned) {
       return -1;
     } else if (b.is_pinned) {

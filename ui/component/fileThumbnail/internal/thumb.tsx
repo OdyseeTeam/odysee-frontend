@@ -13,6 +13,7 @@ type Props = {
   hoverHandlers?: {
     onMouseEnter?: () => void;
     onMouseLeave?: () => void;
+    onMouseMove?: (e: React.MouseEvent) => void;
   };
 };
 

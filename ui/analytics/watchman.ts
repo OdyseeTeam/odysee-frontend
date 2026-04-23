@@ -7,7 +7,7 @@ let gWatchmanAnalyticsEnabled = false;
 // variables initialized for watchman
 let amountOfBufferEvents = 0;
 let amountOfBufferTimeInMS = 0;
-let videoType, userId, claimUrl, playerPoweredBy, videoPlayer, bitrateAsBitsPerSecond, isLivestream;
+let videoType, userId, claimUrl, playerPoweredBy, videoPlayer, bitrateAsBitsPerSecond, isLivestream, isPreview;
 let lastSentTime;
 
 // calculate data for backend, send them, and reset buffer data for next interval
@@ -57,6 +57,7 @@ async function sendAndResetWatchmanData() {
     rel_position: isLivestream ? 0 : Math.round((positionInVideo / (totalDurationInSeconds * 1000)) * 100),
     bitrate: bitrateAsBitsPerSecond,
     bandwidth: undefined, // ...(userDownloadBandwidthInBitsPerSecond && {bandwidth: userDownloadBandwidthInBitsPerSecond}), // add bandwidth if populated
+    ...(isPreview ? { preview: true } : {}),
   };
   // post to watchman
   await sendWatchmanData(objectToSend);
@@ -113,7 +114,8 @@ export type Watchman = {
     arg4: string,
     arg5: any,
     arg6: number | null | undefined,
-    arg7: boolean
+    arg7: boolean,
+    arg8?: boolean
   ) => void;
   videoIsPlaying: (arg0: boolean, arg1: any) => void;
   videoBufferEvent: (
@@ -178,13 +180,14 @@ export const watchman: Watchman = {
     canonicalUrl,
     passedPlayer,
     videoBitrate,
-    isLivestreamClaim
+    isLivestreamClaim,
+    isPreviewPlay
   ) => {
-    // populate values for watchman when video starts
     userId = passedUserId;
     claimUrl = canonicalUrl;
     playerPoweredBy = poweredBy;
     isLivestream = isLivestreamClaim;
+    isPreview = !!isPreviewPlay;
     videoType =
       typeof passedPlayer.currentSource === 'function'
         ? passedPlayer.currentSource().type

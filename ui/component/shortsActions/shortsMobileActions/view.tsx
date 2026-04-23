@@ -10,7 +10,7 @@ import * as REACTION_TYPES from 'constants/reactions';
 import Counter from 'component/counter';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
-import { selectPermanentUrlForUri, selectChannelForClaimUri } from 'redux/selectors/claims';
+import { selectPermanentUrlForUri, selectChannelForClaimUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
 import { doChannelSubscribe, doChannelUnsubscribe } from 'redux/actions/subscriptions';
 
 type Props = {
@@ -49,6 +49,7 @@ const MobileActions = (props: Props) => {
   } = props;
   const dispatch = useAppDispatch();
   const channelUrl = useAppSelector((state) => (uri ? selectChannelForClaimUri(state, uri, true) : undefined));
+  const claimIsMine = useAppSelector((state) => selectClaimIsMineForUri(state, uri));
   const isSubscribed = useAppSelector((state) => (channelUrl ? selectIsSubscribedForUri(state, channelUrl) : false));
   const channelPermanentUrl = useAppSelector((state) =>
     channelUrl ? selectPermanentUrlForUri(state, channelUrl) : undefined
@@ -251,15 +252,17 @@ const MobileActions = (props: Props) => {
           />
         </div>
 
-        <div className="shorts-mobile-panel__action-item">
-          <Button
-            className="shorts-mobile-panel__action-button"
-            onClick={onShareClick}
-            icon={ICONS.SHARE}
-            iconSize={16}
-            title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
-          />
-        </div>
+        {(!isUnlisted || claimIsMine) && (
+          <div className="shorts-mobile-panel__action-item">
+            <Button
+              className="shorts-mobile-panel__action-button"
+              onClick={onShareClick}
+              icon={ICONS.SHARE}
+              iconSize={16}
+              title={isUnlisted ? __('Get a sharable link for your unlisted content') : __('Share')}
+            />
+          </div>
+        )}
 
         {!isUnlisted && (
           <div className="shorts-mobile-panel__action-item">

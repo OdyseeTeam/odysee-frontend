@@ -54,7 +54,31 @@ export const requestFullscreen = (elem) => {
   }
   const index = getPrefix();
   const prefix = prefixes.requestFullscreen[index];
-  elem[prefix] && elem[prefix]();
+  if (!elem[prefix]) return;
+  try {
+    const result = elem[prefix]();
+    if (result && typeof result.catch === 'function') {
+      result.catch(() => {
+        const video = elem.querySelector('video');
+        if (video) {
+          if (video.requestFullscreen) {
+            video.requestFullscreen().catch(() => {});
+          } else if (video.webkitEnterFullscreen) {
+            video.webkitEnterFullscreen();
+          }
+        }
+      });
+    }
+  } catch {
+    const video = elem.querySelector('video');
+    if (video) {
+      if (video.requestFullscreen) {
+        video.requestFullscreen().catch(() => {});
+      } else if (video.webkitEnterFullscreen) {
+        video.webkitEnterFullscreen();
+      }
+    }
+  }
 };
 
 export const exitFullscreen = () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import Page from 'component/page';
 import ClaimListDiscover from 'component/claimListDiscover';
 import * as CS from 'constants/claim_search';
-import { CUSTOM_HOMEPAGE, SIMPLE_SITE } from 'config';
+import { CUSTOM_HOMEPAGE } from 'config';
 import { useAppSelector } from 'redux/hooks';
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import { selectHomepageData, selectHomepageDiscover, selectHomepageDiscoverNew } from 'redux/selectors/settings';
@@ -37,9 +37,9 @@ function ChannelsFollowingDiscover() {
         claimIds={CUSTOM_HOMEPAGE && channelIds ? channelIds : undefined}
         excludedChannelIds={subscribedChannelIds}
         scrollAnchor={MORE_CHANNELS_ANCHOR}
-        maxPages={SIMPLE_SITE ? 3 : undefined}
-        hideFilters={SIMPLE_SITE}
-        header={SIMPLE_SITE ? <h1 className="section__title">{__('Moon cheese is an acquired taste')}</h1> : undefined}
+        maxPages={3}
+        hideFilters
+        header={<h1 className="section__title">{__('Moon cheese is an acquired taste')}</h1>}
       />
     </Page>
   );

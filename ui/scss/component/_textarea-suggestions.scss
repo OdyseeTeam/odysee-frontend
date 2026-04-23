@@ -8,7 +8,8 @@
     font-size: inherit !important;
     color: var(--color-text) !important;
 
-    .create__comment {
+    .create__comment,
+    .create__reply {
       min-height: calc(var(--height-input) * 1.5) !important;
       padding: var(--spacing-xs) !important;
     }
@@ -32,6 +33,13 @@
   }
 }
 */
+
+.comment-create {
+  .markdown-editor {
+    margin-top: 4px;
+    background-color: var(--color-input-bg);
+  }
+}
 
 .comment-create__auth {
   .MuiAutocomplete-root {

@@ -42,6 +42,8 @@ const defaultState: PublishState = {
   fileHeight: 0,
   fileFps: 0,
   fileNeedsTransmux: false,
+  skipConvert: false,
+  skipOptimize: false,
   remoteFileUrl: undefined,
   contentIsFree: true,
   publishType: 'file',
@@ -248,7 +250,15 @@ export const publishReducer = handleActions(
         channelName: channel,
         streamName: name,
       });
-      return { ...defaultState, ...publishData, editingURI: uri, uri: shortUri, currentUploads: state.currentUploads };
+      return {
+        ...defaultState,
+        ...publishData,
+        editingURI: uri,
+        uri: shortUri,
+        currentUploads: state.currentUploads,
+        savedForms: state.savedForms,
+        pipelineItems: state.pipelineItems,
+      };
     },
     [ACTIONS.UPDATE_UPLOAD_ADD]: (state: PublishState, action) => {
       const { file, params, uploader, backend } = action.data;
@@ -360,7 +370,16 @@ export const publishReducer = handleActions(
     [ACTIONS.PUBLISH_SAVE_FORM]: (state: PublishState, action) => {
       const { id } = action.data;
       const snapshot: any = {};
-      const EXCLUDE = ['savedForms', 'pipelineItems', 'activeFormId', 'currentUploads', 'claimToEdit'];
+      const EXCLUDE = [
+        'savedForms',
+        'pipelineItems',
+        'activeFormId',
+        'currentUploads',
+        'claimToEdit',
+        'publishing',
+        'publishSuccess',
+        'publishError',
+      ];
       for (const key of Object.keys(state)) {
         if (!EXCLUDE.includes(key)) snapshot[key] = (state as any)[key];
       }

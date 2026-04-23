@@ -26,6 +26,9 @@ export type PipelineItem = {
   formId?: string;
   uri?: string;
   error?: string;
+  title?: string;
+  thumbnail?: string;
+  publishStarted?: boolean;
 };
 
 export function doAddPipelineItem(item: PipelineItem) {

@@ -22,8 +22,12 @@ export const SDK_STATUS_RETRY_INTERVAL_MS = 10000;
 const MAX_PREVIEW_RETRIES = 2;
 const DUMMY_REQUEST = new XMLHttpRequest(); // TODO
 
+const POLL_TIMEOUT_MS = 30 * 60 * 1000;
+
 export async function pollPublishStatus(token: string, publishId: number, guid: string, dispatch: any): Promise<any> {
   await yieldThread(SDK_STATUS_INITIAL_DELAY_MS);
+
+  const deadline = Date.now() + POLL_TIMEOUT_MS;
 
   while (true) {
     const status: PublishStatus = await checkPublishStatus(token, publishId);
@@ -34,6 +38,10 @@ export async function pollPublishStatus(token: string, publishId: number, guid: 
         return status.sdkResult;
 
       case 'pending':
+        if (Date.now() > deadline) {
+          dispatch(progress({ guid, status: { status: 'error' } }));
+          throw new Error('Publish confirmation timed out. Please check your uploads.');
+        }
         await yieldThread(SDK_STATUS_RETRY_INTERVAL_MS);
         break;
 

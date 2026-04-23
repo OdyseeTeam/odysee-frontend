@@ -1133,7 +1133,14 @@ export const doCheckPendingClaims =
       const state = getState();
       const pendingById = Object.assign({}, selectPendingClaimsById(state));
 
-      if (Object.keys(pendingById).length) {
+      const realPendingById = {};
+      for (const id of Object.keys(pendingById)) {
+        if (!id.startsWith('pending-')) {
+          realPendingById[id] = pendingById[id];
+        }
+      }
+
+      if (Object.keys(realPendingById).length) {
         return Lbry.claim_list({
           claim_id: Object.keys(pendingById),
           resolve: true,

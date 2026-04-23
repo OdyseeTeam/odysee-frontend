@@ -1,5 +1,5 @@
 import * as PAGES from 'constants/pages';
-import { DOMAIN, SIMPLE_SITE } from 'config';
+import { DOMAIN } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
@@ -82,7 +82,7 @@ function UserEmailNew(props: Props) {
   return (
     <div
       className={classnames('main__sign-up', {
-        'main__sign-up--graphic': SIMPLE_SITE,
+        'main__sign-up--graphic': true,
       })}
     >
       <Card
@@ -158,7 +158,7 @@ function UserEmailNew(props: Props) {
           </div>
         }
         nag={<>{errorMessage && <Nag type="error" relative message={<ErrorText>{errorMessage}</ErrorText>} />}</>}
-        secondPane={SIMPLE_SITE && <LoginGraphic />}
+        secondPane={<LoginGraphic />}
       />
     </div>
   );

@@ -6,7 +6,7 @@ const FRAME_CYCLE_MS = 1000;
 
 const streamingUrlCache = new Map<string, string>();
 
-type PreviewFrames = { current: string | null; previous: string | null; frameIndex: number };
+type PreviewFrames = { current: string | null; previous: string | null; frameIndex: number; progress: number };
 
 export default function useVideoPreviewOnHover(
   streamingUrl: string | null | undefined,
@@ -169,6 +169,7 @@ export default function useVideoPreviewOnHover(
       clearInterval(cycleTimerRef.current);
       cycleTimerRef.current = null;
     }
+    setFrameIndex(0);
   }
 
   React.useEffect(() => {
@@ -178,5 +179,7 @@ export default function useVideoPreviewOnHover(
     };
   }, []);
 
-  return { current: frameUrl, previous: prevFrameUrl, frameIndex };
+  const totalFrames = framesRef.current.length || PREVIEW_POSITIONS.length;
+  const progress = totalFrames > 0 ? (frameIndex + 1) / totalFrames : 0;
+  return { current: frameUrl, previous: prevFrameUrl, frameIndex, progress };
 }
