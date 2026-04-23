@@ -84,7 +84,7 @@
     "imagesloaded": "^4.1.4",
     "lbry-format": "https://github.com/lbryio/lbry-format.git",
     "localforage": "^1.7.1",
-    "lodash-es": "^4.17.14",
+    "lodash-es": "^4.18.1",
     "mammoth": "^1.4.16",
     "match-sorter": "^6.3.0",
     "moment": "^2.29.4",
