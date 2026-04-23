@@ -12,7 +12,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import Button from 'component/button';
 import Lbry from 'lbry';
 import { formatLbryUrlForWeb } from 'util/url';
-import debounce from 'util/debounce';
 import { CHANNEL_PAGE } from 'constants/urlParams';
 import ChannelThumbnail from 'component/channelThumbnail';
 import ChannelEdit from 'component/channelEdit';
@@ -177,17 +176,19 @@ function ChannelPage(props: Props) {
   const [scrollPast, setScrollPast] = React.useState<boolean>(false);
 
   React.useEffect(() => {
-    const onScroll = debounce(() => {
-      if (window.pageYOffset > 240) {
-        setScrollPast(true);
-      } else {
-        setScrollPast(false);
-      }
-    }, 100);
+    let rafId: number | null = null;
+
+    const onScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        setScrollPast(window.pageYOffset > 240);
+      });
+    };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      onScroll.cancel();
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener('scroll', onScroll);
     };
   }, []);

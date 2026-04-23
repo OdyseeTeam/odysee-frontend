@@ -1,4 +1,5 @@
 import * as ICONS from 'constants/icons';
+import React from 'react';
 import Icon from 'component/common/icon';
 import { useAppDispatch } from 'redux/hooks';
 import { doStartFloatingPlayingUri } from 'redux/actions/content';
@@ -40,4 +41,4 @@ function ButtonFloatingPlayer(props: { uri: string; focusable?: boolean }) {
   );
 }
 
-export default ButtonFloatingPlayer;
+export default React.memo(ButtonFloatingPlayer);

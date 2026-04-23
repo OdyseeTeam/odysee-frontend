@@ -66,8 +66,8 @@ export const selectMyCollectionClaimsById = createSelector(
     return myCollectionClaimsById;
   }
 );
-export const selectLatestClaimForUri = createSelector(
-  (state, uri) => uri,
+export const selectLatestClaimForUri = createCachedSelector(
+  (state: State, uri: string) => uri,
   selectLatestByUri,
   (uri, latestByUri) => {
     const latestClaim = latestByUri[uri];
@@ -76,7 +76,7 @@ export const selectLatestClaimForUri = createSelector(
     if (!latestClaims.length) return null;
     return (latestClaims[0] as any).stream;
   }
-);
+)((state, uri) => String(uri));
 export const selectClaimsByUri = createSelector(selectClaimIdsByUri, selectClaimsById, (byUri, byId) => {
   // Use a Proxy for lazy O(1) lookups instead of eagerly rebuilding an O(n) object.
   // NOTE returning a null claim allows us to differentiate between an
@@ -382,9 +382,9 @@ export const makeSelectMyPurchasesForPage = (query: string | null | undefined, p
         : [];
     }
   );
-export const selectClaimWasPurchasedForUri = createSelector(selectClaimForUri, (claim) =>
+export const selectClaimWasPurchasedForUri = createCachedSelector(selectClaimForUri, (claim) =>
   Boolean(claim?.purchase_receipt !== undefined)
-);
+)((state, uri) => String(uri));
 export const selectAllFetchingChannelClaims = createSelector(
   selectState,
   (state) => state.fetchingChannelClaims || EMPTY_OBJECT
@@ -494,10 +494,9 @@ export const selectReleaseTimeForUri = (state: State, uri: string) => {
   if (!claim) return claim;
   return claim?.value?.release_time;
 };
-export const selectDayjsReleaseTimeForUri = createSelector(selectReleaseTimeForUri, (claimReleaseTime) => {
-  const releaseTime = dayjs.unix(claimReleaseTime || 0);
-  return releaseTime;
-});
+export const selectDayjsReleaseTimeForUri = createCachedSelector(selectReleaseTimeForUri, (claimReleaseTime) =>
+  dayjs.unix(claimReleaseTime || 0)
+)((state, uri) => String(uri));
 export const selectClaimReleaseInFutureForUri = (state: State, uri: string) =>
   selectDayjsReleaseTimeForUri(state, uri).isAfter();
 export const selectClaimReleaseInPastForUri = (state: State, uri: string) =>
@@ -914,14 +913,14 @@ export const selectPreorderTagForUri = createCachedSelector(
     if (matchingTag) return matchingTag.slice(9);
   }
 )((state, uri) => String(uri));
-export const selectProtectedContentTagForUri = createSelector(
+export const selectProtectedContentTagForUri = createCachedSelector(
   selectMetadataForUri,
   (metadata: GenericMetadata | null | undefined) => metadata && new Set(metadata.tags).has(MEMBERS_ONLY_CONTENT_TAG)
-);
-export const selectedRestrictedCommentsChatTagForUri = createSelector(
+)((state, uri) => String(uri));
+export const selectedRestrictedCommentsChatTagForUri = createCachedSelector(
   selectMetadataForUri,
   (metadata: GenericMetadata | null | undefined) => metadata && new Set(metadata.tags).has(RESTRICTED_CHAT_COMMENTS_TAG)
-);
+)((state, uri) => String(uri));
 export const selectRentalTagForUri = createCachedSelector(
   selectMetadataForUri,
   (metadata: GenericMetadata | null | undefined) => {

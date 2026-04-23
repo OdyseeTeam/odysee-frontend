@@ -1,7 +1,9 @@
 // Widths are taken from "ui/scss/init/vars.scss"
 import React, { useRef } from 'react';
+import debounce from 'util/debounce';
 import { getWindowAngle, isWindowLandscapeForAngle } from 'util/window';
 const DEFAULT_SCREEN_SIZE = 1080;
+const RESIZE_DEBOUNCE_MS = 100;
 
 const ForceMobileContext = React.createContext(false);
 export const ForceMobileProvider = ForceMobileContext.Provider;
@@ -10,13 +12,16 @@ export function useWindowSize() {
   const isWindowClient = typeof window === 'object';
   const [windowSize, setWindowSize] = React.useState(isWindowClient ? window.innerWidth : DEFAULT_SCREEN_SIZE);
   React.useEffect(() => {
-    function setSize() {
+    const setSize = debounce(() => {
       setWindowSize(window.innerWidth);
-    }
+    }, RESIZE_DEBOUNCE_MS);
 
     if (isWindowClient) {
       window.addEventListener('resize', setSize);
-      return () => window.removeEventListener('resize', setSize);
+      return () => {
+        setSize.cancel();
+        window.removeEventListener('resize', setSize);
+      };
     }
   }, [isWindowClient]);
   return windowSize;
@@ -28,18 +33,21 @@ function useHasWindowWidthChangedEnough(comparisonFn: (windowSize: number) => bo
   const [windowSize, setWindowSize] = React.useState<boolean>(initialState);
   const prev = useRef<boolean>(initialState);
   React.useEffect(() => {
-    function setSize() {
+    const setSize = debounce(() => {
       const curr = comparisonFn(window.innerWidth);
 
       if (prev.current !== curr) {
         setWindowSize(curr);
         prev.current = curr;
       }
-    }
+    }, RESIZE_DEBOUNCE_MS);
 
     if (isWindowClient) {
       window.addEventListener('resize', setSize);
-      return () => window.removeEventListener('resize', setSize);
+      return () => {
+        setSize.cancel();
+        window.removeEventListener('resize', setSize);
+      };
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [isWindowClient]);
   return windowSize;
@@ -61,18 +69,21 @@ export function useIsLandscapeScreen() {
   const isLandscape = isWindowLandscapeForAngle(windowAngle);
   const [landscape, setLandscape] = React.useState<boolean>(isLandscape);
   React.useEffect(() => {
-    function handleResize() {
+    const handleResize = debounce(() => {
       const currAngle = getWindowAngle();
       const isCurrLandscape = isWindowLandscapeForAngle(currAngle);
 
       if (landscape !== isCurrLandscape) {
         setLandscape(isCurrLandscape);
       }
-    }
+    }, RESIZE_DEBOUNCE_MS);
 
     if (isWindowClient) {
       window.addEventListener('resize', handleResize);
-      return () => window.removeEventListener('resize', handleResize);
+      return () => {
+        handleResize.cancel();
+        window.removeEventListener('resize', handleResize);
+      };
     }
   }, [isWindowClient, landscape]);
   return landscape;

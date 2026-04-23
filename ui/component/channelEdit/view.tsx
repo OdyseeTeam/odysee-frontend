@@ -8,7 +8,6 @@ import Button from 'component/button';
 import TagsSearch from 'component/tagsSearch';
 import { FF_MAX_CHARS_IN_DESCRIPTION } from 'constants/form-field';
 import ErrorText from 'component/common/error-text';
-import debounce from 'util/debounce';
 import ChannelThumbnail from 'component/channelThumbnail';
 import { isNameValid, parseURI } from 'util/lbryURI';
 import ClaimAbandonButton from 'component/claimAbandonButton';
@@ -145,17 +144,19 @@ function ChannelForm(props: Props) {
   const [scrollPast, setScrollPast] = React.useState<number | boolean>(0);
 
   React.useEffect(() => {
-    const onScroll = debounce(() => {
-      if (window.pageYOffset > 240) {
-        setScrollPast(true);
-      } else {
-        setScrollPast(false);
-      }
-    }, 100);
+    let rafId: number | null = null;
+
+    const onScroll = () => {
+      if (rafId !== null) return;
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        setScrollPast(window.pageYOffset > 240);
+      });
+    };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => {
-      onScroll.cancel();
+      if (rafId !== null) cancelAnimationFrame(rafId);
       window.removeEventListener('scroll', onScroll);
     };
   }, []);

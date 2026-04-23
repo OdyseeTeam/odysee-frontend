@@ -9,7 +9,7 @@ type Props = {
   showLabel?: boolean | null | undefined;
   focusable?: boolean;
 };
-export default function FileHideRecommendation(props: Props) {
+function FileHideRecommendation(props: Props) {
   const { uri, buttonType, showLabel = false, focusable = true } = props;
   const dispatch = useAppDispatch();
 
@@ -33,3 +33,5 @@ export default function FileHideRecommendation(props: Props) {
     />
   );
 }
+
+export default React.memo(FileHideRecommendation);

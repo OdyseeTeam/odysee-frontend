@@ -1,8 +1,6 @@
 import React from 'react';
-import debounce from 'util/debounce';
-const DEBOUNCE_SCROLL_HANDLER_MS = 50;
 
-function scaleToDevicePixelRatio(value) {
+function scaleToDevicePixelRatio(value: number) {
   const devicePixelRatio = window.devicePixelRatio || 1.0;
 
   if (devicePixelRatio < 1.0) {
@@ -20,58 +18,36 @@ type Props = {
 };
 export default function WaitUntilOnPage(props: Props) {
   const { yOffset } = props;
-  const ref = React.useRef();
+  const ref = React.useRef<HTMLDivElement | null>(null);
   const [shouldRender, setShouldRender] = React.useState(false);
-  const shouldElementRender = React.useCallback(
-    (ref) => {
-      const element = ref && ref.current;
 
-      if (element) {
-        const bounding = element.getBoundingClientRect();
-        const windowH = window.innerHeight || document.documentElement.clientHeight;
-        const windowW = window.innerWidth || document.documentElement.clientWidth;
-        const isApproachingViewport = yOffset && bounding.top < windowH + scaleToDevicePixelRatio(yOffset);
-        const isInViewport = // also covers "element is larger than viewport".
-          bounding.width > 0 &&
-          bounding.height > 0 &&
-          bounding.bottom >= 0 &&
-          bounding.right >= 0 &&
-          bounding.top <= windowH &&
-          bounding.left <= windowW;
-        return isInViewport || isApproachingViewport;
-      }
-
-      return false;
-    },
-    [yOffset]
-  );
-  // Handles "element is already in viewport when mounted".
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      if (!shouldRender && shouldElementRender(ref)) {
-        setShouldRender(true);
-      }
-    }, 500);
-    return () => clearTimeout(timer);
-  }, []);
-  // eslint-disable-line react-hooks/exhaustive-deps
-  // Handles "element scrolled into viewport".
-  React.useEffect(() => {
-    const handleDisplayingRef = debounce(() => {
-      if (shouldElementRender(ref)) {
-        setShouldRender(true);
-      }
-    }, DEBOUNCE_SCROLL_HANDLER_MS);
+    if (shouldRender || !ref.current) return;
 
-    if (ref && ref.current && !shouldRender) {
-      window.addEventListener('scroll', handleDisplayingRef);
-      window.addEventListener('resize', handleDisplayingRef);
-      return () => {
-        window.removeEventListener('scroll', handleDisplayingRef);
-        window.removeEventListener('resize', handleDisplayingRef);
-      };
+    if (typeof window === 'undefined' || !window.IntersectionObserver) {
+      setShouldRender(true);
+      return;
     }
-  }, [ref, setShouldRender, shouldRender, shouldElementRender]);
+
+    const rootMarginBottom = yOffset ? scaleToDevicePixelRatio(yOffset) : 0;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      {
+        root: null,
+        rootMargin: `0px 0px ${rootMarginBottom}px 0px`,
+        threshold: 0,
+      }
+    );
+
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [shouldRender, yOffset]);
+
   const render = props.skipWait || shouldRender;
   return (
     <div ref={ref}>

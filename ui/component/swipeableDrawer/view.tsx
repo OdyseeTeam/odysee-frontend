@@ -7,6 +7,7 @@ import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import * as DRAWERS from 'constants/drawer_types';
 import Button from 'component/button';
+import debounce from 'util/debounce';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectIsDrawerOpenForType } from 'redux/selectors/app';
 import { doToggleAppDrawer as doToggleAppDrawerAction } from 'redux/actions/app';
@@ -171,8 +172,12 @@ export default function SwipeableDrawer(props: Props) {
   React.useEffect(() => {
     // Drawer will follow the cover image on resize, so it's always visible
     handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    const debouncedResize = debounce(handleResize, 100);
+    window.addEventListener('resize', debouncedResize);
+    return () => {
+      debouncedResize.cancel();
+      window.removeEventListener('resize', debouncedResize);
+    };
   }, [handleResize]);
   // Reset scroll position when opening: avoid broken position where
   // the drawer is lower than the video

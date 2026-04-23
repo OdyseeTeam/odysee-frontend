@@ -317,7 +317,7 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
             if (noDataStore) {
               return (
                 <div className="file-viewer file-viewer--document">
-                  <img alt={alt} title={title} src={imageCdnUrl} />
+                  <img loading="lazy" alt={alt} title={title} src={imageCdnUrl} />
                 </div>
               );
             }

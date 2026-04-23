@@ -281,7 +281,12 @@ function PublishLivestream(props: Props) {
                                       <td>
                                         <div className="livestream-data__thumb-container">
                                           {item.data.thumbnails.slice(0, 3).map((thumb) => (
-                                            <img key={thumb} className="livestream___thumb" src={thumb} />
+                                            <img
+                                              loading="lazy"
+                                              key={thumb}
+                                              className="livestream___thumb"
+                                              src={thumb}
+                                            />
                                           ))}
                                         </div>
                                       </td>
