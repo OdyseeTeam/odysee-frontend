@@ -26,6 +26,9 @@ function PublishName(props: Props) {
   const dispatch = useAppDispatch();
   const publishFormName = useAppSelector((state) => selectPublishFormValue(state, 'name'));
   const uri = useAppSelector((state) => selectPublishFormValue(state, 'uri'));
+  const editingURI = useAppSelector((state) => selectPublishFormValue(state, 'editingURI'));
+  const publishType = useAppSelector((state) => selectPublishFormValue(state, 'type'));
+  const liveCreateType = useAppSelector((state) => selectPublishFormValue(state, 'liveCreateType'));
   const isStillEditing = useAppSelector((state) => selectIsStillEditing(state));
   const myClaimForUri = useAppSelector((state) => (selectMyClaimForUri as any)(state, true));
   const myClaimForUriCaseInsensitive = useAppSelector((state) => (selectMyClaimForUri as any)(state, false));
@@ -41,6 +44,8 @@ function PublishName(props: Props) {
   const [blurred, setBlurred] = React.useState(false);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const isMobile = useIsMobile();
+  const shouldLockName =
+    isStillEditing || (publishType === 'livestream' && Boolean(editingURI) && liveCreateType === 'edit_placeholder');
   let prefix = IS_WEB ? (isMobile ? '' : `${DOMAIN}/`) : 'lbry://';
 
   if (activeChannelName && !incognito) {
@@ -102,7 +107,7 @@ function PublishName(props: Props) {
           name="content_name"
           value={name}
           error={nameError}
-          disabled={isStillEditing}
+          disabled={shouldLockName}
           onChange={handleChange}
           onBlur={() => setBlurred(true)}
           autoComplete="off"
@@ -111,7 +116,7 @@ function PublishName(props: Props) {
       <div className="form-field__help">
         <NameHelpText
           uri={uri}
-          isStillEditing={isStillEditing}
+          isStillEditing={shouldLockName}
           myClaimForUri={myClaimForUri}
           myClaimForUriCaseInsensitive={myClaimForUriCaseInsensitive}
           currentUploads={currentUploads}
