@@ -296,6 +296,18 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
   flex: 1;
   overflow-y: auto;
   padding: var(--spacing-m);
+  scroll-behavior: smooth;
+}
+
+.shorts-page__side-panel-comments {
+  margin-top: var(--spacing-l);
+  padding-top: var(--spacing-m);
+}
+
+.shorts-page__side-panel-comments-title {
+  margin-bottom: var(--spacing-m);
+  padding-bottom: var(--spacing-xs);
+  border-bottom: 1px solid var(--color-border);
 }
 
 .shorts-page__back-button {
@@ -1186,7 +1198,9 @@ body:has(.main--shorts-page):not(:has(.navigation__overlay--active)) {
 }
 
 .shorts-page__container:fullscreen,
-html.ios-fullscreen .shorts-page__container {
+html.ios-fullscreen .shorts-page__container,
+.player-fullscreen-target:fullscreen,
+html.ios-fullscreen .player-fullscreen-target {
   background: #000;
   display: flex;
   justify-content: center;
@@ -1294,6 +1308,17 @@ html.ios-fullscreen .shorts-page__container {
       margin-right: 720px;
     }
 
+    .shorts-page__navigation {
+      right: 744px;
+    }
+  }
+
+  &:has(.shorts-page__side-panel--open) {
+    .content__wrapper {
+      margin-right: 720px;
+    }
+
+    .video-fullscreen__actions,
     .shorts-page__navigation {
       right: 744px;
     }
