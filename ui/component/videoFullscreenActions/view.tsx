@@ -65,6 +65,11 @@ export default function VideoFullscreenActions(props: Props) {
 
   const search = window.location.search || '';
   const urlParams = new URLSearchParams(search);
+  const isShortContext =
+    Boolean(isShort) ||
+    urlParams.get('view') === 'shorts' ||
+    !!document.querySelector('.shorts-page__container') ||
+    !!document.querySelector('.content__viewer--shorts-floating');
 
   const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
   const claimId = claim?.claim_id;
@@ -111,6 +116,8 @@ export default function VideoFullscreenActions(props: Props) {
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const hasChapters = chapters.length > 0;
   const [panelMode, setPanelMode] = React.useState<string | null>(null);
+  const panelContentRef = React.useRef<HTMLDivElement>(null);
+  const commentsSectionRef = React.useRef<HTMLDivElement>(null);
   const [fireGlow, setFireGlow] = React.useState(false);
   const fireGlowTimeout = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [slimeGlow, setSlimeGlow] = React.useState(false);
@@ -137,6 +144,31 @@ export default function VideoFullscreenActions(props: Props) {
   }, []);
 
   const sidePanelRef = React.useRef<HTMLDivElement>(null);
+  const isShortDetailsPanel = isShortContext && (panelMode === 'info' || panelMode === 'comments');
+
+  React.useEffect(() => {
+    if (!isShortDetailsPanel || !panelContentRef.current) return;
+
+    const contentEl = panelContentRef.current;
+    const raf = requestAnimationFrame(() => {
+      if (panelMode === 'comments' && commentsSectionRef.current) {
+        const contentRect = contentEl.getBoundingClientRect();
+        const commentsRect = commentsSectionRef.current.getBoundingClientRect();
+
+        contentEl.scrollTo({
+          top: commentsRect.top - contentRect.top + contentEl.scrollTop,
+          behavior: 'smooth',
+        });
+      } else {
+        contentEl.scrollTo({
+          top: 0,
+          behavior: 'smooth',
+        });
+      }
+    });
+
+    return () => cancelAnimationFrame(raf);
+  }, [isShortDetailsPanel, panelMode]);
 
   const adjustVideoForSwipe = React.useCallback((deltaX) => {
     const fsTarget = document.querySelector<HTMLElement>('.player-fullscreen-target');
@@ -385,7 +417,7 @@ export default function VideoFullscreenActions(props: Props) {
     }
   }, [useSidePanel, panelMode, tabModes]);
 
-  if (!isShort && isMobile) {
+  if (!isShortContext && isMobile) {
     const infoContent = (
       <div className="file-page">
         <div className="card-stack">
@@ -491,9 +523,11 @@ export default function VideoFullscreenActions(props: Props) {
   }
 
   return (
-    <div className={`video-fullscreen__actions-wrapper ${isShort ? 'video-fullscreen__actions-wrapper--shorts' : ''}`}>
-      <div className={`video-fullscreen__actions ${isShort ? 'video-fullscreen__actions--shorts' : ''}`}>
-        {isShort ? (
+    <div
+      className={`video-fullscreen__actions-wrapper ${isShortContext ? 'video-fullscreen__actions-wrapper--shorts' : ''}`}
+    >
+      <div className={`video-fullscreen__actions ${isShortContext ? 'video-fullscreen__actions--shorts' : ''}`}>
+        {isShortContext ? (
           isFs && (
             <ShortsActions
               uri={uri}
@@ -671,8 +705,31 @@ export default function VideoFullscreenActions(props: Props) {
           </div>
         )}
 
-        <div className="video-fullscreen__side-panel-content">
-          {panelMode === 'info' && <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />}
+        <div ref={panelContentRef} className="video-fullscreen__side-panel-content">
+          {isShortDetailsPanel && (
+            <>
+              <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
+              <div ref={commentsSectionRef} className="shorts-page__side-panel-comments">
+                <h2 className="shorts-page__side-panel-comments-title">{__('Comments')}</h2>
+                {contentUnlocked &&
+                  (commentsDisabled ? (
+                    <Empty padded text={__('The creator of this content has disabled comments.')} />
+                  ) : (
+                    <React.Suspense fallback={null}>
+                      <CommentsList
+                        uri={uri}
+                        linkedCommentId={linkedCommentId}
+                        threadCommentId={threadCommentId}
+                        notInDrawer
+                      />
+                    </React.Suspense>
+                  ))}
+              </div>
+            </>
+          )}
+          {!isShortDetailsPanel && panelMode === 'info' && (
+            <FileTitleSection uri={uri} accessStatus={accessStatus} expandOverride />
+          )}
           {panelMode === 'chat' && (
             <>
               <button className="video-fullscreen__chat-close-button" onClick={handleClosePanel} title={__('Close')}>
@@ -683,7 +740,7 @@ export default function VideoFullscreenActions(props: Props) {
               </React.Suspense>
             </>
           )}
-          {panelMode === 'comments' && (
+          {!isShortContext && panelMode === 'comments' && (
             <>
               {contentUnlocked &&
                 (commentsDisabled ? (
