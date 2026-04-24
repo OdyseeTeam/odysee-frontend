@@ -405,8 +405,13 @@ function extractMetadataViaVideoElement(blob: Blob, dispatch: Dispatch, shouldAp
 export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const { name, title } = state.publish;
+    const { name, title, type, liveCreateType, liveEditType, editingURI } = state.publish;
     const isStillEditing = selectIsStillEditing(state);
+    const preserveLivestreamReplayEditMetadata =
+      type === 'livestream' &&
+      Boolean(editingURI) &&
+      liveCreateType === 'edit_placeholder' &&
+      liveEditType === 'upload_replay';
 
     if (!file) {
       // This also handles the case of trying to select another file but canceling half way.
@@ -582,13 +587,13 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     const newFileName = (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
     const fileName = clearName ? newFileName : name || newFileName;
 
-    if (clearName || !title) {
+    if (!preserveLivestreamReplayEditMetadata && (clearName || !title)) {
       formUpdates.title = newFileName || fileName;
     }
 
-    if (!isStillEditing && clearName) {
+    if (!preserveLivestreamReplayEditMetadata && !isStillEditing && clearName) {
       formUpdates.name = sanitizeName(newFileName || fileName);
-    } else if (!isStillEditing && !name) {
+    } else if (!preserveLivestreamReplayEditMetadata && !isStillEditing && !name) {
       formUpdates.name = sanitizeName(fileName);
     }
 
@@ -1468,7 +1473,10 @@ export const doPublishWithEarlyUpload =
 
       dispatch({
         type: ACTIONS.UPDATE_PENDING_CLAIMS,
-        data: { claims: [fakePendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
+        data: {
+          claims: [fakePendingClaim],
+          options: { overrideTags: true, overrideSigningChannel: true },
+        },
       } as UpdatePendingClaimsAction);
       dispatch({ type: ACTIONS.PUBLISH_SET_ACTIVE_FORM, data: { id: null } });
       dispatch({ type: ACTIONS.PUBLISH_SUCCESS, data: {} });
@@ -1479,13 +1487,20 @@ export const doPublishWithEarlyUpload =
           dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: pendingClaimId } });
           dispatch({
             type: ACTIONS.UPDATE_PENDING_CLAIMS,
-            data: { claims: [pendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
+            data: {
+              claims: [pendingClaim],
+              options: { overrideTags: true, overrideSigningChannel: true },
+            },
           } as UpdatePendingClaimsAction);
           dispatch({
             type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
             data: {
               id: guid,
-              updates: { stage: 'published', progress: 100, uri: pendingClaim.permanent_url || publishedUri },
+              updates: {
+                stage: 'published',
+                progress: 100,
+                uri: pendingClaim.permanent_url || publishedUri,
+              },
             },
           });
           dispatch(doCheckPendingClaims(undefined));
