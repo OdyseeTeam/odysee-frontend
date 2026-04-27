@@ -966,6 +966,19 @@
       opacity: 1;
     }
   }
+
+  .purchase-button {
+    transition:
+      background-color 0.2s,
+      border-color 0.2s,
+      color 0.2s;
+    opacity: 1;
+
+    &:hover {
+      transform: none;
+      opacity: 1;
+    }
+  }
 }
 
 .recommendation-overlay-wrapper {
