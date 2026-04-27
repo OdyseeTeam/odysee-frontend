@@ -78,7 +78,7 @@ function UserEmailReturning() {
                   placeholder={__('yourstruly@example.com')}
                   type="email"
                   id="username"
-                  autoComplete="on"
+                  autoComplete="username"
                   name="sign_in_email"
                   label={__('Email')}
                   value={email}

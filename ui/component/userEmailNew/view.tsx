@@ -98,14 +98,18 @@ function UserEmailNew(props: Props) {
                 autoFocus
                 placeholder={__('yourstruly@example.com')}
                 type="email"
+                id="sign_up_email"
                 name="sign_up_email"
+                autoComplete="username"
                 label={__('Email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <FormField
                 type="password"
-                name="sign_in_password"
+                id="sign_up_password"
+                name="new_password"
+                autoComplete="new-password"
                 label={__('Password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
