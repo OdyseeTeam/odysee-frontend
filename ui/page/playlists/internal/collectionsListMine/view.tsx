@@ -126,7 +126,10 @@ export default function CollectionsListMine(props: Props) {
         };
         Object.assign(comparisonObj, nameComparisonObj);
         // Only name (string) has a different return than when sorting numbers
-        return String(comparisonObj.a).localeCompare(String(comparisonObj.b));
+        return String(comparisonObj.a).localeCompare(String(comparisonObj.b), undefined, {
+          sensitivity: 'base',
+          numeric: true,
+        });
       }
 
       function getComparisonObj() {

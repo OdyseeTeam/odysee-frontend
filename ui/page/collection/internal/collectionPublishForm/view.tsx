@@ -124,6 +124,7 @@ const CollectionPublishForm = (props: Props) => {
 
     if (editing) {
       dispatch(doCollectionEdit(collectionId, trimmedParams));
+      dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
       navigate(`/$/${PAGES.PLAYLIST}/${collectionId}`);
       return;
     }
