@@ -81,6 +81,7 @@ const CollectionPage = (props: Props) => {
         isPreview: false,
       })
     );
+    dispatch(doRemoveUnsavedAction(collectionId));
     setShowEdit(false);
   }
 
