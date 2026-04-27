@@ -5,6 +5,7 @@ import BusyIndicator from 'component/common/busy-indicator';
 import { Form } from 'component/common/form';
 import * as ICONS from 'constants/icons';
 import * as STRIPE from 'constants/stripe';
+import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import WalletStatus from 'component/walletStatus';
@@ -30,7 +31,7 @@ import {
 } from 'redux/selectors/claims';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doPlayUri } from 'redux/actions/content';
-import { doHideModal } from 'redux/actions/app';
+import { doHideModal, doOpenModal } from 'redux/actions/app';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/payments';
 import { doPurchaseClaimForUri } from 'redux/actions/wallet';
 import { selectPreferredCurrency } from 'redux/selectors/settings';
@@ -150,6 +151,11 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
     ).then(checkIfFinished);
   }
 
+  const handleSdkPurchase = React.useCallback(() => {
+    dispatch(doHideModal());
+    dispatch(doOpenModal(MODALS.AFFIRM_PURCHASE, { uri }));
+  }, [dispatch, uri]);
+
   React.useEffect(() => {
     // -- fetch for modal url param --
     if (isUrlParamModal && isAuthenticated && claimId && fiatRequired && isFetchingPurchases === undefined) {
@@ -212,10 +218,7 @@ export default function PreorderAndPurchaseContentCard(props: Props) {
                 rentDisabled={cantAffordRent}
                 purchaseDisabled={cantAffordPurchase}
                 preorderDisabled={cantAffordPreorder}
-                uri={uri}
-                setWaitingForBackend={setWaitingForBackend}
-                doPlayUri={(u, s, o, cb) => dispatch(doPlayUri(u, s, o, cb))}
-                doHideModal={() => dispatch(doHideModal())}
+                onSdkPurchaseClick={handleSdkPurchase}
               />
             )}
             <p className="help">
@@ -273,10 +276,7 @@ const SubmitArea = (props: any) => (
       <Button
         button="primary"
         requiresAuth
-        onClick={() => {
-          props.setWaitingForBackend(true);
-          props.doPlayUri(props.uri, true, undefined, props.doHideModal);
-        }}
+        onClick={props.onSdkPurchaseClick}
         label={
           <I18nMessage
             tokens={{

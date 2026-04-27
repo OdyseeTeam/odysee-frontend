@@ -1057,8 +1057,14 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state: ClaimsState, action: any): Cl
   const claimId = byUri[uri];
 
   if (claimId) {
-    let claim = byId[claimId];
-    claim.purchase_receipt = purchaseReceipt;
+    const claim = byId[claimId];
+
+    if (claim) {
+      byId[claimId] = {
+        ...claim,
+        purchase_receipt: purchaseReceipt,
+      };
+    }
   }
 
   myPurchases.push(uri);
