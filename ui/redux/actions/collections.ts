@@ -758,12 +758,13 @@ export const doCollectionEdit =
     let collection: Collection = selectCollectionForId(state, collectionId);
 
     if (!collection) {
-      return dispatch(
+      dispatch(
         doToast({
           message: __('Collection does not exist.'),
           isError: true,
         })
       );
+      return false;
     }
 
     const isPublic = Boolean(selectResolvedCollectionForId(state, collectionId));
@@ -782,12 +783,13 @@ export const doCollectionEdit =
     }
 
     if (!hasItemsResolved && !isPrivateVersion) {
-      return dispatch(
+      dispatch(
         doToast({
           message: __('Failed to resolve collection items. Please try again.'),
           isError: true,
         })
       );
+      return false;
     }
 
     let collectionUrls = selectUrlsForCollectionId(state, collectionId);
@@ -838,7 +840,7 @@ export const doCollectionEdit =
 
     const isQueue = collectionId === COLS.QUEUE_ID;
     const title = params.title || params.name;
-    return new Promise<void>((success) => {
+    return new Promise<boolean>((success) => {
       dispatch({
         // -- queue specific action prevents attempting to sync settings and throwing errors on unauth users
         type: isQueue ? ACTIONS.QUEUE_EDIT : ACTIONS.COLLECTION_EDIT,
@@ -889,7 +891,7 @@ export const doCollectionEdit =
         dispatch(doAutoPublishCollectionIfNeeded(collectionId));
       }
 
-      success();
+      success(true);
     });
   };
 export const doClearEditsForCollectionId = (id: string) => (dispatch: Dispatch) => {

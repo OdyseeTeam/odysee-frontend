@@ -41,6 +41,7 @@ import {
   doRemoveFromUnsavedChangesCollectionsForCollectionId,
 } from 'redux/actions/collections';
 import { doOpenModal } from 'redux/actions/app';
+import { doToast } from 'redux/actions/notifications';
 import './style.scss';
 export const PAGE_TAB_QUERY = `tab`;
 const TAB = {
@@ -146,7 +147,7 @@ const CollectionPublishForm = (props: Props) => {
       .catch(() => setPublishPending(false));
   }
 
-  function handleSubmitForm() {
+  async function handleSubmitForm() {
     if (!hasChanges) return navigateToCollectionView();
     const trimmedParams = { ...formParams };
     if (trimmedParams.title) trimmedParams.title = trimmedParams.title.trim();
@@ -156,9 +157,17 @@ const CollectionPublishForm = (props: Props) => {
     setFormParams(trimmedParams);
 
     if (editing) {
-      dispatch(doCollectionEdit(collectionId, trimmedParams));
-      dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
-      navigateToCollectionView();
+      setPublishPending(true);
+      try {
+        const editSaved = await dispatch(doCollectionEdit(collectionId, trimmedParams));
+
+        if (editSaved) {
+          dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
+          navigateToCollectionView();
+        }
+      } finally {
+        setPublishPending(false);
+      }
       return;
     }
 
@@ -186,9 +195,19 @@ const CollectionPublishForm = (props: Props) => {
   }
 
   function handleClearUpdates() {
-    collectionResetPending.current = true;
-    dispatch(doClearEditsForCollectionId(collectionId));
-    navigateToCollectionView();
+    dispatch(
+      doToast({
+        message: __("Clear all local edits from this published playlist? You won't be able to undo this action later."),
+        actionText: __('Clear Updates'),
+        action: () => {
+          collectionResetPending.current = true;
+          dispatch(doClearEditsForCollectionId(collectionId));
+          navigateToCollectionView();
+        },
+        secondaryActionText: __('Cancel'),
+        secondaryAction: () => {},
+      })
+    );
   }
 
   function onTabChange(newTabIndex) {
