@@ -142,8 +142,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
       const publishParams = {
         ...params,
         name: options.name,
-        // -- avoid duplicates --
-        claims: Array.from(new Set(options.claims)),
+        claims: options.claims,
       } as CollectionPublishCreateParams;
       Object.assign(fullParams, publishParams);
     } else {
@@ -152,8 +151,7 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
         claim_id: collectionId,
         clear_claims: true,
         replace: true,
-        // -- avoid duplicates --
-        claims: Array.from(new Set(options.claims)),
+        claims: options.claims,
       } as unknown as CollectionPublishUpdateParams;
       Object.assign(fullParams, updateParams);
     }
@@ -629,7 +627,7 @@ export const doFetchItemsInCollection =
       const claimIds = getClaimIdsInCollectionClaim(claim) || [];
       const valueTypes = new Set<string>();
       const streamTypes = new Set<string>();
-      const newItems = new Set<string>();
+      const newItems: Array<string> = [];
 
       const resolvedById: Record<string, any> = {};
       collectionItems.forEach((item: any) => {
@@ -640,20 +638,21 @@ export const doFetchItemsInCollection =
         const collectionItem = resolvedById[claimId];
 
         if (collectionItem) {
-          newItems.add(collectionItem.claim_id);
+          newItems.push(collectionItem.claim_id);
           valueTypes.add(collectionItem.value_type);
           if (collectionItem.value && collectionItem.value.stream_type) {
             streamTypes.add(collectionItem.value.stream_type);
           }
+        } else {
+          // Preserve unavailable entries so they don't silently disappear from the playlist UI.
+          newItems.push(claimId);
         }
-        // Skip unresolvable items — they don't exist on the network
-        // and would block the selector (undefined in claimsById).
       });
       const collectionType = resolveCollectionType(tags, valueTypes, streamTypes);
       const newStoreCollectionClaim = {
         ...collection,
-        items: Array.from(newItems),
-        itemCount: newItems.size,
+        items: newItems,
+        itemCount: newItems.length,
         type: collectionType,
         ...resolveAuxParams(collectionType, claim),
       };
@@ -894,11 +893,29 @@ export const doCollectionEdit =
     });
   };
 export const doClearEditsForCollectionId = (id: string) => (dispatch: Dispatch) => {
+  if (collectionAutoPublishTimers[id]) {
+    clearTimeout(collectionAutoPublishTimers[id]);
+    delete collectionAutoPublishTimers[id];
+    dispatch({
+      type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
+      data: {
+        collectionId: id,
+        scheduledAt: null,
+      },
+    });
+  }
   dispatch({
     type: ACTIONS.COLLECTION_DELETE,
     data: {
       id,
       collectionKey: 'edited',
+    },
+  });
+  dispatch({
+    type: ACTIONS.COLLECTION_DELETE,
+    data: {
+      id,
+      collectionKey: COLS.KEYS.UNSAVED_CHANGES,
     },
   });
   dispatch({

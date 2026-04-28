@@ -28,6 +28,7 @@ import {
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectCollectionClaimUploadParamsForId } from 'redux/selectors/publish';
 import {
+  selectCollectionForId,
   selectCollectionHasEditsForId,
   selectHasUnavailableClaimIdsForCollectionId,
   selectCollectionHasUnsavedEditsForId,
@@ -46,6 +47,12 @@ const TAB = {
   GENERAL: 0,
   ITEMS: 1,
 };
+
+function getTabIndexFromSearch(search: string) {
+  const urlParams = new URLSearchParams(search);
+  return urlParams.get(COLLECTION_PAGE.QUERIES.TAB) === COLLECTION_PAGE.TABS.ITEMS ? TAB.ITEMS : TAB.GENERAL;
+}
+
 type Props = {
   collectionId: string;
   onDoneForId?: (arg0: any) => any;
@@ -66,19 +73,23 @@ const CollectionPublishForm = (props: Props) => {
   const collectionHasUnSavedEdits = useAppSelector((state) =>
     selectCollectionHasUnsavedEditsForId(state, collectionId)
   );
+  const currentCollection = useAppSelector((state) => selectCollectionForId(state, collectionId));
   const hasUnavailableClaims = useAppSelector((state) =>
     selectHasUnavailableClaimIdsForCollectionId(state, collectionId)
   );
-  const urlParams = new URLSearchParams(search);
+  const effectiveSearch = search || (typeof window !== 'undefined' && window.location ? window.location.search : '');
+  const urlParams = new URLSearchParams(effectiveSearch);
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
+  const tabIndexFromUrl = getTabIndexFromSearch(effectiveSearch);
   const [thumbailError, setThumbnailError] = React.useState<string | undefined>();
   const initialParams = React.useRef(collectionParams);
   const collectionResetPending = React.useRef(false);
   const [formParams, setFormParams] = React.useState(collectionParams);
-  const [tabIndex, setTabIndex] = React.useState(0);
+  const [optimisticTabIndex, setOptimisticTabIndex] = React.useState<number | null>(null);
   const [showItemsSpinner, setShowItemsSpinner] = React.useState(false);
   const [publishPending, setPublishPending] = React.useState(isClaimPending);
+  const tabIndex = optimisticTabIndex ?? tabIndexFromUrl;
   const { claims } = formParams;
   const hasClaims = claims && claims.length;
   const itemError = publishing && !hasClaims ? __('Cannot publish empty list') : undefined;
@@ -90,13 +101,32 @@ const CollectionPublishForm = (props: Props) => {
   const publishingClaimWithNoChanges = publishing && hasClaim && !collectionHasEdits && !hasChanges;
 
   function navigateToCollectionView() {
-    const target = `/$/${PAGES.PLAYLIST}/${collectionId}`;
-    window.location.assign(target);
+    if (onDoneForId) {
+      onDoneForId(collectionId);
+    } else {
+      const target = `/$/${PAGES.PLAYLIST}/${collectionId}`;
+      navigate(target, { replace: true });
+    }
   }
 
   function updateFormParams(newParams: {}) {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
   }
+
+  const syncTabToUrl = React.useCallback(
+    (nextTabIndex: number) => {
+      const nextParams = new URLSearchParams(effectiveSearch);
+
+      if (nextTabIndex === TAB.ITEMS) {
+        nextParams.set(COLLECTION_PAGE.QUERIES.TAB, COLLECTION_PAGE.TABS.ITEMS);
+      } else {
+        nextParams.delete(COLLECTION_PAGE.QUERIES.TAB);
+      }
+
+      navigate(`?${nextParams.toString()}`, { replace: true });
+    },
+    [effectiveSearch, navigate]
+  );
 
   function handlePublish(params) {
     setPublishPending(true);
@@ -120,12 +150,15 @@ const CollectionPublishForm = (props: Props) => {
     if (!hasChanges) return navigateToCollectionView();
     const trimmedParams = { ...formParams };
     if (trimmedParams.title) trimmedParams.title = trimmedParams.title.trim();
+    if (currentCollection?.items) {
+      trimmedParams.claims = currentCollection.items.filter((item) => typeof item === 'string');
+    }
     setFormParams(trimmedParams);
 
     if (editing) {
       dispatch(doCollectionEdit(collectionId, trimmedParams));
       dispatch(doRemoveFromUnsavedChangesCollectionsForCollectionId(collectionId));
-      navigate(`/$/${PAGES.PLAYLIST}/${collectionId}`);
+      navigateToCollectionView();
       return;
     }
 
@@ -152,23 +185,25 @@ const CollectionPublishForm = (props: Props) => {
     navigateToCollectionView();
   }
 
+  function handleClearUpdates() {
+    collectionResetPending.current = true;
+    dispatch(doClearEditsForCollectionId(collectionId));
+    navigateToCollectionView();
+  }
+
   function onTabChange(newTabIndex) {
     if (tabIndex !== newTabIndex) {
-      if (newTabIndex === TAB.ITEMS) {
-        setShowItemsSpinner(true);
-        setTimeout(() => {
-          // Wait enough time for the spinner to appear, then switch tabs.
-          setTabIndex(newTabIndex);
-          // We can stop the spinner immediately. If the list takes a long time
-          // to render, the spinner would continue to spin until the
-          // state-change is flushed.
-          setShowItemsSpinner(false);
-        }, 250);
-      } else {
-        setTabIndex(newTabIndex);
-      }
+      setOptimisticTabIndex(newTabIndex);
+      syncTabToUrl(newTabIndex);
+      setShowItemsSpinner(false);
     }
   }
+
+  React.useEffect(() => {
+    if (optimisticTabIndex !== null && optimisticTabIndex === tabIndexFromUrl) {
+      setOptimisticTabIndex(null);
+    }
+  }, [optimisticTabIndex, tabIndexFromUrl]);
 
   // Reset the form to original collection state if the edits are cleared
   React.useEffect(() => {
@@ -274,26 +309,7 @@ const CollectionPublishForm = (props: Props) => {
 
           {collectionHasEdits && (
             <Tooltip title={__('Delete all edits from this published playlist')}>
-              <Button
-                button="alt"
-                icon={ICONS.REFRESH}
-                label={__('Clear Updates')}
-                onClick={() =>
-                  dispatch(
-                    doOpenModal(MODALS.CONFIRM, {
-                      title: __('Clear Updates'),
-                      subtitle: __(
-                        "Are you sure you want to delete all edits from this published playlist? (You won't be able to undo this action later)"
-                      ),
-                      onConfirm: (closeModal) => {
-                        dispatch(doClearEditsForCollectionId(collectionId));
-                        collectionResetPending.current = true;
-                        closeModal();
-                      },
-                    })
-                  )
-                }
-              />
+              <Button button="alt" icon={ICONS.REFRESH} label={__('Clear Updates')} onClick={handleClearUpdates} />
             </Tooltip>
           )}
         </div>

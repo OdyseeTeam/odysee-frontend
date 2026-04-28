@@ -59,11 +59,18 @@ const CollectionPage = (props: Props) => {
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
   const editing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.EDIT;
-  const publishPage = editing || publishing;
+  const [forceCollectionView, setForceCollectionView] = React.useState(false);
+  const publishPage = (editing || publishing) && !forceCollectionView;
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
   const isResolvingCollection = hasClaim === undefined;
+
+  React.useEffect(() => {
+    if (editing || publishing) {
+      setForceCollectionView(false);
+    }
+  }, [editing, publishing]);
 
   function togglePublicCollection() {
     if (isOnPublicView) {
@@ -142,7 +149,10 @@ const CollectionPage = (props: Props) => {
   if (publishPage && !isBuiltin && isCollectionMine) {
     const getPagePath = (id) => `/$/${PAGES.PLAYLIST}/${id}`;
 
-    const doReturnForId = (id) => navigate(getPagePath(id));
+    const doReturnForId = (id) => {
+      setForceCollectionView(true);
+      navigate(getPagePath(id), { replace: true });
+    };
     const closePublishView = () => {
       dispatch(doRemoveUnsavedAction(collectionId));
       window.location.assign(getPagePath(collectionId));

@@ -85,6 +85,15 @@
   @media (max-width: $breakpoint-small) {
     padding-left: var(--spacing-m);
   }
+
+  .tab[aria-selected='true'] {
+    color: var(--color-link);
+
+    &::after {
+      height: 4px;
+      background-color: var(--color-link);
+    }
+  }
 }
 
 .tab {
