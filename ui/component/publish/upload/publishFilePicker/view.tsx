@@ -99,7 +99,7 @@ export default function PublishFilePicker(props: Props) {
         type="file"
         style={{ display: 'none' }}
         onChange={handleInputChange}
-        accept="video/*,audio/*,image/*,application/*,text/*,.md,.pdf,.html,.epub,.docx,.odt,.txt,.csv,.json,.xml,.lbry,.stl,.obj,.fbx,.gcode,.cbr,.cbz,.cbt"
+        accept="video/*,audio/*,image/*,application/*,text/*,.zip,.md,.pdf,.html,.epub,.docx,.odt,.txt,.csv,.json,.xml,.lbry,.stl,.obj,.fbx,.gcode,.cbr,.cbz,.cbt"
       />
 
       {!hasFile ? (
