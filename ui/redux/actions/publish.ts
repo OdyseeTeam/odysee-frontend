@@ -1438,6 +1438,15 @@ export const doPublishWithEarlyUpload =
       const publishedUri = channelBaseUrl
         ? `${channelBaseUrl}/${publishData.name}`
         : buildURI({ streamName: publishData.name, channelName: publishData.channel } as LbryUrlObj, true);
+      const isAudio = !!publishData.fileMime && publishData.fileMime.startsWith('audio/');
+      const sourceMediaType = publishData.fileMime || (publishData.fileVid ? 'video/mp4' : undefined);
+      const streamMetadata = publishData.fileVid
+        ? publishData.fileDur
+          ? { video: { duration: publishData.fileDur } }
+          : {}
+        : isAudio && publishData.fileDur
+          ? { audio: { duration: publishData.fileDur } }
+          : {};
       const pendingClaimId = `pending-${guid}`;
       const fakePendingClaim: any = {
         claim_id: pendingClaimId,
@@ -1454,7 +1463,8 @@ export const doPublishWithEarlyUpload =
           description: publishData.description,
           thumbnail: { url: publishData.thumbnail },
           tags: publishData.tags?.map((t: any) => t.name) || [],
-          source: { media_type: 'video/mp4' },
+          source: sourceMediaType ? { media_type: sourceMediaType } : undefined,
+          ...streamMetadata,
         },
         signing_channel: signingChannel
           ? {
