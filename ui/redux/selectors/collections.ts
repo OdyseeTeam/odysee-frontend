@@ -465,11 +465,10 @@ export const selectUrlsForCollectionId = createCachedSelector(
         if (claim) {
           const uri = claim.permanent_url || claim.canonical_url;
           if (uri) uris.push(uri);
-        } else if (claim === null) {
-          uris.push(item);
         } else if (claim === undefined) {
           notFetched = true;
         }
+        // claim === null → resolved as abandoned/deleted; skip so consumers never receive a raw claim ID as a URI.
       }
     });
 

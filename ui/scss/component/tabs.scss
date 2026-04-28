@@ -94,6 +94,12 @@
       background-color: var(--color-link);
     }
   }
+
+  @media (max-width: $breakpoint-small) {
+    .tab[aria-selected='true']::after {
+      height: 4px !important;
+    }
+  }
 }
 
 .tab {
