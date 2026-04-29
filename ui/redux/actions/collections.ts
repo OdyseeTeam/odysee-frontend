@@ -898,14 +898,14 @@ export const doClearEditsForCollectionId = (id: string) => (dispatch: Dispatch) 
   if (collectionAutoPublishTimers[id]) {
     clearTimeout(collectionAutoPublishTimers[id]);
     delete collectionAutoPublishTimers[id];
-    dispatch({
-      type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
-      data: {
-        collectionId: id,
-        scheduledAt: null,
-      },
-    });
   }
+  dispatch({
+    type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
+    data: {
+      collectionId: id,
+      scheduledAt: null,
+    },
+  });
   dispatch({
     type: ACTIONS.COLLECTION_DELETE,
     data: {
