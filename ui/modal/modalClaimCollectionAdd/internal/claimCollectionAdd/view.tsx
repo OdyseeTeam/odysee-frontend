@@ -8,6 +8,7 @@ import * as COLS from 'constants/collections';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import Spinner from 'component/spinner';
+import { getTitleForCollection } from 'util/collections';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
   selectMyPublishedCollections,
@@ -34,12 +35,10 @@ const ClaimCollectionAdd = (props: Props) => {
     }
   }, [dispatch, fetchingMine]);
   const normalizedSearchText = searchText.trim().toLowerCase();
+  const getCollectionLabel = React.useCallback((collection) => getTitleForCollection(collection) || '', []);
 
-  const matchName = (name) =>
-    !normalizedSearchText ||
-    String(name || '')
-      .toLowerCase()
-      .includes(normalizedSearchText);
+  const matchCollection = (collection) =>
+    !normalizedSearchText || String(getCollectionLabel(collection)).toLowerCase().includes(normalizedSearchText);
 
   const unpublishedCollections = Object.values(unpublished) as any as Array<Collection>;
   const publishedCollections = published ? (Object.values(published) as any as Array<Collection>) : [];
@@ -82,14 +81,18 @@ const ClaimCollectionAdd = (props: Props) => {
             <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={COLS.PLAYLIST_ICONS[id]} />
           ))}
           {unpublishedCollections
-            .filter((collection) => matchName(collection.name))
-            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+            .filter((collection) => matchCollection(collection))
+            .sort((a, b) =>
+              getCollectionLabel(a).localeCompare(getCollectionLabel(b), undefined, { sensitivity: 'base' })
+            )
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
             ))}
           {publishedCollections
-            .filter((collection) => matchName(collection.name))
-            .sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+            .filter((collection) => matchCollection(collection))
+            .sort((a, b) =>
+              getCollectionLabel(a).localeCompare(getCollectionLabel(b), undefined, { sensitivity: 'base' })
+            )
             .map(({ id }) => (
               <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
             ))}
