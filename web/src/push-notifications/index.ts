@@ -3,9 +3,11 @@
  * subscriptions via the firebase SDK.
  */
 import { Lbryio } from 'lbryinc';
+// @if process.env.FLOSS_BUILD!='true'
 import { initializeApp } from 'firebase/app';
 import { getMessaging, getToken, deleteToken } from 'firebase/messaging';
 import { firebaseConfig, vapidKey } from '$web/src/firebase-config';
+// @endif
 import { addRegistration, removeRegistration, hasRegistration } from '$web/src/push-notifications/fcm-management';
 import { browserData } from '$web/src/ua';
 import { isPushSupported } from '$web/src/push-notifications/push-supported';
@@ -49,6 +51,9 @@ const getPushServiceWorkerRegistration = async (): Promise<ServiceWorkerRegistra
   });
 };
 
+let initPromise: Promise<void> = Promise.resolve();
+
+// @if process.env.FLOSS_BUILD!='true'
 const getFcmToken = async (): Promise<string | void> => {
   if (window.cordova) return;
   const swRegistration = await getPushServiceWorkerRegistration();
@@ -142,7 +147,7 @@ const validate = async (userId: number) => {
   }
 };
 
-const initPromise = (async () => {
+initPromise = (async () => {
   const supported = await isPushSupported();
 
   if (supported) {
@@ -173,6 +178,7 @@ const initPromise = (async () => {
     };
   }
 })();
+// @endif
 
 export type PushNotificationsApi = {
   supported: boolean;

@@ -88,6 +88,9 @@ export default function useChromecast() {
   }, []);
 
   useEffect(() => {
+    // @if process.env.FLOSS_BUILD='true'
+    return;
+    // @endif
     var chromeCastRetryId = null;
 
     const setupContext = (ctx) => {

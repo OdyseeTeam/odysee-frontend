@@ -178,6 +178,22 @@ function preprocessPlugin() {
         }
       );
 
+      // Handle JSX-style comments: {/* @if process.env.VAR='val' */}...{/* @endif */}
+      result = result.replace(
+        /\{\/\*\s*@if\s+process\.env\.(\w+)='([^']*)'\s*\*\/\}([\s\S]*?)\{\/\*\s*@endif\s*\*\/\}/g,
+        (_match, envVar, expected, content) => {
+          return process.env[envVar] === expected ? content : '';
+        }
+      );
+
+      // Handle JSX-style comments: {/* @if process.env.VAR!='val' */}...{/* @endif */}
+      result = result.replace(
+        /\{\/\*\s*@if\s+process\.env\.(\w+)!='([^']*)'\s*\*\/\}([\s\S]*?)\{\/\*\s*@endif\s*\*\/\}/g,
+        (_match, envVar, expected, content) => {
+          return process.env[envVar] !== expected ? content : '';
+        }
+      );
+
       // Handle JSX-style comments: {/* @if process.env.VAR */}...{/* @endif */}
       result = result.replace(
         /\{\/\*\s*@if\s+process\.env\.(\w+)\s*\*\/\}([\s\S]*?)\{\/\*\s*@endif\s*\*\/\}/g,
@@ -619,7 +635,7 @@ function legacyFallbackPlugin() {
         }
 
         const detectorScript = `<script>
-(function(){try{eval("class C{#x=1;static s=2}let a=1;a??=2;a&&=1;a||=0;a?.toString();[1].at(0);structuredClone(a);Object.hasOwn({},'x')")}catch(e){
+(function(){try{if(location.search.indexOf('legacy=1')!==-1)throw 1;eval("class C{#x=1;static s=2}let a=1;a??=2;a&&=1;a||=0;a?.toString();[1].at(0);structuredClone(a);Object.hasOwn({},'x')")}catch(e){
 if(typeof Object.hasOwn!=='function')Object.hasOwn=function(o,k){return Object.prototype.hasOwnProperty.call(o,k)};
 if(typeof Array.prototype.at!=='function')Array.prototype.at=function(i){var l=this.length;i=i<0?l+i:i;return i<0||i>=l?undefined:this[i]};
 if(typeof String.prototype.at!=='function')String.prototype.at=function(i){var l=this.length;i=i<0?l+i:i;return i<0||i>=l?undefined:this[i]};
@@ -635,7 +651,8 @@ var s=document.createElement('script');s.src='/${legacyFilename}';document.head.
         const updatedHtml = html.replace('<head>', `<head>\n    ${detectorScript}`);
         fs.writeFileSync(builtHtml, updatedHtml, 'utf8');
 
-        const templateHtml = path.join(outDir, 'index-web.html');
+        const isFloss = process.env.FLOSS_BUILD === 'true';
+        const templateHtml = path.join(outDir, isFloss ? 'index-web-floss.html' : 'index-web.html');
         if (fs.existsSync(templateHtml)) {
           const tmpl = fs.readFileSync(templateHtml, 'utf8');
           const updatedTmpl = tmpl.replace('<head>', `<head>\n    ${detectorScript}`);
@@ -660,7 +677,8 @@ function ssrTemplatePlugin() {
       handler(options) {
         const outDir = options.dir || path.resolve(__dirname, 'web/dist/public');
         const builtHtml = path.join(outDir, 'index.html');
-        const templateHtml = path.join(outDir, 'index-web.html');
+        const isFloss = process.env.FLOSS_BUILD === 'true';
+        const templateHtml = path.join(outDir, isFloss ? 'index-web-floss.html' : 'index-web.html');
 
         if (!fs.existsSync(builtHtml) || !fs.existsSync(templateHtml)) return;
 

@@ -28,7 +28,7 @@ type RentalTagParams = {
 };
 type Props = {
   uri: string;
-  passClickPropsToParent?: (props: { href?: string; onClick?: () => void }) => void;
+  passClickPropsToParent?: (props?: { href?: string; onClick?: () => void }) => void;
 };
 export default function PaidContentOvelay(props: Props) {
   const { uri, passClickPropsToParent } = props;
@@ -42,10 +42,10 @@ export default function PaidContentOvelay(props: Props) {
   const rentalTag = useAppSelector((state) => selectRentalTagForUri(state, uri));
   const costInfo = useAppSelector((state) => selectCostInfoForUri(state, uri));
   const exchangeRate = useAppSelector((state) => selectArweaveExchangeRates(state));
-  const doOpenModal = (id: string, params: {}) => dispatch(doOpenModalAction(id, params));
   const isEmbed = React.useContext(EmbedContext);
   const { icon: fiatIconToUse, symbol: fiatSymbol } = STRIPE.CURRENCY[preferredCurrency];
   const sdkFeeRequired = costInfo && costInfo.cost > 0 && costInfo.feeCurrency === 'LBC';
+  const modalId = sdkFeeRequired && !canReceiveTips ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
   // setting as 0 so flow doesn't complain, better approach?
   let rentalPrice,
     rentalExpirationTimeInSeconds = 0;
@@ -55,24 +55,46 @@ export default function PaidContentOvelay(props: Props) {
     rentalExpirationTimeInSeconds = rentalTag.expirationTimeInSeconds;
   }
 
-  const clickProps = React.useMemo(() => {
-    const modalId = sdkFeeRequired && !canReceiveTips ? MODALS.AFFIRM_PURCHASE : MODALS.PREORDER_AND_PURCHASE_CONTENT;
-    return isEmbed
-      ? {
-          href: `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(modalId, {
-            uri,
-          })}`,
-        }
-      : {
-          onClick: () =>
-            doOpenModal(modalId, {
-              uri,
-            }),
-        };
-  }, [doOpenModal, isEmbed, sdkFeeRequired, uri, canReceiveTips]);
+  const handleOpenModal = React.useCallback(
+    () =>
+      dispatch(
+        doOpenModalAction(modalId, {
+          uri,
+        })
+      ),
+    [dispatch, modalId, uri]
+  );
+  const embedHref = React.useMemo(
+    () =>
+      `${formatLbryUrlForWeb(uri)}?${getModalUrlParam(modalId, {
+        uri,
+      })}`,
+    [modalId, uri]
+  );
+  const clickProps = React.useMemo(
+    () =>
+      isEmbed
+        ? {
+            href: embedHref,
+          }
+        : {
+            onClick: handleOpenModal,
+          },
+    [embedHref, handleOpenModal, isEmbed]
+  );
+  const handlePurchaseClick = React.useCallback(
+    (e) => {
+      e.stopPropagation();
+
+      if (clickProps.onClick) {
+        e.preventDefault();
+        clickProps.onClick();
+      }
+    },
+    [clickProps]
+  );
   const ButtonPurchase = React.useMemo(() => {
     return ({ label }: { label: string }) => {
-      // const clickprops = disabled ? {} : clickProps;
       return (
         <Button
           className={'purchase-button' + (sdkFeeRequired ? ' purchase-button--fee' : '')}
@@ -80,16 +102,17 @@ export default function PaidContentOvelay(props: Props) {
           button="primary"
           label={label}
           requiresAuth
-          {...clickProps}
+          href={isEmbed ? clickProps.href : undefined}
+          onClick={handlePurchaseClick}
         />
       );
     };
-  }, [clickProps, fiatIconToUse, sdkFeeRequired, purchaseTag]);
+  }, [clickProps.href, fiatIconToUse, handlePurchaseClick, isEmbed, sdkFeeRequired, purchaseTag]);
   React.useEffect(() => {
     if (passClickPropsToParent) {
-      passClickPropsToParent(clickProps);
+      passClickPropsToParent(isEmbed ? undefined : clickProps);
     }
-  }, [clickProps, passClickPropsToParent]);
+  }, [clickProps, isEmbed, passClickPropsToParent]);
   return (
     <div className="paid-content-overlay">
       <div className="paid-content-overlay__body">

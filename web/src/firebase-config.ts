@@ -1,3 +1,4 @@
+// @if process.env.FLOSS_BUILD!='true'
 import {
   FIREBASE_API_KEY,
   FIREBASE_AUTH_DOMAIN,
@@ -8,7 +9,13 @@ import {
   FIREBASE_MEASUREMENT_ID,
   FIREBASE_VAPID_KEY,
 } from 'config';
-export const firebaseConfig = {
+// @endif
+
+let _firebaseConfig: any = {};
+let _vapidKey = '';
+
+// @if process.env.FLOSS_BUILD!='true'
+_firebaseConfig = {
   apiKey: FIREBASE_API_KEY,
   authDomain: FIREBASE_AUTH_DOMAIN,
   projectId: FIREBASE_PROJECT_ID,
@@ -17,4 +24,8 @@ export const firebaseConfig = {
   appId: FIREBASE_APP_ID,
   measurementId: FIREBASE_MEASUREMENT_ID,
 };
-export const vapidKey = FIREBASE_VAPID_KEY;
+_vapidKey = FIREBASE_VAPID_KEY;
+// @endif
+
+export const firebaseConfig = _firebaseConfig;
+export const vapidKey = _vapidKey;

@@ -1047,7 +1047,7 @@ function VideoJsInner(props: Props) {
         embedded={embeddedPlayback}
         externalEmbed={Boolean(externalEmbed || isEmbedPath(window.location.pathname))}
         uri={uri}
-        castAvailable={castAvailable || airPlayAvailable}
+        castAvailable={(castAvailable || airPlayAvailable) && !window.odysee?.build?.floss}
         isCasting={isCasting}
         onCastToggle={onCastToggle}
         castState={castState}

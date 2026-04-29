@@ -1,4 +1,6 @@
+// @if process.env.FLOSS_BUILD!='true'
 import * as Sentry from '@sentry/react';
+// @endif
 import { apiLog } from 'analytics/apiLog';
 import { events } from 'analytics/events';
 import { sentryWrapper } from 'analytics/sentryWrapper';
@@ -60,6 +62,10 @@ const analytics: Analytics = {
   },
   sentryError: (error, errorInfo) => {
     return new Promise((resolve) => {
+      // @if process.env.FLOSS_BUILD='true'
+      resolve(null);
+      return;
+      // @endif
       if (gAnalyticsEnabled && isProduction) {
         Sentry.withScope((scope) => {
           scope.setExtras(errorInfo);

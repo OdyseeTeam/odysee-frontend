@@ -46,12 +46,32 @@ export default function UserSignInPassword(props: Props) {
           })}
           actions={
             <Form onSubmit={handleSubmit} className="section">
+              <input
+                type="email"
+                name="sign_in_email"
+                id="username"
+                autoComplete="username"
+                value={emailToVerify || ''}
+                readOnly
+                aria-hidden="true"
+                tabIndex={-1}
+                style={{
+                  position: 'absolute',
+                  width: 1,
+                  height: 1,
+                  padding: 0,
+                  margin: -1,
+                  overflow: 'hidden',
+                  clip: 'rect(0 0 0 0)',
+                  border: 0,
+                }}
+              />
               <FormField
                 autoFocus
                 type="password"
                 name="sign_in_password"
                 id="password"
-                autoComplete="on"
+                autoComplete="current-password"
                 label={__('Password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}

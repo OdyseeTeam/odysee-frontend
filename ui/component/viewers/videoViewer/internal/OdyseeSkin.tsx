@@ -1126,27 +1126,54 @@ export default function OdyseeSkin(props) {
   React.useLayoutEffect(() => {
     if (!settingsOpen) return;
     const isSafari = platform.isSafari();
-    const noPopoverAPI = typeof HTMLElement.prototype.showPopover !== 'function';
+    const noPopoverAPI =
+      typeof HTMLElement.prototype.showPopover !== 'function' || (window as any).__forceLegacyPopover === true;
     if (!isFloating && !isSafari && !noPopoverAPI) return;
+    let cancelled = false;
+    let observer: MutationObserver | null = null;
+    const triggerSel = isFloating ? '.content__viewer--floating .media-button--settings' : '.media-button--settings';
     const fix = () => {
-      const popup = document.querySelector<HTMLElement>('.media-popover--settings[popover]');
-      const trigger = isFloating
-        ? document.querySelector<HTMLElement>('.content__viewer--floating .media-button--settings')
-        : document.querySelector<HTMLElement>('.media-button--settings');
-      if (!popup || !trigger) return;
-      const tr = trigger.getBoundingClientRect();
-      const ph = popup.offsetHeight;
-      const pw = popup.offsetWidth;
-
+      if (cancelled) return false;
+      const popup = document.querySelector<HTMLElement>('.media-popover--settings');
+      const trigger = document.querySelector<HTMLElement>(triggerSel);
+      if (!popup || !trigger) return false;
       if (noPopoverAPI) {
-        const controls = trigger.closest('.media-controls');
-        if (!controls) return;
-        const ctrlRect = controls.getBoundingClientRect();
+        // Strip the `popover` attribute so the UA-stylesheet rule
+        // `[popover]:not(:popover-open) { display: none }` no longer applies.
+        if (popup.hasAttribute('popover')) popup.removeAttribute('popover');
         popup.style.setProperty('position', 'fixed', 'important');
         popup.style.setProperty('inset', 'auto', 'important');
-        popup.style.setProperty('top', `${tr.top - ctrlRect.top - ph - 4}px`, 'important');
-        popup.style.setProperty('left', `${tr.right - ctrlRect.left - pw}px`, 'important');
+        popup.style.setProperty('margin', '0', 'important');
+        popup.style.setProperty('z-index', '2147483647', 'important');
+        // Probe the containing block. Temporarily neutralize transform/translate
+        // so the bounding rect reflects the un-transformed origin, then restore
+        // them so the modern transition (scale/translate) can animate.
+        const prevTranslate = popup.style.getPropertyValue('translate');
+        const prevTransform = popup.style.getPropertyValue('transform');
+        popup.style.setProperty('translate', 'none', 'important');
+        popup.style.setProperty('transform', 'none', 'important');
+        popup.style.setProperty('top', '0px', 'important');
+        popup.style.setProperty('left', '0px', 'important');
+        const probe = popup.getBoundingClientRect();
+        const dx = probe.left;
+        const dy = probe.top;
+        const ph = popup.offsetHeight;
+        const pw = popup.offsetWidth;
+        // Restore (or clear) so CSS animations on these properties run.
+        if (prevTranslate) popup.style.setProperty('translate', prevTranslate);
+        else popup.style.removeProperty('translate');
+        if (prevTransform) popup.style.setProperty('transform', prevTransform);
+        else popup.style.removeProperty('transform');
+        const tr = trigger.getBoundingClientRect();
+        const fitsAbove = tr.top - ph - 4 >= 0;
+        const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
+        const leftClamped = Math.max(8, Math.min(window.innerWidth - pw - 8, tr.right - pw));
+        popup.style.setProperty('top', `${topPos - dy}px`, 'important');
+        popup.style.setProperty('left', `${leftClamped - dx}px`, 'important');
       } else {
+        const tr = trigger.getBoundingClientRect();
+        const ph = popup.offsetHeight;
+        const pw = popup.offsetWidth;
         const fitsAbove = tr.top - ph - 4 >= 0;
         const topPos = fitsAbove ? tr.top - ph - 4 : tr.bottom + 4;
         popup.style.setProperty('bottom', 'auto', 'important');
@@ -1155,8 +1182,23 @@ export default function OdyseeSkin(props) {
         popup.style.setProperty('place-self', 'normal', 'important');
         popup.style.setProperty('margin-inline-start', '0', 'important');
       }
+      return true;
     };
-    requestAnimationFrame(() => requestAnimationFrame(fix));
+    // Try immediately; if the popup hasn't mounted yet, watch for it.
+    if (!fix()) {
+      observer = new MutationObserver(() => {
+        if (fix() && observer) {
+          observer.disconnect();
+          observer = null;
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    }
+    requestAnimationFrame(() => requestAnimationFrame(() => fix()));
+    return () => {
+      cancelled = true;
+      if (observer) observer.disconnect();
+    };
   }, [settingsOpen, isFloating]);
 
   React.useEffect(() => {

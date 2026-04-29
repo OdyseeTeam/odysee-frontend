@@ -215,18 +215,15 @@ export default function NotificationHeaderButton() {
     }
 
     return (
-      <div
-        className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
+      <NavLink
         key={id}
+        onClick={handleNotificationClick}
+        to={{
+          ...getNotificationLocation(notification, undefined),
+        }}
+        state={!disableAutoplay ? undefined : { forceDisableAutoplay: true }}
+        className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
       >
-        <NavLink
-          className="menu__list--notification-overlay"
-          onClick={handleNotificationClick}
-          to={{
-            ...getNotificationLocation(notification, undefined),
-          }}
-          state={!disableAutoplay ? undefined : { forceDisableAutoplay: true }}
-        />
         <div className="notification__icon">{icon}</div>
         <div className="menu__list--notification-info">
           <div className="menu__list--notification-type">
@@ -245,7 +242,7 @@ export default function NotificationHeaderButton() {
         <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
           <Icon icon={ICONS.DELETE} sectionIcon />
         </div>
-      </div>
+      </NavLink>
     );
   }
 

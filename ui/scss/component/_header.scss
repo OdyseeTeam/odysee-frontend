@@ -616,15 +616,7 @@
       border-top: 1px solid var(--color-header-background);
       transition: border-left 0.4s;
 
-      .menu__list--notification-overlay {
-        position: absolute;
-        inset: 0;
-        z-index: 0;
-      }
-
       .notification__icon {
-        position: relative;
-        z-index: 1;
         margin-top: 0;
         margin-left: 0;
         .icon__wrapper {
@@ -797,7 +789,6 @@
       top: var(--spacing-xs);
       right: var(--spacing-xxs);
       opacity: 0;
-      z-index: 1;
       .icon__wrapper {
         width: 20px;
         height: 20px;

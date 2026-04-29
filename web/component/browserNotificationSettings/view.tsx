@@ -8,6 +8,8 @@ const BrowserNotificationSettings = () => {
   const { pushSupported, pushEnabled, pushPermission, pushToggle, pushErrorModal } = useBrowserNotifications();
   const pushBlocked = pushPermission === 'denied';
 
+  if (window.odysee?.build?.floss) return null;
+
   const renderHints = () => (!pushSupported ? <BrowserNotificationHints /> : null);
 
   const renderBlocked = () => (pushBlocked ? <BrowsernotificationsBlocked /> : null);

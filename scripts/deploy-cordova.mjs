@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, rmSync, cpSync, existsSync, unlinkSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, cpSync, existsSync, unlinkSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const [, , targetArg] = process.argv;
@@ -15,16 +15,16 @@ if (!existsSync(source)) {
   process.exit(1);
 }
 if (!existsSync(target)) {
-  console.error(`target not found: ${target}`);
-  process.exit(1);
+  mkdirSync(target, { recursive: true });
 }
 
 // Frontend-owned paths in www/ — cordova-owned paths (js/, css/, img/, opensearch.xml,
 // cordova.js, cordova_plugins.js, plugins/) are deliberately left alone.
+const isFloss = process.env.FLOSS_BUILD === 'true';
 const FRONTEND_PATHS = [
   'assets',
   'font',
-  'cast',
+  ...(isFloss ? [] : ['cast']),
   'app-strings.json',
   'favicon.png',
   'favicon_128.png',
@@ -48,13 +48,18 @@ for (const name of FRONTEND_PATHS) {
 }
 
 // Cordova expects to load index.html; frontend builds the real SPA template as
-// index-web.html (with the cordova boot scripts). Swap them.
-const indexWeb = resolve(target, 'index-web.html');
+// index-web.html (or index-web-floss.html for FLOSS builds — same shape but no
+// proprietary script tags like gtag). Swap the appropriate one to index.html.
+const sourceTemplate = resolve(target, isFloss ? 'index-web-floss.html' : 'index-web.html');
 const indexHtml = resolve(target, 'index.html');
-if (existsSync(indexWeb)) {
+if (existsSync(sourceTemplate)) {
   if (existsSync(indexHtml)) unlinkSync(indexHtml);
-  cpSync(indexWeb, indexHtml);
-  unlinkSync(indexWeb);
+  cpSync(sourceTemplate, indexHtml);
+}
+// Strip both candidate templates from the deployed www so they don't ship.
+for (const name of ['index-web.html', 'index-web-floss.html']) {
+  const p = resolve(target, name);
+  if (existsSync(p)) unlinkSync(p);
 }
 
 // Rewrite absolute paths to relative (for file:// cordova webview).

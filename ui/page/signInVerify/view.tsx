@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import Page from 'component/page';
+// @if process.env.FLOSS_BUILD!='true'
 import ReCAPTCHA from 'react-google-recaptcha';
+// @endif
 import Button from 'component/button';
 import { Lbryio } from 'lbryinc';
 import I18nMessage from 'component/i18nMessage';
@@ -129,6 +131,7 @@ function SignInVerifyPage() {
             }
             actions={
               <>
+                {/* @if process.env.FLOSS_BUILD!='true' */}
                 {!successful && needsRecaptcha && (
                   <div className="section__actions">
                     <ReCAPTCHA
@@ -140,6 +143,7 @@ function SignInVerifyPage() {
                     />
                   </div>
                 )}
+                {/* @endif */}
                 {successful && (
                   <Button
                     button="primary"

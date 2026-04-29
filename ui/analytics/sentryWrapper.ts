@@ -12,7 +12,9 @@
  *   sentry_debug    : true         // enables verbose logging
  *   sentry_test_dsn : https://blah // if you have your own DSN
  */
+// @if process.env.FLOSS_BUILD!='true'
 import * as Sentry from '@sentry/react';
+// @endif
 import { LocalStorage } from 'util/storage';
 const SENTRY_DSN = 'https://1f3c88e2e4b341328a638e138a60fb73@sentry.odysee.tv/2';
 const TEST_DSN = LocalStorage.getItem('sentry_test_dsn') || '';
@@ -34,6 +36,9 @@ declare type SentryWrapper = {
 };
 export const sentryWrapper: SentryWrapper = {
   init: () => {
+    // @if process.env.FLOSS_BUILD='true'
+    return;
+    // @endif
     // Call init() as early as possible in the app.
     // Note that we currently catch React errors in 'component/errorBoundary' and
     // manually relay it to Sentry. Those will not bubble up to this error reporter.
@@ -58,6 +63,10 @@ export const sentryWrapper: SentryWrapper = {
   },
   log: (error: Error | string, options?: SentryEventOptions, transactionName?: string) => {
     return new Promise((resolve) => {
+      // @if process.env.FLOSS_BUILD='true'
+      resolve(null);
+      return;
+      // @endif
       if (gSentryInitialized && gSentryEnabled) {
         Sentry.withScope((scope) => {
           if (transactionName) {

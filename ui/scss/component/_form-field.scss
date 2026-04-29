@@ -873,6 +873,8 @@ fieldset-section {
   }
 
   .react-datepicker__time-list-item {
+    margin-left: 0;
+
     &:hover {
       background-color: var(--color-button-alt-bg-hover) !important;
     }

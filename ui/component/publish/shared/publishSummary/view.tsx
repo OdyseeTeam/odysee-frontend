@@ -69,6 +69,8 @@ export default function PublishSummary() {
     memberRestrictionTierIds,
     thumbnail,
     filePath,
+    fileMime,
+    fileVid,
     fileDur,
     type,
   } = pf;
@@ -101,6 +103,18 @@ export default function PublishSummary() {
 
   React.useEffect(() => {
     if (!pf.name || !isNameValid(pf.name) || !previewUri) return;
+
+    const isPost = type === 'post';
+    const isAudio = !isPost && !!fileMime && fileMime.startsWith('audio/');
+    const sourceMediaType = isPost ? 'text/markdown' : fileMime || (fileVid ? 'video/mp4' : undefined);
+    const streamMetadata = isPost
+      ? {}
+      : fileVid && fileDur
+        ? { video: { duration: fileDur } }
+        : isAudio && fileDur
+          ? { audio: { duration: fileDur } }
+          : {};
+
     const fakeClaim: any = {
       claim_id: previewClaimId,
       name: pf.name,
@@ -117,8 +131,8 @@ export default function PublishSummary() {
         thumbnail: { url: thumbnail },
         languages: language ? [language] : [],
         tags: tags.map((t: any) => t.name),
-        source: { media_type: type === 'post' ? 'text/markdown' : 'video/mp4' },
-        ...(type !== 'post' ? { video: { duration: fileDur || 60 } } : {}),
+        source: sourceMediaType ? { media_type: sourceMediaType } : undefined,
+        ...streamMetadata,
       },
       signing_channel: channelClaim
         ? {
@@ -151,7 +165,21 @@ export default function PublishSummary() {
         },
       });
     }
-  }, [title, description, thumbnail, channel, pf.name, language, tags, channelClaim, previewBlobUrl]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [
+    title,
+    description,
+    thumbnail,
+    channel,
+    pf.name,
+    language,
+    tags,
+    channelClaim,
+    previewBlobUrl,
+    fileMime,
+    fileVid,
+    fileDur,
+    type,
+  ]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function getPriceValue() {
     switch (paywall) {

@@ -64,9 +64,11 @@ export function doInstallNew(appVersion, callbackForUsersWhoAreSharingData, doma
   };
 
   if (window.cordova) {
-    payload.app_id = window.odysee?.build?.googlePlay
-      ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
-      : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
+    payload.app_id = window.odysee?.build?.floss
+      ? 'odyseeandroidFDROIDDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
+      : window.odysee?.build?.googlePlay
+        ? 'odyseeandroidAWhtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V'
+        : 'odyseeandroidAPKtoqDuAfQ6KHMXxFxt8tkhmt7sfprEMHWKjy5hf6PwZcHDV542V';
     Lbry.version().then((version) => {
       payload.daemon_version = version.lbrynet_version;
       payload.operating_system = 'android';

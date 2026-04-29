@@ -2,6 +2,20 @@ if (typeof Object.hasOwn !== 'function') {
   (Object as any).hasOwn = (obj: any, key: PropertyKey) => Object.prototype.hasOwnProperty.call(obj, key);
 }
 
+// Dev-only: ?legacy=1 simulates a browser without the Popover API.
+if (typeof window !== 'undefined' && window.location.search.indexOf('legacy=1') !== -1) {
+  for (const m of ['showPopover', 'hidePopover', 'togglePopover']) {
+    try {
+      Object.defineProperty(HTMLElement.prototype, m, {
+        value: undefined,
+        configurable: true,
+        writable: true,
+      });
+    } catch {}
+  }
+  (window as any).__forceLegacyPopover = true;
+}
+
 if (typeof AbortSignal.any !== 'function') {
   AbortSignal.any = (signals: AbortSignal[]) => {
     const controller = new AbortController();
