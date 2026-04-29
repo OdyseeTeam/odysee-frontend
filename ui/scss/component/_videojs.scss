@@ -283,6 +283,7 @@ img.odysee-cast-thumbnail {
 .media-controls--popover-open {
   opacity: 1 !important;
   pointer-events: auto !important;
+  z-index: 12 !important;
 }
 
 .odysee-skin:has(.media-controls[data-mobile-hidden]) .odysee-progress-bar,
