@@ -46,6 +46,7 @@ import {
   doUpdatePublishForm,
   doPublishDesktop,
   doPublishWithEarlyUpload,
+  doCreateClaimForEarlyUpload,
 } from 'redux/actions/publish';
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
 import {
@@ -360,13 +361,28 @@ function UploadForm(props: Props) {
 
         if (!uploadPromise) return;
         dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
-        dispatch(doPublishWithEarlyUpload(uploadPromise as any, pipelineId));
+        const handleForPublish = (window as any).__earlyUploadHandles?.[pipelineId];
+        const publishIdPromise =
+          earlyPublishIdPromiseRef.current ||
+          (handleForPublish?.locationPromise
+            ? (handleForPublish.locationPromise.then((loc: string) =>
+                dispatch(doCreateClaimForEarlyUpload(loc))
+              ) as unknown as Promise<number>)
+            : Promise.reject(new Error('Upload location unavailable')));
+        dispatch(doPublishWithEarlyUpload(uploadPromise as any, publishIdPromise, pipelineId));
       } else {
         const uploadHandle = (window as any).__earlyUploadHandles?.[pipelineId];
         const uploadPromise = earlyUploadPromiseRef.current || uploadHandle?.promise;
 
         if (uploadPromise && mode === PUBLISH_MODES.FILE) {
-          dispatch(doPublishWithEarlyUpload(uploadPromise, pipelineId));
+          const publishIdPromise =
+            earlyPublishIdPromiseRef.current ||
+            (uploadHandle?.locationPromise
+              ? (uploadHandle.locationPromise.then((loc: string) =>
+                  dispatch(doCreateClaimForEarlyUpload(loc))
+                ) as unknown as Promise<number>)
+              : Promise.reject(new Error('Upload location unavailable')));
+          dispatch(doPublishWithEarlyUpload(uploadPromise, publishIdPromise, pipelineId));
         } else {
           dispatch(doUpdatePipelineItem(pipelineId, { stage: 'processing', progress: 0 }));
           publish(outputFile, false);
@@ -466,6 +482,7 @@ function UploadForm(props: Props) {
   const preparedOutputFileRef = React.useRef<File | null>(null);
   const earlyUploadPromiseRef = React.useRef<Promise<{ tusUrl: string }> | null>(null);
   const earlyUploadAbortRef = React.useRef<(() => void) | null>(null);
+  const earlyPublishIdPromiseRef = React.useRef<Promise<number> | null>(null);
 
   React.useEffect(() => {
     if (!(window as any).__pipelineHandles) (window as any).__pipelineHandles = {};
@@ -492,6 +509,7 @@ function UploadForm(props: Props) {
         earlyUploadAbortRef.current();
         earlyUploadAbortRef.current = null;
         earlyUploadPromiseRef.current = null;
+        earlyPublishIdPromiseRef.current = null;
       }
     }
   }, [filePath]);
@@ -512,6 +530,12 @@ function UploadForm(props: Props) {
       });
       earlyUploadPromiseRef.current = handle.promise;
       earlyUploadAbortRef.current = handle.abort;
+      // Kick off createClaim as soon as the upload location (which contains
+      // the upload_id) is known — this races forklift's upload:done event so
+      // the asynqueries row exists when forklift fires.
+      earlyPublishIdPromiseRef.current = handle.locationPromise.then(
+        (location) => dispatch(doCreateClaimForEarlyUpload(location)) as unknown as Promise<number>
+      );
       if (!(window as any).__earlyUploadHandles) (window as any).__earlyUploadHandles = {};
       (window as any).__earlyUploadHandles[pipelineId] = handle;
       handle.promise

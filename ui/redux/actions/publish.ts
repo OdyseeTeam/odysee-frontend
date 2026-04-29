@@ -1376,8 +1376,35 @@ export const doPublish =
       //   });
     }, fail);
   };
+// Create the asynqueries row up front (in parallel with TUS) using the upload
+// location as file_path, so the row exists keyed by upload_id by the time
+// forklift fires upload:done. If we wait until Publish click to call
+// createClaim, fast uploads finish first → forklift can't find a matching row
+// → publish confirmation hangs and times out at 30 min.
+export const doCreateClaimForEarlyUpload =
+  (uploadLocation: string) =>
+  async (dispatch: Dispatch, getState: GetState): Promise<number> => {
+    const { createClaim } = await import('web/setup/publish-v4-tasks');
+    const state = getState();
+    const publishData = selectPublishFormValues(state);
+    const myClaimForUri = state.publish.claimToEdit;
+    const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
+    const publishPayload = resolvePublishPayload(
+      publishData,
+      myClaimForUri,
+      myChannels,
+      memberRestrictionStatus,
+      false
+    );
+    const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload as any;
+    const headers = Lbry.getApiRequestHeaders();
+    const token = headers && Object.keys(headers).includes(X_LBRY_AUTH_TOKEN) ? headers[X_LBRY_AUTH_TOKEN] : '';
+    return createClaim(token, uploadLocation, sdkParams, { onSuccess: () => {}, onFailure: () => {} });
+  };
 export const doPublishWithEarlyUpload =
-  (tusUrlPromise: Promise<{ tusUrl: string }>, guid: string) => async (dispatch: Dispatch, getState: GetState) => {
+  (tusUrlPromise: Promise<{ tusUrl: string }>, publishIdPromise: Promise<number>, guid: string) =>
+  async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const myClaimForUri = state.publish.claimToEdit;
     const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
@@ -1388,7 +1415,7 @@ export const doPublishWithEarlyUpload =
     navigateTo(`/$/${PAGES.UPLOADS}`);
 
     try {
-      const { tusUrl } = await tusUrlPromise;
+      await tusUrlPromise;
       dispatch({
         type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
         data: { id: guid, updates: { stage: 'processing', progress: 0 } },
@@ -1417,7 +1444,6 @@ export const doPublishWithEarlyUpload =
         );
       }
 
-      const { createClaim } = await import('web/setup/publish-v4-tasks');
       const { pollPublishStatus } = await import('web/setup/publish-v4');
 
       const token =
@@ -1425,12 +1451,7 @@ export const doPublishWithEarlyUpload =
           ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
           : '';
 
-      const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload;
-
-      const publishId = await createClaim(token, tusUrl, sdkParams, {
-        onSuccess: () => {},
-        onFailure: () => {},
-      });
+      const publishId = await publishIdPromise;
 
       const signingChannel = myChannels?.find((ch: any) => ch.claim_id === channelClaimId);
       const channelBaseUrl =
