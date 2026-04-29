@@ -1376,11 +1376,12 @@ export const doPublish =
       //   });
     }, fail);
   };
-// Create the asynqueries row up front (in parallel with TUS) using the upload
-// location as file_path, so the row exists keyed by upload_id by the time
-// forklift fires upload:done. If we wait until Publish click to call
-// createClaim, fast uploads finish first → forklift can't find a matching row
-// → publish confirmation hangs and times out at 30 min.
+// Pre-create the asynqueries row in DRAFT state (ready_to_run=false) as soon
+// as the upload URL is known, so the row exists keyed by upload_id by the time
+// forklift fires upload:done. The actual SDK call is deferred until the user
+// clicks Publish — see doPublishWithEarlyUpload, which sends a second
+// stream_create with the final form data and no `_defer` flag, causing the
+// backend to overwrite the stored params and queue the SDK call.
 export const doCreateClaimForEarlyUpload =
   (uploadLocation: string) =>
   async (dispatch: Dispatch, getState: GetState): Promise<number> => {
@@ -1400,11 +1401,15 @@ export const doCreateClaimForEarlyUpload =
     const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload as any;
     const headers = Lbry.getApiRequestHeaders();
     const token = headers && Object.keys(headers).includes(X_LBRY_AUTH_TOKEN) ? headers[X_LBRY_AUTH_TOKEN] : '';
-    return createClaim(token, uploadLocation, sdkParams, { onSuccess: () => {}, onFailure: () => {} });
+    return createClaim(
+      token,
+      uploadLocation,
+      { ...sdkParams, _defer: true },
+      { onSuccess: () => {}, onFailure: () => {} }
+    );
   };
 export const doPublishWithEarlyUpload =
-  (tusUrlPromise: Promise<{ tusUrl: string }>, publishIdPromise: Promise<number>, guid: string) =>
-  async (dispatch: Dispatch, getState: GetState) => {
+  (tusUrlPromise: Promise<{ tusUrl: string }>, guid: string) => async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const myClaimForUri = state.publish.claimToEdit;
     const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
@@ -1415,7 +1420,7 @@ export const doPublishWithEarlyUpload =
     navigateTo(`/$/${PAGES.UPLOADS}`);
 
     try {
-      await tusUrlPromise;
+      const { tusUrl } = await tusUrlPromise;
       dispatch({
         type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
         data: { id: guid, updates: { stage: 'processing', progress: 0 } },
@@ -1444,6 +1449,7 @@ export const doPublishWithEarlyUpload =
         );
       }
 
+      const { createClaim } = await import('web/setup/publish-v4-tasks');
       const { pollPublishStatus } = await import('web/setup/publish-v4');
 
       const token =
@@ -1451,7 +1457,16 @@ export const doPublishWithEarlyUpload =
           ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
           : '';
 
-      const publishId = await publishIdPromise;
+      const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload;
+
+      // Commits the draft row created on Next: backend overwrites Body with
+      // these final params and sets ready_to_run=true (queues SDK if forklift
+      // already arrived). If no draft exists (e.g. legacy flow), this just
+      // creates the row normally.
+      const publishId = await createClaim(token, tusUrl, sdkParams, {
+        onSuccess: () => {},
+        onFailure: () => {},
+      });
 
       const signingChannel = myChannels?.find((ch: any) => ch.claim_id === channelClaimId);
       const channelBaseUrl =
