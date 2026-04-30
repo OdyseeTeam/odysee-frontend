@@ -228,7 +228,6 @@ export default function ShortsPage(props: Props) {
   const preloadedUrisRef = React.useRef(new Set());
   const [isFullscreen, setIsFullscreen] = React.useState(!!getFullscreenElement());
   const isSwipeEnabled = !(isMobile && sidePanelOpen);
-  const hasEnsuredViewParam = React.useRef(false);
   const latestRouteRef = React.useRef({
     pathname,
     search,
@@ -423,8 +422,14 @@ export default function ShortsPage(props: Props) {
       const isNavigatingToShortsTab = nextParams.get('view') === 'shortsTab';
       const isNavigatingToHome = pathname === '/' && !nextSearch;
       const isBackNavigation = navigationType === NavigationType.Pop;
+      // A pathname like /@channel/claim or /channel/claim is most likely
+      // another claim — possibly another short reached via a notification link
+      // that drops the `view=shorts` param. Don't tear down the playlist for
+      // those; the receiving ShortsPage's ensure-view-param effect will add
+      // `view=shorts` back, and the playlist is preserved across the swap.
+      const isLikelyClaimPath = pathname !== '/' && !pathname.startsWith('/$/');
       const shouldCleanup =
-        (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer) ||
+        (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer && !isLikelyClaimPath) ||
         (isCurrentlyInShortsPlayer && isNavigatingToHome) ||
         (isBackNavigation && isCurrentlyInShortsPlayer && isNavigatingToShortsTab) ||
         (isCurrentlyInShortsPlayer && isNavigatingToShortsTab);
@@ -526,21 +531,17 @@ export default function ShortsPage(props: Props) {
     }
   }, [search, channelUri]);
   React.useEffect(() => {
-    if (hasEnsuredViewParam.current) return;
     const urlParams = new URLSearchParams(search);
+    if (urlParams.get('view') === 'shorts') return;
 
-    if (urlParams.get('view') !== 'shorts') {
-      urlParams.set('view', 'shorts');
-      navigate(
-        {
-          pathname,
-          search: `?${urlParams.toString()}`,
-        },
-        { replace: true }
-      );
-    }
-
-    hasEnsuredViewParam.current = true;
+    urlParams.set('view', 'shorts');
+    navigate(
+      {
+        pathname,
+        search: `?${urlParams.toString()}`,
+      },
+      { replace: true }
+    );
   }, [navigate, pathname, search]);
   const getShortsUrl = React.useCallback((shortUri: string) => {
     return shortUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
