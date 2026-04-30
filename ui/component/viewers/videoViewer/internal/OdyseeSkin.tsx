@@ -36,7 +36,11 @@ import {
 import parseChapters from 'util/parse-chapters';
 import Logo from 'component/logo';
 import { URL } from 'config';
-import { formatLbryUrlForWeb } from 'util/url';
+import { formatLbryUrlForWeb, generateShareUrl } from 'util/url';
+
+const CTX_SHARE_DOMAIN = 'https://odysee.com';
+import { generateEmbedUrl, generateEmbedIframeData } from 'util/web';
+import { doToast } from 'redux/actions/notifications';
 
 // HLS.js attaches these properties to media elements at runtime
 interface HlsMediaElement extends HTMLMediaElement {
@@ -207,6 +211,9 @@ const OdyseeAutoplayNext = icons[ICONS.AUTOPLAY_NEXT];
 const OdyseeSettings = icons[ICONS.SETTINGS];
 const OdyseeRepeat = icons[ICONS.REPEAT];
 const OdyseeCamera = icons[ICONS.CAMERA];
+const OdyseeCopyLink = icons[ICONS.COPY_LINK];
+const OdyseeTime = icons[ICONS.TIME];
+const OdyseeEmbed = icons[ICONS.EMBED];
 
 const Btn = forwardRef<HTMLButtonElement, React.ButtonHTMLAttributes<HTMLButtonElement>>(function Btn(
   { className, ...props },
@@ -1212,8 +1219,143 @@ export default function OdyseeSkin(props) {
     return () => onFullscreenChange(document, 'remove', syncFsIcons);
   }, [isFullscreen]);
 
+  // ----- Custom right-click context menu --------------------------------
+  const [contextMenu, setContextMenu] = useState<{ x: number; y: number } | null>(null);
+  const contextMenuRef = useRef<HTMLDivElement | null>(null);
+  // `usePersistedState('video-loop', ...)` is shared across instances via the
+  // listener mechanism in use-persisted-state — toggling here also updates
+  // the settings menu's loop toggle.
+  const [looped, setLooped] = usePersistedState('video-loop', false);
+  const [ctxAutoplayMedia, setCtxAutoplayMedia] = useState(autoplayMedia);
+  const [ctxAutoplayNext, setCtxAutoplayNext] = useState(autoplayNext);
+
+  const closeContextMenu = useCallback(() => setContextMenu(null), []);
+
+  const handleContextMenu = useCallback((e: React.MouseEvent) => {
+    if ((e.target as HTMLElement)?.closest?.('.odysee-context-menu')) return;
+    e.preventDefault();
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  }, []);
+
+  useEffect(() => {
+    if (!contextMenu) return;
+    const onPointerDown = (ev: PointerEvent) => {
+      if (contextMenuRef.current && contextMenuRef.current.contains(ev.target as Node)) return;
+      closeContextMenu();
+    };
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key === 'Escape') closeContextMenu();
+    };
+    const onScrollOrResize = () => closeContextMenu();
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onKey, true);
+    window.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onScrollOrResize);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onKey, true);
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+    };
+  }, [contextMenu, closeContextMenu]);
+
+  // Clamp the menu to the viewport once it's rendered.
+  useEffect(() => {
+    if (!contextMenu) return;
+    const el = contextMenuRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    let nx = contextMenu.x;
+    let ny = contextMenu.y;
+    if (nx + rect.width > vw - 4) nx = Math.max(4, vw - rect.width - 4);
+    if (ny + rect.height > vh - 4) ny = Math.max(4, vh - rect.height - 4);
+    if (nx !== contextMenu.x || ny !== contextMenu.y) setContextMenu({ x: nx, y: ny });
+  }, [contextMenu]);
+
+  const copyText = useCallback(
+    (text: string, successMsg: string, failureMsg: string) => {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => dispatch(doToast({ message: __(successMsg) })))
+        .catch(() => dispatch(doToast({ message: __(failureMsg), isError: true })));
+    },
+    [dispatch]
+  );
+
+  const getCurrentVideo = useCallback((): HTMLVideoElement | null => {
+    if (media instanceof HTMLVideoElement) return media;
+    return (media as Element | null)?.querySelector?.('video') || document.querySelector('video');
+  }, [media]);
+
+  const ctxToggleLoop = useCallback(() => {
+    setLooped((prev: boolean) => {
+      const next = !prev;
+      if (media) (media as HTMLMediaElement).loop = next;
+      return next;
+    });
+    closeContextMenu();
+  }, [media, setLooped, closeContextMenu]);
+
+  const ctxTogglePip = useCallback(() => {
+    const video = getCurrentVideo();
+    if (!video) return;
+    if (document.pictureInPictureElement) {
+      document.exitPictureInPicture().catch(() => {});
+    } else {
+      video.disablePictureInPicture = false;
+      video.requestPictureInPicture().catch(() => {});
+    }
+    closeContextMenu();
+  }, [getCurrentVideo, closeContextMenu]);
+
+  const ctxCast = useCallback(() => {
+    if (onCastToggle) onCastToggle();
+    closeContextMenu();
+  }, [onCastToggle, closeContextMenu]);
+
+  const ctxCopyUrl = useCallback(() => {
+    if (!uri) return closeContextMenu();
+    const url = generateShareUrl(CTX_SHARE_DOMAIN, uri, '', false, false, 0, undefined, undefined as any);
+    copyText(url, 'Link copied.', 'Failed to copy link.');
+    closeContextMenu();
+  }, [uri, copyText, closeContextMenu]);
+
+  const ctxCopyUrlAtTime = useCallback(() => {
+    if (!uri) return closeContextMenu();
+    const t = Math.floor(getCurrentVideo()?.currentTime || 0);
+    const url = generateShareUrl(CTX_SHARE_DOMAIN, uri, '', false, true, t, undefined, undefined as any);
+    copyText(url, 'Link with timestamp copied.', 'Failed to copy link.');
+    closeContextMenu();
+  }, [uri, getCurrentVideo, copyText, closeContextMenu]);
+
+  const ctxToggleAutoplay = useCallback(() => {
+    setCtxAutoplayMedia((v) => !v);
+    if (onToggleAutoplayMedia) onToggleAutoplayMedia();
+    closeContextMenu();
+  }, [onToggleAutoplayMedia, closeContextMenu]);
+
+  const ctxToggleAutoplayNext = useCallback(() => {
+    setCtxAutoplayNext((v) => !v);
+    if (onToggleAutoplayNext) onToggleAutoplayNext();
+    closeContextMenu();
+  }, [onToggleAutoplayNext, closeContextMenu]);
+
+  const ctxCopyEmbed = useCallback(() => {
+    if (!uri) return closeContextMenu();
+    const src = generateEmbedUrl(uri);
+    const { html } = generateEmbedIframeData(src);
+    copyText(html, 'Embed code copied.', 'Failed to copy embed code.');
+    closeContextMenu();
+  }, [uri, copyText, closeContextMenu]);
+
+  const pipSupported =
+    typeof HTMLVideoElement !== 'undefined' && typeof HTMLVideoElement.prototype.requestPictureInPicture === 'function';
+
   return (
     <Player.Container
+      onContextMenu={handleContextMenu}
       className={`media-default-skin media-default-skin--video odysee-skin ${
         isCasting ? 'odysee-skin--casting' : ''
       } ${isVertical && isShorts ? 'odysee-skin--portrait' : ''} ${className || ''}`}
@@ -2202,6 +2344,91 @@ export default function OdyseeSkin(props) {
       <SeekIndicator />
 
       {showShortcuts && <KeyboardShortcutsOverlay onClose={() => setShowShortcuts(false)} />}
+
+      {contextMenu && (
+        <div
+          ref={contextMenuRef}
+          className="odysee-context-menu"
+          style={{ left: contextMenu.x, top: contextMenu.y }}
+          onContextMenu={(e) => e.preventDefault()}
+        >
+          <button type="button" className="odysee-context-menu__item" onClick={ctxToggleLoop}>
+            <OdyseeRepeat className="odysee-context-menu__icon" size={14} color="currentColor" />
+            <span className="odysee-context-menu__label">{__('Loop')}</span>
+            {looped && <span className="odysee-context-menu__check">✓</span>}
+          </button>
+          {pipSupported && !isMobileDevice && (
+            <button type="button" className="odysee-context-menu__item" onClick={ctxTogglePip}>
+              <svg
+                className="odysee-context-menu__icon"
+                width={14}
+                height={14}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <rect x="2" y="3" width="20" height="14" rx="2" />
+                <rect x="13" y="10" width="8" height="6" rx="1" fill="currentColor" stroke="none" />
+              </svg>
+              <span className="odysee-context-menu__label">{__('Miniplayer')}</span>
+            </button>
+          )}
+          {castAvailable && onCastToggle && (
+            <button type="button" className="odysee-context-menu__item" onClick={ctxCast}>
+              <OdyseeCast width={14} height={14} />
+              <span className="odysee-context-menu__label">{isCasting ? __('Stop casting') : __('Cast')}</span>
+            </button>
+          )}
+          {!isExternalEmbedPlayback && (onToggleAutoplayMedia || (onToggleAutoplayNext && !isShorts)) && (
+            <div className="odysee-context-menu__separator" />
+          )}
+          {!isExternalEmbedPlayback && onToggleAutoplayMedia && (
+            <button type="button" className="odysee-context-menu__item" onClick={ctxToggleAutoplay}>
+              <svg
+                className="odysee-context-menu__icon"
+                width={14}
+                height={14}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="10" />
+                <polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none" />
+              </svg>
+              <span className="odysee-context-menu__label">{__('Autoplay')}</span>
+              {ctxAutoplayMedia && <span className="odysee-context-menu__check">✓</span>}
+            </button>
+          )}
+          {!isExternalEmbedPlayback && !isMarkdownOrComment && onToggleAutoplayNext && !isShorts && (
+            <button type="button" className="odysee-context-menu__item" onClick={ctxToggleAutoplayNext}>
+              <OdyseeAutoplayNext className="odysee-context-menu__icon" size={14} />
+              <span className="odysee-context-menu__label">{__('Autoplay Next')}</span>
+              {ctxAutoplayNext && <span className="odysee-context-menu__check">✓</span>}
+            </button>
+          )}
+          <div className="odysee-context-menu__separator" />
+          <button type="button" className="odysee-context-menu__item" onClick={ctxCopyUrl} disabled={!uri}>
+            <OdyseeCopyLink className="odysee-context-menu__icon" size={14} color="currentColor" />
+            <span className="odysee-context-menu__label">{__('Copy video URL')}</span>
+          </button>
+          <button type="button" className="odysee-context-menu__item" onClick={ctxCopyUrlAtTime} disabled={!uri}>
+            <OdyseeTime className="odysee-context-menu__icon" size={14} />
+            <span className="odysee-context-menu__label">{__('Copy video URL at current time')}</span>
+          </button>
+          <button type="button" className="odysee-context-menu__item" onClick={ctxCopyEmbed} disabled={!uri}>
+            <OdyseeEmbed className="odysee-context-menu__icon" size={14} color="currentColor" />
+            <span className="odysee-context-menu__label">{__('Copy embed code')}</span>
+          </button>
+        </div>
+      )}
     </Player.Container>
   );
 }
