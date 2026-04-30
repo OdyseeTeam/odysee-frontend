@@ -96,7 +96,16 @@ export default function useChromecast() {
         autoJoinPolicy: window.chrome.cast.AutoJoinPolicy.ORIGIN_SCOPED,
       });
       contextRef.current = ctx;
-      setCastAvailable(true);
+
+      // Only flag castAvailable when a receiver is actually reachable.
+      // SDK-loaded != receiver-on-network; we want the cast UI to stay
+      // hidden when the user has no Chromecast nearby.
+      const NO_DEVICES = window.cast.framework.CastState.NO_DEVICES_AVAILABLE;
+      const syncReceiverState = (state) => setCastAvailable(Boolean(state) && state !== NO_DEVICES);
+      syncReceiverState(ctx.getCastState());
+      ctx.addEventListener(window.cast.framework.CastContextEventType.CAST_STATE_CHANGED, (e) => {
+        syncReceiverState(e?.castState ?? ctx.getCastState());
+      });
 
       ctx.addEventListener(window.cast.framework.CastContextEventType.SESSION_STATE_CHANGED, () => {
         const session = ctx.getCurrentSession();
