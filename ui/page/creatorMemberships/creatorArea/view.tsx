@@ -117,6 +117,13 @@ const CreatorArea = (props: Props) => {
     navigate(url);
   }
 
+  React.useEffect(() => {
+    if (myChannelClaims) {
+      doListAllMyMembershipTiers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only fetch after channel claims resolve.
+  }, [myChannelClaims]);
+
   const onChannelOverviewSelect = () => {
     setAllSelected(false);
     onTabChange(1);
