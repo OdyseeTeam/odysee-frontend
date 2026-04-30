@@ -1067,6 +1067,17 @@
     border: 2px solid var(--color-border);
     overflow: auto !important;
   }
+  textarea {
+    min-height: 8rem;
+    border-radius: var(--border-radius);
+    padding: var(--spacing-s);
+    resize: vertical;
+    white-space: pre-wrap;
+  }
+  .form-field__help {
+    margin-top: var(--spacing-xxs);
+    margin-bottom: var(--spacing-s);
+  }
   fieldset-section {
     margin-top: var(--spacing-m);
     &:first-of-type {
@@ -1184,8 +1195,8 @@ svg.icon--Upgrade {
 
 .membership-tier__infos-description {
   display: block;
-  max-height: 144px;
-  overflow-y: scroll;
+  margin-bottom: var(--spacing-s);
+  overflow-wrap: anywhere;
   white-space: pre-line;
 }
 
