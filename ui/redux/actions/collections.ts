@@ -45,6 +45,7 @@ import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType, getClaimIdsInCollectionClaim } from 'util/collections';
 import { getThumbnailFromClaim } from 'util/claim';
 import { creditsToString } from 'util/format-credits';
+import { normalizeURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 const FETCH_BATCH_SIZE = 50;
 const AUTO_PUBLISH_DEBOUNCE_MS = 15000;
@@ -170,7 +171,12 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
       fullParams.claims = fullParams.claims.filter((ref) => {
         if (!ref || typeof ref !== 'string') return false;
         // Could be a URL or a claim ID
-        const claimId = byUri[ref];
+        let claimId;
+        try {
+          claimId = byUri[normalizeURI(ref)];
+        } catch (e) {
+          claimId = byUri[ref];
+        }
         if (claimId === null) return false; // resolved as abandoned
 
         if (claimId !== undefined) {
