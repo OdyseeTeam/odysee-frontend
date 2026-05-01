@@ -174,7 +174,6 @@ export const doMembershipBuy =
     } = membershipParams;
     const source_payment_address = selectAPIArweaveDefaultAddress(state);
     const subscribeApiParams: MembershipSubscribeParams = {
-      membership_id: membershipId,
       subscriber_channel_claim_id: subscriberChannelId,
       price_id: String(priceId),
       source_payment_address: source_payment_address || '',
