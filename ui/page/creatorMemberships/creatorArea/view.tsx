@@ -124,6 +124,13 @@ const CreatorArea = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only fetch after channel claims resolve.
   }, [myChannelClaims]);
 
+  React.useEffect(() => {
+    if (supportersList === undefined) {
+      doGetMembershipSupportersList();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only fetch when supporters have not resolved.
+  }, [supportersList]);
+
   const onChannelOverviewSelect = () => {
     setAllSelected(false);
     onTabChange(1);
