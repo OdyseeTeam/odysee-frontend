@@ -7,6 +7,8 @@ type Props = {
   crop?: CropRegion;
   onCropChange: (crop: CropRegion | undefined) => void;
   videoStyle?: React.CSSProperties;
+  borderRadius?: number;
+  layerWidth?: number;
 };
 
 type DragState = {
@@ -18,11 +20,12 @@ type DragState = {
 };
 
 export default function LivestreamCropSelector(props: Props) {
-  const { stream, crop, onCropChange, videoStyle } = props;
+  const { stream, crop, onCropChange, videoStyle, borderRadius, layerWidth } = props;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const dragRef = React.useRef<DragState | null>(null);
   const [videoSize, setVideoSize] = React.useState({ w: 0, h: 0 });
+  const [containerSize, setContainerSize] = React.useState({ w: 0, h: 0 });
 
   React.useEffect(() => {
     const video = videoRef.current;
@@ -36,15 +39,52 @@ export default function LivestreamCropSelector(props: Props) {
     return () => video.removeEventListener('loadedmetadata', onMeta);
   }, [stream]);
 
+  React.useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const update = () => {
+      const r = el.getBoundingClientRect();
+      setContainerSize({ w: r.width, h: r.height });
+    };
+    update();
+    const obs = new ResizeObserver(update);
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  function getDisplayRect() {
+    if (!videoSize.w || !containerSize.w) return null;
+    const containerAr = containerSize.w / containerSize.h;
+    const videoAr = videoSize.w / videoSize.h;
+    let displayedW: number;
+    let displayedH: number;
+    let offsetX: number;
+    let offsetY: number;
+    if (containerAr > videoAr) {
+      displayedH = containerSize.h;
+      displayedW = displayedH * videoAr;
+      offsetX = (containerSize.w - displayedW) / 2;
+      offsetY = 0;
+    } else {
+      displayedW = containerSize.w;
+      displayedH = displayedW / videoAr;
+      offsetX = 0;
+      offsetY = (containerSize.h - displayedH) / 2;
+    }
+    return { displayedW, displayedH, offsetX, offsetY };
+  }
+
   function toVideoCoords(clientX: number, clientY: number) {
     const el = containerRef.current;
-    if (!el || !videoSize.w) return { x: 0, y: 0 };
+    const dr = getDisplayRect();
+    if (!el || !dr) return { x: 0, y: 0 };
     const rect = el.getBoundingClientRect();
-    const scaleX = videoSize.w / rect.width;
-    const scaleY = videoSize.h / rect.height;
+    const localX = clientX - rect.left - dr.offsetX;
+    const localY = clientY - rect.top - dr.offsetY;
+    const scale = videoSize.w / dr.displayedW;
     return {
-      x: Math.max(0, Math.min(videoSize.w, (clientX - rect.left) * scaleX)),
-      y: Math.max(0, Math.min(videoSize.h, (clientY - rect.top) * scaleY)),
+      x: Math.max(0, Math.min(videoSize.w, localX * scale)),
+      y: Math.max(0, Math.min(videoSize.h, localY * scale)),
     };
   }
 
@@ -70,10 +110,15 @@ export default function LivestreamCropSelector(props: Props) {
     const { x, y } = toVideoCoords(e.clientX, e.clientY);
 
     if (drag.mode === 'draw') {
-      const sx = Math.min(drag.startX, x);
-      const sy = Math.min(drag.startY, y);
-      const sw = Math.abs(x - drag.startX);
-      const sh = Math.abs(y - drag.startY);
+      let sw = Math.abs(x - drag.startX);
+      let sh = Math.abs(y - drag.startY);
+      if (e.shiftKey) {
+        const side = Math.min(sw, sh);
+        sw = side;
+        sh = side;
+      }
+      const sx = x < drag.startX ? drag.startX - sw : drag.startX;
+      const sy = y < drag.startY ? drag.startY - sh : drag.startY;
       if (sw > 5 && sh > 5) {
         onCropChange({ sx: Math.round(sx), sy: Math.round(sy), sw: Math.round(sw), sh: Math.round(sh) });
       }
@@ -95,17 +140,21 @@ export default function LivestreamCropSelector(props: Props) {
   }
 
   const cropOverlayStyle = React.useMemo(() => {
-    if (!crop || !videoSize.w || !containerRef.current) return null;
-    const rect = containerRef.current.getBoundingClientRect();
-    const scaleX = rect.width / videoSize.w;
-    const scaleY = rect.height / videoSize.h;
+    const dr = getDisplayRect();
+    if (!crop || !dr) return null;
+    const scale = dr.displayedW / videoSize.w;
+    const displayedW = crop.sw * scale;
+    const displayedH = crop.sh * scale;
+    const radiusPx =
+      borderRadius && borderRadius > 0 && layerWidth ? (borderRadius / layerWidth) * displayedW : undefined;
     return {
-      left: crop.sx * scaleX,
-      top: crop.sy * scaleY,
-      width: crop.sw * scaleX,
-      height: crop.sh * scaleY,
+      left: dr.offsetX + crop.sx * scale,
+      top: dr.offsetY + crop.sy * scale,
+      width: displayedW,
+      height: displayedH,
+      borderRadius: radiusPx ? `${radiusPx}px` : undefined,
     };
-  }, [crop, videoSize]);
+  }, [crop, videoSize, containerSize, borderRadius, layerWidth]);
 
   return (
     <div

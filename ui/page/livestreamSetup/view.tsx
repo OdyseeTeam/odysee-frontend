@@ -53,7 +53,7 @@ export default function LivestreamSetupPage() {
   ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
-  const BROWSER_STREAM_ENABLED = false;
+  const BROWSER_STREAM_ENABLED = Boolean(user?.global_mod);
   const VALID_LIVESTREAM_TABS = BROWSER_STREAM_ENABLED
     ? ALL_LIVESTREAM_TABS
     : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream');
@@ -306,18 +306,11 @@ export default function LivestreamSetupPage() {
       {/* Browser Stream Tab (WebRTC) */}
       {tab === 'Stream' && (
         <div className={editingURI ? 'disabled' : ''}>
-          {!fetchingChannels && channelId && claimsFetched && approvedLivestreamClaimCount === 0 && (
-            <LivestreamQuickCreate
-              onCreated={() => {
-                if (channelId) dispatch(doFetchNoSourceClaimsForChannelId(channelId));
-              }}
-            />
-          )}
-          {!fetchingChannels && channelId && approvedLivestreamClaimCount > 0 && (
+          {!fetchingChannels && channelId && (
             <LivestreamStudio
               streamKey={streamKey}
               livestreamEnabled={livestreamEnabled}
-              hasApprovedLivestreamClaim
+              hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
               presetId={presetId}
               signature={sigData.signature}
               signingTs={sigData.signing_ts}
