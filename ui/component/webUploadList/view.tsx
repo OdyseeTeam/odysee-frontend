@@ -15,6 +15,8 @@ import { selectCurrentUploads, selectUploadCount, selectActivePipelineItems } fr
 import { doUpdatePipelineItem } from 'redux/actions/publishPipeline';
 import type { PipelineItem } from 'redux/actions/publishPipeline';
 import { useNavigate } from 'react-router-dom';
+import * as PAGES from 'constants/pages';
+import { formatLbryUrlForWeb } from 'util/url';
 
 const STAGE_LABELS: Record<string, string> = {
   queued: 'Queued',
@@ -55,7 +57,8 @@ export default function WebUploadList() {
   const uploadCount = useAppSelector(selectUploadCount);
   const activeFormId = useAppSelector((state) => state.publish.activeFormId);
   const allPipelineItems = useAppSelector(selectActivePipelineItems) as PipelineItem[];
-  const pipelineItems = allPipelineItems.filter((item) => item.stage !== 'published');
+  const [dismissedIds, setDismissedIds] = React.useState<Set<string>>(new Set());
+  const pipelineItems = allPipelineItems.filter((item) => !dismissedIds.has(item.id));
   const doPublishResume = (arg0: any) => dispatch(doPublishResumeAction(arg0));
   const doUpdateUploadRemove = (arg0: string, arg1: any) => dispatch(doUpdateUploadRemoveAction(arg0, arg1));
   const doOpenModal = (arg0: string, arg1: {}) => dispatch(doOpenModalAction(arg0, arg1));
@@ -80,11 +83,13 @@ export default function WebUploadList() {
                 <div className="claim-preview-info">
                   <div
                     className="claim-preview__title"
-                    style={item.formId ? { cursor: 'pointer' } : undefined}
+                    style={(item.formId && !item.publishStarted) || item.uri ? { cursor: 'pointer' } : undefined}
                     onClick={() => {
-                      if (item.formId) {
+                      if (item.uri) {
+                        navigate(formatLbryUrlForWeb(item.uri));
+                      } else if (item.formId && !item.publishStarted) {
                         dispatch(doSwitchPublishForm(item.formId, activeFormId || undefined));
-                        navigate(`/$/${'upload'}`);
+                        navigate(`/$/${PAGES.UPLOAD}`);
                       }
                     }}
                   >
@@ -117,6 +122,15 @@ export default function WebUploadList() {
                         <rect x="6" y="4" width="4" height="16" />
                         <rect x="14" y="4" width="4" height="16" />
                       </svg>
+                    </button>
+                  )}
+                  {(item.stage === 'published' || item.stage === 'error') && (
+                    <button
+                      className="web-upload-item__round-btn"
+                      title={__('Dismiss')}
+                      onClick={() => setDismissedIds((prev) => new Set(prev).add(item.id))}
+                    >
+                      <Icon icon={ICONS.REMOVE} size={14} />
                     </button>
                   )}
                   {item.stage === 'paused' && (

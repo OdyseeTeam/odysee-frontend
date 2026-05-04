@@ -15,7 +15,8 @@ export type ApiLog = {
     arg1: string,
     arg2: string,
     arg3: number | null | undefined,
-    arg4: (() => void) | null | undefined
+    arg4: (() => void) | null | undefined,
+    arg5?: boolean
   ) => Promise<any>;
   search: () => void;
   publish: (arg0: ChannelClaim | StreamClaim, successCb?: (claimResult: ChannelClaim | StreamClaim) => void) => void;

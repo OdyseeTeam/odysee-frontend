@@ -76,6 +76,8 @@ export const doClearPlayingSource = () => (dispatch: Dispatch) =>
   dispatch(
     doChangePlayingUri({
       source: null,
+      sourceId: null,
+      commentId: null,
       collection: {},
     })
   );
@@ -379,18 +381,19 @@ export function doPlaylistAddAndAllowPlaying({
         const { collectionId: playingCollectionId } = playingUri.collection || {};
         const { permanent_url: playingUrl } = selectClaimForUri(state, playingUri.uri) || {};
         const playingCollectionUrls = selectUrlsForCollectionId(state, playingCollectionId);
-        const itemsToAdd = playingCollectionUrls || [playingUrl];
+        const itemsToAdd = (playingCollectionUrls || [playingUrl]).filter((url): url is string => Boolean(url));
         const hasPlayingUriInQueue = Boolean(
           playingUrl && selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
         );
         const hasClaimInQueue = selectCollectionForIdHasClaimUrl(state, COLLECTIONS_CONSTS.QUEUE_ID, uri);
-        dispatch(
+        const queueEditSaved = await dispatch(
           doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
             uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
             remove: hasClaimInQueue,
             type: COL_TYPES.PLAYLIST,
           })
         );
+        if (!queueEditSaved) return;
       } else {
         dispatch(
           doCollectionEdit(collectionId, {
@@ -451,9 +454,8 @@ export function doPlaylistAddAndAllowPlaying({
       const hasPlayingUriInQueue = Boolean(
         playingUrl && selectCollectionForIdHasClaimUrl(freshState, COLLECTIONS_CONSTS.QUEUE_ID, playingUrl)
       );
-      const hasClaimInQueue = selectCollectionForIdHasClaimUrl(freshState, COLLECTIONS_CONSTS.QUEUE_ID, uri);
 
-      if (!hasClaimInQueue) {
+      if (!remove) {
         const paramsToAdd = {
           collection: {
             collectionId: COLLECTIONS_CONSTS.QUEUE_ID,

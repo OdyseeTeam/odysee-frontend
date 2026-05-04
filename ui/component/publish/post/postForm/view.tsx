@@ -86,7 +86,10 @@ function PostForm(props: Props) {
   const formIdRef = React.useRef('post-draft');
 
   useEffect(() => {
-    dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: formIdRef.current } });
+    const currentPublish = (window as any).store?.getState?.()?.publish;
+    if (!currentPublish?.editingURI) {
+      dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: formIdRef.current } });
+    }
     dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: formIdRef.current } });
     if (!bid) updatePublishForm({ bid: 0.001 });
     return () => {
@@ -226,15 +229,15 @@ function PostForm(props: Props) {
 
   let submitLabel;
   if (isClaimingInitialRewards) submitLabel = __('Claiming credits...');
-  else if (publishing) submitLabel = __('Publishing...');
+  else if (publishing) submitLabel = inEditMode ? __('Updating...') : __('Publishing...');
   else if (previewing) submitLabel = <Spinner type="small" />;
-  else submitLabel = __('Publish');
+  else submitLabel = inEditMode ? __('Update') : __('Publish');
 
   const wizardSteps = [
     { label: 'Post', validate: () => !emptyPostError && !!title },
     { label: 'Content' },
     { label: 'Visibility' },
-    { label: 'Publish' },
+    { label: inEditMode ? 'Update' : 'Publish' },
   ];
 
   return (

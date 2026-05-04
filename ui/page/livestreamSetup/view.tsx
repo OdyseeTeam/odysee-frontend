@@ -25,6 +25,7 @@ import { selectPendingLivestreamsForChannelId, selectLivestreamsForChannelId } f
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
 import LivestreamStudio from 'component/livestreamStudio';
+import ClaimPreview from 'component/claimPreview';
 import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
 import usePersistedState from 'effects/use-persisted-state';
 import { WEBRTC_PUBLISH_PRESET_ORDER, type WebrtcPublishPresetId } from 'constants/webrtcPublish';
@@ -52,7 +53,7 @@ export default function LivestreamSetupPage() {
   ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
-  const BROWSER_STREAM_ENABLED = false;
+  const BROWSER_STREAM_ENABLED = Boolean(user?.global_mod);
   const VALID_LIVESTREAM_TABS = BROWSER_STREAM_ENABLED
     ? ALL_LIVESTREAM_TABS
     : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream');
@@ -305,18 +306,11 @@ export default function LivestreamSetupPage() {
       {/* Browser Stream Tab (WebRTC) */}
       {tab === 'Stream' && (
         <div className={editingURI ? 'disabled' : ''}>
-          {!fetchingChannels && channelId && claimsFetched && approvedLivestreamClaimCount === 0 && (
-            <LivestreamQuickCreate
-              onCreated={() => {
-                if (channelId) dispatch(doFetchNoSourceClaimsForChannelId(channelId));
-              }}
-            />
-          )}
-          {!fetchingChannels && channelId && approvedLivestreamClaimCount > 0 && (
+          {!fetchingChannels && channelId && (
             <LivestreamStudio
               streamKey={streamKey}
               livestreamEnabled={livestreamEnabled}
-              hasApprovedLivestreamClaim
+              hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
               presetId={presetId}
               signature={sigData.signature}
               signingTs={sigData.signing_ts}
@@ -401,6 +395,16 @@ export default function LivestreamSetupPage() {
 
                   {/* Stream Health Metrics */}
                   <LivestreamMetrics metrics={serverMetrics} mode="card" />
+
+                  {/* Recent Streams */}
+                  {totalLivestreamClaims.length > 0 && (
+                    <div className="livestream-setup__recent">
+                      <h3 className="livestream-setup__recent-title">{__('Recent Streams')}</h3>
+                      {totalLivestreamClaims.slice(0, 5).map((c: any) => (
+                        <ClaimPreview key={c.claim_id} uri={c.permanent_url} />
+                      ))}
+                    </div>
+                  )}
 
                   {/* No claims warning */}
                   {totalLivestreamClaims.length === 0 && (

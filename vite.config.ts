@@ -563,6 +563,93 @@ function uiModuleResolverPlugin() {
 const isProduction = process.env.NODE_ENV === 'production';
 const isServeCommand = process.argv.some((arg) => arg === 'dev' || arg === 'serve');
 
+// Post-build plugin: generates a single transpiled legacy bundle for browsers that don't support ES modules.
+// Modern browsers load the normal `<script type="module">` chunks. Old browsers (pre-2021) ignore those
+// and load a `<script nomodule>` fallback instead. The fallback is a single concatenated + Babel-transpiled
+// file so it works without `import`/`export` or dynamic `import()`.
+function legacyFallbackPlugin() {
+  return {
+    name: 'legacy-fallback',
+    apply: 'build' as const,
+    writeBundle: {
+      sequential: true,
+      async handler(options: any) {
+        const outDir = options.dir || path.resolve(__dirname, 'web/dist/public');
+        const builtHtml = path.join(outDir, 'index.html');
+        if (!fs.existsSync(builtHtml)) return;
+
+        const html = fs.readFileSync(builtHtml, 'utf8');
+        const scriptRe = /<script\b[^>]*src="([^"]*)"[^>]*><\/script>/g;
+        const entryScripts: string[] = [];
+        let match;
+        while ((match = scriptRe.exec(html)) !== null) {
+          entryScripts.push(match[1]);
+        }
+        if (entryScripts.length === 0) return;
+
+        const assetsDir = path.join(outDir, 'assets');
+        if (!fs.existsSync(assetsDir)) return;
+
+        const allJs = fs.readdirSync(assetsDir).filter((f: string) => f.endsWith('.js'));
+        const entryFile = entryScripts
+          .map((s: string) => s.replace(/^.*\/assets\//, ''))
+          .find((s: string) => allJs.includes(s));
+
+        if (!entryFile) return;
+
+        const entryPath = path.join(assetsDir, entryFile);
+        const legacyFilename = `assets/legacy-${Date.now().toString(36)}.js`;
+        const legacyPath = path.join(outDir, legacyFilename);
+
+        try {
+          const esbuild = require('esbuild');
+          await esbuild.build({
+            entryPoints: [entryPath],
+            bundle: true,
+            format: 'iife',
+            target: ['es2015'],
+            outfile: legacyPath,
+            minify: true,
+            sourcemap: false,
+            logLevel: 'warning',
+          });
+        } catch (e) {
+          console.warn('[legacy-fallback] esbuild bundling failed:', (e as Error).message);
+          return;
+        }
+
+        const detectorScript = `<script>
+(function(){try{if(location.search.indexOf('legacy=1')!==-1)throw 1;eval("class C{#x=1;static s=2}let a=1;a??=2;a&&=1;a||=0;a?.toString();[1].at(0);structuredClone(a);Object.hasOwn({},'x')")}catch(e){
+if(typeof Object.hasOwn!=='function')Object.hasOwn=function(o,k){return Object.prototype.hasOwnProperty.call(o,k)};
+if(typeof Array.prototype.at!=='function')Array.prototype.at=function(i){var l=this.length;i=i<0?l+i:i;return i<0||i>=l?undefined:this[i]};
+if(typeof String.prototype.at!=='function')String.prototype.at=function(i){var l=this.length;i=i<0?l+i:i;return i<0||i>=l?undefined:this[i]};
+if(typeof String.prototype.replaceAll!=='function')String.prototype.replaceAll=function(s,r){return this.split(s).join(r)};
+if(typeof structuredClone!=='function')window.structuredClone=function(o){return JSON.parse(JSON.stringify(o))};
+if(typeof ResizeObserver==='undefined')window.ResizeObserver=function(cb){var t=[];var l=function(){cb(t.map(function(x){return{target:x,contentRect:x.getBoundingClientRect(),borderBoxSize:[],contentBoxSize:[],devicePixelContentBoxSize:[]}}))};this.observe=function(x){if(t.indexOf(x)<0){t.push(x);if(t.length===1)window.addEventListener('resize',l)}};this.unobserve=function(x){var i=t.indexOf(x);if(i>=0)t.splice(i,1);if(t.length===0)window.removeEventListener('resize',l)};this.disconnect=function(){t=[];window.removeEventListener('resize',l)}};
+if(navigator.mediaSession&&navigator.mediaSession.setActionHandler){var _msSet=navigator.mediaSession.setActionHandler.bind(navigator.mediaSession);navigator.mediaSession.setActionHandler=function(a,h){try{return _msSet(a,h)}catch(e){return null}};}
+var els=document.querySelectorAll('script[type=module],link[rel=modulepreload]');
+for(var i=0;i<els.length;i++)els[i].parentNode.removeChild(els[i]);
+var s=document.createElement('script');s.src='/${legacyFilename}';document.head.appendChild(s)}})();
+</script>`;
+
+        const updatedHtml = html.replace('<head>', `<head>\n    ${detectorScript}`);
+        fs.writeFileSync(builtHtml, updatedHtml, 'utf8');
+
+        const templateHtml = path.join(outDir, 'index-web.html');
+        if (fs.existsSync(templateHtml)) {
+          const tmpl = fs.readFileSync(templateHtml, 'utf8');
+          const updatedTmpl = tmpl.replace('<head>', `<head>\n    ${detectorScript}`);
+          fs.writeFileSync(templateHtml, updatedTmpl, 'utf8');
+        }
+
+        const stats = fs.statSync(legacyPath);
+        const sizeMB = (stats.size / 1024 / 1024).toFixed(1);
+        console.log(`[legacy-fallback] Generated ${legacyFilename} (${sizeMB} MB)`);
+      },
+    },
+  };
+}
+
 // Post-build plugin: injects Vite-built asset tags into the SSR template (`index-web.html`)
 // so the Koa web server can serve pages with the correct JS/CSS references.
 function ssrTemplatePlugin() {
@@ -778,6 +865,7 @@ export default defineConfig({
       },
     },
     react(),
+    legacyFallbackPlugin(),
     ssrTemplatePlugin(),
     {
       name: 'favicon-proxy',
@@ -883,6 +971,7 @@ export default defineConfig({
     outDir: 'web/dist/public',
     sourcemap: isProduction ? true : 'inline',
     minify: isProduction,
+    cssTarget: ['chrome80', 'firefox78', 'safari13'],
     rolldownOptions: {
       input: path.resolve(__dirname, 'index.html'),
       output: {

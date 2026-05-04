@@ -922,6 +922,11 @@
       grid-row: 2;
     }
 
+    &.fourth-item {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
     .button--file-action,
     .download-text {
       display: block;
@@ -978,6 +983,37 @@
       display: none !important;
     }
   }
+}
+
+.compact-hover-actions .claim-preview__hover-actions-grid .button--file-action,
+.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action,
+.file-page__recommended .claim-preview__hover-actions-grid .button--file-action,
+.banner-latest-claims__tiles .claim-preview__hover-actions-grid .button--file-action {
+  max-width: 21px;
+  padding: calc(0.25rem - 1px) !important;
+
+  .icon {
+    width: 14px;
+    height: 14px;
+  }
+}
+.compact-hover-actions .claim-preview__hover-actions-grid .button--file-action:hover,
+.channel-cover ~ * .claim-preview__hover-actions-grid .button--file-action:hover,
+.file-page__recommended .claim-preview__hover-actions-grid .button--file-action:hover,
+.banner-latest-claims__tiles .claim-preview__hover-actions-grid .button--file-action:hover {
+  min-width: 21px;
+}
+.compact-hover-actions .claim-preview__hover-actions-grid .claim-preview__hover-actions + .claim-preview__hover-actions,
+.channel-cover ~ * .claim-preview__hover-actions-grid .claim-preview__hover-actions + .claim-preview__hover-actions,
+.file-page__recommended
+  .claim-preview__hover-actions-grid
+  .claim-preview__hover-actions
+  + .claim-preview__hover-actions,
+.banner-latest-claims__tiles
+  .claim-preview__hover-actions-grid
+  .claim-preview__hover-actions
+  + .claim-preview__hover-actions {
+  margin-top: 1px;
 }
 
 // @import 'init/breakpoints';
@@ -1668,7 +1704,7 @@
 
   .button {
     margin-top: var(--spacing-s);
-    background-image: var(--color-odysee-memberships);
+    background-image: var(--color-odysee-gradient);
   }
 
   @media (max-width: $breakpoint-small) {
@@ -1723,7 +1759,7 @@ $claim-preview-progress-bar-height: 5px;
 .claim-preview__progress-bar {
   height: $claim-preview-progress-bar-height;
   // background-color: var(--color-primary);
-  background-image: var(--color-odysee-memberships);
+  background-image: var(--color-odysee-gradient);
 }
 
 .claim-preview__claim-property-overlay {
@@ -2432,14 +2468,14 @@ $claim-preview-progress-bar-height: 5px;
     color: var(--color-text);
     font-size: var(--font-body);
     max-width: 80%;
-    background: var(--color-odysee-memberships);
+    background: var(--color-odysee-gradient);
     transition: all 0.4s;
     opacity: 1;
 
     .protected-content__label-container {
       background: rgba(0, 0, 0, 0.95);
       .protected-content__label {
-        background-image: var(--color-odysee-memberships);
+        background-image: var(--color-odysee-gradient);
         background-clip: text;
         -webkit-background-clip: text;
         color: transparent;

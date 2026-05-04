@@ -419,7 +419,7 @@ export default function YoutubeTransferStatus(props: Props) {
                     </ul>
                   </div>
 
-                  <div className="card__actions card__actions--inline">
+                  <div className="card__actions card__actions--inline" style={{ marginTop: 'var(--spacing-m)' }}>
                     <Button
                       button="secondary"
                       label={__('Download Sync Tool')}

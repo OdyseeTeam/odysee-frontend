@@ -19,6 +19,7 @@ export const CHANNEL_PAGE = Object.freeze({
 export const COLLECTION_PAGE = Object.freeze({
   QUERIES: {
     VIEW: 'view',
+    TAB: 'tab',
   },
   VIEWS: {
     // edit === private/local edits
@@ -26,6 +27,10 @@ export const COLLECTION_PAGE = Object.freeze({
     // public === public edits/publish playlist
     PUBLISH: 'publish',
     PUBLIC: 'public',
+  },
+  TABS: {
+    GENERAL: 'general',
+    ITEMS: 'items',
   },
 });
 export const CHANNEL_SECTIONS_QUERIES = Object.freeze({

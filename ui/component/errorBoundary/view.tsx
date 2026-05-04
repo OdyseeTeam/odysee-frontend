@@ -43,18 +43,36 @@ class ErrorBoundary extends React.Component<Props, State> {
 
   private retryTimer: any;
   private retryCount = 0;
+  private reloading = false;
 
   componentDidCatch(error, errorInfo) {
     console.error('[ErrorBoundary] Caught:', error?.message, error?.stack); // eslint-disable-line no-console
-    if (error?.message && /[._]result\.default|reading 'default'|_result is undefined/.test(error.message)) {
-      const key = '__staleChunkReload';
+    if (error?.name === 'NotFoundError' || error?.message?.includes('object can not be found')) {
+      this.setState({ hasError: false });
+      return;
+    }
+    if (
+      error?.message &&
+      /[._]result\.default|reading 'default'|_result is undefined|evaluating.*_result|Lazy element type must resolve|Received a promise that resolves to: undefined|Minified React error #306|undefined is not an object \(evaluating '\$?\w+\.(use[A-Z]|jsxs?|jsxDEV|Fragment|createElement|cloneElement|forwardRef|memo)/.test(
+        error.message
+      )
+    ) {
+      // Cancel any retry timer scheduled by componentDidUpdate so the children
+      // don't re-render and trigger the error UI before the reload navigates away.
+      clearTimeout(this.retryTimer);
+      this.reloading = true;
+      const key = `__staleChunkReload:${window.location.pathname}`;
       try {
-        if (!sessionStorage.getItem(key)) {
-          sessionStorage.setItem(key, '1');
+        const prev = sessionStorage.getItem(key);
+        const now = Date.now();
+        if (!prev || now - Number(prev) > 30000) {
+          sessionStorage.setItem(key, String(now));
+          this.retryCount = 999;
           window.location.reload();
           return;
         }
       } catch {}
+      return;
     }
     try {
       sessionStorage.setItem(
@@ -82,7 +100,7 @@ class ErrorBoundary extends React.Component<Props, State> {
     const { sentryEventId } = this.state;
     const errorWasReported = sentryEventId !== null;
 
-    if (hasError && this.retryCount < 5) {
+    if (hasError && (this.retryCount < 5 || this.reloading)) {
       return null;
     }
 

@@ -20,6 +20,7 @@ import {
   doUpdateArweaveAddressDefault,
 } from 'redux/actions/payments';
 import { selectArweaveConnecting } from 'redux/selectors/arwallet';
+import { LocalStorage } from 'util/storage';
 
 type Props = {
   previousModal?: {
@@ -60,11 +61,7 @@ export default function ModalAnnouncements(props: Props) {
         .then(() => {
           dispatch(doHideModal());
         })
-        .catch((e) => {
-          if (e?.message === 'address already exists for another user') {
-            dispatch(doHideModal());
-          }
-        });
+        .catch(() => {});
     }
   }, [walletAddress, dispatch, hasArweaveEntry, apiEntryWithAddress]);
 
@@ -110,6 +107,7 @@ export default function ModalAnnouncements(props: Props) {
   };
 
   const handleDisconnect = () => {
+    LocalStorage.setItem('WANDER_DISCONNECT', 'true');
     dispatch(doArDisconnect());
 
     if (previousModal) {
@@ -186,6 +184,44 @@ export default function ModalAnnouncements(props: Props) {
     );
   };
 
+  const AddressInUseCard = () => {
+    return (
+      <Card
+        className="announcement"
+        title={__('Wallet Connect Error')}
+        body={
+          <div className="section">
+            <p>
+              {__(
+                'The currently active Wander wallet is already connected to another Odysee account. Please switch to a different wallet.'
+              )}
+            </p>
+          </div>
+        }
+        actions={
+          <div className="section__actions">
+            <Button
+              button="primary"
+              label={__('Change login')}
+              onClick={() => {
+                dispatch(doRegisterArweaveAddressClear());
+                LocalStorage.setItem('AR_ADDRESS_IN_USE', 'true');
+                dispatch(doHideModal());
+                window.wanderInstance.open();
+              }}
+            />
+            <Button
+              button="alt"
+              label={__('Disconnect')}
+              disabled={isArAccountRegistering}
+              onClick={handleDisconnect}
+            />
+          </div>
+        }
+      />
+    );
+  };
+
   const handleCloseModal = () => {
     if (previousModal) {
       dispatch(doOpenModal(previousModal.id, previousModal.modalProps));
@@ -202,11 +238,10 @@ export default function ModalAnnouncements(props: Props) {
     !showConnecting &&
     !!arAccountRegisteringError &&
     arAccountRegisteringError !== 'address already exists for another user';
+  const showAddressInUseError =
+    !showConnecting && arAccountRegisteringError === 'address already exists for another user';
 
-  if (
-    (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault) ||
-    arAccountRegisteringError === 'address already exists for another user'
-  ) {
+  if (apiEntryWithAddress && !showConnecting && !showRegister && !showMakeDefault && !showAddressInUseError) {
     handleCloseModal();
     return null;
   }
@@ -217,6 +252,7 @@ export default function ModalAnnouncements(props: Props) {
       {showConnecting && <ConnectingCard />}
       {/* don't bother showing register unless you're showing a 2nd+ address */}
       {showRegister && <RegisterCard />}
+      {showAddressInUseError && <AddressInUseCard />}
       {showErrorCard && <ErrorCard />}
       {showMakeDefault && <MakeDefaultCard />}
       {/* {apiEntryWithAddress && defaultApiAddress === walletAddress && <TopUpCard />} */}

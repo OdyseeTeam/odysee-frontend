@@ -70,7 +70,7 @@ function MarkdownLink(props: Props) {
   let lbryUrlFromLink;
 
   if (linkUrlObject && !href.startsWith('mailto:')) {
-    const linkDomain = linkUrlObject.host;
+    const linkDomain = linkUrlObject.hostname;
     const isKnownAppDomainLink = KNOWN_APP_DOMAINS.includes(linkDomain);
 
     if (isKnownAppDomainLink) {
@@ -158,12 +158,20 @@ function MarkdownLink(props: Props) {
               if (!el || el.dataset.init) return;
               el.dataset.init = '1';
               const img = new Image();
-              img.onload = () => {
-                el.style.backgroundImage = `url(${faviconUrl})`;
-              };
-              img.onerror = () => {
-                el.style.display = 'none';
-              };
+              img.addEventListener(
+                'load',
+                () => {
+                  el.style.backgroundImage = `url(${faviconUrl})`;
+                },
+                { once: true }
+              );
+              img.addEventListener(
+                'error',
+                () => {
+                  el.style.display = 'none';
+                },
+                { once: true }
+              );
               img.src = faviconUrl;
             }}
             className="markdown-link-favicon"

@@ -1,6 +1,6 @@
 import type { DoPublishDesktop } from 'redux/actions/publish';
 
-import { SITE_NAME, SIMPLE_SITE } from 'config';
+import { SITE_NAME } from 'config';
 import React, { useEffect, useState } from 'react';
 import { useStore } from 'react-redux';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
@@ -46,6 +46,7 @@ import {
   doUpdatePublishForm,
   doPublishDesktop,
   doPublishWithEarlyUpload,
+  doCreateClaimForEarlyUpload,
 } from 'redux/actions/publish';
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
 import {
@@ -331,6 +332,7 @@ function UploadForm(props: Props) {
       ) as any;
       const pipelineId = activePipelineItem?.id || pipelineItemIdRef.current;
       const pipelineStage = activePipelineItem?.stage;
+      dispatch(doUpdatePipelineItem(pipelineId, { publishStarted: true }));
 
       if (
         mode === PUBLISH_MODES.FILE &&
@@ -511,6 +513,14 @@ function UploadForm(props: Props) {
       });
       earlyUploadPromiseRef.current = handle.promise;
       earlyUploadAbortRef.current = handle.abort;
+      // Kick off the deferred createClaim as soon as the upload location
+      // (which contains the upload_id) is known — this creates the draft
+      // asynqueries row before forklift can fire upload:done. The actual
+      // SDK call is held back until doPublishWithEarlyUpload sends the
+      // committing createClaim with the user's final form data.
+      handle.locationPromise
+        .then((location: string) => dispatch(doCreateClaimForEarlyUpload(location)))
+        .catch(() => {});
       if (!(window as any).__earlyUploadHandles) (window as any).__earlyUploadHandles = {};
       (window as any).__earlyUploadHandles[pipelineId] = handle;
       handle.promise

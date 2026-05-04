@@ -684,15 +684,19 @@ function AppRouter(props: Props) {
     };
 
     if (uri) {
-      const { channelName, streamName } = parseURI(uri);
+      try {
+        const { channelName, streamName } = parseURI(uri);
 
-      if (title) {
-        document.title = title;
-      } else if (streamName) {
-        document.title = streamName;
-      } else if (channelName) {
-        document.title = channelName;
-      } else {
+        if (title) {
+          document.title = title;
+        } else if (streamName) {
+          document.title = streamName;
+        } else if (channelName) {
+          document.title = channelName;
+        } else {
+          document.title = getDefaultTitle(pathname);
+        }
+      } catch {
         document.title = getDefaultTitle(pathname);
       }
     } else {

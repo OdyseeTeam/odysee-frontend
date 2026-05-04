@@ -28,7 +28,7 @@ import {
   selectIsStillEditing,
   selectMemberRestrictionStatus,
 } from 'redux/selectors/publish';
-import { doError } from 'redux/actions/notifications';
+import { doError, doToast } from 'redux/actions/notifications';
 import { navigateTo } from 'redux/router';
 import analytics from 'analytics';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
@@ -405,8 +405,13 @@ function extractMetadataViaVideoElement(blob: Blob, dispatch: Dispatch, shouldAp
 export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
-    const { name, title } = state.publish;
+    const { name, title, type, liveCreateType, liveEditType, editingURI } = state.publish;
     const isStillEditing = selectIsStillEditing(state);
+    const preserveLivestreamReplayEditMetadata =
+      type === 'livestream' &&
+      Boolean(editingURI) &&
+      liveCreateType === 'edit_placeholder' &&
+      liveEditType === 'upload_replay';
 
     if (!file) {
       // This also handles the case of trying to select another file but canceling half way.
@@ -582,13 +587,13 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     const newFileName = (file.name && file.name.substr(0, file.name.lastIndexOf('.'))) || '';
     const fileName = clearName ? newFileName : name || newFileName;
 
-    if (clearName || !title) {
+    if (!preserveLivestreamReplayEditMetadata && (clearName || !title)) {
       formUpdates.title = newFileName || fileName;
     }
 
-    if (!isStillEditing && clearName) {
+    if (!preserveLivestreamReplayEditMetadata && !isStillEditing && clearName) {
       formUpdates.name = sanitizeName(newFileName || fileName);
-    } else if (!isStillEditing && !name) {
+    } else if (!preserveLivestreamReplayEditMetadata && !isStillEditing && !name) {
       formUpdates.name = sanitizeName(fileName);
     }
 
@@ -1371,8 +1376,46 @@ export const doPublish =
       //   });
     }, fail);
   };
+// Pre-create the asynqueries row in DRAFT state (ready_to_run=false) as soon
+// as the upload URL is known, so the row exists keyed by upload_id by the time
+// forklift fires upload:done. The actual SDK call is deferred until the user
+// clicks Publish — see doPublishWithEarlyUpload, which sends a second
+// stream_create with the final form data and no `_defer` flag, causing the
+// backend to overwrite the stored params and queue the SDK call.
+export const doCreateClaimForEarlyUpload =
+  (uploadLocation: string) =>
+  async (dispatch: Dispatch, getState: GetState): Promise<number> => {
+    const { createClaim } = await import('web/setup/publish-v4-tasks');
+    const state = getState();
+    const publishData = selectPublishFormValues(state);
+    const myClaimForUri = state.publish.claimToEdit;
+    const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
+    const publishPayload = resolvePublishPayload(
+      publishData,
+      myClaimForUri,
+      myChannels,
+      memberRestrictionStatus,
+      false
+    );
+    const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload as any;
+    const headers = Lbry.getApiRequestHeaders();
+    const token = headers && Object.keys(headers).includes(X_LBRY_AUTH_TOKEN) ? headers[X_LBRY_AUTH_TOKEN] : '';
+    return createClaim(
+      token,
+      uploadLocation,
+      { ...sdkParams, _defer: true },
+      { onSuccess: () => {}, onFailure: () => {} }
+    );
+  };
 export const doPublishWithEarlyUpload =
   (tusUrlPromise: Promise<{ tusUrl: string }>, guid: string) => async (dispatch: Dispatch, getState: GetState) => {
+    const state = getState();
+    const myClaimForUri = state.publish.claimToEdit;
+    const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
+    const publishData = selectPublishFormValues(state);
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
+
     dispatch({ type: ACTIONS.PUBLISH_START });
     navigateTo(`/$/${PAGES.UPLOADS}`);
 
@@ -1383,12 +1426,7 @@ export const doPublishWithEarlyUpload =
         data: { id: guid, updates: { stage: 'processing', progress: 0 } },
       });
 
-      const state = getState();
-      const myClaimForUri = state.publish.claimToEdit;
-      const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
-      const publishData = selectPublishFormValues(state);
       const { memberRestrictionTierIds, name } = publishData;
-      const memberRestrictionStatus = selectMemberRestrictionStatus(state);
       const publishPayload = resolvePublishPayload(
         publishData,
         myClaimForUri,
@@ -1421,6 +1459,10 @@ export const doPublishWithEarlyUpload =
 
       const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload;
 
+      // Commits the draft row created on Next: backend overwrites Body with
+      // these final params and sets ready_to_run=true (queues SDK if forklift
+      // already arrived). If no draft exists (e.g. legacy flow), this just
+      // creates the row normally.
       const publishId = await createClaim(token, tusUrl, sdkParams, {
         onSuccess: () => {},
         onFailure: () => {},
@@ -1432,6 +1474,15 @@ export const doPublishWithEarlyUpload =
       const publishedUri = channelBaseUrl
         ? `${channelBaseUrl}/${publishData.name}`
         : buildURI({ streamName: publishData.name, channelName: publishData.channel } as LbryUrlObj, true);
+      const isAudio = !!publishData.fileMime && publishData.fileMime.startsWith('audio/');
+      const sourceMediaType = publishData.fileMime || (publishData.fileVid ? 'video/mp4' : undefined);
+      const streamMetadata = publishData.fileVid
+        ? publishData.fileDur
+          ? { video: { duration: publishData.fileDur } }
+          : {}
+        : isAudio && publishData.fileDur
+          ? { audio: { duration: publishData.fileDur } }
+          : {};
       const pendingClaimId = `pending-${guid}`;
       const fakePendingClaim: any = {
         claim_id: pendingClaimId,
@@ -1448,7 +1499,8 @@ export const doPublishWithEarlyUpload =
           description: publishData.description,
           thumbnail: { url: publishData.thumbnail },
           tags: publishData.tags?.map((t: any) => t.name) || [],
-          source: { media_type: 'video/mp4' },
+          source: sourceMediaType ? { media_type: sourceMediaType } : undefined,
+          ...streamMetadata,
         },
         signing_channel: signingChannel
           ? {
@@ -1467,12 +1519,11 @@ export const doPublishWithEarlyUpload =
 
       dispatch({
         type: ACTIONS.UPDATE_PENDING_CLAIMS,
-        data: { claims: [fakePendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
+        data: {
+          claims: [fakePendingClaim],
+          options: { overrideTags: true, overrideSigningChannel: true },
+        },
       } as UpdatePendingClaimsAction);
-      dispatch({
-        type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
-        data: { id: guid, updates: { stage: 'published', progress: 100, uri: publishedUri } },
-      });
       dispatch({ type: ACTIONS.PUBLISH_SET_ACTIVE_FORM, data: { id: null } });
       dispatch({ type: ACTIONS.PUBLISH_SUCCESS, data: {} });
 
@@ -1482,12 +1533,47 @@ export const doPublishWithEarlyUpload =
           dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: pendingClaimId } });
           dispatch({
             type: ACTIONS.UPDATE_PENDING_CLAIMS,
-            data: { claims: [pendingClaim], options: { overrideTags: true, overrideSigningChannel: true } },
+            data: {
+              claims: [pendingClaim],
+              options: { overrideTags: true, overrideSigningChannel: true },
+            },
           } as UpdatePendingClaimsAction);
+          dispatch({
+            type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+            data: {
+              id: guid,
+              updates: {
+                stage: 'published',
+                progress: 100,
+                uri: pendingClaim.permanent_url || publishedUri,
+              },
+            },
+          });
           dispatch(doCheckPendingClaims(undefined));
         })
-        .catch(() => {
+        .catch((err: any) => {
           dispatch({ type: ACTIONS.REMOVE_PENDING_CLAIM_BY_ID, data: { claimId: pendingClaimId } });
+          dispatch({
+            type: ACTIONS.PUBLISH_PIPELINE_UPDATE,
+            data: {
+              id: guid,
+              updates: {
+                stage: 'error',
+                error:
+                  err?.message ||
+                  'Publish confirmation failed. Your upload may have been blocked by a browser extension.',
+              },
+            },
+          });
+          dispatch(
+            doToast({
+              isError: true,
+              message: __('Publish failed.'),
+              subMessage:
+                err?.message || __('Confirmation timed out. A browser extension may be blocking the request.'),
+              duration: 'long',
+            })
+          );
         });
     } catch (error: any) {
       dispatch({ type: ACTIONS.PUBLISH_FAIL });

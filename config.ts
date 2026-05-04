@@ -79,9 +79,11 @@ const config: Record<string, any> = {
   CHANNEL_CREATION_LIMIT: process.env.CHANNEL_CREATION_LIMIT,
   WEB_PUBLISH_SIZE_LIMIT_GB: process.env.WEB_PUBLISH_SIZE_LIMIT_GB,
   LOADING_BAR_COLOR: process.env.LOADING_BAR_COLOR,
-  SIMPLE_SITE: process.env.SIMPLE_SITE === 'true',
+
   SHOW_ADS: process.env.SHOW_ADS === 'true',
-  KNOWN_APP_DOMAINS: process.env.KNOWN_APP_DOMAINS ? process.env.KNOWN_APP_DOMAINS.split(',') : [],
+  KNOWN_APP_DOMAINS: process.env.KNOWN_APP_DOMAINS
+    ? process.env.KNOWN_APP_DOMAINS.split(',')
+    : ['open.lbry.com', 'lbry.tv', 'lbry.lat', 'odysee.com', 'localhost'],
   STRIPE_PUBLIC_KEY: process.env.STRIPE_PUBLIC_KEY,
   ENABLE_UI_NOTIFICATIONS: process.env.ENABLE_UI_NOTIFICATIONS === 'true',
   ENABLE_MATURE: process.env.ENABLE_MATURE === 'true',
@@ -189,7 +191,7 @@ export const {
   CHANNEL_CREATION_LIMIT,
   WEB_PUBLISH_SIZE_LIMIT_GB,
   LOADING_BAR_COLOR,
-  SIMPLE_SITE,
+
   SHOW_ADS,
   KNOWN_APP_DOMAINS,
   STRIPE_PUBLIC_KEY,

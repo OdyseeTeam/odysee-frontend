@@ -8,11 +8,12 @@ import { PRIMARY_PLAYER_WRAPPER_CLASS } from '../videoPlayers/view';
 import ShortsActions from 'component/shortsActions';
 import ShortsVideoPlayer from 'component/shortsVideoPlayer';
 import ShortsSidePanel from 'component/shortsSidePanel';
-import MobileTabView from 'component/mobileTabView';
+import ShortsMobileSidePanel from 'component/shortsMobileSidePanel';
 import SwipeNavigationPortal from 'component/shortsActions/swipeNavigation';
 import { NavigationType, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
 import { LINKED_COMMENT_QUERY_PARAM, THREAD_COMMENT_QUERY_PARAM } from 'constants/comment';
 import { lockBodyScroll, unlockBodyScroll } from 'util/body-scroll-lock';
+import { fullscreenElement as getFullscreenElement, onFullscreenChange } from 'util/full-screen';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
 import * as TAGS from 'constants/tags';
@@ -42,7 +43,7 @@ import {
   selectIsUriCurrentlyPlaying,
   selectIsAutoplayCountdownForUri,
 } from 'redux/selectors/content';
-import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import {
   clearPosition as clearPositionAction,
@@ -53,19 +54,14 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { selectShortsSidePanelOpen, selectShortsPlaylist, selectShortsViewMode } from 'redux/selectors/shorts';
 import {
   doSetShortsSidePanel as doSetShortsSidePanelAction,
-  doToggleShortsSidePanel,
   doSetShortsPlaylist as doSetShortsPlaylistAction,
   doSetShortsViewMode as doSetShortsViewModeAction,
-  doSetShortsAutoplay as doSetShortsAutoplayAction,
   doClearShortsPlaylist as doClearShortsPlaylistAction,
 } from 'redux/actions/shorts';
 import { doClaimSearch as doClaimSearchAction, doResolveUri as doResolveUriAction } from 'redux/actions/claims';
 import { toggleAutoplayNextShort } from 'redux/actions/settings';
 import { doFetchShortsRecommendedContent as doFetchShortsRecommendedContentAction } from 'redux/actions/search';
 import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
-import FileTitleSection from 'component/fileTitleSection';
-import Empty from 'component/common/empty';
-import CommentsList from 'component/commentsList';
 
 const EMPTY_ARRAY: string[] = [];
 
@@ -151,7 +147,6 @@ export default function ShortsPage(props: Props) {
   const prevShortClaimValue = useAppSelector((state) => (prevShortUri ? selectClaimForUri(state, prevShortUri) : null));
   const nextThumbnail = nextShortClaimValue?.value?.thumbnail?.url || null;
   const previousThumbnail = prevShortClaimValue?.value?.thumbnail?.url || null;
-  const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const isUriPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, uri));
   const playingCollectionId = useAppSelector(selectPlayingCollectionId);
@@ -204,7 +199,6 @@ export default function ShortsPage(props: Props) {
     isShortFromChannelPage ? 'channel' : reduxViewMode || 'related'
   );
   const [panelMode, setPanelMode] = React.useState<'info' | 'comments'>('info');
-  const drawerOpenRef = React.useRef<any>(null);
   const { onRecsLoaded: onRecommendationsLoaded, onClickedRecommended: onRecommendationClicked } = RecSys;
   const [isTransitioning, setIsTransitioning] = React.useState(false);
   const [transitionDirection, setTransitionDirection] = React.useState<ReelDirection | null | undefined>(null);
@@ -232,14 +226,19 @@ export default function ShortsPage(props: Props) {
   const isLoadingContent = isSearchingRecommendations || !hasPlaylist;
   const PRELOAD_BATCH_SIZE = 3;
   const preloadedUrisRef = React.useRef(new Set());
-  const isFullscreen = !!document.fullscreenElement;
+  const [isFullscreen, setIsFullscreen] = React.useState(!!getFullscreenElement());
   const isSwipeEnabled = !(isMobile && sidePanelOpen);
-  const hasEnsuredViewParam = React.useRef(false);
   const latestRouteRef = React.useRef({
     pathname,
     search,
   });
   const [overlayTarget, setOverlayTarget] = React.useState(null);
+  React.useEffect(() => {
+    const onChange = () => setIsFullscreen(!!getFullscreenElement());
+    onFullscreenChange(document, 'add', onChange);
+    return () => onFullscreenChange(document, 'remove', onChange);
+  }, []);
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   React.useEffect(() => {
     const viewer =
@@ -355,7 +354,7 @@ export default function ShortsPage(props: Props) {
       setPanelMode('comments');
       dispatch(doSetShortsSidePanelAction(true));
     }
-  }, [linkedCommentId, isMobile, dispatch]);
+  }, [linkedCommentId, dispatch]);
   React.useEffect(() => {
     if (!shortsRecommendedUris || shortsRecommendedUris.length === 0) return;
     if (currentIndex < 0) return;
@@ -423,8 +422,14 @@ export default function ShortsPage(props: Props) {
       const isNavigatingToShortsTab = nextParams.get('view') === 'shortsTab';
       const isNavigatingToHome = pathname === '/' && !nextSearch;
       const isBackNavigation = navigationType === NavigationType.Pop;
+      // A pathname like /@channel/claim or /channel/claim is most likely
+      // another claim — possibly another short reached via a notification link
+      // that drops the `view=shorts` param. Don't tear down the playlist for
+      // those; the receiving ShortsPage's ensure-view-param effect will add
+      // `view=shorts` back, and the playlist is preserved across the swap.
+      const isLikelyClaimPath = pathname !== '/' && !pathname.startsWith('/$/');
       const shouldCleanup =
-        (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer) ||
+        (isCurrentlyInShortsPlayer && !isNavigatingToShortsPlayer && !isLikelyClaimPath) ||
         (isCurrentlyInShortsPlayer && isNavigatingToHome) ||
         (isBackNavigation && isCurrentlyInShortsPlayer && isNavigatingToShortsTab) ||
         (isCurrentlyInShortsPlayer && isNavigatingToShortsTab);
@@ -526,21 +531,17 @@ export default function ShortsPage(props: Props) {
     }
   }, [search, channelUri]);
   React.useEffect(() => {
-    if (hasEnsuredViewParam.current) return;
     const urlParams = new URLSearchParams(search);
+    if (urlParams.get('view') === 'shorts') return;
 
-    if (urlParams.get('view') !== 'shorts') {
-      urlParams.set('view', 'shorts');
-      navigate(
-        {
-          pathname,
-          search: `?${urlParams.toString()}`,
-        },
-        { replace: true }
-      );
-    }
-
-    hasEnsuredViewParam.current = true;
+    urlParams.set('view', 'shorts');
+    navigate(
+      {
+        pathname,
+        search: `?${urlParams.toString()}`,
+      },
+      { replace: true }
+    );
   }, [navigate, pathname, search]);
   const getShortsUrl = React.useCallback((shortUri: string) => {
     return shortUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
@@ -806,6 +807,20 @@ export default function ShortsPage(props: Props) {
         ref={shortsContainerRef}
       >
         <div className={`shorts-page__container ${sidePanelOpen ? 'shorts-page__container--panel-open' : ''}`}>
+          {!isMobile && (
+            <ShortsSidePanel
+              isOpen={sidePanelOpen}
+              portalTarget={isFullscreen ? document.querySelector('.player-fullscreen-target') || undefined : undefined}
+              uri={uri}
+              accessStatus={accessStatus}
+              contentUnlocked={contentUnlocked}
+              commentsDisabled={commentsDisabled}
+              linkedCommentId={linkedCommentId}
+              threadCommentId={threadCommentId}
+              isComments={panelMode === 'comments'}
+              onClose={handleClosePanel}
+            />
+          )}
           <div className="shorts-page__main-content">
             <div className="shorts-page__video-section">
               <ShortsVideoPlayer
@@ -842,9 +857,13 @@ export default function ShortsPage(props: Props) {
             </div>
           </div>
 
-          {!isMobile && (
-            <ShortsSidePanel
+          {isMobile && (
+            <ShortsMobileSidePanel
               isOpen={sidePanelOpen}
+              onClose={handleClosePanel}
+              portalTarget={
+                isFullscreen ? document.querySelector('.player-fullscreen-target') || document.body : document.body
+              }
               uri={uri}
               accessStatus={accessStatus}
               contentUnlocked={contentUnlocked}
@@ -852,56 +871,8 @@ export default function ShortsPage(props: Props) {
               linkedCommentId={linkedCommentId}
               threadCommentId={threadCommentId}
               isComments={panelMode === 'comments'}
-              onClose={handleClosePanel}
             />
           )}
-
-          {isMobile &&
-            (() => {
-              const portalTarget = isFullscreen
-                ? document.querySelector('.player-fullscreen-target') || document.body
-                : document.body;
-              return portalTarget
-                ? createPortal(
-                    <MobileTabView
-                      useDrawer
-                      drawerOpenRef={drawerOpenRef}
-                      tabDefs={[
-                        { icon: ICONS.INFO, label: __('Details') },
-                        { icon: ICONS.COMMENTS_LIST, label: __('Comments') },
-                      ]}
-                      infoContent={
-                        <div className="file-page">
-                          <div className="card-stack">
-                            <section className="file-page__media-actions">
-                              <FileTitleSection uri={uri} accessStatus={accessStatus} />
-                            </section>
-                          </div>
-                        </div>
-                      }
-                      commentsContent={
-                        contentUnlocked ? (
-                          commentsDisabled ? (
-                            <Empty padded text={__('The creator of this content has disabled comments.')} />
-                          ) : (
-                            <React.Suspense fallback={null}>
-                              <CommentsList
-                                uri={uri}
-                                linkedCommentId={linkedCommentId}
-                                threadCommentId={threadCommentId}
-                                notInDrawer
-                              />
-                            </React.Suspense>
-                          )
-                        ) : null
-                      }
-                      relatedContent={null}
-                      onDrawerClose={handleClosePanel}
-                    />,
-                    portalTarget
-                  )
-                : null;
-            })()}
         </div>
       </div>
     </>

@@ -7,7 +7,7 @@ import type { DoPublishDesktop } from 'redux/actions/publish';
   On web, the Lbry publish method call is overridden in platform/web/api-setup, using a function in platform/web/publish.
   File upload is carried out in the background by that function.
  */
-import { SITE_NAME, SIMPLE_SITE } from 'config';
+import { SITE_NAME } from 'config';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import React, { useEffect, useState } from 'react';
@@ -528,7 +528,7 @@ function LivestreamForm(props: Props) {
               </h2>
 
               <TagsSelect
-                suggestMature={!SIMPLE_SITE}
+                suggestMature={false}
                 disableAutoFocus
                 hideHeader
                 label={__('Selected Tags')}

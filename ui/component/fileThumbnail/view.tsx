@@ -5,13 +5,35 @@ import useLiveThumbnailFrame from 'effects/use-live-thumbnail-frame';
 import useVideoPreviewOnHover from 'effects/use-video-preview-on-hover';
 import useHlsVideoPreview from 'effects/use-hls-video-preview';
 import FreezeframeWrapper from 'component/common/freezeframe-wrapper';
+import * as ICONS from 'constants/icons';
+import { icons } from 'component/common/icon-custom';
 import classnames from 'classnames';
 import Thumb from './internal/thumb';
 import PreviewOverlayProtectedContent from '../previewOverlayProtectedContent';
-import { useAppSelector } from 'redux/hooks';
+import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectHasResolvedClaimForUri, selectThumbnailForUri, selectClaimForUri } from 'redux/selectors/claims';
 import { selectIsActiveLivestreamForUri, selectLiveThumbnailForUri } from 'redux/selectors/livestream';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
+import { doAnalyticsViewForUri } from 'redux/actions/app';
+import { selectUser } from 'redux/selectors/user';
+import analytics from 'analytics';
+
+const previewViewedUris = new Set<string>();
+
+function parseVttTime(str: string): number {
+  const parts = str.split(':');
+  if (parts.length === 3) return parseFloat(parts[0]) * 3600 + parseFloat(parts[1]) * 60 + parseFloat(parts[2]);
+  if (parts.length === 2) return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+  return parseFloat(parts[0]);
+}
+
+function formatTime(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
 
 const FALLBACK = MISSING_THUMB_DEFAULT
   ? getThumbnailCdnUrl({
@@ -102,6 +124,8 @@ function FileThumbnail(props: Props) {
     videoRef: hlsVideoRef,
     isReady: hlsPreviewReady,
     isHlsAvailable,
+    progress: hlsProgress,
+    thumbnailBasePath,
   } = useHlsVideoPreview(
     canPreviewOnHover ? streamingUrl || null : null,
     canPreviewOnHover ? uri : undefined,
@@ -141,11 +165,99 @@ function FileThumbnail(props: Props) {
   const enableLiveCrossfade = Boolean(isHovering && liveThumbnail && loadedLiveUrl);
   const isLiveRefreshing = Boolean(liveThumbnail && isHovering && loadedLiveUrl);
 
+  const [isMuted, setIsMuted] = React.useState(() => (window as any).__previewMuted !== false);
+
+  React.useEffect(() => {
+    const onSync = () => setIsMuted((window as any).__previewMuted !== false);
+    window.addEventListener('__previewMuteChanged', onSync);
+    return () => window.removeEventListener('__previewMuteChanged', onSync);
+  }, []);
+
+  React.useEffect(() => {
+    const video = hlsVideoRef.current;
+    if (video) video.muted = isMuted;
+  }, [isMuted]);
+
+  const [hoverFrac, setHoverFrac] = React.useState(0);
+  const [thumbWidth, setThumbWidth] = React.useState(320);
+  const [thumbHeight, setThumbHeight] = React.useState(180);
+  const thumbMeasureRef = React.useCallback((el: HTMLElement | null) => {
+    if (el) {
+      setThumbWidth(el.clientWidth);
+      const thumb = el.closest('.media__thumb');
+      if (thumb) setThumbHeight(thumb.clientHeight);
+    }
+  }, []);
+
+  const handleMouseMove = React.useCallback((e: React.MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    setHoverFrac(Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width)));
+  }, []);
+
+  const vttCues = React.useRef<Array<{
+    start: number;
+    end: number;
+    url: string;
+    x: number;
+    y: number;
+    w: number;
+    h: number;
+  }> | null>(null);
+  const [vttLoaded, setVttLoaded] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!thumbnailBasePath) return;
+    let canceled = false;
+    const vttUrl = thumbnailBasePath + '/stream_sprite.vtt';
+    const basePath = thumbnailBasePath + '/';
+    fetch(vttUrl)
+      .then((r) => r.text())
+      .then((text) => {
+        if (canceled) return;
+        const cues: typeof vttCues.current = [];
+        const blocks = text.split(/\n\n+/);
+        for (const block of blocks) {
+          const lines = block.trim().split('\n');
+          const timeLine = lines.find((l) => l.includes('-->'));
+          const urlLine = lines.find((l) => l.includes('#xywh='));
+          if (!timeLine || !urlLine) continue;
+          const [startStr, endStr] = timeLine.split('-->').map((s) => s.trim());
+          const start = parseVttTime(startStr);
+          const end = parseVttTime(endStr);
+          const hashIdx = urlLine.indexOf('#xywh=');
+          let spriteUrl = urlLine.substring(0, hashIdx).trim();
+          if (spriteUrl.startsWith('./')) spriteUrl = basePath + spriteUrl.slice(2);
+          else if (!spriteUrl.startsWith('http')) spriteUrl = basePath + spriteUrl;
+          const [x, y, w, h] = urlLine
+            .substring(hashIdx + 6)
+            .split(',')
+            .map(Number);
+          cues.push({ start, end, url: spriteUrl, x, y, w, h });
+        }
+        vttCues.current = cues;
+        setVttLoaded(true);
+      })
+      .catch(() => {});
+    return () => {
+      canceled = true;
+    };
+  }, [thumbnailBasePath]);
+
+  const hoverTime = hoverFrac * videoDuration;
+  const activeCue =
+    vttLoaded && vttCues.current
+      ? vttCues.current.find((c) => hoverTime >= c.start && hoverTime < c.end) || null
+      : null;
+
   const hoverHandlers =
     externalHover === undefined && (liveThumbnail || canPreviewOnHover)
       ? {
           onMouseEnter: () => setIsHoveringLocal(true),
-          onMouseLeave: () => setIsHoveringLocal(false),
+          onMouseLeave: () => {
+            setIsHoveringLocal(false);
+            setHoverFrac(0);
+            (window as any).__previewCurrentTime = null;
+          },
         }
       : {};
 
@@ -191,6 +303,29 @@ function FileThumbnail(props: Props) {
 
   const thumbnailUrl = url && url.replace(/'/g, "\\'");
   const hlsPreviewActive = Boolean(hlsPreviewReady && isHovering && canPreviewOnHover);
+
+  React.useEffect(() => {
+    if (hlsPreviewActive) {
+      const video = hlsVideoRef.current;
+      (window as any).__previewCurrentTime = null;
+      const timer = setTimeout(() => {
+        const update = () => {
+          if (video) (window as any).__previewCurrentTime = Math.floor(video.currentTime);
+        };
+        video?.addEventListener('timeupdate', update);
+        (video as any).__updateHandler = update;
+      }, 5000);
+      return () => {
+        clearTimeout(timer);
+        const handler = (video as any)?.__updateHandler;
+        if (handler) video?.removeEventListener('timeupdate', handler);
+        (window as any).__previewCurrentTime = null;
+      };
+    } else {
+      (window as any).__previewCurrentTime = null;
+    }
+  }, [hlsPreviewActive]);
+
   const hasFrames = Boolean(vodPreview.current);
   const framePreviewActive = Boolean(hasFrames && isHovering);
 
@@ -212,6 +347,39 @@ function FileThumbnail(props: Props) {
   }, [hasFrames, framePreviewActive, framesFadedIn]);
 
   const isPreviewActive = hlsPreviewActive || (framePreviewActive && framesFadedIn);
+
+  const dispatch = useAppDispatch();
+  const userId = useAppSelector((state) => selectUser(state))?.id;
+  const claimId = claim?.claim_id;
+
+  React.useEffect(() => {
+    if (!isPreviewActive || !uri || !claimId || previewViewedUris.has(uri)) return;
+    const timer = setTimeout(() => {
+      if (previewViewedUris.has(uri)) return;
+      previewViewedUris.add(uri);
+      dispatch(doAnalyticsViewForUri(uri, true));
+      const video = hlsVideoRef.current;
+      if (video) {
+        const playerShim = {
+          currentSource: () => ({
+            type: video.currentSrc?.endsWith('.m3u8') ? 'application/x-mpegURL' : 'video/mp4',
+            src: video.currentSrc,
+          }),
+          get currentTime() {
+            return video.currentTime;
+          },
+          get duration() {
+            return video.duration;
+          },
+          get seeking() {
+            return video.seeking;
+          },
+        };
+        analytics.video.videoStartEvent(claimId, 0, 'player-v10', userId, uri, playerShim, undefined, false, true);
+      }
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [isPreviewActive, uri, claimId]);
 
   if (!gettingThumbnail) {
     return (
@@ -243,10 +411,41 @@ function FileThumbnail(props: Props) {
               className={classnames('media__thumb-video-preview', {
                 'media__thumb-video-preview--portrait': isShort,
               })}
-              muted
+              muted={isMuted}
               playsInline
             />
           </div>
+        )}
+        {hlsPreviewActive && (
+          <button
+            className="media__thumb-mute-btn"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIsMuted((m) => {
+                const next = !m;
+                (window as any).__previewMuted = next;
+                window.dispatchEvent(new Event('__previewMuteChanged'));
+                return next;
+              });
+            }}
+          >
+            {isMuted ? (
+              React.createElement(icons[ICONS.VOLUME_MUTED], { size: 18, color: 'currentColor' })
+            ) : (
+              <svg xmlns="http://www.w3.org/2000/svg" width={18} height={18} fill="none" viewBox="0 0 18 18">
+                <path
+                  fill="currentColor"
+                  d="M15.6 3.3c-.4-.4-1-.4-1.4 0s-.4 1 0 1.4C15.4 5.9 16 7.4 16 9s-.6 3.1-1.8 4.3c-.4.4-.4 1 0 1.4.2.2.5.3.7.3.3 0 .5-.1.7-.3C17.1 13.2 18 11.2 18 9s-.9-4.2-2.4-5.7"
+                />
+                <path
+                  fill="currentColor"
+                  d="M.714 6.008h3.072l4.071-3.857c.5-.376 1.143 0 1.143.601V15.28c0 .602-.643.903-1.143.602l-4.071-3.858H.714c-.428 0-.714-.3-.714-.752V6.76c0-.451.286-.752.714-.752m10.568.59a.91.91 0 0 1 0-1.316.91.91 0 0 1 1.316 0c1.203 1.203 1.47 2.216 1.522 3.208q.012.255.011.51c0 1.16-.358 2.733-1.533 3.803a.7.7 0 0 1-.298.156c-.382.106-.873-.011-1.018-.156a.91.91 0 0 1 0-1.316c.57-.57.995-1.551.995-2.487 0-.944-.26-1.667-.995-2.402"
+                />
+              </svg>
+            )}
+          </button>
         )}
         {hasFrames && (
           <div
@@ -268,6 +467,82 @@ function FileThumbnail(props: Props) {
               alt=""
               draggable={false}
             />
+          </div>
+        )}
+        {hlsPreviewActive &&
+          (() => {
+            const pct = hlsProgress * 100;
+            return (
+              <div
+                ref={thumbMeasureRef}
+                className="media__thumb-progress-wrap"
+                onMouseMove={handleMouseMove}
+                onMouseLeave={() => setHoverFrac(0)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const frac = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                  const video = hlsVideoRef.current;
+                  if (video && video.duration && isFinite(video.duration)) {
+                    video.currentTime = frac * video.duration;
+                  }
+                }}
+              >
+                {hoverFrac > 0 && (
+                  <div
+                    className="media__thumb-progress-tooltip"
+                    style={{
+                      left: (() => {
+                        const vttZoom = activeCue
+                          ? activeCue.h > activeCue.w
+                            ? Math.min(1, Math.max(90, Math.min(thumbHeight * 0.3, 120)) / activeCue.h)
+                            : Math.min(1, (thumbWidth * 0.55) / activeCue.w)
+                          : 1;
+                        const halfW = activeCue ? Math.round((activeCue.w * vttZoom) / 2) + 6 : 86;
+                        return `clamp(${halfW}px, ${hoverFrac * 100}%, calc(100% - ${halfW}px))`;
+                      })(),
+                    }}
+                  >
+                    {activeCue &&
+                      (() => {
+                        const isPortrait = activeCue.h > activeCue.w;
+                        const portraitMaxH = Math.max(90, Math.min(thumbHeight * 0.3, 120));
+                        const portraitScale = isPortrait && activeCue.h > portraitMaxH ? portraitMaxH / activeCue.h : 1;
+                        const vttScale = Math.min(1, (thumbWidth * 0.55) / activeCue.w);
+                        const scale = isPortrait ? portraitScale : vttScale;
+                        return (
+                          <div
+                            className="media__thumb-progress-tooltip-sprite"
+                            style={isPortrait ? { aspectRatio: 'auto', minWidth: 0, minHeight: 0 } : undefined}
+                          >
+                            <div
+                              className="media__thumb-progress-tooltip-sprite-inner"
+                              style={{
+                                width: activeCue.w,
+                                height: activeCue.h,
+                                backgroundImage: `url(${activeCue.url})`,
+                                backgroundPosition: `-${activeCue.x}px -${activeCue.y}px`,
+                                zoom: scale,
+                              }}
+                            />
+                          </div>
+                        );
+                      })()}
+                    <span className="media__thumb-progress-tooltip-time">{formatTime(hoverTime)}</span>
+                  </div>
+                )}
+                <div className="media__thumb-progress">
+                  <div className="media__thumb-progress-hover" style={{ width: `${hoverFrac * 100}%` }} />
+                  <div className="media__thumb-progress-bar" style={{ width: `${pct}%` }} />
+                  <div className="media__thumb-progress-dot" style={{ left: `${pct}%` }} />
+                </div>
+              </div>
+            );
+          })()}
+        {framePreviewActive && framesFadedIn && (
+          <div className="media__thumb-frame-counter">
+            {vodPreview.frameIndex + 1}/{10}
           </div>
         )}
         <PreviewOverlayProtectedContent uri={uri} />

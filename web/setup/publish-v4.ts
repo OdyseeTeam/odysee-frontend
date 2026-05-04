@@ -15,6 +15,7 @@ import {
   doUpdateUploadProgress as progress,
   doUpdateUploadRemove as remove,
 } from 'redux/actions/publish';
+import analytics from 'analytics';
 // ****************************************************************************
 // ****************************************************************************
 export const SDK_STATUS_INITIAL_DELAY_MS = 2000;
@@ -22,8 +23,12 @@ export const SDK_STATUS_RETRY_INTERVAL_MS = 10000;
 const MAX_PREVIEW_RETRIES = 2;
 const DUMMY_REQUEST = new XMLHttpRequest(); // TODO
 
+const POLL_TIMEOUT_MS = 30 * 60 * 1000;
+
 export async function pollPublishStatus(token: string, publishId: number, guid: string, dispatch: any): Promise<any> {
   await yieldThread(SDK_STATUS_INITIAL_DELAY_MS);
+
+  const deadline = Date.now() + POLL_TIMEOUT_MS;
 
   while (true) {
     const status: PublishStatus = await checkPublishStatus(token, publishId);
@@ -34,15 +39,52 @@ export async function pollPublishStatus(token: string, publishId: number, guid: 
         return status.sdkResult;
 
       case 'pending':
+        if (Date.now() > deadline) {
+          dispatch(progress({ guid, status: { status: 'error' } }));
+          analytics.log(
+            'Publish confirmation timed out',
+            {
+              fingerprint: ['publish-v4-confirmation-timeout'],
+              tags: {
+                query_id: String(publishId),
+                guid,
+              },
+            },
+            'publish-v4-confirmation-timeout'
+          );
+          throw new Error('Publish confirmation timed out. Please check your uploads.');
+        }
         await yieldThread(SDK_STATUS_RETRY_INTERVAL_MS);
         break;
 
       case 'not_found':
         dispatch(progress({ guid, status: { status: 'error' } }));
+        analytics.log(
+          'Publish confirmation not_found',
+          {
+            fingerprint: ['publish-v4-confirmation-not-found'],
+            tags: {
+              query_id: String(publishId),
+              guid,
+            },
+          },
+          'publish-v4-confirmation-not-found'
+        );
         throw new Error('The upload does not exist.');
 
       case 'error':
         dispatch(progress({ guid, status: { status: 'error' } }));
+        analytics.log(
+          status.error || 'Publish confirmation error',
+          {
+            fingerprint: ['publish-v4-confirmation-error'],
+            tags: {
+              query_id: String(publishId),
+              guid,
+            },
+          },
+          'publish-v4-confirmation-error'
+        );
         throw status.error;
 
       default:

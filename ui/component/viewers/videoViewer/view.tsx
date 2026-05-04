@@ -156,7 +156,8 @@ function VideoViewer(props: Props) {
   const [isPlaying, setIsPlaying] = useState(false);
 
   const embedContext = useContext(EmbedContext);
-  const isEmbedded = Boolean(embedContext) || embedded || isEmbedPath(window.location.pathname);
+  const isExternalEmbed = Boolean(embedContext) || isEmbedPath(window.location.pathname);
+  const isEmbedded = isExternalEmbed || embedded;
   const showEmbedEndOverlay = embedContext && embedContext.videoEnded;
 
   const [videoNode, setVideoNode] = useState<HTMLVideoElement | null>(null);
@@ -222,6 +223,8 @@ function VideoViewer(props: Props) {
     }
   }, [doPlayNextUri, playPreviousUri, videoNode]);
 
+  const onVideoEndedRef = React.useRef<() => void>(() => {});
+
   const onVideoEnded = React.useCallback(() => {
     if (videoNode?.loop) {
       videoNode.currentTime = 0;
@@ -251,6 +254,10 @@ function VideoViewer(props: Props) {
     clearPosition(uri);
   }, [canPlayNext, clearPosition, embedContext, handlePlayNextUri, uri]);
 
+  React.useEffect(() => {
+    onVideoEndedRef.current = onVideoEnded;
+  }, [onVideoEnded]);
+
   const lastSyncTimeRef = React.useRef(0);
 
   function handlePosition(node: HTMLVideoElement, forceSync = false) {
@@ -275,9 +282,10 @@ function VideoViewer(props: Props) {
       setVideoNode(node);
 
       // Restore position
-      if (timeParam && !Number.isNaN(timeParam)) {
-        node.currentTime = Number(timeParam);
-      } else if (position && !isLivestreamClaim) {
+      const parsedTime = Number(timeParam);
+      if (timeParam && isFinite(parsedTime) && parsedTime > 0) {
+        node.currentTime = parsedTime;
+      } else if (position && isFinite(position) && !isLivestreamClaim) {
         const avDuration = claim?.value?.video?.duration || claim?.value?.audio?.duration;
         node.currentTime = avDuration && position >= avDuration - 100 ? 0 : position;
       }
@@ -294,8 +302,8 @@ function VideoViewer(props: Props) {
       node.addEventListener('canplay', restoreRate, { once: true });
       node.addEventListener('playing', restoreRate, { once: true });
 
-      // Listen for ended event
-      const handleEnded = () => onVideoEnded();
+      // Listen for ended event (use ref to always call the latest callback)
+      const handleEnded = () => onVideoEndedRef.current();
       node.addEventListener('ended', handleEnded);
 
       // Track play state
@@ -353,6 +361,7 @@ function VideoViewer(props: Props) {
         className={classnames('file-viewer', {
           'file-viewer--is-playing': isPlaying,
           'file-viewer--ended-embed': showEmbedEndOverlay,
+          'file-viewer--ended': showRecommendationOverlay,
         })}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
@@ -393,6 +402,7 @@ function VideoViewer(props: Props) {
           playNext={handlePlayNextUri}
           playPrevious={handlePlayPreviousUri}
           embedded={isEmbedded}
+          externalEmbed={isExternalEmbed}
           embeddedInternal={isMarkdownOrComment}
           claimValues={claim.value}
           doAnalyticsViewForUri={doAnalyticsViewForUri}

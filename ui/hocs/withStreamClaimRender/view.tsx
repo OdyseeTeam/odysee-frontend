@@ -41,7 +41,7 @@ import {
 } from 'redux/selectors/livestream';
 import { selectClientSetting } from 'redux/selectors/settings';
 import { selectVideoSourceLoadedForUri } from 'redux/selectors/app';
-import { doStartFloatingPlayingUri, doClearPlayingUri } from 'redux/actions/content';
+import { doStartFloatingPlayingUri, doClearPlayingUri, doClearPlayingSource } from 'redux/actions/content';
 import { doFileGetForUri } from 'redux/actions/file';
 import { doCheckIfPurchasedClaimId } from 'redux/actions/payments';
 import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
@@ -110,6 +110,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const purchaseTag = useAppSelector((state) => selectPurchaseTagForUri(state, uri));
     const rentalTag = useAppSelector((state) => selectRentalTagForUri(state, uri));
     const autoplay = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
+    const floatingPlayerEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER));
     const autoplayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
     const isFetchingPurchases = useAppSelector(selectIsFetchingPurchases);
     const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
@@ -135,6 +136,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const { setExpanded, disableExpanded } = React.useContext(ExpandableContext) || {};
     const alreadyPlaying = React.useRef(Boolean(playingUri.uri));
     const shouldClearPlayingUri = React.useRef(false);
+    const floatingPlayerEnabledRef = React.useRef(floatingPlayerEnabled);
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState<string | undefined>();
     const [clickProps, setClickProps] = React.useState<{ href?: string; onClick?: () => void } | undefined>();
     const currentLocation = location || {
@@ -203,14 +205,18 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     // For live livestreams, the streaming URL comes from activeLivestreamForChannel, not streamingUrl
     const hasStreamSource = streamingUrl || (isLivestreamClaim && isCurrentClaimLive);
 
-    function handleClick() {
-      streamClaim();
-
-      // In case of inline player where play button is reachable -> set is expanded
+    function expandInlinePlayerContainer() {
       if (setExpanded && disableExpanded) {
         setExpanded(true);
         disableExpanded(true);
       }
+    }
+
+    function handleClick() {
+      streamClaim();
+
+      // In case of inline player where play button is reachable -> set is expanded
+      expandInlinePlayerContainer();
     }
 
     React.useEffect(() => {
@@ -357,12 +363,28 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     React.useEffect(() => {
+      const playingLocation = playingUri.location || {};
+      const sameRoute = playingLocation.pathname === pathname && (playingLocation.search || '') === (search || '');
+      const shouldAttachFloatingUriToInlinePlayer =
+        claimLinkId && canViewFile && playingUri.uri === uri && !playingUri.sourceId && sameRoute;
+
+      if (shouldAttachFloatingUriToInlinePlayer) {
+        updateClaim('reattach-inline');
+        expandInlinePlayerContainer();
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [canViewFile, claimLinkId, pathname, playingUri.sourceId, playingUri.uri, search, uri]);
+
+    React.useEffect(() => {
       shouldClearPlayingUri.current = claimLinkId && currentUriPlaying;
     }, [claimLinkId, currentUriPlaying]);
     React.useEffect(() => {
+      floatingPlayerEnabledRef.current = floatingPlayerEnabled;
+    }, [floatingPlayerEnabled]);
+    React.useEffect(() => {
       return () => {
         if (shouldClearPlayingUri.current) {
-          dispatch(doClearPlayingUri());
+          dispatch(floatingPlayerEnabledRef.current ? doClearPlayingSource() : doClearPlayingUri());
         }
       }; // -- only on unmount
       // eslint-disable-next-line react-hooks/exhaustive-deps

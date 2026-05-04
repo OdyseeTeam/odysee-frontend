@@ -1,3 +1,21 @@
+if (typeof Object.hasOwn !== 'function') {
+  (Object as any).hasOwn = (obj: any, key: PropertyKey) => Object.prototype.hasOwnProperty.call(obj, key);
+}
+
+// Dev-only: ?legacy=1 simulates a browser without the Popover API.
+if (typeof window !== 'undefined' && window.location.search.indexOf('legacy=1') !== -1) {
+  for (const m of ['showPopover', 'hidePopover', 'togglePopover']) {
+    try {
+      Object.defineProperty(HTMLElement.prototype, m, {
+        value: undefined,
+        configurable: true,
+        writable: true,
+      });
+    } catch {}
+  }
+  (window as any).__forceLegacyPopover = true;
+}
+
 if (typeof AbortSignal.any !== 'function') {
   AbortSignal.any = (signals: AbortSignal[]) => {
     const controller = new AbortController();
@@ -24,6 +42,16 @@ setGlobalDevModeChecks({
   inputStabilityCheck: 'once',
   identityFunctionCheck: 'once',
 });
+
+// React 18.3.1 doesn't recognize the `fetchPriority` prop, but @videojs/react passes it.
+// The warning is harmless; suppress it to reduce dev console noise.
+{
+  const originalConsoleError = console.error;
+  console.error = (...args: any[]) => {
+    if (typeof args[0] === 'string' && args[0].includes('fetchPriority')) return;
+    originalConsoleError.apply(console, args);
+  };
+}
 
 import ErrorBoundary from 'component/errorBoundary';
 import App from 'component/app';
@@ -111,36 +139,43 @@ function scheduleWhenIdle(callback: () => void, timeout = 1500): CancelScheduled
 }
 
 function setupRewardCallbacks() {
-  void import('rewards').then(({ default: rewards }) => {
-    rewards.setCallback('claimFirstRewardSuccess', () => {
-      app.store.dispatch(doOpenModal(MODALS.FIRST_REWARD));
+  void import('rewards')
+    .catch(() => null)
+    .then((mod) => {
+      if (!mod) return;
+      const rewards = mod.default;
+      rewards.setCallback('claimFirstRewardSuccess', () => {
+        app.store.dispatch(doOpenModal(MODALS.FIRST_REWARD));
+      });
+      rewards.setCallback('claimRewardSuccess', (reward) => {
+        if (reward && reward.type === rewards.TYPE_REWARD_CODE) {
+          app.store.dispatch(doHideModal());
+        }
+      });
     });
-    rewards.setCallback('claimRewardSuccess', (reward) => {
-      if (reward && reward.type === rewards.TYPE_REWARD_CODE) {
-        app.store.dispatch(doHideModal());
-      }
-    });
-  });
 }
 
 analytics.init();
-// Handle IndexedDB errors gracefully (e.g., "Connection to Indexed Database server lost")
-// These can happen due to browser storage issues, too many tabs, or private browsing restrictions.
-// The site continues to work normally - state just won't persist across refreshes.
-// We silently handle this since it's not actionable and doesn't affect video playback.
-window.addEventListener('unhandledrejection', (event) => {
-  const errorMessage = event.reason?.message || event.reason?.toString() || '';
 
+const _origOnUnhandledRejection = window.onunhandledrejection;
+window.onunhandledrejection = function (event) {
+  const errorMessage = event.reason?.message || event.reason?.toString() || '';
   if (
     errorMessage.includes('IndexedDB') ||
     errorMessage.includes('Indexed Database') ||
-    errorMessage.includes('IDBDatabase')
+    errorMessage.includes('IDBDatabase') ||
+    errorMessage.includes('NO_TARGET') ||
+    errorMessage.includes('no supported sources') ||
+    errorMessage.includes('operation is not supported') ||
+    errorMessage.includes('NetworkError when attempting to fetch') ||
+    errorMessage.includes('Failed to fetch') ||
+    errorMessage.includes('cross-origin frame')
   ) {
-    event.preventDefault(); // Prevent the error from being reported to Sentry
-
-    console.warn('IndexedDB error (handled):', errorMessage);
+    event.preventDefault();
+    return true;
   }
-});
+  return _origOnUnhandledRejection ? _origOnUnhandledRejection.call(window, event) : false;
+};
 window.addEventListener('vite:preloadError', (event) => {
   const preloadEvent = event as Event & { payload?: unknown };
 

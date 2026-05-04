@@ -335,8 +335,14 @@ export default function LivestreamStudio(props: Props) {
   const [previewTab, setPreviewTab] = React.useState<'preview' | 'compositor' | string>('preview');
   const [activeVideoIds, setActiveVideoIds] = React.useState<Set<string>>(new Set());
   const [activeAudioIds, setActiveAudioIds] = React.useState<Set<string>>(new Set());
+  const [audioVolumes, setAudioVolumes] = React.useState<Record<string, number>>({});
+  const [masterVolume, setMasterVolume] = React.useState<number>(1);
   const sourceStreamsRef = React.useRef<Map<string, MediaStream>>(new Map());
+  const mediaElementsRef = React.useRef<Map<string, HTMLMediaElement>>(new Map());
   const audioMixerRef = React.useRef<AudioMixer | null>(null);
+  const screenAudioByVideoIdRef = React.useRef<Map<string, string>>(new Map());
+  const [extraAudioSources, setExtraAudioSources] = React.useState<Array<{ deviceId: string; label: string }>>([]);
+  const [extraVideoSources, setExtraVideoSources] = React.useState<VideoSource[]>([]);
   const compositorCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const isMobile = platform.isMobile();
   const [elapsedSeconds, setElapsedSeconds] = React.useState(0);
@@ -488,38 +494,11 @@ export default function LivestreamStudio(props: Props) {
     hasApprovedLivestreamClaim &&
     Boolean(streamKey && whipUrl && LIVESTREAM_SERVER_API);
 
-  // Camera auto-start: remember if user previously allowed camera
   const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [
     boolean,
     (v: boolean) => void,
   ];
-  const [cameraAutoStarting, setCameraAutoStarting] = React.useState(Boolean(cameraAutoStart));
-
-  // Auto-request camera on mount if previously allowed
-  const autoRequestedRef = React.useRef(false);
-  React.useEffect(() => {
-    if (autoRequestedRef.current || mediaStream || !browserPublishSupported || !livestreamEnabled) return;
-    if (status !== 'idle') return;
-
-    if (cameraAutoStart) {
-      autoRequestedRef.current = true;
-      setCameraAutoStarting(true);
-      requestCameraPreview().finally(() => setCameraAutoStarting(false));
-      return;
-    }
-
-    // Not auto-start - check browser permission as fallback
-    autoRequestedRef.current = true;
-    setCameraAutoStarting(false);
-    navigator.permissions
-      ?.query?.({ name: 'camera' as PermissionName })
-      .then((result) => {
-        if (result.state === 'granted') {
-          requestCameraPreview();
-        }
-      })
-      .catch(() => {});
-  }, [browserPublishSupported, livestreamEnabled, status, cameraAutoStart]); // eslint-disable-line react-hooks/exhaustive-deps
+  const [cameraAutoStarting] = React.useState(false);
 
   async function requestCameraStream(overrideFacingMode?: 'user' | 'environment') {
     const attempts = getCameraConstraintAttempts(presetId, overrideFacingMode ?? facingMode);
@@ -639,11 +618,41 @@ export default function LivestreamStudio(props: Props) {
         stream.getVideoTracks().forEach((t) => t.stop());
         sourceStreamsRef.current.delete(id);
       }
+      const screenAudioId = screenAudioByVideoIdRef.current.get(id);
+      if (screenAudioId) {
+        audioMixerRef.current?.removeSource(screenAudioId);
+        const audioStream = sourceStreamsRef.current.get(`audio-${screenAudioId}`);
+        if (audioStream) {
+          audioStream.getTracks().forEach((t) => t.stop());
+          sourceStreamsRef.current.delete(`audio-${screenAudioId}`);
+        }
+        setActiveAudioIds((prev) => {
+          const next = new Set(prev);
+          next.delete(screenAudioId);
+          return next;
+        });
+        setAudioVolumes((prev) => {
+          const next = { ...prev };
+          delete next[screenAudioId];
+          return next;
+        });
+        screenAudioByVideoIdRef.current.delete(id);
+        setExtraAudioSources((prev) => prev.filter((s) => s.deviceId !== screenAudioId));
+      }
       setActiveVideoIds((prev) => {
         const next = new Set(prev);
         next.delete(id);
         return next;
       });
+      setExtraVideoSources((prev) => prev.filter((s) => s.deviceId !== id));
+      const videoEl = mediaElementsRef.current.get(`video-${id}`);
+      if (videoEl) {
+        videoEl.pause();
+        if (videoEl.src) URL.revokeObjectURL(videoEl.src);
+        videoEl.removeAttribute('src');
+        videoEl.load();
+        mediaElementsRef.current.delete(`video-${id}`);
+      }
       setCompositorLayers((prev) => prev.filter((l) => l.id !== id));
       if (selectedLayerId === id) setSelectedLayerId(null);
       updateOutputStream();
@@ -676,16 +685,99 @@ export default function LivestreamStudio(props: Props) {
         stream = canvas.captureStream(0);
         source = { ...source, deviceId: `__image_${Date.now()}__`, label: file.name.replace(/\.[^.]+$/, '') };
         id = source.deviceId;
+      } else if (source.kind === 'videofile') {
+        const file = await new Promise<File | null>((resolve) => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'video/*';
+          input.addEventListener('change', () => resolve(input.files?.[0] || null));
+          input.click();
+        });
+        if (!file) return;
+        const video = document.createElement('video');
+        video.src = URL.createObjectURL(file);
+        video.loop = false;
+        video.playsInline = true;
+        await new Promise<void>((resolve) => {
+          video.addEventListener('loadedmetadata', () => resolve(), { once: true });
+        });
+        stream = (video as any).captureStream ? (video as any).captureStream() : (video as any).mozCaptureStream();
+        const fileLabel = file.name.replace(/\.[^.]+$/, '');
+        const captureId = `__videofile_${Date.now()}__`;
+        source = { ...source, deviceId: captureId, label: fileLabel };
+        id = captureId;
+        mediaElementsRef.current.set(`video-${captureId}`, video);
+        setExtraVideoSources((prev) => [
+          ...prev,
+          { deviceId: captureId, label: fileLabel, kind: 'videofile' as const },
+        ]);
+        const audioTrack = stream.getAudioTracks()[0];
+        if (audioTrack) {
+          if (!audioMixerRef.current) audioMixerRef.current = new AudioMixer();
+          const fileAudioId = `__videofile_audio_${captureId}`;
+          const audioStream = new MediaStream([audioTrack]);
+          sourceStreamsRef.current.set(`audio-${fileAudioId}`, audioStream);
+          audioMixerRef.current.addSource(fileAudioId, audioStream);
+          setActiveAudioIds((prev) => new Set(prev).add(fileAudioId));
+          setAudioVolumes((prev) => ({ ...prev, [fileAudioId]: prev[fileAudioId] ?? 1 }));
+          screenAudioByVideoIdRef.current.set(captureId, fileAudioId);
+          setExtraAudioSources((prev) => [...prev, { deviceId: fileAudioId, label: `${fileLabel} – ${__('Audio')}` }]);
+        }
       } else if (source.kind === 'screen') {
-        stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-        stream.getVideoTracks()[0]?.addEventListener('ended', () => {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+        const videoTrack = stream.getVideoTracks()[0];
+        const settings: any = videoTrack?.getSettings?.() || {};
+        const surfaceLabels: Record<string, string> = {
+          monitor: __('Screen'),
+          window: __('Window'),
+          browser: __('Browser Tab'),
+        };
+        const surface = surfaceLabels[settings.displaySurface] || __('Screen');
+        const rawLabel = (videoTrack?.label || '').trim();
+        const looksSynthetic = /^(screen|window|web-contents-media-stream):/.test(rawLabel);
+        const baseLabel = (rawLabel && !looksSynthetic ? rawLabel : '') || surface;
+        const usedLabels = new Set(extraVideoSources.map((s) => s.label));
+        let captureLabel = baseLabel;
+        let suffix = 2;
+        while (usedLabels.has(captureLabel)) {
+          captureLabel = `${baseLabel} (${suffix})`;
+          suffix += 1;
+        }
+        const captureId = `__screen_${Date.now()}__`;
+        source = { ...source, deviceId: captureId, label: captureLabel };
+        id = captureId;
+        videoTrack?.addEventListener('ended', () => {
           handleToggleVideo(source);
         });
+        setExtraVideoSources((prev) => [
+          ...prev,
+          { deviceId: captureId, label: captureLabel, kind: 'screen' as const },
+        ]);
+        const audioTrack = stream.getAudioTracks()[0];
+        if (audioTrack) {
+          if (!audioMixerRef.current) audioMixerRef.current = new AudioMixer();
+          const screenAudioId = `__screen_audio_${id}`;
+          const audioStream = new MediaStream([audioTrack]);
+          sourceStreamsRef.current.set(`audio-${screenAudioId}`, audioStream);
+          audioMixerRef.current.addSource(screenAudioId, audioStream);
+          setActiveAudioIds((prev) => new Set(prev).add(screenAudioId));
+          setAudioVolumes((prev) => ({ ...prev, [screenAudioId]: prev[screenAudioId] ?? 1 }));
+          screenAudioByVideoIdRef.current.set(id, screenAudioId);
+          setExtraAudioSources((prev) => [
+            ...prev,
+            { deviceId: screenAudioId, label: `${captureLabel} – ${__('Audio')}` },
+          ]);
+        }
       } else {
         stream = await navigator.mediaDevices.getUserMedia({
-          video: { deviceId: { exact: source.deviceId } },
+          video: source.deviceId ? { deviceId: { exact: source.deviceId } } : true,
           audio: false,
         });
+        const obtainedId = stream.getVideoTracks()[0]?.getSettings().deviceId;
+        if (obtainedId && obtainedId !== id) {
+          source = { ...source, deviceId: obtainedId };
+          id = obtainedId;
+        }
       }
       sourceStreamsRef.current.set(id, stream);
       setActiveVideoIds((prev) => new Set(prev).add(id));
@@ -697,7 +789,7 @@ export default function LivestreamStudio(props: Props) {
       const resolveSourceSize = (): Promise<{ w: number; h: number }> =>
         new Promise((resolve) => {
           const settings = track?.getSettings();
-          if (settings?.width && settings?.height) {
+          if (source.kind !== 'screen' && settings?.width && settings?.height) {
             resolve({ w: settings.width, h: settings.height });
             return;
           }
@@ -706,11 +798,13 @@ export default function LivestreamStudio(props: Props) {
           tempVideo.playsInline = true;
           tempVideo.srcObject = new MediaStream([track]);
           tempVideo.addEventListener('loadedmetadata', () => {
-            resolve({ w: tempVideo.videoWidth || outW, h: tempVideo.videoHeight || outH });
+            const w = tempVideo.videoWidth || settings?.width || outW;
+            const h = tempVideo.videoHeight || settings?.height || outH;
+            resolve({ w, h });
             tempVideo.srcObject = null;
           });
-          tempVideo.play().catch(() => resolve({ w: outW, h: outH }));
-          setTimeout(() => resolve({ w: outW, h: outH }), 2000);
+          tempVideo.play().catch(() => resolve({ w: settings?.width || outW, h: settings?.height || outH }));
+          setTimeout(() => resolve({ w: settings?.width || outW, h: settings?.height || outH }), 2000);
         });
 
       const { w: srcW, h: srcH } = await resolveSourceSize();
@@ -759,21 +853,84 @@ export default function LivestreamStudio(props: Props) {
         next.delete(id);
         return next;
       });
+      setAudioVolumes((prev) => {
+        const next = { ...prev };
+        delete next[id];
+        return next;
+      });
+      if (id.startsWith('__audiofile_')) {
+        setExtraAudioSources((prev) => prev.filter((s) => s.deviceId !== id));
+        const el = mediaElementsRef.current.get(`audio-${id}`);
+        if (el) {
+          el.pause();
+          if (el.src) URL.revokeObjectURL(el.src);
+          el.removeAttribute('src');
+          el.load();
+          mediaElementsRef.current.delete(`audio-${id}`);
+        }
+      }
       updateOutputStream();
       return;
     }
 
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        audio: { deviceId: { exact: id }, echoCancellation: true, noiseSuppression: true, autoGainControl: true },
-      });
-      sourceStreamsRef.current.set(`audio-${id}`, stream);
-      mixer.addSource(id, stream);
-      setActiveAudioIds((prev) => new Set(prev).add(id));
+      if (source.kind === 'audiofile') {
+        const file = await new Promise<File | null>((resolve) => {
+          const input = document.createElement('input');
+          input.type = 'file';
+          input.accept = 'audio/*';
+          input.addEventListener('change', () => resolve(input.files?.[0] || null));
+          input.click();
+        });
+        if (!file) return;
+        const audio = document.createElement('audio');
+        audio.src = URL.createObjectURL(file);
+        audio.loop = false;
+        await new Promise<void>((resolve) => {
+          audio.addEventListener('loadedmetadata', () => resolve(), { once: true });
+        });
+        const fileLabel = file.name.replace(/\.[^.]+$/, '');
+        const fileId = `__audiofile_${Date.now()}__`;
+        mixer.addElementSource(fileId, audio);
+        mediaElementsRef.current.set(`audio-${fileId}`, audio);
+        setActiveAudioIds((prev) => new Set(prev).add(fileId));
+        setAudioVolumes((prev) => ({ ...prev, [fileId]: 1 }));
+        setExtraAudioSources((prev) => [...prev, { deviceId: fileId, label: fileLabel }]);
+        updateOutputStream();
+        return;
+      }
+
+      const isPlaceholder = id.startsWith('__camera_mic_');
+      const audioConstraint: MediaTrackConstraints = {
+        echoCancellation: true,
+        noiseSuppression: true,
+        autoGainControl: true,
+      };
+      if (isPlaceholder && source.groupId) {
+        audioConstraint.groupId = { exact: source.groupId };
+      } else if (id) {
+        audioConstraint.deviceId = { exact: id };
+      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraint });
+      const obtainedId = stream.getAudioTracks()[0]?.getSettings().deviceId || id || `audio-${Date.now()}`;
+      sourceStreamsRef.current.set(`audio-${obtainedId}`, stream);
+      mixer.addSource(obtainedId, stream);
+      setActiveAudioIds((prev) => new Set(prev).add(obtainedId));
+      setAudioVolumes((prev) => ({ ...prev, [obtainedId]: prev[obtainedId] ?? 1 }));
       updateOutputStream();
     } catch (e: unknown) {
       if (!isAbortError(e)) setErrorMessage(describeUnknown(e));
     }
+  }
+
+  function handleAudioVolumeChange(id: string, volume: number) {
+    setAudioVolumes((prev) => ({ ...prev, [id]: volume }));
+    audioMixerRef.current?.setVolume(id, volume);
+  }
+
+  function handleMasterVolumeChange(volume: number) {
+    setMasterVolume(volume);
+    audioMixerRef.current?.setMasterVolume(volume);
   }
 
   function updateOutputStream() {
@@ -1381,16 +1538,19 @@ export default function LivestreamStudio(props: Props) {
                     videoStyle={{
                       filter: cssFilters.length > 0 ? cssFilters.join(' ') : undefined,
                       opacity: layer.opacity ?? 1,
-                      borderRadius: layer.borderRadius ? `${layer.borderRadius}px` : undefined,
                     }}
+                    borderRadius={layer.borderRadius}
+                    layerWidth={layer.width}
                     crop={layer.crop}
                     onCropChange={(crop) => {
+                      const trackSettings = layer.stream.getVideoTracks()[0]?.getSettings();
+                      const sourceAr = (trackSettings?.width || 0) / (trackSettings?.height || 1) || layer.aspectRatio;
+                      const newAr = crop ? crop.sw / crop.sh : sourceAr;
+                      const newH = layer.width / newAr;
                       handleLayerUpdate(layer.id, {
                         crop,
-                        aspectRatio: crop
-                          ? crop.sw / crop.sh
-                          : layer.stream.getVideoTracks()[0]?.getSettings()?.width /
-                              layer.stream.getVideoTracks()[0]?.getSettings()?.height || layer.aspectRatio,
+                        aspectRatio: newAr,
+                        height: Math.round(newH),
                       });
                     }}
                   />
@@ -1773,9 +1933,12 @@ export default function LivestreamStudio(props: Props) {
               activeVideoIds={activeVideoIds}
               activeAudioIds={activeAudioIds}
               activeVideoOrder={[...compositorLayers].sort((a, b) => b.zIndex - a.zIndex).map((l) => l.id)}
-              activeImageSources={compositorLayers
-                .filter((l) => l.id.startsWith('__image_'))
-                .map((l) => ({ deviceId: l.id, label: l.label, kind: 'image' as const }))}
+              activeImageSources={[
+                ...compositorLayers
+                  .filter((l) => l.id.startsWith('__image_'))
+                  .map((l) => ({ deviceId: l.id, label: l.label, kind: 'image' as const })),
+                ...extraVideoSources,
+              ]}
               onToggleVideo={handleToggleVideo}
               onToggleAudio={handleToggleAudio}
               onReorderVideo={(fromId, toId) => {
@@ -1789,6 +1952,15 @@ export default function LivestreamStudio(props: Props) {
                   return sorted.map((l, i) => ({ ...l, zIndex: sorted.length - 1 - i }));
                 });
               }}
+              audioVolumes={audioVolumes}
+              masterVolume={masterVolume}
+              onAudioVolumeChange={handleAudioVolumeChange}
+              onMasterVolumeChange={handleMasterVolumeChange}
+              getAudioLevel={(id) => audioMixerRef.current?.getSourceLevel(id) ?? 0}
+              getMasterAudioLevel={() => audioMixerRef.current?.getMasterLevel() ?? 0}
+              extraAudioSources={extraAudioSources}
+              getAudioElement={(id) => mediaElementsRef.current.get(`audio-${id}`) || null}
+              getVideoElement={(id) => mediaElementsRef.current.get(`video-${id}`) || null}
               disabled={status === 'connecting' || status === 'stopping'}
             />
           );

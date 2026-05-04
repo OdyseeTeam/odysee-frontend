@@ -4,15 +4,14 @@ import React from 'react';
 import * as SETTINGS from 'constants/settings';
 import * as COLLECTIONS from 'constants/collections';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
-import * as MODALS from 'constants/modal_types';
+
 import { SETTINGS_GRP } from 'constants/settings';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField, FormFieldPrice } from 'component/common/form';
 import SettingsRow from 'component/settingsRow';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { doOpenModal } from 'redux/actions/app';
+
 import { doSetClientSetting } from 'redux/actions/settings';
 import { selectShowMatureContent, selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
@@ -31,13 +30,13 @@ export default function SettingContent() {
   const hideLivestreams = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES));
   const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
   const defaultCollectionAction = useAppSelector((state) => selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION));
-  const showNsfw = useAppSelector(selectShowMatureContent);
+
   const instantPurchaseEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED));
   const instantPurchaseMax: Price = useAppSelector((state) => selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX));
   const enablePublishPreview = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW));
 
   const setClientSetting = (key: string, value: boolean | string | number) => dispatch(doSetClientSetting(key, value));
-  const openModal = (id: string) => dispatch(doOpenModal(id));
+
 
   return <>
       <Card id={SETTINGS_GRP.CONTENT} background isBodyList title={__('Content settings')} body={<>
@@ -81,12 +80,6 @@ export default function SettingContent() {
                 </FormField>
               </fieldset-section>
             </SettingsRow>
-
-            {!SIMPLE_SITE && <>
-                <SettingsRow title={__('Show mature content')} subtitle={__(HELP.SHOW_MATURE)}>
-                  <FormField type="checkbox" name="show_nsfw" checked={showNsfw} onChange={() => !IS_WEB || showNsfw ? setClientSetting(SETTINGS.SHOW_MATURE, !showNsfw) : openModal(MODALS.CONFIRM_AGE)} />
-                </SettingsRow>
-              </>}
 
             {(isAuthenticated || !IS_WEB) && <>
                 <SettingsRow title={__('Notifications')}>

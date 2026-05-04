@@ -14,6 +14,7 @@ export function removeInternalStringTags(tags: Array<string>): Array<string> {
 
 export function removeInternalTags(tags: Array<Tag>): Array<Tag> {
   return tags.filter((tag: Tag) => {
+    if (!tag?.name) return false;
     return (
       !INTERNAL_TAGS.includes(tag.name) &&
       !tag.name.startsWith(PURCHASE_TAG) &&

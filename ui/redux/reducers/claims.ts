@@ -688,6 +688,7 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
     pending: Record<string, Claim>;
   } = action.data;
   const byIdDelta = {};
+  const byUriDelta = {};
   const confirmedUrls = new Set<string>();
   confirmedClaims.forEach((claim: GenericClaim) => {
     const { claim_id: claimId, type } = claim;
@@ -700,12 +701,24 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
 
     if (type && type.match(/claim|update|channel/)) {
       updateIfClaimChanged(state.byId, byIdDelta, claimId, newClaim);
+      if ((claim as any).permanent_url) {
+        updateIfValueChanged(state.claimsByUri, byUriDelta, (claim as any).permanent_url, claimId);
+      }
+      if ((claim as any).canonical_url) {
+        updateIfValueChanged(state.claimsByUri, byUriDelta, (claim as any).canonical_url, claimId);
+      }
     }
     if ((claim as any).permanent_url) confirmedUrls.add((claim as any).permanent_url);
   });
+  const confirmedNames = new Set(confirmedClaims.map((c: any) => c.name));
   const cleanedPending = { ...pendingClaims };
+  const removedPendingUrls: string[] = [];
   for (const [id, claim] of Object.entries(cleanedPending)) {
-    if (id.startsWith('pending-') && confirmedUrls.has((claim as any).permanent_url)) {
+    if (
+      id.startsWith('pending-') &&
+      (confirmedUrls.has((claim as any).permanent_url) || confirmedNames.has((claim as any).name))
+    ) {
+      removedPendingUrls.push((claim as any).permanent_url);
       delete cleanedPending[id];
     }
   }
@@ -719,10 +732,16 @@ reducers[ACTIONS.UPDATE_CONFIRMED_CLAIMS] = (state: ClaimsState, action: any): C
       newPageResults = [...confirmedPageUrls, ...pageResults];
     }
   }
+  const myClaimIds = new Set(state.myClaims);
+  confirmedClaims.forEach((claim: GenericClaim) => {
+    myClaimIds.add(claim.claim_id);
+  });
   return Object.assign({}, state, {
     pendingById: cleanedPending,
     byId: resolveDelta(state.byId, byIdDelta),
+    claimsByUri: resolveDelta(state.claimsByUri, byUriDelta),
     myClaimsPageResults: newPageResults,
+    myClaims: Array.from(myClaimIds),
   });
 };
 
@@ -1038,8 +1057,14 @@ reducers[ACTIONS.PURCHASE_URI_COMPLETED] = (state: ClaimsState, action: any): Cl
   const claimId = byUri[uri];
 
   if (claimId) {
-    let claim = byId[claimId];
-    claim.purchase_receipt = purchaseReceipt;
+    const claim = byId[claimId];
+
+    if (claim) {
+      byId[claimId] = {
+        ...claim,
+        purchase_receipt: purchaseReceipt,
+      };
+    }
   }
 
   myPurchases.push(uri);
@@ -1078,7 +1103,15 @@ reducers[ACTIONS.REHYDRATE] = (state: ClaimsState, action: any) => {
   });
   const filteredMyClaims = myClaims?.filter((id: string) => !id.startsWith('__preview_'));
 
-  return { ...defaultState, ...incoming, byId, claimsByUri, myClaims: filteredMyClaims, pendingById };
+  return {
+    ...defaultState,
+    ...incoming,
+    byId,
+    claimsByUri,
+    myClaims: filteredMyClaims,
+    pendingById,
+    isFetchingClaimListMineSuccess: undefined,
+  };
 };
 
 export function claimsReducer(state: ClaimsState = defaultState, action: any) {

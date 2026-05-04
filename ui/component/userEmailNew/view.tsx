@@ -1,5 +1,5 @@
 import * as PAGES from 'constants/pages';
-import { DOMAIN, SIMPLE_SITE } from 'config';
+import { DOMAIN } from 'config';
 import React, { useState } from 'react';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
@@ -82,7 +82,7 @@ function UserEmailNew(props: Props) {
   return (
     <div
       className={classnames('main__sign-up', {
-        'main__sign-up--graphic': SIMPLE_SITE,
+        'main__sign-up--graphic': true,
       })}
     >
       <Card
@@ -98,14 +98,18 @@ function UserEmailNew(props: Props) {
                 autoFocus
                 placeholder={__('yourstruly@example.com')}
                 type="email"
+                id="sign_up_email"
                 name="sign_up_email"
+                autoComplete="username"
                 label={__('Email')}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
               <FormField
                 type="password"
-                name="sign_in_password"
+                id="sign_up_password"
+                name="new_password"
+                autoComplete="new-password"
                 label={__('Password')}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -158,7 +162,7 @@ function UserEmailNew(props: Props) {
           </div>
         }
         nag={<>{errorMessage && <Nag type="error" relative message={<ErrorText>{errorMessage}</ErrorText>} />}</>}
-        secondPane={SIMPLE_SITE && <LoginGraphic />}
+        secondPane={<LoginGraphic />}
       />
     </div>
   );

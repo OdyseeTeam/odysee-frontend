@@ -257,7 +257,7 @@ function App() {
   const hasMyChannels = myChannelClaimIds && myChannelClaimIds.length > 0;
   const hasNoChannels = myChannelClaimIds && myChannelClaimIds.length === 0;
   const shouldMigrateLanguage = LANGUAGE_MIGRATIONS[language];
-  const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox();
+  const renderFiledrop = !isMobile && isAuthenticated && !platform.isFirefox() && !embedPath;
   const useDebugLog = process.env.NODE_ENV !== 'production' || process.env.IS_TEST_INSTANCE === 'true';
   const connectionStatus = useConnectionStatus();
   const urlPath = pathname + hash;
@@ -266,7 +266,7 @@ function App() {
   const featureParam = urlParams.get('feature');
   const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
   const hasModalUrlParam = Boolean(urlParams.get(URL_PARAMS.MODAL));
-  const shouldMountModalRouter = Boolean(currentModal || modalError || hasModalUrlParam);
+  const shouldMountModalRouter = !embedPath && Boolean(currentModal || modalError || hasModalUrlParam);
   const shouldMountFloatingPlayer = !embedPath && Boolean(playingUri?.uri || autoplayCountdownUri);
   const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
   let path;
@@ -319,6 +319,7 @@ function App() {
   }
 
   function getStatusNag() {
+    if (embedPath) return null;
     // Handle "offline" first. Everything else is meaningless if it's offline.
     if (!connectionStatus.online) {
       return (
@@ -397,6 +398,7 @@ function App() {
   }
 
   useEffect(() => {
+    if (embedPath) return;
     (async () => {
       try {
         const localForage = (await import('localforage')).default;
@@ -416,6 +418,7 @@ function App() {
     }
   }, [userId]);
   useEffect(() => {
+    if (embedPath) return;
     if (syncIsLocked) {
       const msg = 'There are unsaved settings. Exit the Settings Page to finalize them.';
 
@@ -429,7 +432,7 @@ function App() {
     }
   }, [syncIsLocked]);
   useEffect(() => {
-    if (!uploadCount) return;
+    if (embedPath || !uploadCount) return;
     const msg = 'Unfinished uploads.';
 
     const handleUnload = () => tusUnlockAndNotify();
@@ -447,15 +450,15 @@ function App() {
     };
   }, [uploadCount]);
   useEffect(() => {
-    if (!uploadCount) return;
+    if (embedPath || !uploadCount) return;
 
     const onStorageUpdate = (e) => tusHandleTabUpdates(e.key);
 
     window.addEventListener('storage', onStorageUpdate);
     return () => window.removeEventListener('storage', onStorageUpdate);
   }, [uploadCount]);
-  // allows user to pause miniplayer using the spacebar without the page scrolling down
   useEffect(() => {
+    if (embedPath) return;
     const handleKeyPress = (e) => {
       if (e.key === ' ' && e.target === document.body) {
         e.preventDefault();
@@ -466,6 +469,7 @@ function App() {
     return () => window.removeEventListener('keydown', handleKeyPress);
   }, []);
   useEffect(() => {
+    if (embedPath) return;
     if (referredRewardAvailable && sanitizedReferrerParam) {
       dispatch(doUserSetReferrerForUri(sanitizedReferrerParam));
     } // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -474,6 +478,7 @@ function App() {
     document.documentElement.setAttribute('theme', theme);
   }, [theme]);
   useEffect(() => {
+    if (embedPath) return;
     if (hasNoChannels) {
       dispatch(doSetIncognito(true));
     }
@@ -485,11 +490,13 @@ function App() {
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, hasMyChannels, hasNoChannels]);
   useEffect(() => {
+    if (embedPath) return;
     if (hasMyChannels && activeChannelClaim && !defaultChannelClaim && prefsReady) {
       dispatch(doSetDefaultChannel(activeChannelClaim.claim_id));
     }
   }, [dispatch, activeChannelClaim, defaultChannelClaim, hasMyChannels, prefsReady]);
   useEffect(() => {
+    if (embedPath) return;
     if (
       isFypModalShown ||
       !prefsReady ||
@@ -554,13 +561,13 @@ function App() {
     }
   }, [dispatch, shouldMigrateLanguage]);
   useEffect(() => {
-    // Check that previousHasVerifiedEmail was not undefined instead of just not truthy
-    // This ensures we don't fire the emailVerified event on the initial user fetch
+    if (embedPath) return;
     if (previousHasVerifiedEmail === false && hasVerifiedEmail) {
       analytics.event.emailVerified();
     }
   }, [previousHasVerifiedEmail, hasVerifiedEmail]);
   useEffect(() => {
+    if (embedPath) return;
     if (previousRewardApproved === false && isRewardApproved) {
       analytics.event.rewardEligible();
     }
@@ -620,7 +627,7 @@ function App() {
   }, [locale]);
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
-    // signInSyncPref is cleared after sharedState loop.
+    if (embedPath) return;
     const syncLoopWithoutInterval = () => dispatch(doSyncLoop(true));
 
     if (hasSignedIn && hasVerifiedEmail) {
@@ -634,24 +641,27 @@ function App() {
     };
   }, [dispatch, hasSignedIn, hasVerifiedEmail]);
   useEffect(() => {
+    if (embedPath) return;
     if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
       navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [syncError, pathname, isAuthenticated, navigate]);
   useEffect(() => {
+    if (embedPath) return;
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
       dispatch(doOpenAnnouncements());
     }
   }, [dispatch, announcement, isAuthenticated, pathname, prefsReady]);
   useEffect(() => {
+    if (embedPath) return;
     window.clearLastViewedAnnouncement = () => {
       console.log('Clearing history. Please wait ...'); // eslint-disable-line no-console
 
       dispatch(doSetLastViewedAnnouncement('clear'));
     }; // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
   }, []);
-  // Keep this at the end to ensure initial setup effects are run first
   useEffect(() => {
+    if (embedPath) return;
     if (!hasSignedIn && hasVerifiedEmail) {
       dispatch(doSignIn());
       setHasSignedIn(true);
@@ -714,14 +724,16 @@ function App() {
             >
               <Router uri={uri} />
             </React.Suspense>
-            <React.Suspense fallback={null}>{isAuthenticated && <Wander />}</React.Suspense>
-            <React.Suspense fallback={null}>{shouldMountModalRouter && <ModalRouter />}</React.Suspense>
+            <React.Suspense fallback={null}>{isAuthenticated && !embedPath && <Wander />}</React.Suspense>
+            <React.Suspense fallback={null}>
+              <ModalRouter />
+            </React.Suspense>
             <React.Suspense fallback={null}>{renderFiledrop && <FileDrop />}</React.Suspense>
             <React.Suspense fallback={null}>{shouldMountFloatingPlayer && <VideoRenderFloating />}</React.Suspense>
             <LivestreamPublisherFloatingGate embedPath={embedPath} />
             <React.Suspense fallback={null}>
-              {isEnhancedLayout && <SpaceInvaders onClose={dismissEnhancedLayout} />}
-              {!hasVerifiedEmail && <YoutubeWelcome />}
+              {isEnhancedLayout && !embedPath && <SpaceInvaders onClose={dismissEnhancedLayout} />}
+              {!hasVerifiedEmail && !embedPath && <YoutubeWelcome />}
               {!shouldHideNag && <NagContinueFirstRun />}
               {fromLbrytvParam && !seenSunsestMessage && !shouldHideNag && (
                 <NagSunset email={hasVerifiedEmail} onClose={() => setSeenSunsetMessage(true)} />

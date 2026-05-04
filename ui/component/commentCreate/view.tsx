@@ -3,7 +3,6 @@ import { buildValidSticker } from 'util/comments';
 import { FF_MAX_CHARS_IN_COMMENT, FF_MAX_CHARS_IN_LIVESTREAM_COMMENT } from 'constants/form-field';
 import { FormField, Form } from 'component/common/form';
 import { Lbryio } from 'lbryinc';
-import { SIMPLE_SITE } from 'config';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { NavigationPrompt } from 'component/common/navigation-prompt';
 import * as ICONS from 'constants/icons';
@@ -14,7 +13,7 @@ import * as MODALS from 'constants/modal_types';
 import Button from 'component/button';
 import classnames from 'classnames';
 import CommentSelectors, { SELECTOR_TABS } from './internal/comment-selectors';
-import usePersistedState from 'effects/use-persisted-state';
+
 import WalletTipAmountSelector from 'component/walletTipAmountSelector';
 import { useIsMobile } from 'effects/use-screensize';
 import { StickerReviewBox, StickerActionButton } from './internal/sticker-contents';
@@ -248,7 +247,7 @@ export function CommentCreate(props: Props) {
   const [tipAmount, setTipAmount] = React.useState(1);
   // const [convertedAmount, setConvertedAmount] = React.useState();
   const [commentValue, setCommentValue] = React.useState('');
-  const [advancedEditor, setAdvancedEditor] = usePersistedState('comment-editor-mode', false);
+
   const [activeTab, setActiveTab] = React.useState<string | undefined>();
   const [tipError, setTipError] = React.useState<any>();
   const [deletedComment, setDeletedComment] = React.useState(false);
@@ -1036,7 +1035,7 @@ export function CommentCreate(props: Props) {
                 )
               }
               name={isReply ? 'create__reply' : 'create__comment'}
-              onChange={(e) => setCommentValue(SIMPLE_SITE || !advancedEditor || isReply ? e.target.value : e)}
+              onChange={(e) => setCommentValue(e.target.value)}
               handleTip={() => handleSelectTipComment(TAB_USD)}
               handleSubmit={handleCreateComment}
               slimInput={isMobile && !!uri} // "uri": make sure it's on a file page
@@ -1048,14 +1047,10 @@ export function CommentCreate(props: Props) {
               showSelectors={showSelectors}
               tipModalOpen={tipModalOpen}
               placeholder={__(commentLabelText)}
-              quickActionHandler={!SIMPLE_SITE && !isLivestream ? () => setAdvancedEditor(!advancedEditor) : undefined}
-              quickActionLabel={
-                !SIMPLE_SITE &&
-                !isLivestream &&
-                (isReply ? undefined : advancedEditor ? __('Simple Editor') : __('Advanced Editor'))
-              }
+              quickActionHandler={undefined}
+              quickActionLabel={undefined}
               textAreaMaxLength={isLivestream ? FF_MAX_CHARS_IN_LIVESTREAM_COMMENT : FF_MAX_CHARS_IN_COMMENT}
-              type={!SIMPLE_SITE && advancedEditor && !isReply && !isLivestream ? 'markdown' : 'textarea'}
+              type={'textarea'}
               value={commentValue}
               uri={uri}
             />
