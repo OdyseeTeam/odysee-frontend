@@ -209,5 +209,13 @@ export const isClaimShort = (claim: Claim | null | undefined): boolean => {
   const isVertical = aspectRatio <= SETTINGS.SHORTS_ASPECT_RATIO_LTE;
   return isVertical;
 };
+export const isClaimYouTubeMirror = (claim: Claim | null | undefined): boolean => {
+  if (!claim || !claim.value) return false;
+  const description = (claim.value as StreamMetadata)?.description;
+  if (!description) return false;
+  return /\.\.\.\s*\n\s*(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)[\w-]+/i.test(
+    description
+  );
+};
 export const getClaimMeta = (claim: Claim | null | undefined) => claim && claim.meta;
 export const getClaimRepostedAmount = (claim: Claim | null | undefined) => getClaimMeta(claim)?.reposted;
