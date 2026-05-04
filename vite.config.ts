@@ -619,7 +619,7 @@ function legacyFallbackPlugin() {
         }
 
         const detectorScript = `<script>
-(function(){try{eval("class C{#x=1;static s=2}let a=1;a??=2;a&&=1;a||=0;a?.toString();[1].at(0);structuredClone(a);Object.hasOwn({},'x')")}catch(e){
+(function(){try{if(location.search.indexOf('legacy=1')!==-1)throw 1;eval("class C{#x=1;static s=2}let a=1;a??=2;a&&=1;a||=0;a?.toString();[1].at(0);structuredClone(a);Object.hasOwn({},'x')")}catch(e){
 if(typeof Object.hasOwn!=='function')Object.hasOwn=function(o,k){return Object.prototype.hasOwnProperty.call(o,k)};
 if(typeof Array.prototype.at!=='function')Array.prototype.at=function(i){var l=this.length;i=i<0?l+i:i;return i<0||i>=l?undefined:this[i]};
 if(typeof String.prototype.at!=='function')String.prototype.at=function(i){var l=this.length;i=i<0?l+i:i;return i<0||i>=l?undefined:this[i]};

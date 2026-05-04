@@ -1376,6 +1376,38 @@ export const doPublish =
       //   });
     }, fail);
   };
+// Pre-create the asynqueries row in DRAFT state (ready_to_run=false) as soon
+// as the upload URL is known, so the row exists keyed by upload_id by the time
+// forklift fires upload:done. The actual SDK call is deferred until the user
+// clicks Publish — see doPublishWithEarlyUpload, which sends a second
+// stream_create with the final form data and no `_defer` flag, causing the
+// backend to overwrite the stored params and queue the SDK call.
+export const doCreateClaimForEarlyUpload =
+  (uploadLocation: string) =>
+  async (dispatch: Dispatch, getState: GetState): Promise<number> => {
+    const { createClaim } = await import('web/setup/publish-v4-tasks');
+    const state = getState();
+    const publishData = selectPublishFormValues(state);
+    const myClaimForUri = state.publish.claimToEdit;
+    const myChannels = selectMyChannelClaims(state) as Array<ChannelClaim> | null | undefined;
+    const memberRestrictionStatus = selectMemberRestrictionStatus(state);
+    const publishPayload = resolvePublishPayload(
+      publishData,
+      myClaimForUri,
+      myChannels,
+      memberRestrictionStatus,
+      false
+    );
+    const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload as any;
+    const headers = Lbry.getApiRequestHeaders();
+    const token = headers && Object.keys(headers).includes(X_LBRY_AUTH_TOKEN) ? headers[X_LBRY_AUTH_TOKEN] : '';
+    return createClaim(
+      token,
+      uploadLocation,
+      { ...sdkParams, _defer: true },
+      { onSuccess: () => {}, onFailure: () => {} }
+    );
+  };
 export const doPublishWithEarlyUpload =
   (tusUrlPromise: Promise<{ tusUrl: string }>, guid: string) => async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -1427,6 +1459,10 @@ export const doPublishWithEarlyUpload =
 
       const { uploadUrl, guid: _guid, remote_url, publishId: _pid, ...sdkParams } = publishPayload;
 
+      // Commits the draft row created on Next: backend overwrites Body with
+      // these final params and sets ready_to_run=true (queues SDK if forklift
+      // already arrived). If no draft exists (e.g. legacy flow), this just
+      // creates the row normally.
       const publishId = await createClaim(token, tusUrl, sdkParams, {
         onSuccess: () => {},
         onFailure: () => {},

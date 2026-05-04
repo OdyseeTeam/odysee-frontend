@@ -103,7 +103,6 @@ type MembershipContentResponseItem = {
 };
 
 type MembershipSubscribeParams = {
-  membership_id: string;
   price_id: string;
   [key: string]: any;
 };

@@ -243,9 +243,9 @@ const collectionsReducer = handleActions(
       const newResolvedIds = new Set(state.resolvedIds);
 
       if (key === COLS.KEYS.EDITED) {
-        if (newEdited[id]) Object.assign(newEdited[id].items, items);
+        if (newEdited[id]) newEdited[id] = { ...newEdited[id], items: [...items] };
       } else if (key === COLS.KEYS.UNPUBLISHED) {
-        if (newUnpublished[id]) Object.assign(newUnpublished[id].items, items);
+        if (newUnpublished[id]) newUnpublished[id] = { ...newUnpublished[id], items: [...items] };
       } else if (key === COLS.KEYS.UPDATED) {
         if (newUpdated[id]) {
           if (newUpdated[id]['updatedAt'] < updatedAt) {

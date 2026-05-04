@@ -63,17 +63,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 24px;
+  height: 24px;
   border: none;
-  border-radius: 3px;
+  border-radius: 4px;
   background: rgba(255, 255, 255, 0.15);
   color: #fff;
   cursor: pointer;
   padding: 0;
 
+  svg {
+    width: 13px;
+    height: 13px;
+  }
+
   &:hover {
     background: rgba(255, 255, 255, 0.3);
+  }
+
+  &--active {
+    background: var(--color-primary);
+    color: #fff;
   }
 
   &--locked {

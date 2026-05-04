@@ -39,15 +39,16 @@ function ButtonAddToQueue(props: any) {
     if (e) e.preventDefault();
 
     const removing = hasClaimInQueue;
-    const itemsToAdd = playingCollectionUrls || [playingUrl];
+    const itemsToAdd = (playingCollectionUrls || [playingUrl]).filter((url): url is string => Boolean(url));
 
-    await dispatch(
+    const queueEditSaved = await dispatch(
       doCollectionEdit(COLLECTIONS_CONSTS.QUEUE_ID, {
         uris: playingUrl && playingUrl !== uri && !hasPlayingUriInQueue ? [...itemsToAdd, uri] : [uri],
         remove: removing,
         type: COLLECTIONS_CONSTS.COL_TYPES.PLAYLIST,
       })
     );
+    if (!queueEditSaved) return;
 
     dispatch(doToast({ message: removing ? __('Item removed from Queue') : __('Item added to Queue') }));
 

@@ -422,6 +422,7 @@ export const selectCollectionSyncStatusForId = (state: State, id: string) => {
   if (selectIsMyCollectionPublishedForId(state, id)) return SYNC_STATUS.PUBLIC_SYNCED;
   return SYNC_STATUS.UNKNOWN;
 };
+const HEX_CLAIM_ID = /^[a-f0-9]{40}$/i;
 export const selectClaimIdsForCollectionId = createSelector(
   selectHasPrivateCollectionForId,
   selectItemsForCollectionId,
@@ -434,6 +435,12 @@ export const selectClaimIdsForCollectionId = createSelector(
 
       if (claimId === undefined) {
         return true;
+      }
+
+      // Skip in-flight preview claims and anything that isn't a real hex claim_id —
+      // the SDK rejects those with "Non-hexadecimal digit found".
+      if (typeof claimId !== 'string' || !HEX_CLAIM_ID.test(claimId)) {
+        return false;
       }
 
       ids.add(claimId);
@@ -454,32 +461,29 @@ export const selectUrlsForCollectionId = createCachedSelector(
   selectClaimsById,
   (collectionId, itemCount, items, claimsById) => {
     if (!items) return items;
-    const uris = new Set<string>([]);
+    const uris: string[] = [];
     let notFetched;
-    items.some((item, index) => {
+    items.forEach((item) => {
       if (isPermanentUrl(item) || isCanonicalUrl(item)) {
-        uris.add(item);
+        uris.push(item);
       } else {
         const claim = claimsById[item];
 
         if (claim) {
-          const uri = claim.permanent_url;
-          uris.add(uri);
+          const uri = claim.permanent_url || claim.canonical_url;
+          if (uri) uris.push(uri);
         } else if (claim === undefined) {
           notFetched = true;
         }
-      }
-
-      if (Number.isInteger(itemCount) ? uris.size === itemCount : notFetched) {
-        return true;
+        // claim === null → resolved as abandoned/deleted; skip so consumers never receive a raw claim ID as a URI.
       }
     });
 
-    if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.size)) {
+    if (notFetched && (!Number.isInteger(itemCount) || itemCount > uris.length)) {
       return undefined;
     }
 
-    const result = Array.from(uris);
+    const result = uris;
     const key = `${collectionId}:${itemCount}`;
     const prev = _prevCollectionUrls.get(key);
     if (prev && prev.length === result.length && prev.every((u, i) => u === result[i])) {

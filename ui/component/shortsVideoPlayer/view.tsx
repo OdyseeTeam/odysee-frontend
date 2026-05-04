@@ -1,6 +1,5 @@
 import React from 'react';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
-import { useLocation } from 'react-router-dom';
 export const SHORTS_PLAYER_WRAPPER_CLASS = 'shorts-page__video-container';
 type Props = {
   uri: string;
@@ -28,10 +27,6 @@ const ShortsVideoPlayer = React.memo<Props>(
     enableSwipe,
     panelOpen,
   }: Props) => {
-    const { search } = useLocation();
-    const urlParams = new URLSearchParams(search);
-    const isShortVideo = urlParams.get('view') === 'shorts';
-
     const autoPlayRef = React.useRef({ autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, panelOpen });
     autoPlayRef.current = { autoPlayNextShort, nextRecommendedShort, isAtEnd, onSwipeNext, panelOpen };
 
@@ -78,14 +73,12 @@ const ShortsVideoPlayer = React.memo<Props>(
     return (
       <div className="shorts-page__video-section">
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
-          {isShortVideo && (
-            <VideoClaimInitiator
-              uri={uri}
-              onSwipeNext={onSwipeNext}
-              onSwipePrevious={onSwipePrevious}
-              enableSwipe={enableSwipe}
-            />
-          )}
+          <VideoClaimInitiator
+            uri={uri}
+            onSwipeNext={onSwipeNext}
+            onSwipePrevious={onSwipePrevious}
+            enableSwipe={enableSwipe}
+          />
         </div>
       </div>
     );

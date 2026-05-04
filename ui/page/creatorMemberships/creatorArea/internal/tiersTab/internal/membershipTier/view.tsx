@@ -91,6 +91,7 @@ function MembershipTier(props: Props) {
       </div>
 
       <div className="membership-tier__infos">
+        {membership.description && <span className="membership-tier__infos-description">{membership.description}</span>}
         <label>{__('Pledge')}</label>
         <span>
           ${(Number(membership?.prices[0].amount) / 100).toFixed(2)} (
@@ -101,8 +102,6 @@ function MembershipTier(props: Props) {
           )
         </span>{' '}
         {/* the ui basically supports monthly right now */}
-        <label>{__('Description ')}</label>
-        <span className="membership-tier__description">{membership.description}</span>
         <div className="membership-tier__perks">
           <div className="membership-tier__perks-content">
             <label>{__('Odysee Perks')}</label>

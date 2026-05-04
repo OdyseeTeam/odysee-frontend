@@ -3,6 +3,7 @@ import LoadingBarOneOff from 'component/loadingBarOneOff';
 import * as MODALS from 'constants/modal_types';
 import * as URL from 'constants/urlParams';
 import ModalError from 'modal/modalError';
+import ModalConfirmThumbnailUpload from 'modal/modalConfirmThumbnailUpload';
 import { lazyImport } from 'util/lazyImport';
 import { ModalContext } from 'contexts/modal';
 import { useLocation } from 'react-router-dom';
@@ -72,9 +73,7 @@ const MAP = Object.freeze({
   [MODALS.CONFIRM_REMOVE_COMMENT]: lazyImport(() => import('modal/modalRemoveComment'
   /* webpackChunkName: "modalRemoveComment" */
   )),
-  [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: lazyImport(() => import('modal/modalConfirmThumbnailUpload'
-  /* webpackChunkName: "modalConfirmThumbnailUpload" */
-  )),
+  [MODALS.CONFIRM_THUMBNAIL_UPLOAD]: ModalConfirmThumbnailUpload,
   [MODALS.CONFIRM_THUMBNAIL_URL]: lazyImport(() => import('modal/modalConfirmThumbnailUrl'
   /* webpackChunkName: "modalConfirmThumbnailUrl" */
   )),

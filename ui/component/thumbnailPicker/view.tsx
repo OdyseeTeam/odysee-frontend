@@ -7,6 +7,7 @@ import Spinner from 'component/spinner';
 import Icon from 'component/common/icon';
 import * as ICONS from 'constants/icons';
 import * as MODALS from 'constants/modal_types';
+import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doUploadThumbnail } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
@@ -45,6 +46,7 @@ function ThumbnailPicker(props: Props) {
   const [uploadedThumbUrl, setUploadedThumbUrl] = useState<string | null>(null);
   const [urlThumbUrl, setUrlThumbUrl] = useState<string | null>(null);
   const currentThumbnail = useAppSelector((state) => state.publish.thumbnail);
+  const uploadThumbnailStatus = useAppSelector((state) => state.publish.uploadThumbnailStatus);
   const editingURI = useAppSelector((state) => state.publish.editingURI);
   const [showUrlInput, setShowUrlInput] = useState(false);
   const [urlInputValue, setUrlInputValue] = useState('');
@@ -69,8 +71,10 @@ function ThumbnailPicker(props: Props) {
   const frameUrlsRef = useRef<string[]>([]);
   const manualVideoRef = useRef<HTMLVideoElement>(null);
   const manualVideoUrlRef = useRef<string | null>(null);
+  const uploadedPreviewUrlRef = useRef<string | null>(null);
   const extractionIdRef = useRef(0);
   const manualFrameUrlRef = useRef<string | null>(null);
+  const isUploadInProgress = uploading || uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS;
 
   const cleanupFrameUrls = useCallback((urls?: string[]) => {
     const urlsToRevoke = urls || frameUrlsRef.current;
@@ -95,10 +99,18 @@ function ThumbnailPicker(props: Props) {
     }
   }, []);
 
+  const cleanupUploadedPreview = useCallback(() => {
+    if (uploadedPreviewUrlRef.current) {
+      URL.revokeObjectURL(uploadedPreviewUrlRef.current);
+      uploadedPreviewUrlRef.current = null;
+    }
+  }, []);
+
   const cleanup = useCallback(() => {
     extractionIdRef.current += 1;
     cleanupFrameUrls();
     cleanupManualFrame();
+    cleanupUploadedPreview();
     cleanupInput();
     if (manualVideoUrlRef.current) {
       URL.revokeObjectURL(manualVideoUrlRef.current);
@@ -108,7 +120,7 @@ function ThumbnailPicker(props: Props) {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
-  }, [cleanupFrameUrls, cleanupInput, cleanupManualFrame]);
+  }, [cleanupFrameUrls, cleanupInput, cleanupManualFrame, cleanupUploadedPreview]);
 
   const extractFrames = useCallback(
     async (percentages: number[]) => {
@@ -348,6 +360,19 @@ function ThumbnailPicker(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [filePath, remoteVideoUrl, imageFile]);
 
+  useEffect(() => {
+    if (
+      uploadedPreviewUrlRef.current &&
+      uploadThumbnailStatus !== THUMBNAIL_STATUSES.IN_PROGRESS &&
+      uploadThumbnailStatus !== THUMBNAIL_STATUSES.COMPLETE &&
+      uploadedThumbUrl === uploadedPreviewUrlRef.current
+    ) {
+      cleanupUploadedPreview();
+      setUploadedThumbUrl(null);
+      if (selectedIndex === -2) setSelectedIndex(null);
+    }
+  }, [cleanupUploadedPreview, selectedIndex, uploadThumbnailStatus, uploadedThumbUrl]);
+
   function handleRegenerate() {
     const randomPercentages = Array.from({ length: 5 }, () => 0.05 + Math.random() * 0.9).sort((a, b) => a - b);
     extractFrames(randomPercentages);
@@ -534,11 +559,24 @@ function ThumbnailPicker(props: Props) {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
+                      cleanupUploadedPreview();
+                      const previewUrl = URL.createObjectURL(file);
+                      uploadedPreviewUrlRef.current = previewUrl;
                       dispatch(
                         doOpenModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
                           file,
+                          previewUrl,
+                          onUploadStarted: () => {
+                            setUploadedThumbUrl(previewUrl);
+                            setSelectedIndex(-2);
+                          },
+                          onUploadCanceled: () => {
+                            cleanupUploadedPreview();
+                            setUploadedThumbUrl(null);
+                            if (selectedIndex === -2) setSelectedIndex(null);
+                          },
                           cb: (url: string) => {
-                            setUploadedThumbUrl(url);
+                            setUploadedThumbUrl((currentUrl) => currentUrl || url);
                             setSelectedIndex(-2);
                             onThumbnailSelected?.(url);
                           },
@@ -557,14 +595,23 @@ function ThumbnailPicker(props: Props) {
                   onClick={() => {
                     if (uploadedThumbUrl) {
                       setSelectedIndex(-2);
-                    } else {
+                    } else if (!isUploadInProgress) {
                       fileInputRef.current?.click();
                     }
                   }}
+                  disabled={isUploadInProgress && !uploadedThumbUrl}
                   type="button"
                 >
                   {uploadedThumbUrl ? (
-                    <img src={uploadedThumbUrl} className="thumbnail-picker__image" alt={__('Uploaded thumbnail')} />
+                    <>
+                      <img src={uploadedThumbUrl} className="thumbnail-picker__image" alt={__('Uploaded thumbnail')} />
+                      {selectedIndex === -2 && isUploadInProgress && (
+                        <span className="thumbnail-picker__upload-status">
+                          <Spinner type="small" />
+                          <span>{__('Uploading')}...</span>
+                        </span>
+                      )}
+                    </>
                   ) : (
                     <div className="thumbnail-picker__action-content">
                       <Icon icon={ICONS.PUBLISH} size={24} />
