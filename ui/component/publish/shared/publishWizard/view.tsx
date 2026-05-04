@@ -9,6 +9,7 @@ import './style.scss';
 type Step = {
   label: string;
   validate?: () => boolean;
+  onInvalid?: () => void;
 };
 
 type StepChangeSource = 'next' | 'back' | 'step';
@@ -46,7 +47,10 @@ export default function PublishWizard(props: Props) {
   function handleNext() {
     if (isLastStep) return;
     const step = steps[activeStep];
-    if (step.validate && !step.validate()) return;
+    if (step.validate && !step.validate()) {
+      step.onInvalid?.();
+      return;
+    }
     onStepChange(activeStep + 1, 'next');
   }
 
@@ -63,7 +67,10 @@ export default function PublishWizard(props: Props) {
     }
     for (let i = activeStep; i < index; i++) {
       const step = steps[i];
-      if (step.validate && !step.validate()) return;
+      if (step.validate && !step.validate()) {
+        step.onInvalid?.();
+        return;
+      }
     }
     onStepChange(index, 'step');
   }
