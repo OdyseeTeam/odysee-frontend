@@ -955,6 +955,8 @@ export const doPurchaseClaimForUri =
 
     const amountToUse = itsARental ? rentTipAmount : tipAmount;
     const expirationTime = itsARental ? tags.rentalTag.expirationTimeInSeconds : undefined;
+    const validityParams =
+      Number.isInteger(expirationTime) && expirationTime >= 0 ? { validity_seconds: expirationTime } : {};
     // if ()
     const isV2 = true;
 
@@ -982,7 +984,7 @@ export const doPurchaseClaimForUri =
             source_claim_id: claim.claim_id,
             target_claim_id: claim.claim_id,
             type: transactionType,
-            validity_seconds: expirationTime,
+            ...validityParams,
             receiver_address: arweaveTipData.address,
             sender_address: source_payment_address,
             v2: true,
@@ -1019,7 +1021,7 @@ export const doPurchaseClaimForUri =
             source_claim_id: claim.claim_id,
             target_claim_id: claim.claim_id,
             type: transactionType,
-            validity_seconds: expirationTime,
+            ...validityParams,
             receiver_address: arweaveTipData.address,
             sender_address: source_payment_address,
             token: reference_token,
@@ -1083,7 +1085,7 @@ export const doPurchaseClaimForUri =
         source_claim_id: claim.claim_id,
         target_claim_id: claim.claim_id,
         type: transactionType,
-        validity_seconds: expirationTime,
+        ...validityParams,
       },
       'post'
     )
