@@ -43,7 +43,10 @@ const BARE_LINK_DOMAINS = [
   'odysee.com',
 ];
 const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
-const bareLinkRegex = new RegExp(`(?:^|(?<=\\s))((?:https?://)?(?:${bareDomainPattern})(?:/[^\\s]*)?)`, 'i');
+const bareLinkRegex = new RegExp(
+  `(?:^|(?<=\\s))((?:(?:https?://|www\\.)[^\\s<>"']+|(?:https?://)?(?:${bareDomainPattern})(?:/[^\\s<>"']*)?))`,
+  'i'
+);
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
 const mentionToken = '@';
 const invalidRegex = /[-_.+=?!@#$%^&*:;,{}<>\w/\\]/;
