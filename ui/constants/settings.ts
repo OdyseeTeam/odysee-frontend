@@ -18,6 +18,7 @@ export const AUTOMATIC_DARK_MODE_ENABLED = 'automatic_dark_mode_enabled';
 export const CLOCK_24H = 'clock_24h';
 export const AUTOPLAY_MEDIA = 'autoplay';
 export const AUTOPLAY_NEXT = 'autoplay_next';
+export const VIDEO_PREVIEWS = 'video_previews';
 export const OS_NOTIFICATIONS_ENABLED = 'os_notifications_enabled';
 export const AUTO_DOWNLOAD = 'auto_download';
 export const HIDE_BALANCE = 'hide_balance';

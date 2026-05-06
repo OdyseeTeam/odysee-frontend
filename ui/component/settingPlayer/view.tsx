@@ -16,6 +16,7 @@ export default function SettingPlayer() {
   const floatingPlayer = useAppSelector((state) => selectClientSetting(state, SETTINGS.FLOATING_PLAYER));
   const autoplayMedia = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_MEDIA));
   const autoplayNext = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT));
+  const videoPreviews = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_PREVIEWS) !== false);
   const disableShortsView = useAppSelector((state) => selectClientSetting(state, SETTINGS.DISABLE_SHORTS_VIEW));
   const p2pDelivery = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const isFloating = useAppSelector(selectIsPlayerFloating);
@@ -40,6 +41,10 @@ export default function SettingPlayer() {
               <FormField type="checkbox" name="autoplay next" onChange={() => setClientSetting(SETTINGS.AUTOPLAY_NEXT, !autoplayNext)} checked={autoplayNext} />
             </SettingsRow>
 
+            <SettingsRow title={__('Video previews on hover')} subtitle={__(HELP.VIDEO_PREVIEWS)}>
+              <FormField type="checkbox" name="video previews" onChange={() => setClientSetting(SETTINGS.VIDEO_PREVIEWS, !videoPreviews)} checked={videoPreviews} />
+            </SettingsRow>
+
             <SettingsRow title={__('Default Video Quality')} subtitle={__(HELP.DEFAULT_VIDEO_QUALITY)}>
               <SettingDefaultQuality />
             </SettingsRow>
@@ -58,6 +63,7 @@ export default function SettingPlayer() {
 const HELP = {
   FLOATING_PLAYER: 'Keep content playing in the corner when navigating to a different page.',
   AUTOPLAY_MEDIA: 'Autoplay video and audio files when navigating to a file.',
+  VIDEO_PREVIEWS: 'Play video previews when hovering over video thumbnails.',
   DISABLE_SHORTS_VIEW: 'Vertical content will use the standard view and video player.',
   AUTOPLAY_NEXT: 'Autoplay the next related item when a file (video or audio) finishes playing.',
   DEFAULT_VIDEO_QUALITY:

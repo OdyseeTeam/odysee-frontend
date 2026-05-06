@@ -81,6 +81,7 @@ const defaultState = {
     // Content
     [SETTINGS.SHOW_MATURE]: false,
     [SETTINGS.AUTOPLAY_MEDIA]: true,
+    [SETTINGS.VIDEO_PREVIEWS]: true,
     [SETTINGS.HIDE_SHORTS]: false,
     [SETTINGS.DISABLE_SHORTS_VIEW]: false,
     [SETTINGS.FLOATING_PLAYER]: true,
