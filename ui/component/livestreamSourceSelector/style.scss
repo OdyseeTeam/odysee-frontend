@@ -264,7 +264,59 @@ input[type='range'].livestream-sources__volume-slider {
 .livestream-sources__reorder-btns {
   display: flex;
   flex-shrink: 0;
+}
+
+.livestream-sources__permission-btn {
+  display: block;
+  width: 100%;
+  padding: var(--spacing-s);
+  border: none;
+  border-radius: var(--border-radius);
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--font-xsmall);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: default;
+  }
+}
+
+.livestream-sources__visibility-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  background: none;
+  color: var(--color-text-subtitle);
+  cursor: pointer;
+  padding: 0;
   margin-left: auto;
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.livestream-sources__mute-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--color-text-subtitle);
+  cursor: pointer;
+  margin-left: var(--spacing-xs);
+  flex-shrink: 0;
+
+  &:hover {
+    color: var(--color-text);
+  }
 }
 
 .livestream-sources__reorder-btn {

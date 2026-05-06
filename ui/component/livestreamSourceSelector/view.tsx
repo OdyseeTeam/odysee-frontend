@@ -50,6 +50,15 @@ type Props = {
   extraAudioSources?: AudioSource[];
   getAudioElement?: (id: string) => HTMLMediaElement | null;
   getVideoElement?: (id: string) => HTMLMediaElement | null;
+  getLayerVisible?: (id: string) => boolean;
+  onToggleLayerVisible?: (id: string) => void;
+  mutedAudios?: Set<string>;
+  onToggleAudioMute?: (id: string) => void;
+  needsCameraPermission?: boolean;
+  cameraPermissionRequesting?: boolean;
+  onRequestCameraPermission?: () => void;
+  activeWidgetIds?: Set<string>;
+  onToggleWidget?: (id: string) => void;
   disabled?: boolean;
 };
 
@@ -71,6 +80,15 @@ export default function LivestreamSourceSelector(props: Props) {
     extraAudioSources,
     getAudioElement,
     getVideoElement,
+    getLayerVisible,
+    onToggleLayerVisible,
+    mutedAudios,
+    onToggleAudioMute,
+    needsCameraPermission,
+    cameraPermissionRequesting,
+    onRequestCameraPermission,
+    activeWidgetIds,
+    onToggleWidget,
     disabled,
   } = props;
   const dragSourceRef = React.useRef<string | null>(null);
@@ -95,10 +113,32 @@ export default function LivestreamSourceSelector(props: Props) {
     };
   }, []);
 
+  React.useEffect(() => {
+    if (!needsCameraPermission) enumerateDevices();
+  }, [needsCameraPermission]);
+
   function enumerateDevices() {
     navigator.mediaDevices?.enumerateDevices().then((devices) => {
-      const videoInputs = devices.filter((d) => d.kind === 'videoinput');
-      const audioInputs = devices.filter((d) => d.kind === 'audioinput');
+      const aliasIds = new Set(['default', 'communications']);
+      const dedupeByGroup = (list: MediaDeviceInfo[]) => {
+        const seen = new Set<string>();
+        const result: MediaDeviceInfo[] = [];
+        const sorted = [...list].sort((a, b) => {
+          const aIsAlias = aliasIds.has(a.deviceId) ? 1 : 0;
+          const bIsAlias = aliasIds.has(b.deviceId) ? 1 : 0;
+          return aIsAlias - bIsAlias;
+        });
+        for (const d of sorted) {
+          const key = d.groupId || d.deviceId;
+          if (!key) continue;
+          if (seen.has(key)) continue;
+          seen.add(key);
+          result.push(d);
+        }
+        return result;
+      };
+      const videoInputs = dedupeByGroup(devices.filter((d) => d.kind === 'videoinput'));
+      const audioInputs = dedupeByGroup(devices.filter((d) => d.kind === 'audioinput'));
 
       const cleanLabel = (raw: string) => raw.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*/gi, '').trim();
 
@@ -135,29 +175,35 @@ export default function LivestreamSourceSelector(props: Props) {
       const usedAudioDeviceIds = new Set<string>();
       const pairedGroupIds = new Set<string>();
 
+      const audioOutputGroupIds = new Set(
+        devices
+          .filter((d) => d.kind === 'audiooutput' && !aliasIds.has(d.deviceId))
+          .map((d) => d.groupId)
+          .filter(Boolean)
+      );
+      const realAudioInputs = audioInputs.filter(
+        (a) =>
+          !aliasIds.has(a.deviceId) &&
+          !/^monitor of |loopback/i.test(a.label || '') &&
+          !(a.groupId && audioOutputGroupIds.has(a.groupId))
+      );
+
       videoInputs.forEach((cam, i) => {
         const groupId = cam.groupId;
         if (!groupId) return;
-        const match = audioInputs.find((a) => a.groupId === groupId);
+        const match = realAudioInputs.find((a) => a.groupId === groupId);
+        if (!match) return;
         const camLabel = cameraLabel(cam, i);
-        if (match) {
-          mics.push({
-            deviceId: match.deviceId,
-            label: cleanLabel(match.label) || `${camLabel} – ${__('Microphone')}`,
-            groupId,
-          });
-          if (match.deviceId) usedAudioDeviceIds.add(match.deviceId);
-        } else {
-          mics.push({
-            deviceId: `__camera_mic_${groupId}`,
-            label: `${camLabel} – ${__('Microphone')}`,
-            groupId,
-          });
-        }
+        mics.push({
+          deviceId: match.deviceId,
+          label: cleanLabel(match.label) || `${camLabel} – ${__('Microphone')}`,
+          groupId,
+        });
+        if (match.deviceId) usedAudioDeviceIds.add(match.deviceId);
         pairedGroupIds.add(groupId);
       });
 
-      audioInputs
+      realAudioInputs
         .filter((a) => !usedAudioDeviceIds.has(a.deviceId) && (!a.groupId || !pairedGroupIds.has(a.groupId)))
         .forEach((d, i) => {
           mics.push({
@@ -336,6 +382,49 @@ export default function LivestreamSourceSelector(props: Props) {
           {isActive && onAudioVolumeChange && (
             <span className="livestream-sources__volume-value">{Math.round(volume * 100)}%</span>
           )}
+          {isActive && onToggleAudioMute && (
+            <span
+              className="livestream-sources__mute-btn"
+              role="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onToggleAudioMute(source.deviceId);
+              }}
+              title={mutedAudios?.has(source.deviceId) ? __('Unmute') : __('Mute')}
+            >
+              {mutedAudios?.has(source.deviceId) ? (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <line x1="23" y1="9" x2="17" y2="15" />
+                  <line x1="17" y1="9" x2="23" y2="15" />
+                </svg>
+              ) : (
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+                  <path d="M15.54 8.46a5 5 0 0 1 0 7.07" />
+                  <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+                </svg>
+              )}
+            </span>
+          )}
         </button>
         {isActive && getAudioElement && getAudioElement(source.deviceId) && (
           <MediaPlayerControls element={getAudioElement(source.deviceId)} />
@@ -383,6 +472,16 @@ export default function LivestreamSourceSelector(props: Props) {
 
   return (
     <div className="livestream-sources">
+      {needsCameraPermission && onRequestCameraPermission && (
+        <button
+          type="button"
+          className="livestream-sources__permission-btn"
+          onClick={onRequestCameraPermission}
+          disabled={cameraPermissionRequesting}
+        >
+          {cameraPermissionRequesting ? __('Requesting...') : __('Allow Camera & Mic access')}
+        </button>
+      )}
       <div className="livestream-sources__box">
         <h3 className="livestream-sources__title">
           <svg
@@ -487,6 +586,47 @@ export default function LivestreamSourceSelector(props: Props) {
                     )}
                     <TruncatedLabel label={source.label} />
                   </div>
+                  {onToggleLayerVisible && (
+                    <button
+                      type="button"
+                      className="livestream-sources__visibility-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onToggleLayerVisible(source.deviceId);
+                      }}
+                      title={getLayerVisible?.(source.deviceId) === false ? __('Show') : __('Hide')}
+                    >
+                      {getLayerVisible?.(source.deviceId) === false ? (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                          <line x1="1" y1="1" x2="23" y2="23" />
+                        </svg>
+                      ) : (
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        >
+                          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                          <circle cx="12" cy="12" r="3" />
+                        </svg>
+                      )}
+                    </button>
+                  )}
                   <div className="livestream-sources__reorder-btns">
                     <button
                       className="livestream-sources__reorder-btn"
@@ -572,6 +712,90 @@ export default function LivestreamSourceSelector(props: Props) {
             {audioSources.length === 0 && (
               <span className="livestream-sources__empty">{__('No audio sources found')}</span>
             )}
+          </div>
+        </div>
+      </div>
+
+      <div className="livestream-sources__box">
+        <h3 className="livestream-sources__title">
+          <svg
+            width="14"
+            height="14"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <rect x="3" y="3" width="7" height="7" rx="1" />
+            <rect x="14" y="3" width="7" height="7" rx="1" />
+            <rect x="3" y="14" width="7" height="7" rx="1" />
+            <rect x="14" y="14" width="7" height="7" rx="1" />
+          </svg>
+          {__('Widgets')}
+        </h3>
+        <div className="livestream-sources__subbox">
+          <div className="livestream-sources__list">
+            <div className="livestream-sources__active-row">
+              <button
+                type="button"
+                className={classnames('livestream-sources__item', {
+                  'livestream-sources__item--active': activeWidgetIds?.has('__widget_chat__'),
+                })}
+                onClick={() => onToggleWidget?.('__widget_chat__')}
+                disabled={disabled || !onToggleWidget}
+              >
+                <span
+                  className={classnames('livestream-sources__checkbox', {
+                    'livestream-sources__checkbox--checked': activeWidgetIds?.has('__widget_chat__'),
+                  })}
+                />
+                <Icon icon={ICONS.CHAT} size={14} />
+                <TruncatedLabel label={__('Chat')} />
+              </button>
+              {activeWidgetIds?.has('__widget_chat__') && onToggleLayerVisible && (
+                <button
+                  type="button"
+                  className="livestream-sources__visibility-btn"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleLayerVisible('__widget_chat__');
+                  }}
+                  title={getLayerVisible?.('__widget_chat__') === false ? __('Show') : __('Hide')}
+                >
+                  {getLayerVisible?.('__widget_chat__') === false ? (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                      <line x1="1" y1="1" x2="23" y2="23" />
+                    </svg>
+                  ) : (
+                    <svg
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                  )}
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>

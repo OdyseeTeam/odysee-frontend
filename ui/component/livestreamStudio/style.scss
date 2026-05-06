@@ -29,13 +29,21 @@
     justify-content: center;
   }
 
+  &__sources-column {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-m);
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
   // ---- Stage (preview + controls) ----
   &__stage {
     display: flex;
     flex-direction: column;
     width: 75%;
     align-self: flex-start;
-    border-radius: 12px;
+    border-radius: var(--border-radius);
     overflow: clip;
     border: 2px solid var(--color-header-button);
     background: #000;
@@ -87,6 +95,54 @@
     height: 100%;
     object-fit: contain;
     background: #000;
+  }
+
+  &__chat-preview {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    padding: var(--spacing-m);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-xs);
+  }
+
+  &__chat-preview-msg {
+    display: flex;
+    gap: var(--spacing-xs);
+    color: #fff;
+    font-size: var(--font-small);
+  }
+
+  &__chat-preview-user {
+    color: var(--color-primary);
+    font-weight: 600;
+  }
+
+  &__chat-preview-text {
+    color: rgba(255, 255, 255, 0.85);
+  }
+
+  &__chat-preview-hyperchat {
+    border-radius: 4px;
+    overflow: hidden;
+  }
+
+  &__chat-preview-hyperchat-banner {
+    padding: 2px var(--spacing-s);
+    color: #fff;
+    font-weight: 700;
+    font-size: var(--font-xsmall);
+  }
+
+  &__chat-preview-hyperchat-amount {
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__chat-preview-hyperchat-body {
+    display: flex;
+    gap: var(--spacing-xs);
+    padding: var(--spacing-xxs) var(--spacing-s);
   }
 
   &__preview {
@@ -581,7 +637,7 @@
   }
 
   &__go-live-btn {
-    min-width: 200px;
+    width: 100%;
     height: 48px;
     font-size: var(--font-body) !important;
     font-weight: 700 !important;

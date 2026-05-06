@@ -3,7 +3,7 @@
 // ---- Header ----
 .livestream-setup__header {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: var(--spacing-m);
   margin-bottom: var(--spacing-m);
@@ -11,6 +11,44 @@
 
 .livestream-setup__heading {
   min-width: 0;
+}
+
+.livestream-setup__header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  flex-shrink: 0;
+}
+
+.livestream-setup__create-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: var(--font-small);
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  transition: filter 0.15s ease;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  &--secondary {
+    background: var(--color-header-button);
+    color: var(--color-text);
+  }
 }
 
 .livestream-setup__title {
@@ -184,6 +222,117 @@
   margin-top: var(--spacing-s);
 }
 
+// ---- Preview Tab ----
+.livestream-setup__preview {
+  display: flex;
+  gap: var(--spacing-m);
+  margin-top: var(--spacing-s);
+  align-items: stretch;
+  justify-content: center;
+}
+
+.livestream-setup__preview-video {
+  position: relative;
+  width: 75%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+  align-self: flex-start;
+}
+
+.livestream-setup__preview-placeholder {
+  position: absolute;
+  inset: 0;
+  background: #000;
+}
+
+.livestream-setup__preview-offair {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 32px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.65);
+  color: #fff;
+  font-size: 2.5rem;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+.livestream-setup__preview-offair-dot {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #888;
+}
+
+.livestream-setup__preview-chat-wrap--disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.livestream-setup__preview-chat-wrap {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  align-self: stretch;
+}
+
+.livestream-setup__preview-chat-wrap > * {
+  position: absolute;
+  inset: 0;
+  width: 100% !important;
+  height: 100% !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+}
+
+.livestream-setup__preview-chat-wrap .chat__wrapper,
+.livestream-setup__preview-chat-wrap .card.livestream__chat {
+  position: absolute !important;
+  inset: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
+.livestream-setup__preview-chat-empty {
+  padding: var(--spacing-m);
+  color: var(--color-text-subtitle);
+  font-size: var(--font-small);
+}
+
+.livestream-setup__preview-chat-placeholder {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+
+  .livestream-comments__wrapper {
+    flex: 1 1 0;
+    min-height: 0;
+  }
+}
+
+.livestream-setup__preview-chat-input-stub {
+  padding: var(--spacing-s) var(--spacing-m);
+  color: var(--color-text-subtitle);
+  font-size: var(--font-small);
+  text-align: center;
+  background: var(--color-header-button);
+}
+
 // ---- RTMP Setup ----
 .livestream-setup__rtmp {
   display: flex;
@@ -301,10 +450,26 @@
   gap: var(--spacing-s);
 }
 
+// ---- Form header (Publish tab) ----
+.livestream-form__header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+  margin-bottom: var(--spacing-m);
+
+  .page__title {
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+  }
+}
+
+.livestream-form__clear {
+  flex-shrink: 0;
+}
+
 // ---- Existing classes we still need ----
 .publish-livestream-header {
-  margin-top: var(--spacing-l);
-
   .channel-selector {
     button {
       .channel-selector__item {

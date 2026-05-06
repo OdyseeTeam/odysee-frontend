@@ -27,7 +27,14 @@ import {
 } from 'redux/selectors/livestream';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
-import { selectClaimIdForUri } from 'redux/selectors/claims';
+import { selectClaimIdForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { selectCommentsForUri } from 'redux/selectors/comments';
+import {
+  doCommentSocketConnect as doCommentSocketConnectAction,
+  doCommentSocketDisconnect as doCommentSocketDisconnectAction,
+} from 'redux/actions/websocket';
+import { doCommentList } from 'redux/actions/comments';
+import { formatLbryChannelName } from 'util/url';
 import ClaimPreview from 'component/claimPreview';
 import LivestreamP2PSeed from 'component/livestreamP2PSeed';
 import LivestreamConnectingAnimation from 'component/livestreamConnectingAnimation';
@@ -39,12 +46,14 @@ import type { VideoSource, AudioSource } from 'component/livestreamSourceSelecto
 import LivestreamCompositor from 'component/livestreamCompositor/view';
 import LivestreamCropSelector from 'component/livestreamCropSelector/view';
 import LivestreamSourceSettings from 'component/livestreamSourceSettings/view';
+import SpacemanPng from './spaceman.png';
 import type { CompositorLayer } from 'component/livestreamCompositor/view';
 import { AudioMixer } from 'util/audioMixer';
 import './style.scss';
 
 type Props = {
   streamKey: string | null;
+  livestreamUri?: string;
   livestreamEnabled: boolean;
   hasApprovedLivestreamClaim: boolean;
   presetId: import('constants/webrtcPublish').WebrtcPublishPresetId;
@@ -310,10 +319,35 @@ function getCodecAttemptOrder(
 }
 
 export default function LivestreamStudio(props: Props) {
-  const { streamKey, livestreamEnabled, hasApprovedLivestreamClaim, presetId, signature, signingTs } = props;
+  const { streamKey, livestreamUri, livestreamEnabled, hasApprovedLivestreamClaim, presetId, signature, signingTs } =
+    props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const publishCtx = useLivestreamPublish();
+  const livestreamClaim = useAppSelector((state) =>
+    livestreamUri ? selectClaimForUri(state, livestreamUri) : undefined
+  );
+  const liveComments = useAppSelector((state) =>
+    livestreamUri ? selectCommentsForUri(state, livestreamUri) : undefined
+  );
+  const liveCommentsRef = React.useRef<any[]>([]);
+  React.useEffect(() => {
+    liveCommentsRef.current = Array.isArray(liveComments) ? liveComments : [];
+  }, [liveComments]);
+
+  React.useEffect(() => {
+    if (!livestreamUri || !livestreamClaim) return;
+    const claimId = livestreamClaim.claim_id;
+    const channelClaim = livestreamClaim.signing_channel;
+    const channelUrl = channelClaim && channelClaim.canonical_url;
+    const channelName = channelClaim && formatLbryChannelName(channelUrl);
+    if (!claimId || !channelName) return;
+    dispatch(doCommentSocketConnectAction(livestreamUri, channelName, claimId, undefined));
+    dispatch(doCommentList(livestreamUri, undefined, 1, 75, undefined, true));
+    return () => {
+      dispatch(doCommentSocketDisconnectAction(claimId, channelName, undefined));
+    };
+  }, [livestreamUri, livestreamClaim, dispatch]);
   const videoRef = React.useRef<HTMLVideoElement>(null);
   const connectAbortRef = React.useRef<AbortController | null>(null);
   const statsBaselineRef = React.useRef<{
@@ -331,18 +365,27 @@ export default function LivestreamStudio(props: Props) {
   const [cameraEnabled, setCameraEnabled] = React.useState(true);
   const [facingMode, setFacingMode] = React.useState<'user' | 'environment'>('user');
   const [compositorLayers, setCompositorLayers] = React.useState<CompositorLayer[]>([]);
+  React.useEffect(() => {
+    compositorLayersRef.current = compositorLayers;
+  }, [compositorLayers]);
   const [selectedLayerId, setSelectedLayerId] = React.useState<string | null>(null);
   const [previewTab, setPreviewTab] = React.useState<'preview' | 'compositor' | string>('preview');
   const [activeVideoIds, setActiveVideoIds] = React.useState<Set<string>>(new Set());
   const [activeAudioIds, setActiveAudioIds] = React.useState<Set<string>>(new Set());
   const [audioVolumes, setAudioVolumes] = React.useState<Record<string, number>>({});
   const [masterVolume, setMasterVolume] = React.useState<number>(1);
+  const [mutedAudios, setMutedAudios] = React.useState<Set<string>>(new Set());
+  const audioVolumeBeforeMuteRef = React.useRef<Record<string, number>>({});
   const sourceStreamsRef = React.useRef<Map<string, MediaStream>>(new Map());
   const mediaElementsRef = React.useRef<Map<string, HTMLMediaElement>>(new Map());
   const audioMixerRef = React.useRef<AudioMixer | null>(null);
   const screenAudioByVideoIdRef = React.useRef<Map<string, string>>(new Map());
   const [extraAudioSources, setExtraAudioSources] = React.useState<Array<{ deviceId: string; label: string }>>([]);
   const [extraVideoSources, setExtraVideoSources] = React.useState<VideoSource[]>([]);
+  const [activeWidgetIds, setActiveWidgetIds] = React.useState<Set<string>>(new Set());
+  const widgetCanvasesRef = React.useRef<Map<string, HTMLCanvasElement>>(new Map());
+  const widgetAnimRef = React.useRef<Map<string, number>>(new Map());
+  const compositorLayersRef = React.useRef<CompositorLayer[]>([]);
   const compositorCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const isMobile = platform.isMobile();
   const [elapsedSeconds, setElapsedSeconds] = React.useState(0);
@@ -911,7 +954,23 @@ export default function LivestreamStudio(props: Props) {
       } else if (id) {
         audioConstraint.deviceId = { exact: id };
       }
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraint });
+      let stream: MediaStream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraint });
+      } catch (firstErr: unknown) {
+        const err = firstErr as DOMException;
+        if (err?.name === 'OverconstrainedError' || err?.name === 'NotFoundError') {
+          stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              autoGainControl: true,
+            },
+          });
+        } else {
+          throw firstErr;
+        }
+      }
       const obtainedId = stream.getAudioTracks()[0]?.getSettings().deviceId || id || `audio-${Date.now()}`;
       sourceStreamsRef.current.set(`audio-${obtainedId}`, stream);
       mixer.addSource(obtainedId, stream);
@@ -926,6 +985,309 @@ export default function LivestreamStudio(props: Props) {
   function handleAudioVolumeChange(id: string, volume: number) {
     setAudioVolumes((prev) => ({ ...prev, [id]: volume }));
     audioMixerRef.current?.setVolume(id, volume);
+    if (volume > 0 && mutedAudios.has(id)) {
+      setMutedAudios((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
+  }
+
+  function handleToggleAudioMute(id: string) {
+    if (mutedAudios.has(id)) {
+      const restored = audioVolumeBeforeMuteRef.current[id] ?? 1;
+      setMutedAudios((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      setAudioVolumes((prev) => ({ ...prev, [id]: restored }));
+      audioMixerRef.current?.setVolume(id, restored);
+    } else {
+      audioVolumeBeforeMuteRef.current[id] = audioVolumes[id] ?? 1;
+      setMutedAudios((prev) => new Set(prev).add(id));
+      setAudioVolumes((prev) => ({ ...prev, [id]: 0 }));
+      audioMixerRef.current?.setVolume(id, 0);
+    }
+  }
+
+  function handleToggleLayerVisible(id: string) {
+    setCompositorLayers((prev) => prev.map((l) => (l.id === id ? { ...l, visible: !l.visible } : l)));
+  }
+
+  function handleToggleWidget(id: string) {
+    if (activeWidgetIds.has(id)) {
+      const animId = widgetAnimRef.current.get(id);
+      if (animId) cancelAnimationFrame(animId);
+      widgetAnimRef.current.delete(id);
+      widgetCanvasesRef.current.delete(id);
+      sourceStreamsRef.current.delete(id);
+      setCompositorLayers((prev) => prev.filter((l) => l.id !== id));
+      setActiveVideoIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      setActiveWidgetIds((prev) => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+      if (selectedLayerId === id) setSelectedLayerId(null);
+      updateOutputStream();
+      return;
+    }
+
+    if (id === '__widget_chat__') {
+      const canvas = document.createElement('canvas');
+      canvas.width = 400;
+      canvas.height = 900;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) return;
+      const spacemanImg = new Image();
+      spacemanImg.src = SpacemanPng;
+      const hyperchats: Array<{ user: string; msg: string; amount?: number }> = [
+        { user: 'Frank', msg: 'Loving the stream!', amount: 5 },
+        { user: 'Grace', msg: 'Keep it up!', amount: 50 },
+        { user: 'Henry', msg: 'You earned this!', amount: 10 },
+        { user: 'Ivy', msg: 'Best content ever', amount: 100 },
+        { user: 'Jack', msg: 'GG WP', amount: 500 },
+      ];
+      const messages: Array<{ user: string; msg: string; amount?: number }> = [
+        { user: 'Alice', msg: 'Hello there!' },
+        { user: 'Bob', msg: 'Great stream!' },
+        { user: 'Carol', msg: 'PogChamp' },
+        hyperchats[0],
+        { user: 'Dave', msg: 'Welcome everyone' },
+        { user: 'Eve', msg: 'How are you?' },
+        { user: 'Mallory', msg: 'First time here, this rocks' },
+        { user: 'Oscar', msg: 'KEKW' },
+        { user: 'Nina', msg: 'lets goooo' },
+        { user: 'Liam', msg: 'cracked aim' },
+        hyperchats[2],
+        { user: 'Kira', msg: 'is this live?' },
+        { user: 'Jordan', msg: 'yes its live' },
+        hyperchats[1],
+        { user: 'Peggy', msg: 'subbed!' },
+        { user: 'Trent', msg: 'lets gooo' },
+        { user: 'Victor', msg: 'audio is great today' },
+        { user: 'Hank', msg: 'first!' },
+        { user: 'Iris', msg: 'no u' },
+        { user: 'Walter', msg: '👀' },
+        { user: 'Sybil', msg: 'when raid?' },
+        { user: 'Felix', msg: 'lurking from work' },
+        { user: 'Gina', msg: 'this beat slaps' },
+        hyperchats[3],
+        { user: 'Yara', msg: 'love this song' },
+        { user: 'Zane', msg: 'lol' },
+        { user: 'Quinn', msg: 'gn from EU' },
+        { user: 'Penny', msg: 'good morning from JP' },
+        { user: 'Otto', msg: 'GOAT' },
+        { user: 'Maya', msg: 'sheeesh' },
+        hyperchats[4],
+        { user: 'Rita', msg: 'hi mom' },
+        { user: 'Sam', msg: 'pog' },
+        { user: 'Tito', msg: 'banger after banger' },
+        { user: 'Una', msg: '🔥🔥🔥' },
+        { user: 'Vince', msg: 'someone clip that' },
+      ];
+      const hyperColor = (amount: number) => {
+        if (amount >= 500) return [222, 0, 80];
+        if (amount >= 100) return [230, 41, 74];
+        if (amount >= 50) return [239, 81, 67];
+        if (amount >= 10) return [247, 122, 61];
+        return [255, 162, 54];
+      };
+      const draw = () => {
+        const layer = compositorLayersRef.current.find((l) => l.id === id);
+        if (layer && (canvas.width !== layer.width || canvas.height !== layer.height)) {
+          canvas.width = Math.max(50, layer.width);
+          canvas.height = Math.max(50, layer.height);
+        }
+        const fontSize = layer?.chatFontSize ?? 20;
+        const lineHeight = layer?.chatLineHeight ?? 1.4;
+        const textColor = layer?.chatTextColor ?? '#ffffff';
+        const primaryDyn = getComputedStyle(document.documentElement)
+          .getPropertyValue('--color-primary-dynamic')
+          .trim();
+        const primaryColor = primaryDyn ? `rgb(${primaryDyn})` : '#de0050';
+        const userColor = layer?.chatUserColor ?? primaryColor;
+        const bgColor = layer?.chatBgColor ?? '#000000';
+        const borderColor = layer?.chatBorderColor ?? '#000000';
+        const borderWidth = layer?.chatBorderWidth ?? 0;
+        const bold = layer?.chatBold ?? false;
+        const showAvatars = layer?.chatShowAvatars ?? false;
+        const max = layer?.chatMaxMessages ?? 30;
+        const avatarSize = Math.round(fontSize * 1.4);
+        const palette = ['#748ffc', '#ffa855', '#339af0', '#ec8383'];
+        const colorFor = (name: string) => {
+          const c = name.charCodeAt(0);
+          if (Number.isNaN(c)) return '#cccccc';
+          return palette[Math.abs((c - 65) % palette.length)];
+        };
+        const drawAvatar = (cx: number, cy: number, name: string) => {
+          ctx.beginPath();
+          ctx.arc(cx + avatarSize / 2, cy + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+          ctx.fillStyle = colorFor(name);
+          ctx.fill();
+          if (spacemanImg.complete && spacemanImg.naturalWidth > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(cx + avatarSize / 2, cy + avatarSize / 2, avatarSize / 2, 0, Math.PI * 2);
+            ctx.clip();
+            const inner = avatarSize * 0.8;
+            ctx.drawImage(spacemanImg, cx + (avatarSize - inner) / 2, cy + (avatarSize - inner), inner, inner);
+            ctx.restore();
+          }
+        };
+        const realComments = liveCommentsRef.current || [];
+        const realMessages: Array<{ user: string; msg: string; amount?: number }> = realComments.map((c: any) => ({
+          user: c.channel_name || c.channel_url || 'anon',
+          msg: c.comment || '',
+          amount: c.support_amount > 0 ? c.support_amount : undefined,
+        }));
+        const sourceList = realMessages.length > 0 ? realMessages : messages;
+        const sourceHyper = realMessages.length > 0 ? realMessages.filter((m) => m.amount) : hyperchats;
+        const baseList = layer?.chatHyperchatOnly ? sourceHyper.slice(0, max) : sourceList.slice(0, max);
+        const newOnTop = layer?.chatNewOnTop ?? false;
+        const visible = newOnTop ? [...baseList].reverse() : baseList;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const bgTransparent = layer?.chatBgTransparent ?? true;
+        if (!bgTransparent) {
+          ctx.fillStyle = bgColor;
+          ctx.globalAlpha = 0.6;
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.globalAlpha = 1;
+        }
+
+        ctx.font = `${bold ? '700 ' : ''}${fontSize}px sans-serif`;
+        ctx.textBaseline = 'top';
+        ctx.lineWidth = borderWidth * 2;
+        ctx.strokeStyle = borderColor;
+        ctx.lineJoin = 'round';
+
+        let y = 16;
+        const padX = 16;
+        const lineH = fontSize * lineHeight;
+        const bannerH = Math.round(fontSize * 1.1);
+        for (const m of visible) {
+          if (m.amount) {
+            const [r, g, b] = hyperColor(m.amount);
+            const blockX = padX - 8;
+            const blockW = canvas.width - 2 * blockX;
+            const blockTop = y - 4;
+            const extraH = showAvatars ? Math.max(0, avatarSize - lineH) : 0;
+            const blockBottom = y + lineH + bannerH + 8 + extraH;
+            const blockH = blockBottom - blockTop;
+            const radius = 6;
+            ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.08)`;
+            ctx.beginPath();
+            ctx.roundRect(blockX, blockTop, blockW, blockH, radius);
+            ctx.fill();
+            ctx.strokeStyle = `rgb(${r}, ${g}, ${b})`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.roundRect(blockX + 0.5, blockTop + 0.5, blockW - 1, blockH - 1, radius);
+            ctx.stroke();
+
+            const badgeFontSize = Math.round(fontSize * 0.7);
+            ctx.font = `700 ${badgeFontSize}px sans-serif`;
+            const amountText = `$${m.amount}`;
+            const padBadge = 8;
+            const badgeW = Math.ceil(ctx.measureText(amountText).width) + padBadge * 2;
+            const badgeH = bannerH;
+            const badgeX = blockX;
+            const badgeY = blockTop;
+            const grad = ctx.createLinearGradient(badgeX, 0, badgeX + badgeW, 0);
+            grad.addColorStop(0, `rgb(${r}, ${g}, ${b})`);
+            grad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0.6)`);
+            ctx.fillStyle = grad;
+            ctx.beginPath();
+            ctx.roundRect(badgeX, badgeY, badgeW, badgeH, [radius, radius, radius, 0]);
+            ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(amountText, badgeX + padBadge, badgeY + badgeH / 2);
+            ctx.textBaseline = 'top';
+
+            ctx.font = `${bold ? '700 ' : ''}${fontSize}px sans-serif`;
+            ctx.lineWidth = borderWidth * 2;
+            ctx.strokeStyle = borderColor;
+            const userText = `${m.user}: `;
+            const msgY = blockTop + bannerH + 6;
+            const textX = showAvatars ? padX + avatarSize + 8 : padX;
+            if (showAvatars) drawAvatar(padX, msgY - 2, m.user);
+            if (borderWidth > 0) ctx.strokeText(userText, textX, msgY);
+            ctx.fillStyle = userColor;
+            ctx.fillText(userText, textX, msgY);
+            const userW = ctx.measureText(userText).width;
+            if (borderWidth > 0) ctx.strokeText(m.msg, textX + userW, msgY);
+            ctx.fillStyle = textColor;
+            ctx.fillText(m.msg, textX + userW, msgY);
+            y = blockBottom + 6;
+            continue;
+          }
+          const userText = `${m.user}: `;
+          const textX = showAvatars ? padX + avatarSize + 8 : padX;
+          if (showAvatars) drawAvatar(padX, y - 2, m.user);
+          if (borderWidth > 0) ctx.strokeText(userText, textX, y);
+          ctx.fillStyle = userColor;
+          ctx.fillText(userText, textX, y);
+          const userW = ctx.measureText(userText).width;
+          if (borderWidth > 0) ctx.strokeText(m.msg, textX + userW, y);
+          ctx.fillStyle = textColor;
+          ctx.fillText(m.msg, textX + userW, y);
+          y += showAvatars ? Math.max(lineH, avatarSize + 4) : lineH;
+        }
+        const fadeH = Math.round(canvas.height * 0.05);
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+        if (newOnTop) {
+          const grad = ctx.createLinearGradient(0, canvas.height - fadeH, 0, canvas.height);
+          grad.addColorStop(0, 'rgba(0,0,0,0)');
+          grad.addColorStop(1, 'rgba(0,0,0,1)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, canvas.height - fadeH, canvas.width, fadeH);
+        } else {
+          const grad = ctx.createLinearGradient(0, 0, 0, fadeH);
+          grad.addColorStop(0, 'rgba(0,0,0,1)');
+          grad.addColorStop(1, 'rgba(0,0,0,0)');
+          ctx.fillStyle = grad;
+          ctx.fillRect(0, 0, canvas.width, fadeH);
+        }
+        ctx.restore();
+        widgetAnimRef.current.set(id, requestAnimationFrame(draw));
+      };
+      draw();
+      const stream = canvas.captureStream(30);
+      widgetCanvasesRef.current.set(id, canvas);
+      sourceStreamsRef.current.set(id, stream);
+
+      const outW = getOutputWidth();
+      const layerW = Math.round(outW * 0.25);
+      const layerH = Math.round(layerW * 2.25);
+      const newLayer: CompositorLayer = {
+        id,
+        label: __('Chat'),
+        stream,
+        x: outW - layerW - 20,
+        y: 20,
+        width: layerW,
+        height: layerH,
+        aspectRatio: layerW / layerH,
+        zIndex: compositorLayers.length,
+        visible: true,
+        freeAspect: true,
+      };
+      setCompositorLayers((prev) => [...prev, newLayer]);
+      setActiveVideoIds((prev) => new Set(prev).add(id));
+      setActiveWidgetIds((prev) => new Set(prev).add(id));
+      setSelectedLayerId(id);
+      if (status === 'idle') setStatus('preview');
+      updateOutputStream();
+    }
   }
 
   function handleMasterVolumeChange(volume: number) {
@@ -1526,6 +1888,20 @@ export default function LivestreamStudio(props: Props) {
               (() => {
                 const layer = compositorLayers.find((l) => l.id === previewTab);
                 if (!layer) return null;
+                if (layer.id === '__widget_chat__') {
+                  return (
+                    <video
+                      key={layer.id}
+                      className="livestream-studio__source-preview"
+                      autoPlay
+                      muted
+                      playsInline
+                      ref={(el) => {
+                        if (el && el.srcObject !== layer.stream) el.srcObject = layer.stream;
+                      }}
+                    />
+                  );
+                }
                 const cssFilters: string[] = [];
                 if (layer.brightness != null && layer.brightness !== 100)
                   cssFilters.push(`brightness(${layer.brightness}%)`);
@@ -1712,17 +2088,7 @@ export default function LivestreamStudio(props: Props) {
                         <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
                       </svg>
                     </div>
-                    {disabledReason ? (
-                      <p className="livestream-studio__placeholder-text">{disabledReason}</p>
-                    ) : (
-                      <button
-                        className="livestream-studio__allow-camera-btn"
-                        onClick={requestCameraPreview}
-                        disabled={status === 'requesting_permission'}
-                      >
-                        {status === 'requesting_permission' ? __('Requesting...') : __('Allow Camera Preview')}
-                      </button>
-                    )}
+                    {disabledReason && <p className="livestream-studio__placeholder-text">{disabledReason}</p>}
                   </>
                 )}
                 {errorMessage && (
@@ -1915,91 +2281,105 @@ export default function LivestreamStudio(props: Props) {
           )}
         </div>
 
-        {(() => {
-          const sourceTabLayer =
-            previewTab !== 'preview' && previewTab !== 'compositor'
-              ? compositorLayers.find((l) => l.id === previewTab)
-              : null;
-          if (sourceTabLayer) {
+        <div className="livestream-studio__sources-column">
+          {(() => {
+            const sourceTabLayer =
+              previewTab !== 'preview' && previewTab !== 'compositor'
+                ? compositorLayers.find((l) => l.id === previewTab)
+                : null;
+            if (sourceTabLayer) {
+              return (
+                <LivestreamSourceSettings
+                  layer={sourceTabLayer}
+                  onUpdate={(updates) => handleLayerUpdate(sourceTabLayer.id, updates)}
+                />
+              );
+            }
             return (
-              <LivestreamSourceSettings
-                layer={sourceTabLayer}
-                onUpdate={(updates) => handleLayerUpdate(sourceTabLayer.id, updates)}
+              <LivestreamSourceSelector
+                activeVideoIds={activeVideoIds}
+                activeAudioIds={activeAudioIds}
+                activeVideoOrder={[...compositorLayers].sort((a, b) => b.zIndex - a.zIndex).map((l) => l.id)}
+                activeImageSources={[
+                  ...compositorLayers
+                    .filter((l) => l.id.startsWith('__image_'))
+                    .map((l) => ({ deviceId: l.id, label: l.label, kind: 'image' as const })),
+                  ...extraVideoSources,
+                ]}
+                onToggleVideo={handleToggleVideo}
+                onToggleAudio={handleToggleAudio}
+                onReorderVideo={(fromId, toId) => {
+                  setCompositorLayers((prev) => {
+                    const sorted = [...prev].sort((a, b) => b.zIndex - a.zIndex);
+                    const fromIdx = sorted.findIndex((l) => l.id === fromId);
+                    const toIdx = sorted.findIndex((l) => l.id === toId);
+                    if (fromIdx === -1 || toIdx === -1) return prev;
+                    const [moved] = sorted.splice(fromIdx, 1);
+                    sorted.splice(toIdx, 0, moved);
+                    return sorted.map((l, i) => ({ ...l, zIndex: sorted.length - 1 - i }));
+                  });
+                }}
+                audioVolumes={audioVolumes}
+                masterVolume={masterVolume}
+                onAudioVolumeChange={handleAudioVolumeChange}
+                onMasterVolumeChange={handleMasterVolumeChange}
+                getAudioLevel={(id) => audioMixerRef.current?.getSourceLevel(id) ?? 0}
+                getMasterAudioLevel={() => audioMixerRef.current?.getMasterLevel() ?? 0}
+                extraAudioSources={extraAudioSources}
+                getAudioElement={(id) => mediaElementsRef.current.get(`audio-${id}`) || null}
+                getVideoElement={(id) => mediaElementsRef.current.get(`video-${id}`) || null}
+                getLayerVisible={(id) => compositorLayers.find((l) => l.id === id)?.visible ?? true}
+                onToggleLayerVisible={handleToggleLayerVisible}
+                mutedAudios={mutedAudios}
+                onToggleAudioMute={handleToggleAudioMute}
+                needsCameraPermission={!hasCamera && !disabledReason}
+                cameraPermissionRequesting={status === 'requesting_permission'}
+                onRequestCameraPermission={requestCameraPreview}
+                activeWidgetIds={activeWidgetIds}
+                onToggleWidget={handleToggleWidget}
+                disabled={status === 'connecting' || status === 'stopping'}
               />
             );
-          }
-          return (
-            <LivestreamSourceSelector
-              activeVideoIds={activeVideoIds}
-              activeAudioIds={activeAudioIds}
-              activeVideoOrder={[...compositorLayers].sort((a, b) => b.zIndex - a.zIndex).map((l) => l.id)}
-              activeImageSources={[
-                ...compositorLayers
-                  .filter((l) => l.id.startsWith('__image_'))
-                  .map((l) => ({ deviceId: l.id, label: l.label, kind: 'image' as const })),
-                ...extraVideoSources,
-              ]}
-              onToggleVideo={handleToggleVideo}
-              onToggleAudio={handleToggleAudio}
-              onReorderVideo={(fromId, toId) => {
-                setCompositorLayers((prev) => {
-                  const sorted = [...prev].sort((a, b) => b.zIndex - a.zIndex);
-                  const fromIdx = sorted.findIndex((l) => l.id === fromId);
-                  const toIdx = sorted.findIndex((l) => l.id === toId);
-                  if (fromIdx === -1 || toIdx === -1) return prev;
-                  const [moved] = sorted.splice(fromIdx, 1);
-                  sorted.splice(toIdx, 0, moved);
-                  return sorted.map((l, i) => ({ ...l, zIndex: sorted.length - 1 - i }));
-                });
-              }}
-              audioVolumes={audioVolumes}
-              masterVolume={masterVolume}
-              onAudioVolumeChange={handleAudioVolumeChange}
-              onMasterVolumeChange={handleMasterVolumeChange}
-              getAudioLevel={(id) => audioMixerRef.current?.getSourceLevel(id) ?? 0}
-              getMasterAudioLevel={() => audioMixerRef.current?.getMasterLevel() ?? 0}
-              extraAudioSources={extraAudioSources}
-              getAudioElement={(id) => mediaElementsRef.current.get(`audio-${id}`) || null}
-              getVideoElement={(id) => mediaElementsRef.current.get(`video-${id}`) || null}
-              disabled={status === 'connecting' || status === 'stopping'}
-            />
-          );
-        })()}
-      </div>
+          })()}
 
-      {/* Primary Action */}
-      <div className="livestream-studio__action-area">
-        {(status === 'idle' || status === 'error' || status === 'preview' || status === 'requesting_permission') && (
-          <>
-            <Button
-              button="primary"
-              className="livestream-studio__go-live-btn"
-              onClick={handleGoLive}
-              disabled={Boolean(disabledReason) || status === 'requesting_permission' || existingStreamActive}
-              label={
-                existingStreamActive
-                  ? __('Stream already active')
-                  : status === 'requesting_permission'
-                    ? __('Starting camera...')
-                    : status === 'preview'
-                      ? canStartStream
-                        ? __('Go Live')
-                        : __('Preview Only (no claim published)')
-                      : __('Go Live')
-              }
-              icon={status !== 'requesting_permission' ? ICONS.LIVESTREAM : undefined}
-            />
-            {existingStreamActive && (
-              <p className="livestream-studio__hint-msg">
-                {__('A stream is already live on this channel. End it before starting a new one.')}
-              </p>
+          {/* Primary Action - below video/audio boxes */}
+          <div className="livestream-studio__action-area">
+            {(status === 'idle' ||
+              status === 'error' ||
+              status === 'preview' ||
+              status === 'requesting_permission') && (
+              <>
+                <Button
+                  button="primary"
+                  className="livestream-studio__go-live-btn"
+                  onClick={handleGoLive}
+                  disabled={Boolean(disabledReason) || status === 'requesting_permission' || existingStreamActive}
+                  label={
+                    existingStreamActive
+                      ? __('Stream already active')
+                      : status === 'requesting_permission'
+                        ? __('Starting camera...')
+                        : status === 'preview'
+                          ? canStartStream
+                            ? __('Go Live')
+                            : __('Preview Only (no claim published)')
+                          : __('Go Live')
+                  }
+                  icon={status !== 'requesting_permission' ? ICONS.LIVESTREAM : undefined}
+                />
+                {existingStreamActive && (
+                  <p className="livestream-studio__hint-msg">
+                    {__('A stream is already live on this channel. End it before starting a new one.')}
+                  </p>
+                )}
+              </>
             )}
-          </>
-        )}
-        {errorMessage && (status === 'error' || status === 'preview') && (
-          <p className="livestream-studio__error-msg">{errorMessage}</p>
-        )}
-        {disabledReason && !hasCamera && <p className="livestream-studio__hint-msg">{disabledReason}</p>}
+            {errorMessage && (status === 'error' || status === 'preview') && (
+              <p className="livestream-studio__error-msg">{errorMessage}</p>
+            )}
+            {disabledReason && !hasCamera && <p className="livestream-studio__hint-msg">{disabledReason}</p>}
+          </div>
+        </div>
       </div>
 
       {/* P2P seeding banner for streamer - hidden once enabled */}

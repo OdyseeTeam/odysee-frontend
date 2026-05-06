@@ -1,6 +1,6 @@
 import * as PAGES from 'constants/pages';
 import * as ICONS from 'constants/icons';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import React from 'react';
 import Page from 'component/page';
 import Button from 'component/button';
@@ -12,12 +12,11 @@ import Card from 'component/common/card';
 import { getLivestreamIngestRtmpUrl } from 'constants/livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import classnames from 'classnames';
-import LivestreamForm from 'component/publish/livestream/livestreamForm';
 import Icon from 'component/common/icon';
 import YrblWalletEmpty from 'component/yrblWalletEmpty';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectHasChannels, selectFetchingMyChannels } from 'redux/selectors/claims';
-import { doClearPublish } from 'redux/actions/publish';
+import { doClearPublish, doUpdatePublishForm } from 'redux/actions/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { doFetchNoSourceClaimsForChannelId } from 'redux/actions/claims';
 import { selectUser } from 'redux/selectors/user';
@@ -27,6 +26,9 @@ import { selectPublishFormValues } from 'redux/selectors/publish';
 import LivestreamStudio from 'component/livestreamStudio';
 import ClaimPreview from 'component/claimPreview';
 import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
+import { lazyImport } from 'util/lazyImport';
+
+const ChatLayout = lazyImport(() => import('component/chat' /* webpackChunkName: "chat" */));
 import usePersistedState from 'effects/use-persisted-state';
 import { WEBRTC_PUBLISH_PRESET_ORDER, type WebrtcPublishPresetId } from 'constants/webrtcPublish';
 import { useLivestreamPublish } from 'contexts/livestreamPublish';
@@ -34,7 +36,7 @@ import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import LivestreamMetrics from 'component/livestreamMetrics/view';
 import './style.scss';
 
-const ALL_LIVESTREAM_TABS = ['Stream', 'Publish', 'Setup'];
+const ALL_LIVESTREAM_TABS = ['Preview', 'Stream', 'Setup'];
 
 export default function LivestreamSetupPage() {
   const LIVESTREAM_CLAIM_POLL_IN_MS = 60000;
@@ -56,8 +58,9 @@ export default function LivestreamSetupPage() {
   const BROWSER_STREAM_ENABLED = Boolean(user?.global_mod);
   const VALID_LIVESTREAM_TABS = BROWSER_STREAM_ENABLED
     ? ALL_LIVESTREAM_TABS
-    : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream');
+    : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream' && t !== 'Preview');
   const { search } = useLocation();
+  const navigate = useNavigate();
   const urlParams = new URLSearchParams(search);
   const urlTab = urlParams.get('t');
   const [sigData, setSigData] = React.useState<{ signature: any; signing_ts: any }>({
@@ -90,8 +93,8 @@ export default function LivestreamSetupPage() {
   const totalLivestreamClaims = pendingClaims.concat(myLivestreamClaims);
 
   function createNewLivestream() {
-    setTab('Publish');
     dispatch(doClearPublish());
+    navigate(`/$/${PAGES.LIVESTREAM_CREATE}`);
   }
 
   React.useEffect(() => {
@@ -118,9 +121,24 @@ export default function LivestreamSetupPage() {
     };
   }, [channelId, pendingLength, dispatch]);
 
-  const defaultTab = BROWSER_STREAM_ENABLED ? 'Stream' : 'Publish';
+  const defaultTab = BROWSER_STREAM_ENABLED ? 'Preview' : 'Setup';
   const initialTab = urlTab && VALID_LIVESTREAM_TABS.includes(urlTab) ? urlTab : defaultTab;
-  const [tab, setTab] = React.useState(initialTab);
+  const [tab, setTabState] = React.useState(initialTab);
+  const setTab = React.useCallback(
+    (next: string) => {
+      setTabState(next);
+      const sp = new URLSearchParams(search);
+      if (next === defaultTab) sp.delete('t');
+      else sp.set('t', next);
+      const qs = sp.toString();
+      navigate({ pathname: `/$/${PAGES.LIVESTREAM}`, search: qs ? `?${qs}` : '' }, { replace: true });
+    },
+    [search, navigate, defaultTab]
+  );
+
+  React.useEffect(() => {
+    if (urlTab && !VALID_LIVESTREAM_TABS.includes(urlTab)) setTab(defaultTab);
+  }, [urlTab, defaultTab]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Stream metrics (active when live via any method -- WebRTC or RTMP)
   const metricsActive = tab === 'Setup';
@@ -133,8 +151,8 @@ export default function LivestreamSetupPage() {
   );
 
   React.useEffect(() => {
-    if (editingURI) setTab('Publish');
-  }, [editingURI]);
+    if (editingURI) navigate(`/$/${PAGES.LIVESTREAM_CREATE}`);
+  }, [editingURI, navigate]);
 
   // Default to Publish tab when user has no livestream claims.
   // We wait for the first fetch to complete by tracking when myLivestreamClaims transitions
@@ -169,7 +187,7 @@ export default function LivestreamSetupPage() {
 
   function resetForm() {
     dispatch(doClearPublish());
-    setTab('Publish');
+    navigate(`/$/${PAGES.LIVESTREAM_CREATE}`);
   }
 
   return (
@@ -186,10 +204,38 @@ export default function LivestreamSetupPage() {
             {__('Stream directly from your browser or use RTMP with OBS/Restream.')}
           </p>
         </div>
+        <div className="livestream-setup__header-actions">
+          <button
+            className="livestream-setup__create-btn livestream-setup__create-btn--secondary"
+            onClick={() => navigate(`/$/${PAGES.LIVESTREAM_CREATE}?s=Replay`)}
+            disabled={balance < 0.01 || totalLivestreamClaims.length === 0}
+          >
+            <Icon icon={ICONS.MENU} size={16} />
+            {__('Publish replay')}
+          </button>
+          <button
+            className="livestream-setup__create-btn"
+            onClick={() => navigate(`/$/${PAGES.LIVESTREAM_CREATE}`)}
+            disabled={balance < 0.01}
+          >
+            <Icon icon={ICONS.ADD} size={16} />
+            {__('Create / Edit')}
+          </button>
+        </div>
       </div>
 
       <div className="livestream-setup__toolbar">
         <div className="livestream-setup__tabs">
+          {BROWSER_STREAM_ENABLED && (
+            <button
+              className={classnames('livestream-setup__tab', { 'livestream-setup__tab--active': tab === 'Preview' })}
+              onClick={() => setTab('Preview')}
+              disabled={balance < 0.01}
+            >
+              <Icon icon={ICONS.EYE} size={16} />
+              {__('Preview')}
+            </button>
+          )}
           {BROWSER_STREAM_ENABLED && (
             <button
               className={classnames('livestream-setup__tab', { 'livestream-setup__tab--active': tab === 'Stream' })}
@@ -200,14 +246,6 @@ export default function LivestreamSetupPage() {
               {__('Browser Stream')}
             </button>
           )}
-          <button
-            className={classnames('livestream-setup__tab', { 'livestream-setup__tab--active': tab === 'Publish' })}
-            onClick={() => setTab('Publish')}
-            disabled={balance < 0.01}
-          >
-            <Icon icon={ICONS.ADD} size={16} />
-            {__('Create / Edit')}
-          </button>
           <button
             className={classnames('livestream-setup__tab', {
               'livestream-setup__tab--active': tab === 'Setup',
@@ -303,12 +341,56 @@ export default function LivestreamSetupPage() {
         />
       )}
 
+      {tab === 'Preview' && (
+        <div className="livestream-setup__preview">
+          <div className="livestream-setup__preview-video">
+            <div className="livestream-setup__preview-placeholder" />
+            {!isStreamActive && (
+              <div className="livestream-setup__preview-offair">
+                <span className="livestream-setup__preview-offair-dot" />
+                {__('OFF AIR')}
+              </div>
+            )}
+          </div>
+          <div
+            className={classnames('livestream-setup__preview-chat-wrap', {
+              'livestream-setup__preview-chat-wrap--disabled':
+                !isStreamActive || !totalLivestreamClaims[0]?.canonical_url,
+            })}
+          >
+            {(() => {
+              const previewClaim = totalLivestreamClaims[0];
+              const previewUri = previewClaim?.canonical_url;
+              if (!previewUri) {
+                return (
+                  <div className="chat__wrapper livestream-setup__preview-chat-placeholder">
+                    <div className="chat__header">
+                      <div className="chat__toggle-mode">{__('Livestream Chat')}</div>
+                    </div>
+                    <div className="livestream-comments__wrapper" />
+                    <div className="chat__comment-create">
+                      <div className="livestream-setup__preview-chat-input-stub">{__('No livestream claim yet.')}</div>
+                    </div>
+                  </div>
+                );
+              }
+              return (
+                <React.Suspense fallback={null}>
+                  <ChatLayout uri={previewUri} />
+                </React.Suspense>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+
       {/* Browser Stream Tab (WebRTC) */}
       {tab === 'Stream' && (
         <div className={editingURI ? 'disabled' : ''}>
           {!fetchingChannels && channelId && (
             <LivestreamStudio
               streamKey={streamKey}
+              livestreamUri={totalLivestreamClaims[0]?.canonical_url}
               livestreamEnabled={livestreamEnabled}
               hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
               presetId={presetId}
@@ -318,9 +400,6 @@ export default function LivestreamSetupPage() {
           )}
         </div>
       )}
-
-      {/* Publish Tab */}
-      {tab === 'Publish' && hasChannels && <LivestreamForm setClearStatus={setIsClear} disabled={balance < 0.01} />}
 
       {/* RTMP Setup Tab */}
       {tab === 'Setup' && (

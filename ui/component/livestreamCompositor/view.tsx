@@ -31,6 +31,20 @@ export type CompositorLayer = {
   pipGeometry?: { x: number; y: number; width: number; height: number };
   displayMode?: 'max' | 'pip';
   restoreGeometry?: { x: number; y: number; width: number; height: number };
+  chatFontSize?: number;
+  chatTextColor?: string;
+  chatUserColor?: string;
+  chatBgColor?: string;
+  chatBgTransparent?: boolean;
+  chatBorderColor?: string;
+  chatBorderWidth?: number;
+  chatLineHeight?: number;
+  chatMaxMessages?: number;
+  chatShowAvatars?: boolean;
+  chatBold?: boolean;
+  chatHyperchatOnly?: boolean;
+  chatNewOnTop?: boolean;
+  freeAspect?: boolean;
 };
 
 type Props = {
@@ -58,7 +72,10 @@ type DragState = {
 
 const HANDLE_SIZE = 8;
 const HANDLE_HIT_SIZE = 16;
-const HANDLES = ['nw', 'ne', 'sw', 'se'];
+const EDGE_HIT_SIZE = 8;
+const CORNER_HANDLES = ['nw', 'ne', 'sw', 'se'];
+const EDGE_HANDLES = ['n', 's', 'e', 'w'];
+const HANDLES = CORNER_HANDLES;
 
 function getHandleCursor(handle: string): string {
   switch (handle) {
@@ -70,6 +87,12 @@ function getHandleCursor(handle: string): string {
       return 'nesw-resize';
     case 'se':
       return 'nwse-resize';
+    case 'n':
+    case 's':
+      return 'ns-resize';
+    case 'e':
+    case 'w':
+      return 'ew-resize';
     default:
       return 'move';
   }
@@ -138,7 +161,12 @@ export default function LivestreamCompositor(props: Props) {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, outputWidth, outputHeight);
 
-      const sorted = [...layers].sort((a, b) => a.zIndex - b.zIndex);
+      const sorted = [...layers].sort((a, b) => {
+        const aWidget = a.id.startsWith('__widget_') ? 1 : 0;
+        const bWidget = b.id.startsWith('__widget_') ? 1 : 0;
+        if (aWidget !== bWidget) return aWidget - bWidget;
+        return a.zIndex - b.zIndex;
+      });
       for (const layer of sorted) {
         if (!layer.visible) continue;
         const video = videoElementsRef.current.get(layer.id);
@@ -221,6 +249,15 @@ export default function LivestreamCompositor(props: Props) {
         hy = ly + lh;
       }
       if (Math.abs(px - hx) <= hs && Math.abs(py - hy) <= hs) return handle;
+    }
+    if (layer.freeAspect) {
+      const es = EDGE_HIT_SIZE;
+      const insideX = px >= lx + es && px <= lx + lw - es;
+      const insideY = py >= ly + es && py <= ly + lh - es;
+      if (insideX && Math.abs(py - ly) <= es) return 'n';
+      if (insideX && Math.abs(py - (ly + lh)) <= es) return 's';
+      if (insideY && Math.abs(px - lx) <= es) return 'w';
+      if (insideY && Math.abs(px - (lx + lw)) <= es) return 'e';
     }
     return null;
   }
@@ -334,6 +371,7 @@ export default function LivestreamCompositor(props: Props) {
     } else if (drag.mode === 'resize' && drag.handle) {
       const ar = layer?.aspectRatio || drag.startLayerW / drag.startLayerH;
       let newW = drag.startLayerW;
+      let newH = drag.startLayerH;
       let newX = drag.startLayerX;
       let newY = drag.startLayerY;
 
@@ -342,15 +380,21 @@ export default function LivestreamCompositor(props: Props) {
       const isBottom = drag.handle.includes('s');
       const isTop = drag.handle.includes('n');
 
-      if (isRight || isLeft) {
-        const rawW = isRight ? drag.startLayerW + dx : drag.startLayerW - dx;
-        newW = Math.max(50, rawW);
+      if (layer?.freeAspect) {
+        if (isRight) newW = Math.max(50, drag.startLayerW + dx);
+        if (isLeft) newW = Math.max(50, drag.startLayerW - dx);
+        if (isBottom) newH = Math.max(50, drag.startLayerH + dy);
+        if (isTop) newH = Math.max(50, drag.startLayerH - dy);
       } else {
-        const rawH = isBottom ? drag.startLayerH + dy : drag.startLayerH - dy;
-        newW = Math.max(50, rawH * ar);
+        if (isRight || isLeft) {
+          const rawW = isRight ? drag.startLayerW + dx : drag.startLayerW - dx;
+          newW = Math.max(50, rawW);
+        } else {
+          const rawH = isBottom ? drag.startLayerH + dy : drag.startLayerH - dy;
+          newW = Math.max(50, rawH * ar);
+        }
+        newH = newW / ar;
       }
-
-      const newH = newW / ar;
 
       if (isLeft) newX = drag.startLayerX + (drag.startLayerW - newW);
       if (isTop) newY = drag.startLayerY + (drag.startLayerH - newH);
@@ -404,8 +448,14 @@ export default function LivestreamCompositor(props: Props) {
     >
       <canvas ref={canvasRef} className="livestream-compositor__canvas" />
 
-      {layers
+      {[...layers]
         .filter((l) => l.visible)
+        .sort((a, b) => {
+          const aWidget = a.id.startsWith('__widget_') ? 1 : 0;
+          const bWidget = b.id.startsWith('__widget_') ? 1 : 0;
+          if (aWidget !== bWidget) return aWidget - bWidget;
+          return a.zIndex - b.zIndex;
+        })
         .map((layer) => {
           const isSelected = layer.id === selectedLayerId;
           return (
@@ -574,13 +624,41 @@ export default function LivestreamCompositor(props: Props) {
               </div>
               {isSelected &&
                 !layer.locked &&
-                HANDLES.map((handle) => {
+                CORNER_HANDLES.map((handle) => {
                   const style: React.CSSProperties = { cursor: getHandleCursor(handle) };
                   if (handle.includes('n')) style.top = -HANDLE_SIZE / 2;
                   if (handle.includes('s')) style.bottom = -HANDLE_SIZE / 2;
                   if (handle.includes('w')) style.left = -HANDLE_SIZE / 2;
                   if (handle.includes('e')) style.right = -HANDLE_SIZE / 2;
                   return <div key={handle} className="livestream-compositor__handle" style={style} />;
+                })}
+              {isSelected &&
+                !layer.locked &&
+                layer.freeAspect &&
+                EDGE_HANDLES.map((handle) => {
+                  const style: React.CSSProperties = { cursor: getHandleCursor(handle), position: 'absolute' };
+                  if (handle === 'n') {
+                    style.top = -EDGE_HIT_SIZE / 2;
+                    style.left = HANDLE_SIZE;
+                    style.right = HANDLE_SIZE;
+                    style.height = EDGE_HIT_SIZE;
+                  } else if (handle === 's') {
+                    style.bottom = -EDGE_HIT_SIZE / 2;
+                    style.left = HANDLE_SIZE;
+                    style.right = HANDLE_SIZE;
+                    style.height = EDGE_HIT_SIZE;
+                  } else if (handle === 'w') {
+                    style.left = -EDGE_HIT_SIZE / 2;
+                    style.top = HANDLE_SIZE;
+                    style.bottom = HANDLE_SIZE;
+                    style.width = EDGE_HIT_SIZE;
+                  } else if (handle === 'e') {
+                    style.right = -EDGE_HIT_SIZE / 2;
+                    style.top = HANDLE_SIZE;
+                    style.bottom = HANDLE_SIZE;
+                    style.width = EDGE_HIT_SIZE;
+                  }
+                  return <div key={handle} className="livestream-compositor__edge-handle" style={style} />;
                 })}
             </div>
           );
