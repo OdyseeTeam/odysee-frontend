@@ -264,11 +264,23 @@ function snapHeight(h) {
   return h;
 }
 
-function useQualityLevels() {
+function useQualityLevels({
+  hasOriginalSource,
+  isOriginalSourceSelected,
+  onSelectOriginalSource,
+  onSelectAdaptiveSource,
+}) {
   const media = Player.useMedia();
   const [levels, setLevels] = useState([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
   const [activeHeight, setActiveHeight] = useState(0);
+  const pendingLevelRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (isOriginalSourceSelected) {
+      setCurrentLevel(-2);
+    }
+  }, [isOriginalSourceSelected]);
 
   useEffect(() => {
     if (!media) return;
@@ -297,7 +309,13 @@ function useQualityLevels() {
               return { height: qualityHeight, index: i };
             })
           );
-          setCurrentLevel(h.currentLevel);
+          if (pendingLevelRef.current !== null) {
+            h.currentLevel = pendingLevelRef.current;
+            setCurrentLevel(pendingLevelRef.current);
+            pendingLevelRef.current = null;
+          } else if (!isOriginalSourceSelected) {
+            setCurrentLevel(h.currentLevel);
+          }
           const playing = h.currentLevel >= 0 ? h.currentLevel : h.loadLevel >= 0 ? h.loadLevel : -1;
           const playingLevel = playing >= 0 && h.levels[playing] ? h.levels[playing] : null;
           const playingHeight =
@@ -308,6 +326,7 @@ function useQualityLevels() {
       updateLevels();
       onParsed = updateLevels;
       onSwitched = () => {
+        if (isOriginalSourceSelected) return;
         setCurrentLevel(h.currentLevel);
         const playing = h.currentLevel >= 0 ? h.currentLevel : h.loadLevel >= 0 ? h.loadLevel : -1;
         const lvl = playing >= 0 && h.levels[playing] ? h.levels[playing] : null;
@@ -333,21 +352,39 @@ function useQualityLevels() {
         if (onFragChanged) hls.off('hlsFragChanged', onFragChanged);
       }
     };
-  }, [media]);
+  }, [isOriginalSourceSelected, media]);
 
   const selectQuality = useCallback(
     (levelIndex) => {
+      if (levelIndex === -2) {
+        if (!hasOriginalSource) return;
+        if (onSelectOriginalSource) onSelectOriginalSource();
+        setCurrentLevel(-2);
+        return;
+      }
+
+      if (onSelectAdaptiveSource) onSelectAdaptiveSource();
       const hls = (media as HlsMediaElement | null)?.engine || (media as HlsMediaElement | null)?._hls;
-      if (!hls) return;
+      if (!hls) {
+        pendingLevelRef.current = levelIndex;
+        setCurrentLevel(levelIndex);
+        return;
+      }
       hls.currentLevel = levelIndex;
       setCurrentLevel(levelIndex);
     },
-    [media]
+    [hasOriginalSource, media, onSelectAdaptiveSource, onSelectOriginalSource]
   );
 
   const autoLabel = activeHeight > 0 ? `${__('Auto')} (${snapHeight(activeHeight)}p)` : __('Auto');
   const currentLabel =
-    currentLevel === -1 ? autoLabel : levels[currentLevel] ? `${snapHeight(levels[currentLevel].height)}p` : autoLabel;
+    currentLevel === -2
+      ? __('Original')
+      : currentLevel === -1
+        ? autoLabel
+        : levels[currentLevel]
+          ? `${snapHeight(levels[currentLevel].height)}p`
+          : autoLabel;
 
   const isHD = activeHeight >= 720;
 
@@ -358,6 +395,7 @@ function useQualityLevels() {
     selectQuality,
     isHD,
     activeHeight,
+    hasOriginalSource,
   };
 }
 
@@ -475,7 +513,7 @@ function SettingsMenuContent({
               {snapHeight(level.height)}p
             </button>
           ))}
-        {!isLivestream && (
+        {!isLivestream && quality.hasOriginalSource && (
           <button
             type="button"
             className={`media-settings-menu__option ${
@@ -1017,6 +1055,10 @@ export default function OdyseeSkin(props) {
     castState,
     castActions,
     p2pUiState,
+    hasOriginalSource,
+    isOriginalSourceSelected,
+    onSelectOriginalSource,
+    onSelectAdaptiveSource,
     ...rest
   } = props;
 
@@ -1034,7 +1076,12 @@ export default function OdyseeSkin(props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const fsEnterIconRef = React.useRef(null);
   const fsExitIconRef = React.useRef(null);
-  const quality = useQualityLevels();
+  const quality = useQualityLevels({
+    hasOriginalSource,
+    isOriginalSourceSelected,
+    onSelectOriginalSource,
+    onSelectAdaptiveSource,
+  });
   const chapters = React.useMemo(() => parseChapters(description), [description]);
   const liveTimeFormat = useLiveTimeFormat();
   const isVerticalVideo = originalVideoWidth && originalVideoHeight && originalVideoHeight > originalVideoWidth;
