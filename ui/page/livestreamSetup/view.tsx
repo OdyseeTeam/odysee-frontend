@@ -384,20 +384,21 @@ export default function LivestreamSetupPage() {
         </div>
       )}
 
-      {/* Browser Stream Tab (WebRTC) */}
-      {tab === 'Stream' && (
-        <div className={editingURI ? 'disabled' : ''}>
-          {!fetchingChannels && channelId && (
-            <LivestreamStudio
-              streamKey={streamKey}
-              livestreamUri={totalLivestreamClaims[0]?.canonical_url}
-              livestreamEnabled={livestreamEnabled}
-              hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
-              presetId={presetId}
-              signature={sigData.signature}
-              signingTs={sigData.signing_ts}
-            />
-          )}
+      {/* Browser Stream Tab (WebRTC) — always mounted, hidden on other tabs to preserve state */}
+      {!fetchingChannels && channelId && BROWSER_STREAM_ENABLED && (
+        <div
+          className={classnames({ disabled: editingURI })}
+          style={tab !== 'Stream' ? { display: 'none' } : undefined}
+        >
+          <LivestreamStudio
+            streamKey={streamKey}
+            livestreamUri={totalLivestreamClaims[0]?.canonical_url}
+            livestreamEnabled={livestreamEnabled}
+            hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
+            presetId={presetId}
+            signature={sigData.signature}
+            signingTs={sigData.signing_ts}
+          />
         </div>
       )}
 

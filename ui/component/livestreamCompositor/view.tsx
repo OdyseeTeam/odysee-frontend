@@ -215,7 +215,14 @@ export default function LivestreamCompositor(props: Props) {
   }, [layers, outputWidth, outputHeight, canvasRef]);
 
   function getLayersAtPoint(px: number, py: number): CompositorLayer[] {
-    const sorted = [...layers].filter((l) => l.visible).sort((a, b) => b.zIndex - a.zIndex);
+    const sorted = [...layers]
+      .filter((l) => l.visible)
+      .sort((a, b) => {
+        const aWidget = a.id.startsWith('__widget_') ? 1 : 0;
+        const bWidget = b.id.startsWith('__widget_') ? 1 : 0;
+        if (aWidget !== bWidget) return bWidget - aWidget;
+        return b.zIndex - a.zIndex;
+      });
     return sorted.filter((layer) => {
       const lx = layer.x * scaleX;
       const ly = layer.y * scaleY;
@@ -276,8 +283,16 @@ export default function LivestreamCompositor(props: Props) {
       if (selLayer) {
         const handle = getHandleAtPoint(mx, my, selLayer);
         if (handle) {
+          const selIsWidget = selLayer.id.startsWith('__widget_');
           const coveringLayer = layers.find((l) => {
-            if (l.id === selLayer.id || !l.visible || l.zIndex <= selLayer.zIndex) return false;
+            if (l.id === selLayer.id || !l.visible) return false;
+            const lIsWidget = l.id.startsWith('__widget_');
+            if (selIsWidget && !lIsWidget) return false;
+            if (!selIsWidget && lIsWidget) {
+              // widget always above non-widget
+            } else if (l.zIndex <= selLayer.zIndex) {
+              return false;
+            }
             const lx = l.x * scaleX;
             const ly = l.y * scaleY;
             const lw = l.width * scaleX;
