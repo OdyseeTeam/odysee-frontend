@@ -14,10 +14,48 @@
 }
 
 .livestream-setup__header-actions {
+  position: relative;
   display: flex;
   align-items: center;
   gap: var(--spacing-s);
+  justify-content: flex-end;
   flex-shrink: 0;
+}
+
+.livestream-setup__claim-hint.help--notice {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  margin: 0;
+  padding: var(--spacing-s) var(--spacing-m);
+  z-index: 2;
+  white-space: nowrap;
+  background: var(--color-card-background-highlighted);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--border-radius);
+  color: var(--color-text);
+  font-size: var(--font-small);
+
+  &::before,
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    right: calc(var(--claim-hint-arrow-right, 18px) - 8px);
+    width: 0;
+    height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+  }
+
+  &::before {
+    border-bottom: 8px solid var(--color-primary);
+  }
+
+  &::after {
+    margin-bottom: -1px;
+    border-bottom: 8px solid var(--color-card-background-highlighted);
+  }
 }
 
 .livestream-setup__create-btn {
@@ -313,6 +351,15 @@
   font-size: var(--font-small);
 }
 
+.livestream-setup__preview-chat-empty-box {
+  flex: 1 1 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  margin: 0 !important;
+  display: flex;
+  flex-direction: column;
+}
+
 .livestream-setup__preview-chat-placeholder {
   display: flex;
   flex-direction: column;
@@ -342,7 +389,7 @@
 }
 
 .livestream-setup__key-card {
-  padding: var(--spacing-l);
+  padding: var(--spacing-s) var(--spacing-m);
   border-radius: 12px;
   border: 1px solid rgba(var(--color-header-button-base), 0.35);
   background:

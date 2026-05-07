@@ -52,6 +52,7 @@ type Props = {
   getVideoElement?: (id: string) => HTMLMediaElement | null;
   getLayerVisible?: (id: string) => boolean;
   onToggleLayerVisible?: (id: string) => void;
+  onSelectLayer?: (id: string) => void;
   mutedAudios?: Set<string>;
   onToggleAudioMute?: (id: string) => void;
   needsCameraPermission?: boolean;
@@ -82,6 +83,7 @@ export default function LivestreamSourceSelector(props: Props) {
     getVideoElement,
     getLayerVisible,
     onToggleLayerVisible,
+    onSelectLayer,
     mutedAudios,
     onToggleAudioMute,
     needsCameraPermission,
@@ -519,7 +521,10 @@ export default function LivestreamSourceSelector(props: Props) {
                     dragSourceRef.current = null;
                   }}
                 >
-                  <div className="livestream-sources__item livestream-sources__item--active">
+                  <div
+                    className="livestream-sources__item livestream-sources__item--active"
+                    onClick={() => onSelectLayer?.(source.deviceId)}
+                  >
                     {source.kind === 'image' ? (
                       <span
                         className="livestream-sources__remove-icon"
@@ -743,13 +748,23 @@ export default function LivestreamSourceSelector(props: Props) {
                 className={classnames('livestream-sources__item', {
                   'livestream-sources__item--active': activeWidgetIds?.has('__widget_chat__'),
                 })}
-                onClick={() => onToggleWidget?.('__widget_chat__')}
+                onClick={() => {
+                  if (activeWidgetIds?.has('__widget_chat__')) {
+                    onSelectLayer?.('__widget_chat__');
+                  } else {
+                    onToggleWidget?.('__widget_chat__');
+                  }
+                }}
                 disabled={disabled || !onToggleWidget}
               >
                 <span
                   className={classnames('livestream-sources__checkbox', {
                     'livestream-sources__checkbox--checked': activeWidgetIds?.has('__widget_chat__'),
                   })}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleWidget?.('__widget_chat__');
+                  }}
                 />
                 <Icon icon={ICONS.CHAT} size={14} />
                 <TruncatedLabel label={__('Chat')} />

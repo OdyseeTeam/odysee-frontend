@@ -9,7 +9,7 @@ import Lbry from 'lbry';
 import { toHex } from 'util/hex';
 import CopyableText from 'component/copyableText';
 import Card from 'component/common/card';
-import { getLivestreamIngestRtmpUrl } from 'constants/livestream';
+import { getLivestreamIngestRtmpUrl, NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
@@ -55,7 +55,7 @@ export default function LivestreamSetupPage() {
   ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
-  const BROWSER_STREAM_ENABLED = Boolean(user?.global_mod);
+  const BROWSER_STREAM_ENABLED = true;
   const VALID_LIVESTREAM_TABS = BROWSER_STREAM_ENABLED
     ? ALL_LIVESTREAM_TABS
     : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream' && t !== 'Preview');
@@ -74,12 +74,27 @@ export default function LivestreamSetupPage() {
     WebrtcPublishPresetId,
     (v: WebrtcPublishPresetId) => void,
   ];
-  const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [
+  const [cameraAutoStart, setCameraAutoStart] = usePersistedState('livestream-camera-autostart', true) as [
     boolean,
     (v: boolean) => void,
   ];
   const publishCtx = useLivestreamPublish();
   const isStreamActive = publishCtx.state.status === 'live' || publishCtx.state.status === 'connecting';
+  const createBtnRef = React.useRef<HTMLButtonElement>(null);
+  const [arrowOffset, setArrowOffset] = React.useState<number>(18);
+  React.useLayoutEffect(() => {
+    const btn = createBtnRef.current;
+    if (!btn) return;
+    const measure = () =>
+      setArrowOffset((prev) => {
+        const next = btn.offsetWidth / 2;
+        return prev === next ? prev : next;
+      });
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(btn);
+    return () => ro.disconnect();
+  }, []);
 
   function createStreamKey() {
     if (!channelId || !channelName || !sigData.signature || !sigData.signing_ts) return null;
@@ -90,7 +105,18 @@ export default function LivestreamSetupPage() {
   const streamKey = createStreamKey();
   const pendingLength = pendingClaims.length;
   const approvedLivestreamClaimCount = myLivestreamClaims.length;
-  const totalLivestreamClaims = pendingClaims.concat(myLivestreamClaims);
+  const totalLivestreamClaims = React.useMemo(() => {
+    const seenIds = new Set<string>();
+    const seenNames = new Set<string>();
+    return pendingClaims.concat(myLivestreamClaims).filter((c: any) => {
+      if (!c) return false;
+      if (c.claim_id && seenIds.has(c.claim_id)) return false;
+      if (c.name && seenNames.has(c.name)) return false;
+      if (c.claim_id) seenIds.add(c.claim_id);
+      if (c.name) seenNames.add(c.name);
+      return true;
+    });
+  }, [pendingClaims, myLivestreamClaims]);
 
   function createNewLivestream() {
     dispatch(doClearPublish());
@@ -103,10 +129,36 @@ export default function LivestreamSetupPage() {
         channel_id: channelId,
         hexdata: toHex(channelName),
       })
-        .then((data) => setSigData(data))
+        .then((data: any) => setSigData(data))
         .catch(() => setSigData({ signature: null, signing_ts: null }));
     }
   }, [channelName, channelId]);
+
+  const [hasReplays, setHasReplays] = React.useState(false);
+  React.useEffect(() => {
+    if (!channelId || !channelName || !sigData.signature || !sigData.signing_ts) return;
+    let cancelled = false;
+    const url =
+      `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
+      `&signature=${sigData.signature}&signature_ts=${sigData.signing_ts}&channel_name=${encodeURIComponent(channelName)}`;
+    fetch(url)
+      .then((r) => r.json())
+      .then((json) => {
+        if (cancelled) return;
+        const data: Array<any> = json?.data || json || [];
+        const usable = data.some((d: any) => {
+          const s = typeof d?.Status === 'string' ? d.Status.toLowerCase() : '';
+          return s === 'inprogress' || s === 'ready';
+        });
+        setHasReplays(usable);
+      })
+      .catch(() => {
+        if (!cancelled) setHasReplays(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [channelId, channelName, sigData.signature, sigData.signing_ts]);
 
   React.useEffect(() => {
     let checkClaimsInterval: ReturnType<typeof setInterval> | undefined;
@@ -208,12 +260,13 @@ export default function LivestreamSetupPage() {
           <button
             className="livestream-setup__create-btn livestream-setup__create-btn--secondary"
             onClick={() => navigate(`/$/${PAGES.LIVESTREAM_CREATE}?s=Replay`)}
-            disabled={balance < 0.01 || totalLivestreamClaims.length === 0}
+            disabled={balance < 0.01 || (totalLivestreamClaims.length === 0 && !hasReplays)}
           >
             <Icon icon={ICONS.MENU} size={16} />
             {__('Publish replay')}
           </button>
           <button
+            ref={createBtnRef}
             className="livestream-setup__create-btn"
             onClick={() => navigate(`/$/${PAGES.LIVESTREAM_CREATE}`)}
             disabled={balance < 0.01}
@@ -221,6 +274,14 @@ export default function LivestreamSetupPage() {
             <Icon icon={ICONS.ADD} size={16} />
             {__('Create / Edit')}
           </button>
+          {totalLivestreamClaims.length === 0 && (
+            <p
+              className="help help--notice livestream-setup__claim-hint"
+              style={{ ['--claim-hint-arrow-right' as any]: `${arrowOffset}px` }}
+            >
+              {__('Before you can go live, you have to create a livestream claim.')}
+            </p>
+          )}
         </div>
       </div>
 
@@ -279,51 +340,6 @@ export default function LivestreamSetupPage() {
                 ))}
               </div>
             </div>
-
-            <button
-              className={classnames('livestream-setup__float-toggle', {
-                'livestream-setup__float-toggle--on': cameraAutoStart,
-              })}
-              onClick={() => setCameraAutoStart(!cameraAutoStart)}
-              title={cameraAutoStart ? __('Camera auto-start on') : __('Camera auto-start off')}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M23 7l-7 5 7 5V7z" />
-                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-              </svg>
-            </button>
-
-            <button
-              className={classnames('livestream-setup__float-toggle', {
-                'livestream-setup__float-toggle--on': publishCtx.state.floatingPreviewEnabled,
-              })}
-              onClick={() => publishCtx.actions.setFloatingPreviewEnabled(!publishCtx.state.floatingPreviewEnabled)}
-              title={publishCtx.state.floatingPreviewEnabled ? __('Floating preview on') : __('Floating preview off')}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                <line x1="8" y1="21" x2="16" y2="21" />
-                <line x1="12" y1="17" x2="12" y2="21" />
-              </svg>
-            </button>
           </div>
         )}
       </div>
@@ -358,28 +374,9 @@ export default function LivestreamSetupPage() {
                 !isStreamActive || !totalLivestreamClaims[0]?.canonical_url,
             })}
           >
-            {(() => {
-              const previewClaim = totalLivestreamClaims[0];
-              const previewUri = previewClaim?.canonical_url;
-              if (!previewUri) {
-                return (
-                  <div className="chat__wrapper livestream-setup__preview-chat-placeholder">
-                    <div className="chat__header">
-                      <div className="chat__toggle-mode">{__('Livestream Chat')}</div>
-                    </div>
-                    <div className="livestream-comments__wrapper" />
-                    <div className="chat__comment-create">
-                      <div className="livestream-setup__preview-chat-input-stub">{__('No livestream claim yet.')}</div>
-                    </div>
-                  </div>
-                );
-              }
-              return (
-                <React.Suspense fallback={null}>
-                  <ChatLayout uri={previewUri} />
-                </React.Suspense>
-              );
-            })()}
+            <React.Suspense fallback={null}>
+              <ChatLayout uri={totalLivestreamClaims[0]?.canonical_url || ''} />
+            </React.Suspense>
           </div>
         </div>
       )}

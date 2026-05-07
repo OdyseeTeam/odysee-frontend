@@ -272,7 +272,7 @@ input[type='range'].livestream-sources__volume-slider {
   padding: var(--spacing-s);
   border: none;
   border-radius: var(--border-radius);
-  background: var(--color-primary);
+  background: var(--color-text-error, #d33);
   color: #fff;
   font-size: var(--font-xsmall);
   font-weight: 600;

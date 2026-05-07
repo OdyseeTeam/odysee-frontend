@@ -118,6 +118,14 @@ export default function CopyableText(props: Props) {
       onFocus={onFocus}
       inputButton={
         <>
+          {enableInputMask && (
+            <Button
+              button={primaryButton ? 'primary' : 'secondary'}
+              icon={maskInput ? ICONS.EYE : ICONS.EYE_OFF}
+              onClick={() => setMaskInput(!maskInput)}
+              aria-label={maskInput ? __('Show') : __('Hide')}
+            />
+          )}
           <Button
             button={primaryButton ? 'primary' : 'secondary'}
             icon={ICONS.COPY}
@@ -135,11 +143,6 @@ export default function CopyableText(props: Props) {
             />
           )}
         </>
-      }
-      helper={
-        enableInputMask && (
-          <Button button="link" onClick={() => setMaskInput(!maskInput)} label={maskInput ? __('Show') : __('Hide')} />
-        )
       }
     />
   );

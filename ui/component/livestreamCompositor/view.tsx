@@ -1,5 +1,11 @@
 import React from 'react';
 import classnames from 'classnames';
+import {
+  PLACEHOLDER_MESSAGES,
+  PLACEHOLDER_HYPERCHATS,
+  hyperchatColorHex,
+  type ChatPlaceholderMessage,
+} from 'util/livestreamChatPlaceholders';
 import './style.scss';
 
 export type CropRegion = {
@@ -36,6 +42,7 @@ export type CompositorLayer = {
   chatUserColor?: string;
   chatBgColor?: string;
   chatBgTransparent?: boolean;
+  chatBgAlpha?: number;
   chatBorderColor?: string;
   chatBorderWidth?: number;
   chatLineHeight?: number;
@@ -56,6 +63,7 @@ type Props = {
   outputWidth: number;
   outputHeight: number;
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
+  getWidgetCanvas?: (id: string) => HTMLCanvasElement | null;
 };
 
 type DragState = {
@@ -68,6 +76,7 @@ type DragState = {
   startLayerY: number;
   startLayerW: number;
   startLayerH: number;
+  selectionChanged?: boolean;
 };
 
 const HANDLE_SIZE = 8;
@@ -98,14 +107,125 @@ function getHandleCursor(handle: string): string {
   }
 }
 
+export function ChatWidgetEditPreview({ layer, scale }: { layer: CompositorLayer; scale: number }) {
+  const max = layer.chatMaxMessages ?? 30;
+  const hyperchatOnly = layer.chatHyperchatOnly ?? false;
+  const pool = React.useMemo(() => (hyperchatOnly ? PLACEHOLDER_HYPERCHATS : PLACEHOLDER_MESSAGES), [hyperchatOnly]);
+  const [feed, setFeed] = React.useState<ChatPlaceholderMessage[]>(() => pool.slice(0, Math.min(max, pool.length)));
+  const cursorRef = React.useRef(Math.min(max, pool.length));
+  React.useEffect(() => {
+    setFeed(pool.slice(0, Math.min(max, pool.length)));
+    cursorRef.current = Math.min(max, pool.length);
+  }, [pool, max]);
+  React.useEffect(() => {
+    let timer: ReturnType<typeof setTimeout>;
+    const tick = () => {
+      const next = pool[cursorRef.current % pool.length];
+      cursorRef.current += 1;
+      setFeed((prev) => {
+        const appended = [...prev, next];
+        return appended.length > max ? appended.slice(appended.length - max) : appended;
+      });
+      const delay = 600 + Math.random() * 2400;
+      timer = setTimeout(tick, delay);
+    };
+    timer = setTimeout(tick, 600 + Math.random() * 1400);
+    return () => clearTimeout(timer);
+  }, [pool, max]);
+  const newOnTop = layer.chatNewOnTop ?? false;
+  const visible = newOnTop ? [...feed].reverse() : feed;
+  const fontSize = (layer.chatFontSize ?? 20) * scale;
+  const lineHeight = layer.chatLineHeight ?? 1.4;
+  const textColor = layer.chatTextColor ?? '#ffffff';
+  const dynPrimary =
+    typeof document !== 'undefined'
+      ? getComputedStyle(document.documentElement).getPropertyValue('--color-primary-dynamic').trim()
+      : '';
+  const userColor = layer.chatUserColor ?? (dynPrimary ? `rgb(${dynPrimary})` : '#de0050');
+  const bgAlpha = layer.chatBgAlpha ?? (layer.chatBgTransparent === false ? 1 : 0);
+  const bgHex = layer.chatBgColor ?? '#000000';
+  const bgR = parseInt(bgHex.slice(1, 3), 16);
+  const bgG = parseInt(bgHex.slice(3, 5), 16);
+  const bgB = parseInt(bgHex.slice(5, 7), 16);
+  const bgColor = bgAlpha <= 0 ? 'transparent' : `rgba(${bgR}, ${bgG}, ${bgB}, ${bgAlpha})`;
+  const borderColor = layer.chatBorderColor ?? '#000000';
+  const borderWidth = layer.chatBorderWidth ?? 1;
+  const stroke =
+    borderWidth > 0
+      ? `-${borderWidth}px -${borderWidth}px 0 ${borderColor}, ${borderWidth}px -${borderWidth}px 0 ${borderColor}, -${borderWidth}px ${borderWidth}px 0 ${borderColor}, ${borderWidth}px ${borderWidth}px 0 ${borderColor}`
+      : 'none';
+  const hyperColor = hyperchatColorHex;
+  const hexToRgb = (hex: string) => {
+    const h = hex.replace('#', '');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  };
+  return (
+    <div
+      className={classnames('livestream-compositor__chat-edit-preview', {
+        'livestream-compositor__chat-edit-preview--new-on-top': newOnTop,
+      })}
+      style={{
+        background: bgColor,
+        fontSize: `${fontSize}px`,
+        lineHeight,
+        textShadow: stroke,
+      }}
+    >
+      {visible.map((m: ChatPlaceholderMessage, i: number) => {
+        if (m.amount) {
+          const c = hyperColor(m.amount);
+          const [r, g, b] = hexToRgb(c);
+          return (
+            <div
+              key={i}
+              className="livestream-compositor__chat-edit-hyperchat"
+              style={{ background: `rgba(${r}, ${g}, ${b}, 0.08)`, border: `1px solid ${c}` }}
+            >
+              <div
+                className="livestream-compositor__chat-edit-hyperchat-banner"
+                style={{ backgroundImage: `linear-gradient(to right, ${c}, transparent)` }}
+              >
+                <span>${m.amount}</span>
+              </div>
+              <div className="livestream-compositor__chat-edit-hyperchat-body">
+                <span style={{ color: userColor }}>{m.user}:</span>
+                <span style={{ color: textColor }}>{m.msg}</span>
+              </div>
+            </div>
+          );
+        }
+        return (
+          <div key={i} className="livestream-compositor__chat-edit-msg">
+            <span style={{ color: userColor }}>{m.user}:</span>
+            <span style={{ color: textColor }}>{m.msg}</span>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export default function LivestreamCompositor(props: Props) {
-  const { layers, onLayerUpdate, onLayerSelect, onLayerRemove, selectedLayerId, outputWidth, outputHeight, canvasRef } =
-    props;
+  const {
+    layers,
+    onLayerUpdate,
+    onLayerSelect,
+    onLayerRemove,
+    selectedLayerId,
+    outputWidth,
+    outputHeight,
+    canvasRef,
+    getWidgetCanvas,
+  } = props;
+  const getWidgetCanvasRef = React.useRef(getWidgetCanvas);
+  getWidgetCanvasRef.current = getWidgetCanvas;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const videoElementsRef = React.useRef<Map<string, HTMLVideoElement>>(new Map());
   const animFrameRef = React.useRef<number>(0);
   const dragRef = React.useRef<DragState | null>(null);
   const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
+  const layersRef = React.useRef<CompositorLayer[]>(layers);
+  layersRef.current = layers;
 
   const scaleX = containerSize.width > 0 ? containerSize.width / outputWidth : 1;
   const scaleY = containerSize.height > 0 ? containerSize.height / outputHeight : 1;
@@ -161,7 +281,8 @@ export default function LivestreamCompositor(props: Props) {
       ctx.fillStyle = '#000';
       ctx.fillRect(0, 0, outputWidth, outputHeight);
 
-      const sorted = [...layers].sort((a, b) => {
+      const currentLayers = layersRef.current;
+      const sorted = [...currentLayers].sort((a, b) => {
         const aWidget = a.id.startsWith('__widget_') ? 1 : 0;
         const bWidget = b.id.startsWith('__widget_') ? 1 : 0;
         if (aWidget !== bWidget) return aWidget - bWidget;
@@ -169,8 +290,14 @@ export default function LivestreamCompositor(props: Props) {
       });
       for (const layer of sorted) {
         if (!layer.visible) continue;
-        const video = videoElementsRef.current.get(layer.id);
-        if (!video || video.readyState < 2) continue;
+        const widgetCanvas = layer.id.startsWith('__widget_') ? getWidgetCanvasRef.current?.(layer.id) : null;
+        const video = widgetCanvas ? null : videoElementsRef.current.get(layer.id);
+        const source: CanvasImageSource | null = widgetCanvas
+          ? widgetCanvas
+          : video && video.readyState >= 2
+            ? video
+            : null;
+        if (!source) continue;
 
         ctx.save();
         ctx.globalAlpha = layer.opacity ?? 1;
@@ -191,7 +318,7 @@ export default function LivestreamCompositor(props: Props) {
 
         if (layer.crop) {
           ctx.drawImage(
-            video,
+            source,
             layer.crop.sx,
             layer.crop.sy,
             layer.crop.sw,
@@ -202,7 +329,7 @@ export default function LivestreamCompositor(props: Props) {
             layer.height
           );
         } else {
-          ctx.drawImage(video, layer.x, layer.y, layer.width, layer.height);
+          ctx.drawImage(source, layer.x, layer.y, layer.width, layer.height);
         }
 
         ctx.restore();
@@ -212,7 +339,7 @@ export default function LivestreamCompositor(props: Props) {
 
     animFrameRef.current = requestAnimationFrame(draw);
     return () => cancelAnimationFrame(animFrameRef.current);
-  }, [layers, outputWidth, outputHeight, canvasRef]);
+  }, [outputWidth, outputHeight, canvasRef]);
 
   function getLayersAtPoint(px: number, py: number): CompositorLayer[] {
     const sorted = [...layers]
@@ -343,6 +470,7 @@ export default function LivestreamCompositor(props: Props) {
     }
 
     const target = hitLayers[0];
+    const selectionChanged = selectedLayerId !== target.id;
     onLayerSelect(target.id);
     dragRef.current = {
       layerId: target.id,
@@ -353,6 +481,7 @@ export default function LivestreamCompositor(props: Props) {
       startLayerY: target.y,
       startLayerW: target.width,
       startLayerH: target.height,
+      selectionChanged,
     };
     e.preventDefault();
   }
@@ -374,11 +503,13 @@ export default function LivestreamCompositor(props: Props) {
     const layer = layers.find((l) => l.id === drag.layerId);
 
     if (drag.mode === 'move') {
-      const nx = Math.round(drag.startLayerX + dx);
-      const ny = Math.round(drag.startLayerY + dy);
+      const w = layer?.width ?? drag.startLayerW;
+      const h = layer?.height ?? drag.startLayerH;
+      const nx = Math.max(0, Math.min(outputWidth - w, Math.round(drag.startLayerX + dx)));
+      const ny = Math.max(0, Math.min(outputHeight - h, Math.round(drag.startLayerY + dy)));
       const updates: Partial<CompositorLayer> = { x: nx, y: ny };
       if (layer?.displayMode === 'pip') {
-        updates.pipGeometry = { x: nx, y: ny, width: layer.width, height: layer.height };
+        updates.pipGeometry = { x: nx, y: ny, width: w, height: h };
       } else if (layer?.displayMode === 'max') {
         updates.displayMode = undefined;
       }
@@ -414,10 +545,22 @@ export default function LivestreamCompositor(props: Props) {
       if (isLeft) newX = drag.startLayerX + (drag.startLayerW - newW);
       if (isTop) newY = drag.startLayerY + (drag.startLayerH - newH);
 
-      const rx = Math.round(newX);
-      const ry = Math.round(newY);
-      const rw = Math.round(newW);
-      const rh = Math.round(newH);
+      let rx = Math.round(newX);
+      let ry = Math.round(newY);
+      let rw = Math.round(newW);
+      let rh = Math.round(newH);
+      if (rx < 0) {
+        rw += rx;
+        rx = 0;
+      }
+      if (ry < 0) {
+        rh += ry;
+        ry = 0;
+      }
+      if (rx + rw > outputWidth) rw = outputWidth - rx;
+      if (ry + rh > outputHeight) rh = outputHeight - ry;
+      rw = Math.max(50, rw);
+      rh = Math.max(50, rh);
       const updates: Partial<CompositorLayer> = { x: rx, y: ry, width: rw, height: rh };
       if (layer?.displayMode === 'pip') {
         updates.pipGeometry = { x: rx, y: ry, width: rw, height: rh };
@@ -428,27 +571,9 @@ export default function LivestreamCompositor(props: Props) {
     }
   }
 
-  function handleMouseUp(e: React.MouseEvent) {
-    const wasDrag = didDragRef.current;
-    const drag = dragRef.current;
+  function handleMouseUp() {
     dragRef.current = null;
     didDragRef.current = false;
-
-    if (!wasDrag && drag && selectedLayerId) {
-      const rect = containerRef.current?.getBoundingClientRect();
-      if (rect) {
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        const hitLayers = getLayersAtPoint(mx, my);
-        if (hitLayers.length > 1) {
-          const idx = hitLayers.findIndex((l) => l.id === selectedLayerId);
-          if (idx !== -1) {
-            const next = hitLayers[(idx + 1) % hitLayers.length];
-            onLayerSelect(next.id);
-          }
-        }
-      }
-    }
   }
 
   return (
@@ -486,6 +611,7 @@ export default function LivestreamCompositor(props: Props) {
                 height: layer.height * scaleY,
               }}
             >
+              {layer.id === '__widget_chat__' && <ChatWidgetEditPreview layer={layer} scale={scaleX} />}
               <div className="livestream-compositor__layer-toolbar">
                 <span className="livestream-compositor__layer-label">{layer.label}</span>
                 <div className="livestream-compositor__layer-actions">

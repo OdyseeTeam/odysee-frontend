@@ -39,6 +39,45 @@ const MiniPickerInner = (props: any) => {
 };
 const MiniPicker = CustomPicker(MiniPickerInner);
 
+const MiniPickerWithAlphaInner = (props: any) => {
+  const hex = (props.hex || '').replace(/^#/, '').toUpperCase();
+  const alpha = props.alpha ?? 1;
+  return (
+    <div className="livestream-settings__minipicker">
+      <div className="livestream-settings__minipicker-saturation">
+        <Saturation {...props} />
+      </div>
+      <div className="livestream-settings__minipicker-hue">
+        <Hue {...props} />
+      </div>
+      <div className="livestream-settings__minipicker-hex">
+        <span className="livestream-settings__minipicker-hex-prefix">#</span>
+        <EditableInput
+          value={hex}
+          onChange={(data: any) => {
+            const next = typeof data === 'string' ? data : data?.hex;
+            if (typeof next === 'string' && /^[0-9a-fA-F]{6}$/.test(next)) {
+              props.onChange({ hex: '#' + next, source: 'hex' });
+            }
+          }}
+        />
+      </div>
+      <div className="livestream-settings__minipicker-alpha">
+        <span className="livestream-settings__minipicker-alpha-label">{__('Opacity')}</span>
+        <input
+          type="range"
+          min={0}
+          max={100}
+          value={Math.round(alpha * 100)}
+          onChange={(e) => props.onAlphaChange?.(Number(e.target.value) / 100)}
+        />
+        <span className="livestream-settings__minipicker-alpha-value">{Math.round(alpha * 100)}%</span>
+      </div>
+    </div>
+  );
+};
+const MiniPickerWithAlpha = CustomPicker(MiniPickerWithAlphaInner);
+
 function ColorSwatch({ value, onChange }: { value: string; onChange: (hex: string) => void }) {
   const [open, setOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -63,6 +102,57 @@ function ColorSwatch({ value, onChange }: { value: string; onChange: (hex: strin
       {open && (
         <div className="livestream-settings__color-popover">
           <MiniPicker color={value} onChange={(c: any) => onChange(c.hex)} />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function BgColorSwatch({
+  hex,
+  alpha,
+  onChange,
+}: {
+  hex: string;
+  alpha: number;
+  onChange: (hex: string, alpha: number) => void;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const containerRef = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    if (!open) return;
+    const onDoc = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, [open]);
+
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  const swatchBg =
+    alpha <= 0.01
+      ? 'repeating-conic-gradient(#888 0% 25%, #ccc 0% 50%) 50% / 8px 8px'
+      : `rgba(${r}, ${g}, ${b}, ${alpha})`;
+
+  return (
+    <div className="livestream-settings__color-wrap" ref={containerRef}>
+      <button
+        type="button"
+        className="livestream-settings__color"
+        style={{ background: swatchBg }}
+        onClick={() => setOpen((v) => !v)}
+      />
+      {open && (
+        <div className="livestream-settings__color-popover">
+          <MiniPickerWithAlpha
+            color={hex}
+            alpha={alpha}
+            onChange={(c: any) => onChange(c.hex, alpha)}
+            onAlphaChange={(a: number) => onChange(hex, a)}
+          />
         </div>
       )}
     </div>
@@ -159,13 +249,13 @@ export default function LivestreamSourceSettings(props: Props) {
           <label className="livestream-settings__row">
             <div className="livestream-settings__row-header">
               <span className="livestream-settings__label">{__('Text Border')}</span>
-              <span className="livestream-settings__value">{layer.chatBorderWidth ?? 0}px</span>
+              <span className="livestream-settings__value">{layer.chatBorderWidth ?? 1}px</span>
             </div>
             <input
               type="range"
               min={0}
               max={10}
-              value={layer.chatBorderWidth ?? 0}
+              value={layer.chatBorderWidth ?? 1}
               onChange={(e) => handleSlider('chatBorderWidth', Number(e.target.value))}
               className="livestream-settings__slider"
             />
@@ -204,20 +294,13 @@ export default function LivestreamSourceSettings(props: Props) {
 
           <div className="livestream-settings__row livestream-settings__row--inline">
             <span className="livestream-settings__label">{__('Background Color')}</span>
-            <div className="livestream-settings__bg-color-group">
-              <button
-                type="button"
-                className={classnames('livestream-settings__transparent-btn', {
-                  'livestream-settings__transparent-btn--on': layer.chatBgTransparent ?? true,
-                })}
-                onClick={() => onUpdate({ chatBgTransparent: true })}
-                title={__('Transparent')}
-              />
-              <ColorSwatch
-                value={layer.chatBgColor ?? '#000000'}
-                onChange={(hex) => onUpdate({ chatBgColor: hex, chatBgTransparent: false })}
-              />
-            </div>
+            <BgColorSwatch
+              hex={layer.chatBgColor ?? '#000000'}
+              alpha={layer.chatBgAlpha ?? (layer.chatBgTransparent === false ? 1 : 0)}
+              onChange={(hex, alpha) =>
+                onUpdate({ chatBgColor: hex, chatBgAlpha: alpha, chatBgTransparent: alpha <= 0.01 })
+              }
+            />
           </div>
 
           <div className="livestream-settings__row livestream-settings__row--inline">

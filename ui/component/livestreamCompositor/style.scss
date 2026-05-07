@@ -111,6 +111,58 @@
   background: transparent;
 }
 
+.livestream-compositor__chat-edit-preview {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: 4px;
+  pointer-events: none;
+  mask-image: linear-gradient(to bottom, transparent 0, #000 5%);
+  -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 5%);
+}
+
+.livestream-compositor__chat-edit-preview--new-on-top {
+  justify-content: flex-start;
+  mask-image: linear-gradient(to top, transparent 0, #000 5%);
+  -webkit-mask-image: linear-gradient(to top, transparent 0, #000 5%);
+}
+
+.livestream-compositor__chat-edit-hyperchat {
+  display: flex;
+  flex-direction: column;
+  border-radius: 4px;
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.livestream-compositor__chat-edit-hyperchat-banner {
+  padding: 2px 8px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.7em;
+  flex: 0 0 auto;
+}
+
+.livestream-compositor__chat-edit-hyperchat-body {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 2px 8px;
+  word-break: break-word;
+}
+
+.livestream-compositor__chat-edit-msg {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  word-break: break-word;
+  flex: 0 0 auto;
+}
+
 .livestream-compositor__empty {
   position: absolute;
   inset: 0;

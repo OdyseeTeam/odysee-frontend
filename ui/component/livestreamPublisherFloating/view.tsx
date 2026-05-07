@@ -51,7 +51,7 @@ export default function LivestreamPublisherFloating() {
     qualityLimitationReason,
     qualityLimitationDurations,
   } = state;
-  const [cameraAutoStart] = usePersistedState('livestream-camera-autostart', false) as [boolean, (v: boolean) => void];
+  const [cameraAutoStart] = usePersistedState('livestream-camera-autostart', true) as [boolean, (v: boolean) => void];
   const [presetId] = usePersistedState('livestream-quality-preset', 'balanced') as [
     WebrtcPublishPresetId,
     (v: WebrtcPublishPresetId) => void,

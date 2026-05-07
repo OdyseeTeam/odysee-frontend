@@ -210,6 +210,29 @@
   font-family: monospace;
 }
 
+.livestream-settings__minipicker-alpha {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-xs);
+
+  input[type='range'] {
+    flex: 1 1 auto;
+  }
+}
+
+.livestream-settings__minipicker-alpha-label {
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+}
+
+.livestream-settings__minipicker-alpha-value {
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  min-width: 32px;
+  text-align: right;
+}
+
 .livestream-settings__row-header {
   display: flex;
   justify-content: space-between;

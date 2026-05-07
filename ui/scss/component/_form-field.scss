@@ -459,6 +459,11 @@ fieldset-group {
   text-overflow: ellipsis;
   user-select: text;
   cursor: default;
+
+  ~ .button + .button,
+  ~ button + button {
+    margin-left: 1px;
+  }
 }
 
 .form-field--short {
