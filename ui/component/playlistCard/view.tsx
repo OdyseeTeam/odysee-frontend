@@ -416,7 +416,7 @@ const PlaylistCardComponent = (props: PlaylistCardProps) => {
                     : id && (
                         <Button
                           requiresAuth
-                          title={__('Save')}
+                          title={collectionSavedForId ? __('Unsave') : __('Save')}
                           className="button-toggle"
                           icon={collectionSavedForId ? ICONS.PLAYLIST_FILLED : ICONS.PLAYLIST_ADD}
                           onClick={() => doToggleCollectionSavedForId(id)}

@@ -89,6 +89,12 @@ type Props = {
   disabled?: boolean;
 };
 
+function normalizeReplayUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('https://') || url.startsWith('http://')) return url;
+  return `https://${url}`;
+}
+
 function LivestreamForm(props: Props) {
   const { setClearStatus } = props;
 
@@ -185,8 +191,12 @@ function LivestreamForm(props: Props) {
   const [previewing, setPreviewing] = React.useState(false);
   const requiresReplayUrl =
     liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay');
+  const hasSelectedReplay = React.useMemo(() => {
+    if (!requiresReplayUrl || !remoteFileUrl || !hasLivestreamData) return false;
+    return livestreamData.some((item) => normalizeReplayUrl(item?.data?.fileLocation) === remoteFileUrl);
+  }, [hasLivestreamData, livestreamData, remoteFileUrl, requiresReplayUrl]);
   const requiresFile = liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay';
-  const disabled = !title || !name || (requiresReplayUrl && !remoteFileUrl) || (requiresFile && !filePath);
+  const disabled = !title || !name || (requiresReplayUrl && !hasSelectedReplay) || (requiresFile && !filePath);
   const isClear = !title && !name && !description && !thumbnail;
   useEffect(() => {
     setClearStatus(isClear); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
@@ -406,7 +416,7 @@ function LivestreamForm(props: Props) {
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    (requiresReplayUrl && !remoteFileUrl) ||
+    (requiresReplayUrl && !hasSelectedReplay) ||
     (requiresFile && !filePath) ||
     previewing;
   // Editing claim uri
@@ -440,6 +450,7 @@ function LivestreamForm(props: Props) {
               onClick={() =>
                 updatePublishForm({
                   liveCreateType: 'choose_replay',
+                  remoteFileUrl: undefined,
                 })
               }
               disabled={!hasLivestreamData}

@@ -24,6 +24,7 @@ import useChromecast, { isCastSessionActive } from './hooks/useChromecast';
 import MobileTouchOverlay from './components/MobileTouchOverlay';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
+import { getOriginalPlaybackUrl } from 'util/playback-url';
 import classnames from 'classnames';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -123,17 +124,6 @@ function summarizeP2PSegment(details: any) {
     externalId: details?.segment?.externalId ?? null,
     runtimeId: details?.segment?.runtimeId ? String(details.segment.runtimeId).slice(-80) : null,
   };
-}
-
-function getOriginalPlaybackUrl(src: string) {
-  try {
-    const url = new URL(src, window.location.href);
-    url.searchParams.set('download', 'true');
-    url.searchParams.set('magic', String(Math.round(Date.now() / 1000)));
-    return url.toString();
-  } catch {
-    return src;
-  }
 }
 
 type Props = {

@@ -229,6 +229,7 @@ function PublishLivestream(props: Props) {
                         onChange={() =>
                           updatePublishForm({
                             liveEditType: 'use_replay',
+                            remoteFileUrl: undefined,
                           })
                         }
                       />
