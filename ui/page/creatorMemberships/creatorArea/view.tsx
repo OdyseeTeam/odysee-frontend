@@ -75,6 +75,7 @@ const CreatorArea = (props: Props) => {
   const disabledMessage = __('Monetization is not enabled. Please set up your wallet first.');
 
   const channelsToList = allSelected ? myChannelClaims : activeChannelClaim ? [activeChannelClaim] : null;
+  const previewChannelClaim = activeChannelClaim || myChannelClaims?.[0];
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   // if tiers are saved, then go to balance, otherwise go to tiers
@@ -115,6 +116,20 @@ const CreatorArea = (props: Props) => {
 
     navigate(url);
   }
+
+  React.useEffect(() => {
+    if (myChannelClaims) {
+      doListAllMyMembershipTiers();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only fetch after channel claims resolve.
+  }, [myChannelClaims]);
+
+  React.useEffect(() => {
+    if (supportersList === undefined) {
+      doGetMembershipSupportersList();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only fetch when supporters have not resolved.
+  }, [supportersList]);
 
   const onChannelOverviewSelect = () => {
     setAllSelected(false);
@@ -258,7 +273,7 @@ const CreatorArea = (props: Props) => {
                       <span className="section__subtitle ">{__('Preview your tiers')}</span>
                       <br />
                       <Button
-                        navigate={`${formatLbryUrlForWeb(activeChannelClaim?.canonical_url)}?view=membership`}
+                        navigate={`${formatLbryUrlForWeb(previewChannelClaim?.canonical_url)}?view=membership`}
                         label={__('See Your Memberships')}
                         icon={ICONS.BACK}
                         button="secondary"

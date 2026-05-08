@@ -4,6 +4,7 @@ import Lbry from '../../ui/lbry';
 
 export type EarlyUploadHandle = {
   promise: Promise<{ tusUrl: string }>;
+  locationPromise: Promise<string>;
   pause: () => void;
   resume: () => void;
   abort: () => void;
@@ -26,8 +27,21 @@ export function startEarlyUpload(file: File, cb: EarlyUploadCallbacks): EarlyUpl
       ? Lbry.getApiRequestHeaders()[X_LBRY_AUTH_TOKEN]
       : '';
 
+  let resolveLocation!: (loc: string) => void;
+  let rejectLocation!: (err: any) => void;
+  const locationPromise = new Promise<string>((resolve, reject) => {
+    resolveLocation = resolve;
+    rejectLocation = reject;
+  });
+
   const promise = (async () => {
-    const uploadToken = await requestUploadToken(authToken);
+    let uploadToken;
+    try {
+      uploadToken = await requestUploadToken(authToken);
+    } catch (e) {
+      rejectLocation(e);
+      throw e;
+    }
 
     if (aborted) throw new Error('Upload aborted');
 
@@ -35,6 +49,19 @@ export function startEarlyUpload(file: File, cb: EarlyUploadCallbacks): EarlyUpl
       startTus(file, null, uploadToken.location, uploadToken.token, {
         onStart: (session) => {
           tusSession = session;
+          // tus session.url is null until the first POST returns a Location
+          // header. Poll for it so we can publish the early createClaim with
+          // a file_path that contains the real upload_id.
+          const pollUrl = setInterval(() => {
+            if (aborted) {
+              clearInterval(pollUrl);
+              return;
+            }
+            if (session.url) {
+              clearInterval(pollUrl);
+              resolveLocation(session.url);
+            }
+          }, 100);
         },
         onRetry: () => {},
         onProgress: (pct: string) => {
@@ -69,6 +96,7 @@ export function startEarlyUpload(file: File, cb: EarlyUploadCallbacks): EarlyUpl
 
   return {
     promise,
+    locationPromise,
     pause: () => {
       paused = true;
       if (tusSession) {

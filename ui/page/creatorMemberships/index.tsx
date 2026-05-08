@@ -12,7 +12,7 @@ const MembershipsLandingPage = () => {
   const navigate = useNavigate();
 
   function handleNavigateToPage(page: string) {
-    navigate(page);
+    navigate(`/$/${page}`);
   }
 
   return (

@@ -46,6 +46,7 @@ import {
   doUpdatePublishForm,
   doPublishDesktop,
   doPublishWithEarlyUpload,
+  doCreateClaimForEarlyUpload,
 } from 'redux/actions/publish';
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
 import {
@@ -151,6 +152,8 @@ function UploadForm(props: Props) {
   const [waitForFile, setWaitForFile] = useState(false);
   const activeStep = useAppSelector((state) => state.publish.activeStep ?? 0);
   const setActiveStep = (step: number) => updatePublishForm({ activeStep: step } as any);
+  const [detailsNextAttempted, setDetailsNextAttempted] = React.useState(false);
+  const thumbnailSectionRef = React.useRef<HTMLDivElement | null>(null);
   const TAGS_LIMIT = 5;
   const missingRequiredFile = mode === PUBLISH_MODES.FILE && !editingURI && !filePath && !remoteUrl;
   const emptyPostError = mode === PUBLISH_MODES.POST && (!fileText || fileText.trim() === '');
@@ -523,6 +526,14 @@ function UploadForm(props: Props) {
       });
       earlyUploadPromiseRef.current = handle.promise;
       earlyUploadAbortRef.current = handle.abort;
+      // Kick off the deferred createClaim as soon as the upload location
+      // (which contains the upload_id) is known — this creates the draft
+      // asynqueries row before forklift can fire upload:done. The actual
+      // SDK call is held back until doPublishWithEarlyUpload sends the
+      // committing createClaim with the user's final form data.
+      handle.locationPromise
+        .then((location: string) => dispatch(doCreateClaimForEarlyUpload(location)))
+        .catch(() => {});
       if (!(window as any).__earlyUploadHandles) (window as any).__earlyUploadHandles = {};
       (window as any).__earlyUploadHandles[pipelineId] = handle;
       handle.promise
@@ -691,6 +702,28 @@ function UploadForm(props: Props) {
 
   // -- Wizard steps --
   const isMkvFormat = fileFormat && fileFormat.toLowerCase() === 'mkv';
+  const isThumbnailStep = activeStep === 1;
+  const isThumbnailUploading = uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS;
+  const showThumbnailRequiredError = detailsNextAttempted && isThumbnailStep && !thumbnail;
+  const showThumbnailUploadError = detailsNextAttempted && isThumbnailStep && isThumbnailUploading;
+  const showThumbnailInvalidError =
+    detailsNextAttempted && isThumbnailStep && !!thumbnail && thumbnailError && !thumbnailUploaded;
+  const showThumbnailFeedback = showThumbnailRequiredError || showThumbnailUploadError || showThumbnailInvalidError;
+  const thumbnailFeedbackMessage = showThumbnailUploadError
+    ? __('Your thumbnail is still uploading. Wait for it to finish before continuing.')
+    : showThumbnailRequiredError
+      ? __('Choose a thumbnail before continuing. Upload an image or paste an image URL.')
+      : __('This thumbnail could not be loaded. Choose another image or paste a valid image URL.');
+
+  function handleDetailsInvalid() {
+    setDetailsNextAttempted(true);
+
+    if (!thumbnail || isThumbnailUploading || (thumbnailError && !thumbnailUploaded)) {
+      window.setTimeout(() => {
+        thumbnailSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 0);
+    }
+  }
 
   const wizardSteps = [
     {
@@ -699,6 +732,7 @@ function UploadForm(props: Props) {
     },
     {
       label: 'Details',
+      onInvalid: handleDetailsInvalid,
       validate: () =>
         !!title &&
         !!name &&
@@ -822,8 +856,20 @@ function UploadForm(props: Props) {
                   <h3 className="publish-details__title">{__('Description')}</h3>
                   <PublishDescription disabled={disabled || publishing} />
                 </div>
-                <div>
+                <div
+                  ref={thumbnailSectionRef}
+                  className={classnames({
+                    'publish-details__thumbnail': showThumbnailFeedback,
+                    'publish-details__thumbnail--needs-attention': showThumbnailFeedback,
+                  })}
+                >
                   <h3 className="publish-details__title">{__('Thumbnail')}</h3>
+                  {showThumbnailFeedback && (
+                    <div className="publish-details__thumbnail-feedback" role="alert">
+                      <Icon icon={ICONS.ALERT} size={18} />
+                      <span>{thumbnailFeedbackMessage}</span>
+                    </div>
+                  )}
                   <SelectThumbnail />
                 </div>
                 <div>

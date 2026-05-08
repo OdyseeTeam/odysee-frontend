@@ -54,13 +54,44 @@ function SelectThumbnail(props: Props) {
   const isSupportedImage = Boolean(videoPickerFile && videoPickerFile.type.split('/')[0] === 'image');
   const hasRemoteVideo = Boolean(!videoPickerFile && remoteFileUrl);
   const [showVideoPicker, setShowVideoPicker] = React.useState(isSupportedVideo);
+  const [localThumbnailPreview, setLocalThumbnailPreview] = React.useState<string | null>(null);
+  const localThumbnailPreviewRef = React.useRef<string | null>(null);
+  const isUploadingThumbnail = status === THUMBNAIL_STATUSES.IN_PROGRESS;
+
+  const clearLocalThumbnailPreview = React.useCallback(() => {
+    if (localThumbnailPreviewRef.current) {
+      URL.revokeObjectURL(localThumbnailPreviewRef.current);
+      localThumbnailPreviewRef.current = null;
+    }
+
+    setLocalThumbnailPreview(null);
+  }, []);
 
   React.useEffect(() => {
     if (isSupportedVideo) setShowVideoPicker(true);
   }, [isSupportedVideo]);
 
+  React.useEffect(() => {
+    return () => clearLocalThumbnailPreview();
+  }, [clearLocalThumbnailPreview]);
+
+  React.useEffect(() => {
+    if (localThumbnailPreview && !isUploadingThumbnail && status !== THUMBNAIL_STATUSES.COMPLETE) {
+      clearLocalThumbnailPreview();
+    }
+  }, [clearLocalThumbnailPreview, isUploadingThumbnail, localThumbnailPreview, status]);
+
+  function prepareLocalThumbnailPreview(file: WebFile) {
+    clearLocalThumbnailPreview();
+
+    const previewUrl = URL.createObjectURL(file as any);
+    localThumbnailPreviewRef.current = previewUrl;
+    return previewUrl;
+  }
+
   function handleThumbnailChange(e: any) {
     const newThumbnail = e.target.value.replace(' ', '');
+    clearLocalThumbnailPreview();
 
     if (updateThumbnailParams) {
       updateThumbnailParams({
@@ -81,15 +112,43 @@ function SelectThumbnail(props: Props) {
       });
     }
   }, [status, thumbnailParamStatus, updateThumbnailParams]);
+  const thumbnailToPreview = localThumbnailPreview || thumbnail;
   let thumbnailSrc;
 
-  if (!thumbnail) {
+  if (!thumbnailToPreview) {
     thumbnailSrc = ThumbnailMissingImage;
   } else if (thumbnailError) {
     thumbnailSrc =
-      (manualInput && ThumbnailBrokenImage) || (status !== THUMBNAIL_STATUSES.COMPLETE && ThumbnailMissingImage);
+      (manualInput && ThumbnailBrokenImage) ||
+      (status !== THUMBNAIL_STATUSES.COMPLETE && !localThumbnailPreview && ThumbnailMissingImage) ||
+      thumbnailToPreview;
   } else {
-    thumbnailSrc = thumbnail;
+    thumbnailSrc = thumbnailToPreview;
+  }
+
+  function handleThumbnailPreviewError() {
+    if (publishForm) {
+      updatePublishForm({
+        thumbnailError: true,
+      });
+    } else {
+      updateThumbnailParams({
+        thumbnail_error: Boolean(thumbnail),
+      });
+    }
+  }
+
+  function handleThumbnailPreviewLoad() {
+    if (publishForm) {
+      updatePublishForm({
+        thumbnailError: !isUrlInput || (thumbnail ? thumbnail.startsWith('data:image') : false),
+      });
+    } else {
+      updateThumbnailParams({
+        thumbnail_error: !isUrlInput,
+      });
+      clearLocalThumbnailPreview();
+    }
   }
 
   /*
@@ -105,6 +164,12 @@ function SelectThumbnail(props: Props) {
         backgroundImage: `url(${String(thumbnailSrc)})`,
       }}
     >
+      {isUploadingThumbnail && (
+        <div className="thumbnail-picker__preview-overlay">
+          <Spinner type="small" />
+          <span>{__('Uploading thumbnail')}...</span>
+        </div>
+      )}
       {thumbUploaded &&
         thumbnailError !== false &&
         __('This will be visible in a few minutes after you submit this form.')}
@@ -112,26 +177,10 @@ function SelectThumbnail(props: Props) {
         style={{
           display: 'none',
         }}
-        src={thumbnail}
+        src={thumbnail || undefined}
         alt={__('Thumbnail Preview')}
-        onError={() =>
-          publishForm
-            ? updatePublishForm({
-                thumbnailError: true,
-              })
-            : updateThumbnailParams({
-                thumbnail_error: Boolean(thumbnail),
-              })
-        }
-        onLoad={() =>
-          publishForm
-            ? updatePublishForm({
-                thumbnailError: !isUrlInput || (thumbnail ? thumbnail.startsWith('data:image') : false),
-              })
-            : updateThumbnailParams({
-                thumbnail_error: !isUrlInput,
-              })
-        }
+        onError={handleThumbnailPreviewError}
+        onLoad={handleThumbnailPreviewLoad}
       />
     </div>
   );
@@ -157,68 +206,75 @@ function SelectThumbnail(props: Props) {
   return (
     <>
       {optional && <h2 className="card__title">{__('Thumbnail (Optional)')}</h2>}
-      {status !== THUMBNAIL_STATUSES.IN_PROGRESS && (
-        <div className="column card--thumbnail">
-          {thumbPreview}
-          <div className="column__item">
-            {manualInput ? (
-              <>
-                <FormField
-                  type="text"
-                  name="content_thumbnail"
-                  placeholder="https://images.fbi.gov/alien"
-                  value={thumbnail}
-                  disabled={formDisabled}
-                  onChange={handleThumbnailChange}
-                />
-                {!thumbUploaded && <p className="help">{__('Enter a URL for your thumbnail.')}</p>}
-              </>
-            ) : (
-              <>
-                <FileSelector
-                  currentPath={thumbnailPath}
-                  placeholder={__('Choose an enticing thumbnail')}
-                  accept={accept}
-                  onFileChosen={(file) =>
-                    openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
-                      file,
-                      cb: (url) =>
-                        updateThumbnailParams({
-                          thumbnail_url: url,
-                        }),
-                    })
-                  }
-                />
-                {!thumbUploaded && (
-                  <p className="help">
-                    {__('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
-                      domain: DOMAIN,
-                      max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
-                    })}
-                  </p>
-                )}
-              </>
-            )}
-            <div className="card__actions">
-              <Button
-                button="link"
-                label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')}
-                onClick={() =>
-                  updatePublishForm({
-                    uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL,
-                  })
-                }
+      <div className="column card--thumbnail">
+        {thumbPreview}
+        <div className="column__item">
+          {manualInput ? (
+            <>
+              <FormField
+                type="text"
+                name="content_thumbnail"
+                placeholder="https://images.fbi.gov/alien"
+                value={thumbnail}
+                disabled={formDisabled || isUploadingThumbnail}
+                onChange={handleThumbnailChange}
               />
-            </div>
+              {!thumbUploaded && (
+                <p className="help">
+                  {isUploadingThumbnail
+                    ? __('Please wait for thumbnail to finish uploading')
+                    : __('Enter a URL for your thumbnail.')}
+                </p>
+              )}
+            </>
+          ) : (
+            <>
+              <FileSelector
+                currentPath={thumbnailPath}
+                placeholder={__('Choose an enticing thumbnail')}
+                accept={accept}
+                disabled={formDisabled || isUploadingThumbnail}
+                onFileChosen={(file) => {
+                  const previewUrl = prepareLocalThumbnailPreview(file);
+                  openModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
+                    file,
+                    previewUrl,
+                    onUploadStarted: () => setLocalThumbnailPreview(previewUrl),
+                    onUploadCanceled: clearLocalThumbnailPreview,
+                    cb: (url) => {
+                      updateThumbnailParams({
+                        thumbnail_url: url,
+                      });
+                    },
+                  });
+                }}
+              />
+              {!thumbUploaded && (
+                <p className="help">
+                  {isUploadingThumbnail
+                    ? __('Please wait for thumbnail to finish uploading')
+                    : __('Upload your thumbnail to %domain%. Recommended ratio is 16:9, %max_size%MB max.', {
+                        domain: DOMAIN,
+                        max_size: THUMBNAIL_CDN_SIZE_LIMIT_BYTES / (1024 * 1024),
+                      })}
+                </p>
+              )}
+            </>
+          )}
+          <div className="card__actions">
+            <Button
+              button="link"
+              label={manualInput ? __('Use thumbnail upload tool') : __('Enter a thumbnail URL')}
+              disabled={isUploadingThumbnail}
+              onClick={() =>
+                updatePublishForm({
+                  uploadThumbnailStatus: manualInput ? THUMBNAIL_STATUSES.READY : THUMBNAIL_STATUSES.MANUAL,
+                })
+              }
+            />
           </div>
         </div>
-      )}
-
-      {status === THUMBNAIL_STATUSES.IN_PROGRESS && (
-        <div className="column card--thumbnail">
-          <p>{__('Uploading thumbnail')}...</p>
-        </div>
-      )}
+      </div>
     </>
   );
 }

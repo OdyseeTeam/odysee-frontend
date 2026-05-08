@@ -43,7 +43,10 @@ const BARE_LINK_DOMAINS = [
   'odysee.com',
 ];
 const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
-const bareLinkRegex = new RegExp(`(?:^|(?<=\\s))((?:https?://)?(?:${bareDomainPattern})(?:/[^\\s]*)?)`, 'i');
+const bareLinkRegex = new RegExp(
+  `(?:^|(?<=\\s))((?:(?:https?://|www\\.)[^\\s<>"']+|(?:https?://)?(?:${bareDomainPattern})(?:/[^\\s<>"']*)?))`,
+  'i'
+);
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
 const mentionToken = '@';
 const invalidRegex = /[-_.+=?!@#$%^&*:;,{}<>\w/\\]/;
@@ -77,6 +80,42 @@ function handlePunctuation(value: string): string {
   });
 
   return punctuationIndex ? value.substring(0, punctuationIndex) : value;
+}
+
+const TRAILING_PAIRS: Array<[string, string]> = [
+  ['(', ')'],
+  ['[', ']'],
+  ['{', '}'],
+];
+const TRAILING_PUNCTUATION = '.,;:!?';
+
+// Strip trailing punctuation from a bare URL, but keep paired brackets balanced
+// so links like https://en.wikipedia.org/wiki/Mark_Levine_(disambiguation) survive.
+function stripTrailingPunctuation(url: string): string {
+  let end = url.length;
+  while (end > 0) {
+    const last = url.charAt(end - 1);
+    if (TRAILING_PUNCTUATION.includes(last)) {
+      end--;
+      continue;
+    }
+    const pair = TRAILING_PAIRS.find(([, close]) => close === last);
+    if (pair) {
+      const slice = url.slice(0, end);
+      let opens = 0;
+      let closes = 0;
+      for (let i = 0; i < slice.length; i++) {
+        if (slice[i] === pair[0]) opens++;
+        else if (slice[i] === pair[1]) closes++;
+      }
+      if (closes > opens) {
+        end--;
+        continue;
+      }
+    }
+    break;
+  }
+  return url.slice(0, end);
 }
 
 function locateBareLink(value: string, fromIndex: number): number {
@@ -189,7 +228,7 @@ function splitTextNode(value: string): MdastNode[] {
 
     const isBareLink = nextIndex === nextBare && nextIndex !== nextUri && nextIndex !== nextMention;
     if (isBareLink) {
-      const cleaned = rawMatch.replace(/[.,;:!?)}\]]+$/, '');
+      const cleaned = stripTrailingPunctuation(rawMatch);
       const url = /^https?:\/\//i.test(cleaned) ? cleaned : `https://${cleaned}`;
       nodes.push({
         type: 'link',

@@ -28,6 +28,9 @@ export type CompositorLayer = {
   contrast?: number;
   saturation?: number;
   opacity?: number;
+  pipGeometry?: { x: number; y: number; width: number; height: number };
+  displayMode?: 'max' | 'pip';
+  restoreGeometry?: { x: number; y: number; width: number; height: number };
 };
 
 type Props = {
@@ -236,19 +239,29 @@ export default function LivestreamCompositor(props: Props) {
       if (selLayer) {
         const handle = getHandleAtPoint(mx, my, selLayer);
         if (handle) {
-          dragRef.current = {
-            layerId: selLayer.id,
-            mode: 'resize',
-            handle,
-            startMouseX: mx,
-            startMouseY: my,
-            startLayerX: selLayer.x,
-            startLayerY: selLayer.y,
-            startLayerW: selLayer.width,
-            startLayerH: selLayer.height,
-          };
-          e.preventDefault();
-          return;
+          const coveringLayer = layers.find((l) => {
+            if (l.id === selLayer.id || !l.visible || l.zIndex <= selLayer.zIndex) return false;
+            const lx = l.x * scaleX;
+            const ly = l.y * scaleY;
+            const lw = l.width * scaleX;
+            const lh = l.height * scaleY;
+            return mx >= lx && mx <= lx + lw && my >= ly && my <= ly + lh;
+          });
+          if (!coveringLayer) {
+            dragRef.current = {
+              layerId: selLayer.id,
+              mode: 'resize',
+              handle,
+              startMouseX: mx,
+              startMouseY: my,
+              startLayerX: selLayer.x,
+              startLayerY: selLayer.y,
+              startLayerW: selLayer.width,
+              startLayerH: selLayer.height,
+            };
+            e.preventDefault();
+            return;
+          }
         }
       }
     }
@@ -306,13 +319,19 @@ export default function LivestreamCompositor(props: Props) {
       didDragRef.current = true;
     }
 
+    const layer = layers.find((l) => l.id === drag.layerId);
+
     if (drag.mode === 'move') {
-      onLayerUpdate(drag.layerId, {
-        x: Math.round(drag.startLayerX + dx),
-        y: Math.round(drag.startLayerY + dy),
-      });
+      const nx = Math.round(drag.startLayerX + dx);
+      const ny = Math.round(drag.startLayerY + dy);
+      const updates: Partial<CompositorLayer> = { x: nx, y: ny };
+      if (layer?.displayMode === 'pip') {
+        updates.pipGeometry = { x: nx, y: ny, width: layer.width, height: layer.height };
+      } else if (layer?.displayMode === 'max') {
+        updates.displayMode = undefined;
+      }
+      onLayerUpdate(drag.layerId, updates);
     } else if (drag.mode === 'resize' && drag.handle) {
-      const layer = layers.find((l) => l.id === drag.layerId);
       const ar = layer?.aspectRatio || drag.startLayerW / drag.startLayerH;
       let newW = drag.startLayerW;
       let newX = drag.startLayerX;
@@ -336,12 +355,17 @@ export default function LivestreamCompositor(props: Props) {
       if (isLeft) newX = drag.startLayerX + (drag.startLayerW - newW);
       if (isTop) newY = drag.startLayerY + (drag.startLayerH - newH);
 
-      onLayerUpdate(drag.layerId, {
-        x: Math.round(newX),
-        y: Math.round(newY),
-        width: Math.round(newW),
-        height: Math.round(newH),
-      });
+      const rx = Math.round(newX);
+      const ry = Math.round(newY);
+      const rw = Math.round(newW);
+      const rh = Math.round(newH);
+      const updates: Partial<CompositorLayer> = { x: rx, y: ry, width: rw, height: rh };
+      if (layer?.displayMode === 'pip') {
+        updates.pipGeometry = { x: rx, y: ry, width: rw, height: rh };
+      } else if (layer?.displayMode === 'max') {
+        updates.displayMode = undefined;
+      }
+      onLayerUpdate(drag.layerId, updates);
     }
   }
 
@@ -401,10 +425,44 @@ export default function LivestreamCompositor(props: Props) {
                 <span className="livestream-compositor__layer-label">{layer.label}</span>
                 <div className="livestream-compositor__layer-actions">
                   <button
-                    className="livestream-compositor__layer-btn"
-                    title={__('Fill canvas')}
+                    className={classnames('livestream-compositor__layer-btn', {
+                      'livestream-compositor__layer-btn--active':
+                        layer.displayMode === 'max' || layer.displayMode === 'pip',
+                    })}
+                    title={layer.displayMode === 'max' ? __('Picture in picture') : __('Fill canvas')}
                     onMouseDown={(e) => {
                       e.stopPropagation();
+                      const restore = layer.displayMode
+                        ? layer.restoreGeometry
+                        : { x: layer.x, y: layer.y, width: layer.width, height: layer.height };
+                      if (layer.displayMode === 'max') {
+                        let pipX: number;
+                        let pipY: number;
+                        let pipW: number;
+                        let pipH: number;
+                        if (layer.pipGeometry) {
+                          pipX = layer.pipGeometry.x;
+                          pipY = layer.pipGeometry.y;
+                          pipW = layer.pipGeometry.width;
+                          pipH = layer.pipGeometry.height;
+                        } else {
+                          const ar = layer.aspectRatio;
+                          pipW = Math.round(outputWidth * 0.25);
+                          pipH = Math.round(pipW / ar);
+                          pipX = outputWidth - pipW - 20;
+                          pipY = outputHeight - pipH - 20;
+                        }
+                        onLayerUpdate(layer.id, {
+                          x: pipX,
+                          y: pipY,
+                          width: pipW,
+                          height: pipH,
+                          pipGeometry: { x: pipX, y: pipY, width: pipW, height: pipH },
+                          displayMode: 'pip',
+                          restoreGeometry: restore,
+                        });
+                        return;
+                      }
                       const ar = layer.aspectRatio;
                       const fitW = Math.min(outputWidth, outputHeight * ar);
                       const fitH = fitW / ar;
@@ -413,38 +471,40 @@ export default function LivestreamCompositor(props: Props) {
                         y: Math.round((outputHeight - fitH) / 2),
                         width: Math.round(fitW),
                         height: Math.round(fitH),
+                        displayMode: 'max',
+                        restoreGeometry: restore,
                       });
                     }}
                   >
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="15 3 21 3 21 9" />
-                      <polyline points="9 21 3 21 3 15" />
-                      <line x1="21" y1="3" x2="14" y2="10" />
-                      <line x1="3" y1="21" x2="10" y2="14" />
-                    </svg>
-                  </button>
-                  <button
-                    className="livestream-compositor__layer-btn"
-                    title={__('Picture in picture')}
-                    onMouseDown={(e) => {
-                      e.stopPropagation();
-                      const ar = layer.aspectRatio;
-                      const miniW = Math.round(outputWidth * 0.25);
-                      const miniH = Math.round(miniW / ar);
-                      onLayerUpdate(layer.id, {
-                        width: miniW,
-                        height: miniH,
-                        x: outputWidth - miniW - 20,
-                        y: outputHeight - miniH - 20,
-                      });
-                    }}
-                  >
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                      <polyline points="4 14 10 14 10 20" />
-                      <polyline points="20 10 14 10 14 4" />
-                      <line x1="14" y1="10" x2="21" y2="3" />
-                      <line x1="3" y1="21" x2="10" y2="14" />
-                    </svg>
+                    {layer.displayMode === 'max' ? (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <polyline points="4 14 10 14 10 20" />
+                        <polyline points="20 10 14 10 14 4" />
+                        <line x1="14" y1="10" x2="21" y2="3" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </svg>
+                    ) : (
+                      <svg
+                        width="10"
+                        height="10"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                      >
+                        <polyline points="15 3 21 3 21 9" />
+                        <polyline points="9 21 3 21 3 15" />
+                        <line x1="21" y1="3" x2="14" y2="10" />
+                        <line x1="3" y1="21" x2="10" y2="14" />
+                      </svg>
+                    )}
                   </button>
                   <button
                     className="livestream-compositor__layer-btn"

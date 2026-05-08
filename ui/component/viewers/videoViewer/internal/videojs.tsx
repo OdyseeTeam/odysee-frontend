@@ -24,6 +24,7 @@ import useChromecast, { isCastSessionActive } from './hooks/useChromecast';
 import MobileTouchOverlay from './components/MobileTouchOverlay';
 import { useIsMobile } from 'effects/use-screensize';
 import { platform } from 'util/platform';
+import { getOriginalPlaybackUrl } from 'util/playback-url';
 import classnames from 'classnames';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
@@ -329,11 +330,41 @@ function VideoJsInner(props: Props) {
     uri,
     doSetVideoSourceLoaded
   );
+  const [sourceMode, setSourceMode] = useState<'adaptive' | 'original'>('adaptive');
+  const playbackSource = React.useMemo(() => {
+    if (!resolvedSource) return resolvedSource;
+
+    if (sourceMode === 'original' && resolvedSource.originalSrc) {
+      return {
+        ...resolvedSource,
+        src: getOriginalPlaybackUrl(resolvedSource.originalSrc.src),
+        type: resolvedSource.originalSrc.type,
+        isHls: false,
+        hlsSrc: null,
+        thumbnailBasePath: null,
+      };
+    }
+
+    if (resolvedSource.hlsSrc) {
+      return {
+        ...resolvedSource,
+        src: resolvedSource.hlsSrc.src,
+        type: resolvedSource.hlsSrc.type,
+        isHls: true,
+      };
+    }
+
+    return resolvedSource;
+  }, [resolvedSource, sourceMode]);
+
+  useEffect(() => {
+    setSourceMode('adaptive');
+  }, [resolvedSource?.src]);
 
   const generatedVttUrl = useVttSprite(
-    resolvedSource && !resolvedSource.thumbnailBasePath ? source : null,
+    playbackSource && !playbackSource.thumbnailBasePath ? source : null,
     claimValues?.video?.duration,
-    Boolean(resolvedSource?.thumbnailBasePath)
+    Boolean(playbackSource?.thumbnailBasePath)
   );
 
   useEffect(() => {
@@ -345,7 +376,7 @@ function VideoJsInner(props: Props) {
       uploadSamples: [],
     };
     syncP2PUiState();
-  }, [resolvedSource?.src, p2pEnabled, isLivestream, syncP2PUiState]);
+  }, [playbackSource?.src, p2pEnabled, isLivestream, syncP2PUiState]);
 
   useEffect(() => {
     const intervalId = window.setInterval(syncP2PUiState, 1000);
@@ -376,7 +407,7 @@ function VideoJsInner(props: Props) {
     useCallback(() => setReload(Date.now()), []),
     15000
   );
-  useErrorRecovery(resolvedSource?.src, setReload, setTapToRetryVisible);
+  useErrorRecovery(playbackSource?.src, setReload, setTapToRetryVisible);
   useLivestreamEdge(Boolean(isLivestream));
   useMediaSession(claimValues, channelTitle);
   useKeyboardShortcuts({
@@ -433,9 +464,9 @@ function VideoJsInner(props: Props) {
   }, [videoElement]);
 
   useEffect(() => {
-    if (!videoElement || !media || !resolvedSource) return;
-    const src = resolvedSource.src;
-    const isHls = resolvedSource.isHls || src.includes('.m3u8');
+    if (!videoElement || !media || !playbackSource) return;
+    const src = playbackSource.src;
+    const isHls = playbackSource.isHls || src.includes('.m3u8');
     if (!isHls) return;
 
     const handleWirelessChanged = () => {
@@ -457,7 +488,7 @@ function VideoJsInner(props: Props) {
     videoElement.addEventListener('webkitcurrentplaybacktargetiswirelesschanged', handleWirelessChanged);
     return () =>
       videoElement.removeEventListener('webkitcurrentplaybacktargetiswirelesschanged', handleWirelessChanged);
-  }, [videoElement, media, resolvedSource]);
+  }, [videoElement, media, playbackSource]);
 
   const onCastToggle = useCallback(() => {
     if (isCasting) {
@@ -497,7 +528,7 @@ function VideoJsInner(props: Props) {
   );
 
   const castLoadedSrcRef = useRef(null);
-  const castSrc = resolvedSource ? resolvedSource.src : null;
+  const castSrc = playbackSource ? playbackSource.src : null;
   useEffect(() => {
     if (isCasting && castSrc && castSrc !== castLoadedSrcRef.current) {
       castLoadedSrcRef.current = castSrc;
@@ -587,9 +618,9 @@ function VideoJsInner(props: Props) {
 
   // Attach hls.js only for HLS sources. Use native playback for everything else (e.g. MP4).
   useEffect(() => {
-    if (!media || !resolvedSource || !resolvedSource.src) return;
-    const src = resolvedSource.src;
-    const isHls = resolvedSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
+    if (!media || !playbackSource || !playbackSource.src) return;
+    const src = playbackSource.src;
+    const isHls = playbackSource.isHls || src.includes('.m3u8') || src.includes('m3u8');
     const clearHls = () => {
       if (media._hls) {
         media._hls.destroy();
@@ -598,8 +629,42 @@ function VideoJsInner(props: Props) {
     };
 
     if (!isHls) {
+      const currentTime = media.currentTime;
+      const wasPlaying = !media.paused;
+      const shouldFallbackToAdaptive = sourceMode === 'original' && Boolean(resolvedSource?.hlsSrc);
       clearHls();
       media.src = src;
+      media.load();
+
+      const restorePlayback = () => {
+        if (currentTime > 0 && Number.isFinite(currentTime)) {
+          try {
+            media.currentTime = currentTime;
+          } catch {}
+        }
+
+        if (wasPlaying) {
+          media.play().catch(() => {});
+        }
+      };
+      const fallbackToAdaptive = () => {
+        if (shouldFallbackToAdaptive) {
+          setSourceMode('adaptive');
+        }
+      };
+
+      media.addEventListener('loadedmetadata', restorePlayback, { once: true });
+      media.addEventListener('canplay', restorePlayback, { once: true });
+      media.addEventListener('error', fallbackToAdaptive, { once: true });
+
+      return () => {
+        media.removeEventListener('loadedmetadata', restorePlayback);
+        media.removeEventListener('canplay', restorePlayback);
+        media.removeEventListener('error', fallbackToAdaptive);
+      };
+    }
+
+    if (media.src === src && media._hls) {
       return;
     }
 
@@ -801,11 +866,11 @@ function VideoJsInner(props: Props) {
       clearHls();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [media, resolvedSource?.src]);
+  }, [media, playbackSource?.src, resolvedSource?.hlsSrc, sourceMode]);
 
   // Auto-play on source load
   useEffect(() => {
-    if (!media || !resolvedSource) return;
+    if (!media || !playbackSource) return;
     if (isCastSessionActive()) return;
 
     const docEl = document.documentElement;
@@ -842,7 +907,7 @@ function VideoJsInner(props: Props) {
       attemptPlay();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [media, resolvedSource?.src]);
+  }, [media, playbackSource?.src]);
 
   // Inject generated VTT sprite for non-HLS videos
   const generatedTrackRef = useRef<HTMLTrackElement | null>(null);
@@ -883,9 +948,9 @@ function VideoJsInner(props: Props) {
   // Load native VTT thumbnail sprite for HLS videos
   const nativeTrackRef = useRef<TextTrack | null>(null);
   useEffect(() => {
-    if (!media || !resolvedSource?.thumbnailBasePath || IS_MOBILE) return;
-    const vttUrl = resolvedSource.thumbnailBasePath + '/stream_sprite.vtt';
-    const basePath = resolvedSource.thumbnailBasePath + '/';
+    if (!media || !playbackSource?.thumbnailBasePath || IS_MOBILE) return;
+    const vttUrl = playbackSource.thumbnailBasePath + '/stream_sprite.vtt';
+    const basePath = playbackSource.thumbnailBasePath + '/';
     let canceled = false;
 
     fetch(vttUrl)
@@ -918,7 +983,7 @@ function VideoJsInner(props: Props) {
     return () => {
       canceled = true;
     };
-  }, [media, resolvedSource?.thumbnailBasePath]);
+  }, [media, playbackSource?.thumbnailBasePath]);
 
   // Enable metadata tracks (thumbnails) - plain Video doesn't do this automatically
   useEffect(() => {
@@ -1053,13 +1118,17 @@ function VideoJsInner(props: Props) {
         castState={castState}
         castActions={castActions}
         p2pUiState={p2pUiState}
+        hasOriginalSource={Boolean(resolvedSource?.originalSrc)}
+        isOriginalSourceSelected={sourceMode === 'original'}
+        onSelectOriginalSource={() => setSourceMode('original')}
+        onSelectAdaptiveSource={() => setSourceMode('adaptive')}
       >
         {isCasting && thumbnail && <img src={thumbnail} className="odysee-cast-thumbnail" alt="" />}
 
-        {resolvedSource && (
+        {playbackSource && (
           <Video
             ref={setVideoRef}
-            src={resolvedSource.src}
+            src={playbackSource.src}
             poster={isAudio ? poster : ''}
             playsInline
             disablePictureInPicture={embeddedPlayback || undefined}

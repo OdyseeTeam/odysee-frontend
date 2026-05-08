@@ -151,7 +151,7 @@ const CollectionPublishForm = (props: Props) => {
     if (!hasChanges) return navigateToCollectionView();
     const trimmedParams = { ...formParams };
     if (trimmedParams.title) trimmedParams.title = trimmedParams.title.trim();
-    if (currentCollection?.items) {
+    if (editing && currentCollection?.items) {
       trimmedParams.claims = currentCollection.items.filter((item) => typeof item === 'string');
     }
     setFormParams(trimmedParams);

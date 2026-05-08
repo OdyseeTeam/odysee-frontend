@@ -37,14 +37,10 @@ function MembershipEditTier(props: Props) {
   const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => dispatch(doMembershipUpdateTierAction(params));
   const doMembershipList = (params: MembershipListParams, forceUpdate?: boolean | null) =>
     dispatch(doMembershipListAction(params, forceUpdate));
-  console.log('perk props', props);
-  console.log('membershipOdyseePerks', membershipOdyseePerks);
   const isCreatingAMembership = typeof membership.membership_id === 'string';
   const isMobile = useIsMobile();
   const roughHeaderHeight = (isMobile ? 56 : 60) + 10; // @see: --header-height
 
-  const nameRef = React.useRef<any>(null);
-  const contributionRef = React.useRef<any>(null);
   // no guarantee MEMBERSHIP_CONSTS._PERKS is the same as api get perks result. this is dumb.
   const defaultPerkIds: Array<number | string> = [...MEMBERSHIP_CONSTS.DEFAULT_TIER_PERKS];
   const currentPerkIds: Array<number | string> = membership.perks.map((perk) => perk.id);
@@ -55,7 +51,7 @@ function MembershipEditTier(props: Props) {
   const initialState = React.useRef({
     name: membership.name || '',
     description: membership.description || '',
-    price: Number(membership.prices[0].amount) / 100,
+    price: String(Number(membership.prices[0].amount) / 100),
     // currently a single price
     perks: isCreatingAMembership ? defaultPerkIds : currentPerkIds,
     frequency: 'monthly',
@@ -69,12 +65,13 @@ function MembershipEditTier(props: Props) {
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [selectedPerkIds, setSelectedPerkIds] = React.useState<Array<number | string>>(initialState.current.perks);
   const [saveError, setSaveError] = React.useState('');
-  console.log('selectedPerkIds', selectedPerkIds);
   const nameError = getIsInputEmpty(editTierParams.editTierName);
   const descriptionError = getIsInputEmpty(editTierParams.editTierDescription);
-  const priceLowerThanMin = Number(editTierParams.editTierPrice) < MIN_PRICE;
-  const priceHigherThanMax = Number(editTierParams.editTierPrice) > MAX_PRICE;
-  const priceError = !editTierParams.editTierPrice || priceLowerThanMin || priceHigherThanMax;
+  const parsedPrice = Number(editTierParams.editTierPrice);
+  const hasPriceValue = String(editTierParams.editTierPrice).trim() !== '' && !Number.isNaN(parsedPrice);
+  const priceLowerThanMin = hasPriceValue && parsedPrice < MIN_PRICE;
+  const priceHigherThanMax = hasPriceValue && parsedPrice > MAX_PRICE;
+  const priceError = !hasPriceValue || priceLowerThanMin || priceHigherThanMax;
 
   /**
    * When someone hits the 'Save' button from the edit functionality
@@ -98,7 +95,7 @@ function MembershipEditTier(props: Props) {
     }
 
     setIsSubmitting(true);
-    const newTierMonthlyContribution = contributionRef.current?.input?.current?.value || 0;
+    const newTierMonthlyContribution = parsedPrice;
     const selectedPerksAsArray = selectedPerkIds.toString();
 
     if (activeChannelClaim) {
@@ -231,16 +228,13 @@ function MembershipEditTier(props: Props) {
   return (
     <div className="membership-tier__wrapper-edit" ref={editTierWrapperRef}>
       <FormField
-        ref={nameRef}
         max={30}
         type="text"
         name="tier_name"
         label={__('Tier Name')}
         placeholder={membership.name}
         autoFocus
-        onChange={(e) =>
-          setEditTierParams((prev) => ({ ...prev, editTierName: nameRef.current?.input?.current?.value || '' }))
-        }
+        onChange={(e) => setEditTierParams((prev) => ({ ...prev, editTierName: e.target.value || '' }))}
         value={editTierParams.editTierName}
       />
 
@@ -251,6 +245,7 @@ function MembershipEditTier(props: Props) {
         name="tier_description"
         label={__('Tier Description')}
         placeholder={__('Description of your tier')}
+        hideSuggestions
         value={editTierParams.editTierDescription}
         onChange={(e) => setEditTierParams((prev) => ({ ...prev, editTierDescription: e.target.value }))}
       />
@@ -331,19 +326,15 @@ function MembershipEditTier(props: Props) {
       </div>
 
       <FormField
-        ref={contributionRef}
         className="form-field--price-amount"
         type="number"
         name="tier_contribution"
-        step="1"
+        step="0.01"
         min={MIN_PRICE}
         max={MAX_PRICE}
         label={__('Monthly Contribution ($/Month)')}
         value={editTierParams.editTierPrice}
-        onChange={(e) => {
-          const value = contributionRef.current?.input?.current?.value;
-          setEditTierParams((prev) => ({ ...prev, editTierPrice: parseFloat(value) }));
-        }}
+        onChange={(e) => setEditTierParams((prev) => ({ ...prev, editTierPrice: e.target.value }))}
         disabled={hasSubscribers}
       />
 

@@ -11,15 +11,19 @@ import './style.scss';
 export type Props = {
   file: WebFile;
   cb: (arg0: string) => void;
+  previewUrl?: string;
+  onUploadStarted?: (arg0: string) => void;
+  onUploadCanceled?: () => void;
 };
 
 // ****************************************************************************
 // ****************************************************************************
 function ModalConfirmThumbnailUpload(props: Props) {
-  const { file, cb } = props;
+  const { file, cb, previewUrl, onUploadStarted, onUploadCanceled } = props;
   const dispatch = useAppDispatch();
   const filePath = file && (file.path || file.name);
   const [imageSrc, setImageSrc] = React.useState('');
+  const resolvedImageSrc = previewUrl || imageSrc;
 
   function handleConfirmed() {
     if (file) {
@@ -29,11 +33,19 @@ function ModalConfirmThumbnailUpload(props: Props) {
           thumbnailPath: file.path,
         })
       );
+      if (resolvedImageSrc) {
+        onUploadStarted?.(resolvedImageSrc);
+      }
       dispatch(doHideModal());
     }
   }
 
   React.useEffect(() => {
+    if (previewUrl) {
+      setImageSrc('');
+      return;
+    }
+
     const imgSrc = URL.createObjectURL(file as any);
     setImageSrc(imgSrc);
     return () => {
@@ -41,7 +53,13 @@ function ModalConfirmThumbnailUpload(props: Props) {
         URL.revokeObjectURL(imgSrc);
       }
     };
-  }, [file]);
+  }, [file, previewUrl]);
+
+  function handleAborted() {
+    onUploadCanceled?.();
+    dispatch(doHideModal());
+  }
+
   return (
     <Modal
       isOpen
@@ -50,7 +68,7 @@ function ModalConfirmThumbnailUpload(props: Props) {
       type="confirm"
       confirmButtonLabel={__('Upload')}
       onConfirmed={handleConfirmed}
-      onAborted={() => dispatch(doHideModal())}
+      onAborted={handleAborted}
     >
       <label>
         {__('Are you sure you want to upload this thumbnail to %domain%', {
@@ -61,7 +79,7 @@ function ModalConfirmThumbnailUpload(props: Props) {
       <div className="upload-thumbnail-preview">
         <img
           className="upload-thumbnail-preview__image"
-          src={imageSrc || ThumbnailBrokenImage}
+          src={resolvedImageSrc || ThumbnailBrokenImage}
           alt={__('Thumbnail Preview')}
           onError={() => setImageSrc('')}
         />

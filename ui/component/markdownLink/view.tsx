@@ -71,7 +71,9 @@ function MarkdownLink(props: Props) {
 
   if (linkUrlObject && !href.startsWith('mailto:')) {
     const linkDomain = linkUrlObject.hostname;
-    const isKnownAppDomainLink = KNOWN_APP_DOMAINS.includes(linkDomain);
+    const normalizedLinkDomain = linkDomain.replace(/^www\./, '');
+    const isKnownAppDomainLink =
+      KNOWN_APP_DOMAINS.includes(linkDomain) || KNOWN_APP_DOMAINS.includes(normalizedLinkDomain);
 
     if (isKnownAppDomainLink) {
       let linkPathname;
@@ -133,11 +135,12 @@ function MarkdownLink(props: Props) {
         </Menu>
       );
     } else {
+      const allowKnownAppPreview = Boolean((parentCommentId || isComment) && lbryUrlFromLink);
       element = (
         <ClaimLink
           uri={lbryUrlFromLink || decodedUri}
           parentCommentId={parentCommentId}
-          allowPreview={embed || allowPreview}
+          allowPreview={embed || allowPreview || allowKnownAppPreview}
         >
           {children}
         </ClaimLink>

@@ -87,8 +87,8 @@ const CollectionHeader = (props: Props) => {
         <div className="collection-header__content">
           <div className="collection-header__content-top">
             <div className="collection-header__title">
-              {collection.title || collection.name}
-              {uri ? <ClaimAuthor uri={uri} /> : <h1>{collection.name}</h1>}
+              <h1>{collection.title || collection.name}</h1>
+              {uri && <ClaimAuthor uri={uri} />}
             </div>
             <div className="collection-header__actions">
               <CollectionHeaderActions

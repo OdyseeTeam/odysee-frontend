@@ -10,42 +10,47 @@ import { useAppSelector } from 'redux/hooks';
 import { selectSupportersAmountForChannelId, selectMonthlyIncomeForChannelId } from 'redux/selectors/memberships';
 type Props = {
   channelClaim: ChannelClaim;
+  onSelect: () => void;
 };
 
 const ChannelOverview = (props: Props) => {
-  const { channelClaim } = props;
+  const { channelClaim, onSelect } = props;
   const supportersAmount = useAppSelector((state) => selectSupportersAmountForChannelId(state, channelClaim.claim_id));
   const monthlyIncome = useAppSelector((state) => selectMonthlyIncomeForChannelId(state, channelClaim.claim_id));
   return (
     <>
-      <td className="channelThumbnail">
-        <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
-      </td>
+      <button type="button" className="membership-overview-channel__select" onClick={onSelect}>
+        <span className="membership-overview-channel__identity">
+          <ChannelThumbnail xsmall uri={channelClaim.canonical_url} />
+          <TruncatedText text={channelClaim.value.title || channelClaim.name} lines={1} />
+        </span>
 
-      <td>
-        <TruncatedText text={channelClaim.value.title || channelClaim.name} lines={1} />
-      </td>
+        <span className="membership-overview-channel__metric">
+          <span>{__('Supporters')}</span>
+          {supportersAmount}
+        </span>
+        <span className="membership-overview-channel__metric">
+          <span>{__('Estimated Monthly Income')}</span>${(monthlyIncome / 100).toFixed(2)}
+        </span>
+      </button>
 
-      <td>{supportersAmount}</td>
-      <td>${(monthlyIncome / 100).toFixed(2)}</td>
-
-      <td>
+      <div className="membership-overview-channel__action">
         <ButtonNavigateChannelId
           button="alt"
           channelId={channelClaim.claim_id}
           icon={ICONS.MEMBERSHIP}
           navigate={`${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
         />
-      </td>
+      </div>
 
-      <td className="membership-table__url">
+      <div className="membership-overview-channel__action">
         <CopyableText // onlyCopy
           hideValue // primaryButton
           // linkTo={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
           copyable={`${URL}${formatLbryUrlForWeb(channelClaim.canonical_url)}?view=membership`}
           snackMessage={__('Page location copied')}
         />
-      </td>
+      </div>
     </>
   );
 };

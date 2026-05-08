@@ -16,6 +16,8 @@ import { selectIsActiveLivestreamForUri, selectLiveThumbnailForUri } from 'redux
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { doAnalyticsViewForUri } from 'redux/actions/app';
 import { selectUser } from 'redux/selectors/user';
+import { selectClientSetting } from 'redux/selectors/settings';
+import * as SETTINGS from 'constants/settings';
 import analytics from 'analytics';
 
 const previewViewedUris = new Set<string>();
@@ -86,6 +88,7 @@ function FileThumbnail(props: Props) {
   const isActiveLivestream = useAppSelector((state) => (uri ? selectIsActiveLivestreamForUri(state, uri) : false));
   const liveThumbnailFromStore = useAppSelector((state) => (uri ? selectLiveThumbnailForUri(state, uri) : null));
   const liveThumbnail = isMissingThumbLike(liveThumbnailFromStore) ? null : liveThumbnailFromStore;
+  const videoPreviewsEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.VIDEO_PREVIEWS) !== false);
 
   const passedThumbnail = rawThumbnail && rawThumbnail.trim().replace(/^http:\/\//i, 'https://');
   const preferredClaimThumbnail = isActiveLivestream && isMissingThumbLike(passedThumbnail) ? null : passedThumbnail;
@@ -115,7 +118,12 @@ function FileThumbnail(props: Props) {
   const isVideoContent = Boolean(claim?.value?.video || claim?.value?.source?.media_type?.startsWith('video'));
   const videoDuration = claim?.value?.video?.duration || 0;
   const canPreviewOnHover =
-    hoverPreview && isVideoContent && !isActiveLivestream && !liveThumbnail && videoDuration > 3;
+    videoPreviewsEnabled &&
+    hoverPreview &&
+    isVideoContent &&
+    !isActiveLivestream &&
+    !liveThumbnail &&
+    videoDuration > 3;
 
   const [isHoveringLocal, setIsHoveringLocal] = React.useState(false);
   const isHovering = externalHover !== undefined ? externalHover : isHoveringLocal;

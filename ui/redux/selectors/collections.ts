@@ -422,6 +422,7 @@ export const selectCollectionSyncStatusForId = (state: State, id: string) => {
   if (selectIsMyCollectionPublishedForId(state, id)) return SYNC_STATUS.PUBLIC_SYNCED;
   return SYNC_STATUS.UNKNOWN;
 };
+const HEX_CLAIM_ID = /^[a-f0-9]{40}$/i;
 export const selectClaimIdsForCollectionId = createSelector(
   selectHasPrivateCollectionForId,
   selectItemsForCollectionId,
@@ -434,6 +435,12 @@ export const selectClaimIdsForCollectionId = createSelector(
 
       if (claimId === undefined) {
         return true;
+      }
+
+      // Skip in-flight preview claims and anything that isn't a real hex claim_id —
+      // the SDK rejects those with "Non-hexadecimal digit found".
+      if (typeof claimId !== 'string' || !HEX_CLAIM_ID.test(claimId)) {
+        return false;
       }
 
       ids.add(claimId);

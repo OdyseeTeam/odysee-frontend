@@ -42,7 +42,7 @@ export async function pollPublishStatus(token: string, publishId: number, guid: 
         if (Date.now() > deadline) {
           dispatch(progress({ guid, status: { status: 'error' } }));
           analytics.log(
-            `Publish confirmation timed out: query_id=${publishId}`,
+            'Publish confirmation timed out',
             {
               fingerprint: ['publish-v4-confirmation-timeout'],
               tags: {
@@ -59,10 +59,32 @@ export async function pollPublishStatus(token: string, publishId: number, guid: 
 
       case 'not_found':
         dispatch(progress({ guid, status: { status: 'error' } }));
+        analytics.log(
+          'Publish confirmation not_found',
+          {
+            fingerprint: ['publish-v4-confirmation-not-found'],
+            tags: {
+              query_id: String(publishId),
+              guid,
+            },
+          },
+          'publish-v4-confirmation-not-found'
+        );
         throw new Error('The upload does not exist.');
 
       case 'error':
         dispatch(progress({ guid, status: { status: 'error' } }));
+        analytics.log(
+          status.error || 'Publish confirmation error',
+          {
+            fingerprint: ['publish-v4-confirmation-error'],
+            tags: {
+              query_id: String(publishId),
+              guid,
+            },
+          },
+          'publish-v4-confirmation-error'
+        );
         throw status.error;
 
       default:

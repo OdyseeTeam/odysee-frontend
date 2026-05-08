@@ -27,7 +27,7 @@ export default function LivestreamSourceSettings(props: Props) {
           <input
             type="range"
             min={0}
-            max={200}
+            max={2000}
             value={layer.borderRadius ?? 0}
             onChange={(e) => handleSlider('borderRadius', Number(e.target.value))}
             className="livestream-settings__slider"

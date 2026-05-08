@@ -45,6 +45,7 @@ import * as COLS from 'constants/collections';
 import { resolveAuxParams, resolveCollectionType, getClaimIdsInCollectionClaim } from 'util/collections';
 import { getThumbnailFromClaim } from 'util/claim';
 import { creditsToString } from 'util/format-credits';
+import { normalizeURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 const FETCH_BATCH_SIZE = 50;
 const AUTO_PUBLISH_DEBOUNCE_MS = 15000;
@@ -160,19 +161,31 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
       delete fullParams.description;
     }
 
-    // Filter out abandoned/deleted claims that the SDK can't resolve
+    // Filter out abandoned/deleted claims and anything not a real hex claim_id
+    // (e.g. in-flight `__preview_` claims). Sending those triggers
+    // "Non-hexadecimal digit found" from the SDK.
     if (fullParams.claims) {
       const byUri = selectClaimIdsByUri(state);
       const byId = selectClaimsById(state);
+      const HEX_CLAIM_ID = /^[a-f0-9]{40}$/i;
       fullParams.claims = fullParams.claims.filter((ref) => {
-        if (!ref) return false;
+        if (!ref || typeof ref !== 'string') return false;
         // Could be a URL or a claim ID
-        const claimId = byUri[ref];
+        let claimId;
+        try {
+          claimId = byUri[normalizeURI(ref)];
+        } catch (e) {
+          claimId = byUri[ref];
+        }
         if (claimId === null) return false; // resolved as abandoned
 
-        if (claimId !== undefined) return true; // resolved and exists
+        if (claimId !== undefined) {
+          // ref was a URL; the value is the real claim_id — must be hex
+          return HEX_CLAIM_ID.test(claimId);
+        }
 
-        // Not in byUri — treat as claim ID
+        // Not in byUri — treat as claim ID; must itself be valid hex
+        if (!HEX_CLAIM_ID.test(ref)) return false;
         return byId[ref] !== null; // null = abandoned, undefined = not fetched (keep)
       });
     }
