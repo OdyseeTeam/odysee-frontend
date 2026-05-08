@@ -1,6 +1,5 @@
 import { lazyImport } from 'util/lazyImport';
 import { Menu, MenuList, MenuButton, MenuItem } from 'component/common/menu';
-import { NavLink } from 'react-router-dom';
 import { parseURI } from 'util/lbryURI';
 import { RULE } from 'constants/notifications';
 import { useNavigate } from 'react-router-dom';
@@ -17,6 +16,7 @@ import UriIndicator from 'component/uriIndicator';
 import { getNotificationLink, getNotificationTarget } from './helpers/target';
 import { generateNotificationTitle } from './helpers/title';
 import { generateNotificationText } from './helpers/text';
+import { isInteractiveNotificationClick } from './helpers/click';
 import { useAppDispatch } from 'redux/hooks';
 import { doReadNotifications, doDeleteNotification as doDeleteNotificationAction } from 'redux/actions/notifications';
 import { doGetMembershipSupportersList as doGetMembershipSupportersListAction } from 'redux/actions/memberships';
@@ -134,15 +134,26 @@ function Notification(props: Props) {
     } catch (e) {}
   }
 
-  const navLinkProps = {
-    to: notificationLink,
-    onClick: (e) => e.stopPropagation(),
-  };
-
   function handleNotificationClick() {
     if (!is_read) doReadNotificationsAction([notification.id]);
     if (menuButton && notificationLink) navigate(notificationLink);
     if (notificationAction) notificationAction();
+  }
+
+  function handleNotificationLinkClick(event) {
+    if (isInteractiveNotificationClick(event)) return;
+
+    if (!is_read) doReadNotificationsAction([notification.id]);
+    if (notificationLink) navigate(notificationLink);
+    if (notificationAction) notificationAction();
+  }
+
+  function handleNotificationLinkKeyDown(event) {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    if (isInteractiveNotificationClick(event)) return;
+
+    event.preventDefault();
+    handleNotificationLinkClick(event);
   }
 
   const Wrapper = menuButton
@@ -153,9 +164,15 @@ function Notification(props: Props) {
       )
     : notificationLink
       ? (props: { children: any }) => (
-          <NavLink {...navLinkProps} className="menu__link--notification" onClick={handleNotificationClick}>
+          <div
+            role="link"
+            tabIndex={0}
+            className="menu__link--notification"
+            onClick={handleNotificationLinkClick}
+            onKeyDown={handleNotificationLinkKeyDown}
+          >
             {props.children}
-          </NavLink>
+          </div>
         )
       : (props: { children: any }) => (
           <span

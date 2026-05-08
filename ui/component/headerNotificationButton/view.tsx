@@ -17,6 +17,7 @@ import UriIndicator from 'component/uriIndicator';
 import { getNotificationLocation } from '../notification/helpers/target';
 import { generateNotificationTitle } from '../notification/helpers/title';
 import { generateNotificationText } from '../notification/helpers/text';
+import { isInteractiveNotificationClick } from '../notification/helpers/click';
 import { parseURI } from 'util/lbryURI';
 import { NavLink } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -196,14 +197,30 @@ export default function NotificationHeaderButton() {
         icon = <Icon icon={ICONS.NOTIFICATION} sectionIcon />;
     }
 
-    function handleNotificationClick() {
+    const notificationLocation = getNotificationLocation(notification, undefined);
+    const notificationState = !disableAutoplay ? undefined : { forceDisableAutoplay: true };
+
+    function handleNotificationClick(event) {
+      if (isInteractiveNotificationClick(event)) return;
+
       const { id, is_read: isRead } = notification;
 
       if (!isRead) {
         seeNotification([String(id)]);
         readNotification([id]);
-        if (notificationAction) notificationAction();
       }
+
+      if (notificationAction) notificationAction();
+      navigate(notificationLocation, { state: notificationState });
+      handleClose();
+    }
+
+    function handleNotificationKeyDown(event) {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      if (isInteractiveNotificationClick(event)) return;
+
+      event.preventDefault();
+      handleNotificationClick(event);
     }
 
     let channelName;
@@ -215,13 +232,12 @@ export default function NotificationHeaderButton() {
     }
 
     return (
-      <NavLink
+      <div
         key={id}
         onClick={handleNotificationClick}
-        to={{
-          ...getNotificationLocation(notification, undefined),
-        }}
-        state={!disableAutoplay ? undefined : { forceDisableAutoplay: true }}
+        onKeyDown={handleNotificationKeyDown}
+        role="link"
+        tabIndex={0}
         className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
       >
         <div className="notification__icon">{icon}</div>
@@ -242,7 +258,7 @@ export default function NotificationHeaderButton() {
         <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
           <Icon icon={ICONS.DELETE} sectionIcon />
         </div>
-      </NavLink>
+      </div>
     );
   }
 
