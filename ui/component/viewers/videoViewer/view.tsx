@@ -15,11 +15,13 @@ import { platform } from 'util/platform';
 import { LocalStorage } from 'util/storage';
 import { useIsMobile } from 'effects/use-screensize';
 import { isEmbedPath } from 'util/embed';
+import { fullscreenElement as getFullscreenElement, requestFullscreen } from 'util/full-screen';
 
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const POSITION_SYNC_INTERVAL_MS = 30000;
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
+const PLAYLIST_FULLSCREEN_KEY = 'playlist-preserve-fullscreen';
 
 type Props = {
   uri: string;
@@ -202,6 +204,13 @@ function VideoViewer(props: Props) {
   const handlePlayNextUri = React.useCallback(
     (options?: { manual?: boolean }) => {
       const manual = options && options.manual;
+      const fsTarget = document.querySelector('.player-fullscreen-target');
+      const shouldPreserveFullscreen = Boolean(nextPlaylistUri && fsTarget && getFullscreenElement() === fsTarget);
+
+      if (shouldPreserveFullscreen) {
+        sessionStorage.setItem(PLAYLIST_FULLSCREEN_KEY, 'true');
+      }
+
       if (shouldPlayRecommended) {
         if (manual || IS_IOS) {
           doPlayNextUri({ uri: playNextUri });
@@ -212,7 +221,7 @@ function VideoViewer(props: Props) {
         doPlayNextUri({ uri: playNextUri });
       }
     },
-    [doPlayNextUri, doSetShowAutoplayCountdownForUri, playNextUri, shouldPlayRecommended, uri]
+    [doPlayNextUri, doSetShowAutoplayCountdownForUri, nextPlaylistUri, playNextUri, shouldPlayRecommended, uri]
   );
 
   const handlePlayPreviousUri = React.useCallback(() => {
@@ -280,6 +289,15 @@ function VideoViewer(props: Props) {
   const onPlayerReady = useCallback(
     (_player: any, node: HTMLVideoElement) => {
       setVideoNode(node);
+
+      if (sessionStorage.getItem(PLAYLIST_FULLSCREEN_KEY) === 'true') {
+        sessionStorage.removeItem(PLAYLIST_FULLSCREEN_KEY);
+        const fsTarget = document.querySelector('.player-fullscreen-target');
+
+        if (fsTarget && getFullscreenElement() !== fsTarget) {
+          requestFullscreen(fsTarget);
+        }
+      }
 
       // Restore position
       const parsedTime = Number(timeParam);
