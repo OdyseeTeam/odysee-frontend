@@ -23,5 +23,12 @@
     "remove-markdown": "^0.3.0",
     "ua-parser-js": "^0.7.28",
     "uuid": "^8.3.0"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@firebase/util",
+      "protobufjs"
+    ]
   }
 }

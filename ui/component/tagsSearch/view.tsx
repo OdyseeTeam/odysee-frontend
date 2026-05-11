@@ -49,6 +49,24 @@ type Props = {
 };
 const UNALLOWED_TAGS = ['lbry-first'];
 
+function normalizeTagName(tag: string) {
+  return tag.trim().toLowerCase();
+}
+
+function getValidTagsFromInput(input: string, limit: number) {
+  const safeLimit = Math.max(0, limit);
+
+  return Array.from(
+    new Set(
+      input
+        .split(',')
+        .map(normalizeTagName)
+        .filter(Boolean)
+        .filter((tag) => !UNALLOWED_TAGS.includes(tag))
+    )
+  ).slice(0, safeLimit);
+}
+
 /*
  We display tagsPassedIn
  onClick gets the tag when a tag is clicked
@@ -87,11 +105,22 @@ export default function TagsSearch(props: Props) {
   const doToggleTagFollowDesktop = (tag: string) => dispatch(doToggleTagFollowDesktopAction(tag));
   const doAddTag = (tag: string) => dispatch(doAddTagAction(tag));
   const [newTag, setNewTag] = useState('');
+  const enteredTag = normalizeTagName(newTag);
 
   const doesTagMatch = (name) => {
-    const nextTag = newTag.substr(newTag.lastIndexOf(',') + 1, newTag.length).trim();
+    const nextTag = normalizeTagName(newTag.substr(newTag.lastIndexOf(',') + 1, newTag.length));
     return newTag ? name.toLowerCase().includes(nextTag.toLowerCase()) : true;
   };
+
+  React.useEffect(() => {
+    tagsPassedIn.forEach((tag) => {
+      const normalizedTag = tag?.name ? normalizeTagName(tag.name) : '';
+
+      if (!normalizedTag || UNALLOWED_TAGS.includes(normalizedTag)) {
+        onRemove(tag);
+      }
+    });
+  }, [onRemove, tagsPassedIn]);
 
   // Make sure there are no duplicates, then trim
   // suggestedTags = (followedTags - tagsPassedIn) + unfollowedTags
@@ -163,24 +192,15 @@ export default function TagsSearch(props: Props) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    let tags = newTag.trim();
+    const newTagsArr = getValidTagsFromInput(newTag, limitSelect - countWithoutSpecialTags);
 
-    if (tags.length === 0) {
+    // Split into individual tags, normalize the tags, and remove duplicates with a set.
+    setNewTag('');
+
+    if (newTagsArr.length === 0) {
       return;
     }
 
-    setNewTag('');
-    const newTagsArr = Array.from(
-      new Set(
-        tags
-          .split(',')
-          .slice(0, limitSelect - countWithoutSpecialTags)
-          .map((newTag) => newTag.trim().toLowerCase())
-          .filter((newTag) => !UNALLOWED_TAGS.includes(newTag))
-      )
-    );
-
-    // Split into individual tags, normalize the tags, and remove duplicates with a set.
     if (onSelect) {
       const arrOfObjectTags = newTagsArr.map((tag) => {
         return {
@@ -286,13 +306,13 @@ export default function TagsSearch(props: Props) {
             <section>
               <label>{labelSuggestions || (newTag.length ? __('Matching') : __('Known Tags'))}</label>
               <ul className="tags">
-                {Boolean(newTag.length) && !suggestedTags.includes(newTag) && (
+                {Boolean(enteredTag) && !suggestedTags.includes(enteredTag) && (
                   <Tag
-                    disabled={newTag !== 'mature' && maxed}
-                    key={`entered${newTag}`}
-                    name={newTag}
+                    disabled={enteredTag !== 'mature' && maxed}
+                    key={`entered${enteredTag}`}
+                    name={enteredTag}
                     type="add"
-                    onClick={newTag.includes('') ? (e) => handleSubmit(e) : (e) => handleTagClick(newTag)}
+                    onClick={newTag.includes(',') ? (e) => handleSubmit(e) : () => handleTagClick(enteredTag)}
                   />
                 )}
                 {suggestedTags.map((tag) => (
