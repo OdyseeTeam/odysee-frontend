@@ -128,3 +128,37 @@
   object-fit: cover;
   border-radius: var(--border-radius);
 }
+
+.card--livestream-key {
+  border-radius: var(--border-radius);
+  margin-top: var(--spacing-l);
+
+  @media (max-width: $breakpoint-small) {
+    .card__main-actions {
+      margin-top: var(--spacing-s);
+    }
+  }
+}
+
+.file-upload {
+  margin-top: var(--spacing-m);
+
+  .help {
+    margin-bottom: 0;
+  }
+}
+
+.livestreams__past {
+  margin-bottom: var(--spacing-l);
+  .claim-list__header {
+    margin-bottom: 0;
+    span:not(.button__content):not(.button__label) {
+      font-size: var(--font-large);
+      font-weight: var(--font-weight-bold);
+      align-self: flex-end;
+    }
+    .button {
+      margin-bottom: var(--spacing-s);
+    }
+  }
+}
