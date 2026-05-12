@@ -1,7 +1,14 @@
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
 import Lbry from 'lbry';
-import { selectClaimForUri, selectClaimOutpointForUri, selectIsLivestreamClaimForUri } from 'redux/selectors/claims';
+import {
+  selectClaimForUri,
+  selectClaimIsMine,
+  selectClaimOutpointForUri,
+  selectIsFiatRequiredForUri,
+  selectIsLivestreamClaimForUri,
+  selectProtectedContentTagForUri,
+} from 'redux/selectors/claims';
 import { doAbandonClaim } from 'redux/actions/claims';
 import { batchActions } from 'util/batch-actions';
 import { doHideModal } from 'redux/actions/app';
@@ -12,7 +19,56 @@ import { doToast } from 'redux/actions/notifications';
 import { selectBalance } from 'redux/selectors/wallet';
 import { makeSelectFileInfoForUri, selectOutpointFetchingForUri } from 'redux/selectors/file_info';
 import { getStripeEnvironment } from 'util/stripe';
+import { getChannelIdFromClaim, isClaimUnlisted } from 'util/claim';
+import { toHex } from 'util/hex';
 const stripeEnvironment = getStripeEnvironment();
+
+async function getOwnedClaimAccessKey(
+  dispatch: Dispatch,
+  state: State,
+  uri: string
+): Promise<UriAccessKey | null | undefined> {
+  const claim = selectClaimForUri(state, uri);
+  const claimIsMine = selectClaimIsMine(state, claim);
+  const isAccessControlled =
+    isClaimUnlisted(claim) ||
+    Boolean(claim?.value?.fee) ||
+    selectIsFiatRequiredForUri(state, uri) ||
+    Boolean(selectProtectedContentTagForUri(state, uri));
+
+  if (!claim || !claimIsMine || !isAccessControlled) {
+    return undefined;
+  }
+
+  const channelId = getChannelIdFromClaim(claim);
+  if (!channelId) {
+    return undefined;
+  }
+
+  try {
+    const sigData: ChannelSignResponse = await Lbry.channel_sign({
+      channel_id: channelId,
+      hexdata: toHex(claim.claim_id),
+    });
+    const accessKey: UriAccessKey = {
+      key: 'signature',
+      value: sigData.signature,
+      signature: sigData.signature,
+      signature_ts: sigData.signing_ts,
+    };
+    dispatch({
+      type: ACTIONS.SAVE_URI_ACCESS_KEY,
+      data: {
+        uri,
+        accessKey,
+      },
+    });
+    return accessKey;
+  } catch {
+    return null;
+  }
+}
+
 export function doOpenFileInFolder(path: string) {
   return () => {
     window.open(path, '_blank', 'noopener,noreferrer');
@@ -113,13 +169,18 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
     const outpoint = selectClaimOutpointForUri(state, uri);
     const keyFromOpt = opt && (opt as any).uriAccessKey;
     const cachedKey: UriAccessKey | null | undefined = state.content.uriAccessKeys[uri];
-    const accessKey: UriAccessKey | null | undefined = keyFromOpt || cachedKey || null;
+    let accessKey: UriAccessKey | null | undefined = keyFromOpt || cachedKey || null;
     dispatch({
       type: ACTIONS.FETCH_FILE_INFO_STARTED,
       data: {
         outpoint,
       },
     });
+
+    if (!accessKey) {
+      accessKey = (await getOwnedClaimAccessKey(dispatch, state, uri)) || null;
+    }
+
     Lbry.get({
       uri,
       environment: stripeEnvironment,

@@ -150,7 +150,7 @@ export default function LivestreamPublisherFloating() {
     actions.setErrorMessage(null);
     actions.setStatus('connecting');
     const enc = getWebrtcPublishEncodingOptions(presetId);
-    const codecAttempts: WebrtcPublishVideoCodecPreference[] = ['auto', 'h264'];
+    const codecAttempts: WebrtcPublishVideoCodecPreference[] = ['h264'];
     let lastErr: unknown;
 
     for (const codec of codecAttempts) {

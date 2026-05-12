@@ -337,17 +337,9 @@ function StreamPreview({ canvasRef }: { canvasRef: React.RefObject<HTMLCanvasEle
 }
 
 function getCodecAttemptOrder(
-  preferredCodec: WebrtcPublishVideoCodecPreference | undefined
+  _preferredCodec: WebrtcPublishVideoCodecPreference | undefined
 ): WebrtcPublishVideoCodecPreference[] {
-  if (!preferredCodec || preferredCodec === 'auto') {
-    return ['auto', 'h264'];
-  }
-
-  if (preferredCodec === 'h264') {
-    return ['h264', 'auto'];
-  }
-
-  return [preferredCodec, 'auto', 'h264'];
+  return ['h264'];
 }
 
 export default function LivestreamStudio(props: Props) {

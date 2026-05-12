@@ -12,6 +12,7 @@ import classnames from 'classnames';
 import ReactPaginateImport from 'react-paginate';
 const ReactPaginate = (ReactPaginateImport as any).default || ReactPaginateImport;
 import 'component/common/paginate.scss';
+import './style.scss';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
@@ -229,6 +230,7 @@ function PublishLivestream(props: Props) {
                         onChange={() =>
                           updatePublishForm({
                             liveEditType: 'use_replay',
+                            remoteFileUrl: undefined,
                           })
                         }
                       />

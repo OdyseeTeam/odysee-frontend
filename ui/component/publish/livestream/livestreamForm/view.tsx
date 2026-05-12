@@ -67,6 +67,12 @@ type Props = {
   disabled?: boolean;
 };
 
+function normalizeReplayUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('https://') || url.startsWith('http://')) return url;
+  return `https://${url}`;
+}
+
 function LivestreamForm(props: Props) {
   const { setClearStatus, disabled: propDisabled = false } = props;
   const dispatch = useAppDispatch();
@@ -167,14 +173,17 @@ function LivestreamForm(props: Props) {
     : editingURI && !filePath
       ? isStillEditing && formValidLessFile && !waitingForFile
       : formValidLessFile;
-
+  const hasSelectedReplay = React.useMemo(() => {
+    if (!requiresReplayUrl || !remoteFileUrl || !hasLivestreamData) return false;
+    return livestreamData.some((item) => normalizeReplayUrl(item?.data?.fileLocation) === remoteFileUrl);
+  }, [hasLivestreamData, livestreamData, remoteFileUrl, requiresReplayUrl]);
   const isClear = !title && !name && !description && !thumbnail;
   const isFormIncomplete =
     isClaimingInitialRewards ||
     formDisabled ||
     !formValid ||
     uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    (requiresReplayUrl && !remoteFileUrl) ||
+    (requiresReplayUrl && !hasSelectedReplay) ||
     (requiresFile && !filePath) ||
     previewing;
 

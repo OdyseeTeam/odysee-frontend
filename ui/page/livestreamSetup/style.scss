@@ -759,4 +759,29 @@
   .livestream-setup__key-card {
     padding: var(--spacing-m);
   }
+
+  .livestream-setup__preview {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .livestream-setup__preview-video {
+    width: 100%;
+  }
+
+  .livestream-setup__preview-chat-wrap {
+    min-height: 50vh;
+  }
+
+  .livestream-setup__preview-offair {
+    font-size: 1.25rem;
+    padding: 10px 18px;
+    gap: 10px;
+    letter-spacing: 0.12em;
+  }
+
+  .livestream-setup__preview-offair-dot {
+    width: 12px;
+    height: 12px;
+  }
 }

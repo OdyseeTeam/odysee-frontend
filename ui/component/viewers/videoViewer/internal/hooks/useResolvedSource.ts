@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
+import { isHlsPlaybackUrl, isSignedOdycdnPlaybackUrl } from 'util/playback-url';
 
 const stripeEnvironment = getStripeEnvironment();
 const HLS_FILETYPE = 'application/x-mpegURL';
@@ -76,6 +77,21 @@ export default function useResolvedSource(
             thumbnailBasePath: null,
           });
         }
+        doSetVideoSourceLoaded(uri);
+        return;
+      }
+
+      const signedOdycdnSource = isSignedOdycdnPlaybackUrl(source);
+      if (signedOdycdnSource || (isProtectedContent && source && isHlsPlaybackUrl(source))) {
+        const isHls = isHlsPlaybackUrl(source);
+        setResolved({
+          src: source,
+          type: isHls ? HLS_FILETYPE : sourceType,
+          isHls,
+          originalSrc: isHls ? null : { type: sourceType, src: source },
+          hlsSrc: isHls ? { src: source, type: HLS_FILETYPE } : null,
+          thumbnailBasePath: isHls ? source.substring(0, source.lastIndexOf('/')) : null,
+        });
         doSetVideoSourceLoaded(uri);
         return;
       }

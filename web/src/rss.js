@@ -1,6 +1,7 @@
 const { lbryProxy: Lbry } = require('../lbry');
 
 const { URL, SITE_NAME, PROXY_URL } = require('../../config.cjs');
+const { escapeHtmlProperty } = require('../../ui/util/web.cjs');
 
 const Rss = require('rss');
 
@@ -168,6 +169,84 @@ const getLanguageValue = (claim) => {
 
 const replaceLineFeeds = (str) => str.replace(/(?:\r\n|\r|\n)/g, '<br />');
 
+const DESCRIPTION_MARKDOWN_LINK_REGEX = /\[([^\]\n]+)\]\(((?:https?:\/\/|www\.)[^\s)]+)\)/gi;
+const DESCRIPTION_URL_REGEX = /(?:https?:\/\/|www\.)[^\s<>"']+/gi;
+const TRAILING_PUNCTUATION = '.,;:!?';
+const TRAILING_PAIRS = [
+  ['(', ')'],
+  ['[', ']'],
+  ['{', '}'],
+];
+
+function stripTrailingUrlPunctuation(url) {
+  let cleanUrl = url;
+
+  while (cleanUrl.length > 0) {
+    const lastChar = cleanUrl[cleanUrl.length - 1];
+
+    if (TRAILING_PUNCTUATION.includes(lastChar)) {
+      cleanUrl = cleanUrl.slice(0, -1);
+      continue;
+    }
+
+    const unbalancedPair = TRAILING_PAIRS.find(([open, close]) => {
+      const openCount = cleanUrl.split(open).length - 1;
+      const closeCount = cleanUrl.split(close).length - 1;
+      return lastChar === close && closeCount > openCount;
+    });
+
+    if (!unbalancedPair) {
+      break;
+    }
+
+    cleanUrl = cleanUrl.slice(0, -1);
+  }
+
+  return cleanUrl;
+}
+
+function renderDescriptionLink(url, label) {
+  const href = /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  return `<a href="${escapeHtmlProperty(href)}">${escapeHtmlProperty(label)}</a>`;
+}
+
+function linkifyBareDescriptionUrls(description) {
+  let formattedDescription = '';
+  let previousIndex = 0;
+
+  description.replace(DESCRIPTION_URL_REGEX, (match, offset) => {
+    const cleanUrl = stripTrailingUrlPunctuation(match);
+
+    formattedDescription += escapeHtmlProperty(description.slice(previousIndex, offset));
+
+    if (cleanUrl) {
+      formattedDescription += renderDescriptionLink(cleanUrl, cleanUrl);
+      formattedDescription += escapeHtmlProperty(match.slice(cleanUrl.length));
+    } else {
+      formattedDescription += escapeHtmlProperty(match);
+    }
+
+    previousIndex = offset + match.length;
+  });
+
+  formattedDescription += escapeHtmlProperty(description.slice(previousIndex));
+  return formattedDescription;
+}
+
+function linkifyDescription(description) {
+  let formattedDescription = '';
+  let previousIndex = 0;
+
+  description.replace(DESCRIPTION_MARKDOWN_LINK_REGEX, (match, label, url, offset) => {
+    formattedDescription += linkifyBareDescriptionUrls(description.slice(previousIndex, offset));
+    formattedDescription += renderDescriptionLink(url, label);
+    previousIndex = offset + match.length;
+  });
+
+  formattedDescription += linkifyBareDescriptionUrls(description.slice(previousIndex));
+  return formattedDescription;
+}
+
 const isEmailRoughlyValid = (email) => /^\S+@\S+$/.test(email);
 
 /**
@@ -282,7 +361,7 @@ const generateItunesImageElement = (claim) => {
   }
 };
 
-const getFormattedDescription = (claim) => replaceLineFeeds(claim.value.description || '');
+const getFormattedDescription = (claim) => replaceLineFeeds(linkifyDescription(claim.value.description || ''));
 
 // ****************************************************************************
 // Generate

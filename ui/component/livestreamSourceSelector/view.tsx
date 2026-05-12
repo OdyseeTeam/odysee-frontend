@@ -3,6 +3,7 @@ import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import { icons as customIcons } from 'component/common/icon-custom';
 import classnames from 'classnames';
+import { platform } from 'util/platform';
 import './style.scss';
 
 const OdyseePlay = customIcons[ICONS.PLAY];
@@ -97,7 +98,9 @@ export default function LivestreamSourceSelector(props: Props) {
   const [videoSources, setVideoSources] = React.useState<VideoSource[]>([]);
   const [audioSources, setAudioSources] = React.useState<AudioSource[]>([]);
   const screenSupported =
-    typeof navigator !== 'undefined' && typeof navigator.mediaDevices?.getDisplayMedia === 'function';
+    !platform.isMobile() &&
+    typeof navigator !== 'undefined' &&
+    typeof navigator.mediaDevices?.getDisplayMedia === 'function';
 
   React.useEffect(() => {
     enumerateDevices();

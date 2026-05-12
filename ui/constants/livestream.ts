@@ -96,7 +96,7 @@ function parseStreamKeyForWhip(streamKey: string): { channelId: string; sigQuery
 
 /**
  * WHIP (WebRTC) ingest URL for the browser publisher.
- * Default: `/live/{channelId}?direction=whip&{signature query}` (see `parseStreamKeyForWhip`).
+ * Default: `/webrtc/{channelId}?direction=whip&{signature query}` (see `parseStreamKeyForWhip`).
  *
  * `LIVESTREAM_WHIP_URL_TEMPLATE` may include: `{streamKey}`, `{proto}`, `{host}`, `{port}`,
  * `{channelId}`, `{sigQuery}` (the part after `?` in the stream key, without leading `?`).
@@ -125,19 +125,19 @@ export function getLivestreamWhipIngestUrl(streamKey: string): string | null {
   }
 
   if (!sigQuery) {
-    return `${proto}://${host}:${port}/live/${channelId}?direction=whip&transport=tcp`;
+    return `${proto}://${host}:${port}/webrtc/${channelId}?direction=whip&transport=tcp`;
   }
-  return `${proto}://${host}:${port}/live/${channelId}?direction=whip&transport=tcp&${sigQuery}`;
+  return `${proto}://${host}:${port}/webrtc/${channelId}?direction=whip&transport=tcp&${sigQuery}`;
 }
 
 /**
  * WebRTC playback URL for viewers (OME signaling endpoint).
- * Uses WebSocket signaling: `wss://host:port/live/{channelClaimId}`
+ * Uses WebSocket signaling: `wss://host:port/webrtc/{channelClaimId}`
  */
 export function getLivestreamWebrtcPlaybackUrl(channelClaimId: string): string | null {
   const host = getLivestreamIngestHostname();
   if (!host) return null;
   const port = LIVESTREAM_WEBRTC_PORT || '3334';
   const proto = getIngestProtocolFromApi() === 'https' ? 'wss' : 'ws';
-  return `${proto}://${host}:${port}/live/${channelClaimId}`;
+  return `${proto}://${host}:${port}/webrtc/${channelClaimId}`;
 }

@@ -29,45 +29,35 @@ function OverviewTab(props: Props) {
 
   return (
     <>
-      <table className="table table-total">
-        <tr>
-          {/* todo: allow sorting */}
-          <td>
-            {/* todo: make this a link to the supporters tab with all channel set to on */}
-            {/* so they can see all their supporters */}
-            {__('Total Supporters')} <span>{totalSupportersAmount}</span>
-          </td>
-          <td>
-            {__('Income Last Month')} <span>${(previousMonthlyIncome / 100).toFixed(2)}</span>
-          </td>
-          <td>
-            {__('Projected Monthly Income')} <span>${(totalMonthlyIncome / 100).toFixed(2)}</span>
-          </td>
-        </tr>
-      </table>
+      <div className="membership-overview-stats">
+        <div className="membership-overview-stat">
+          <span>{__('Total Supporters')}</span>
+          <strong>{totalSupportersAmount}</strong>
+        </div>
+        <div className="membership-overview-stat">
+          <span>{__('Income Last Month')}</span>
+          <strong>${(previousMonthlyIncome / 100).toFixed(2)}</strong>
+        </div>
+        <div className="membership-overview-stat">
+          <span>{__('Projected Monthly Income')}</span>
+          <strong>${(totalMonthlyIncome / 100).toFixed(2)}</strong>
+        </div>
+      </div>
 
-      <div className="membership-table__wrapper">
-        <table className="table">
-          <thead>
-            <tr>
-              <th className="channelName-header" colSpan={2}>
-                {__('Channel Name')}
-              </th>
-              <th>{__('Supporters')}</th>
-              <th>{__('Estimated Monthly Income')}</th>
-              <th className="membership-table__page">{__('Page')}</th>
-              <th className="membership-table__url">{__('URL')}</th>
-            </tr>
-          </thead>
+      <div className="membership-overview-list">
+        <div className="membership-overview-list__header">
+          <span>{__('Channel Name')}</span>
+          <span>{__('Supporters')}</span>
+          <span>{__('Estimated Monthly Income')}</span>
+          <span>{__('Page')}</span>
+          <span>{__('URL')}</span>
+        </div>
 
-          <tbody>
-            {myChannelClaims.map((channelClaim: ChannelClaim) => (
-              <tr key={channelClaim.claim_id} onClick={() => selectChannel(channelClaim)}>
-                <ChannelOverview channelClaim={channelClaim} />
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        {myChannelClaims.map((channelClaim: ChannelClaim) => (
+          <div key={channelClaim.claim_id} className="membership-overview-channel">
+            <ChannelOverview channelClaim={channelClaim} onSelect={() => selectChannel(channelClaim)} />
+          </div>
+        ))}
       </div>
 
       <HelpHub
