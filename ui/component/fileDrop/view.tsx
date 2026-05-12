@@ -2,6 +2,7 @@ import React from 'react';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as MODALS from 'constants/modal_types';
+import * as ACTIONS from 'constants/action_types';
 import classnames from 'classnames';
 import useDragDrop from 'effects/use-drag-drop';
 import { getTree } from 'util/web-file-system';
@@ -12,6 +13,7 @@ import { doUpdateFile } from 'redux/actions/publish';
 import { selectPublishFormValue } from 'redux/selectors/publish';
 import { selectModal } from 'redux/selectors/app';
 import { doOpenModal } from 'redux/actions/app';
+import { v4 as uuid } from 'uuid';
 
 const HIDE_TIME_OUT = 600;
 const TARGET_TIME_OUT = 300;
@@ -23,7 +25,7 @@ function FileDrop() {
   const navigate = useNavigate();
   const location = useLocation();
   const modal = useAppSelector(selectModal);
-  const doUpdateFile_ = (...args: Parameters<typeof doUpdateFile>) => dispatch(doUpdateFile(...args));
+  const activeFormId = useAppSelector((state) => selectPublishFormValue(state, 'activeFormId'));
   const { drag, dropData } = useDragDrop();
   const [files, setFiles] = React.useState([]);
   const [error, setError] = React.useState(false);
@@ -67,10 +69,22 @@ function FileDrop() {
   // Handle file selection
   const handleFileSelected = React.useCallback(
     (selectedFile) => {
-      doUpdateFile_(selectedFile);
+      if (location.pathname !== PUBLISH_URL) {
+        const formId = uuid();
+
+        if (activeFormId) {
+          dispatch({ type: ACTIONS.PUBLISH_SAVE_FORM, data: { id: activeFormId } });
+        }
+
+        dispatch({ type: ACTIONS.PUBLISH_SET_ACTIVE_FORM, data: { id: formId } });
+        dispatch(doUpdateFile(selectedFile));
+        dispatch({ type: ACTIONS.PUBLISH_SAVE_FORM, data: { id: formId } });
+      } else {
+        dispatch(doUpdateFile(selectedFile));
+      }
       hideDropArea();
     },
-    [doUpdateFile_, hideDropArea]
+    [activeFormId, dispatch, hideDropArea, location.pathname]
   );
   // Clear timers when unmounted
   React.useEffect(() => {

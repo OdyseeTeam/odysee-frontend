@@ -54,6 +54,10 @@ function getTabIndexFromSearch(search: string) {
   return urlParams.get(COLLECTION_PAGE.QUERIES.TAB) === COLLECTION_PAGE.TABS.ITEMS ? TAB.ITEMS : TAB.GENERAL;
 }
 
+function areArraysEqual(left: Array<any> = [], right: Array<any> = []) {
+  return left.length === right.length && left.every((item, index) => item === right[index]);
+}
+
 type Props = {
   collectionId: string;
   onDoneForId?: (arg0: any) => any;
@@ -110,9 +114,18 @@ const CollectionPublishForm = (props: Props) => {
     }
   }
 
-  function updateFormParams(newParams: {}) {
+  const updateFormParams = React.useCallback((newParams: {}) => {
     setFormParams((prevParams) => ({ ...prevParams, ...newParams }));
-  }
+  }, []);
+
+  const collectionFormContext = React.useMemo(
+    () => ({
+      collectionId,
+      formParams,
+      updateFormParams,
+    }),
+    [collectionId, formParams, updateFormParams]
+  );
 
   const syncTabToUrl = React.useCallback(
     (nextTabIndex: number) => {
@@ -232,8 +245,15 @@ const CollectionPublishForm = (props: Props) => {
       collectionResetPending.current = false;
     } else if (collectionParams) {
       // Keep claims in formParams up to date
-      updateFormParams({
-        claims: collectionParams.claims,
+      setFormParams((prevParams) => {
+        if (areArraysEqual(prevParams.claims, collectionParams.claims)) {
+          return prevParams;
+        }
+
+        return {
+          ...prevParams,
+          claims: collectionParams.claims,
+        };
       });
     }
   }, [collectionParams]);
@@ -264,13 +284,7 @@ const CollectionPublishForm = (props: Props) => {
       }}
       disableSubmitOnEnter
     >
-      <CollectionFormContext.Provider
-        value={{
-          collectionId,
-          formParams,
-          updateFormParams,
-        }}
-      >
+      <CollectionFormContext.Provider value={collectionFormContext}>
         <Tabs onChange={onTabChange} index={tabIndex}>
           <TabList className="tabs__list--collection-edit-page">
             <Tab>{__('General')}</Tab>
