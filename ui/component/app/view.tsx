@@ -36,8 +36,8 @@ import { useIsMobile } from 'effects/use-screensize';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
-  selectGetSyncErrorMessage,
   selectPrefsReady,
+  selectSyncApplyPasswordError,
   selectSyncFatalError,
   selectSyncIsLocked,
 } from 'redux/selectors/sync';
@@ -209,7 +209,7 @@ function App() {
   const languages = useAppSelector(selectLoadedLanguages);
   const reloadRequired = useAppSelector((state) => state.app.reloadRequired);
   const prefsReady = useAppSelector(selectPrefsReady);
-  const syncError = useAppSelector(selectGetSyncErrorMessage);
+  const syncApplyPasswordError = useAppSelector(selectSyncApplyPasswordError);
   const syncIsLocked = useAppSelector(selectSyncIsLocked);
   const uploadCount = useAppSelector(selectUploadCount);
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
@@ -642,10 +642,10 @@ function App() {
   }, [dispatch, hasSignedIn, hasVerifiedEmail]);
   useEffect(() => {
     if (embedPath) return;
-    if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
+    if (syncApplyPasswordError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
       navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncError, pathname, isAuthenticated, navigate]);
+  }, [syncApplyPasswordError, pathname, isAuthenticated, navigate]);
   useEffect(() => {
     if (embedPath) return;
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {
