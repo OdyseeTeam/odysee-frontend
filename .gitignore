@@ -46,6 +46,7 @@ package-lock.json
 .env.lbrytv
 analyzeResults*.html
 ecosystem.config.js
+ecosystem.config.cjs
 
 ### AI tools (user-specific) ###
 .claude/
