@@ -1829,7 +1829,13 @@ export default function LivestreamStudio(props: Props) {
 
   React.useEffect(() => {
     const hasActivity = activeVideoIds.size > 0 || activeAudioIds.size > 0 || activeWidgetIds.size > 0;
-    if (!hasActivity) return;
+    if (!hasActivity) {
+      if (status === 'preview') {
+        setMediaStream(null);
+        setStatus('idle');
+      }
+      return;
+    }
     const id = requestAnimationFrame(() => {
       if (!compositorCanvasRef.current) return;
       const combined = buildCompositorStream();
