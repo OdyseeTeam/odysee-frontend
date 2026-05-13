@@ -40,7 +40,7 @@ app.use(appStringsMiddleWare);
 
 // /public/* files are served from dist/ (maps to dist/public/*)
 const staticMaxAge = (process.env.NODE_ENV || 'development') === 'development' ? 0 : 3600000;
-const staticServe = serve(DIST_ROOT, { maxage: staticMaxAge });
+const staticServe = serve(DIST_ROOT, { maxage: staticMaxAge, index: false });
 // Root-level files like /robots.txt, /sw.js are in dist/public/, serve with prefix strip
 const rootStaticServe = serve(path.resolve(__dirname, 'dist/public'), { maxage: staticMaxAge, index: false });
 
