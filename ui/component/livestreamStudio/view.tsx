@@ -9,6 +9,7 @@ import { getLivestreamWhipIngestUrl } from 'constants/livestream';
 import {
   getWebrtcPublishEncodingOptions,
   getWebrtcPublishVideoConstraints,
+  isPortraitOrientation,
   type WebrtcPublishVideoCodecPreference,
 } from 'constants/webrtcPublish';
 import { platform } from 'util/platform';
@@ -135,6 +136,12 @@ function getCameraConstraintAttempts(
 
   if (!targetWidth || !targetHeight || !targetFps) return [base];
 
+  const portraitMobile = platform.isMobile() && isPortraitOrientation();
+  const vgaW = portraitMobile ? 480 : 640;
+  const vgaH = portraitMobile ? 640 : 480;
+  const lowResW = portraitMobile ? 480 : 854;
+  const lowResH = portraitMobile ? 854 : 480;
+
   const exactNativeMode = {
     ...sharedCameraPrefs,
     width: { exact: targetWidth },
@@ -153,16 +160,16 @@ function getCameraConstraintAttempts(
 
   const exactVgaMode = {
     ...sharedCameraPrefs,
-    width: { exact: 640 },
-    height: { exact: 480 },
+    width: { exact: vgaW },
+    height: { exact: vgaH },
     frameRate: { exact: targetFps },
     resizeMode: 'none',
   } satisfies MediaTrackConstraintsWithResizeMode;
 
   const strictVgaMode = {
     ...sharedCameraPrefs,
-    width: { exact: 640 },
-    height: { exact: 480 },
+    width: { exact: vgaW },
+    height: { exact: vgaH },
     frameRate: { min: targetFps, ideal: targetFps },
     resizeMode: 'none',
   } satisfies MediaTrackConstraintsWithResizeMode;
@@ -174,15 +181,15 @@ function getCameraConstraintAttempts(
 
   const lowerResolutionStrictScalable = {
     ...sharedCameraPrefs,
-    width: { ideal: 854 },
-    height: { ideal: 480 },
+    width: { ideal: lowResW },
+    height: { ideal: lowResH },
     frameRate: { min: targetFps, ideal: targetFps },
   } satisfies MediaTrackConstraintsWithResizeMode;
 
   const lowerResolutionSoftScalable = {
     ...sharedCameraPrefs,
-    width: { ideal: 854 },
-    height: { ideal: 480 },
+    width: { ideal: lowResW },
+    height: { ideal: lowResH },
     frameRate: { ideal: targetFps },
   } satisfies MediaTrackConstraintsWithResizeMode;
 
@@ -2436,7 +2443,7 @@ export default function LivestreamStudio(props: Props) {
               className={classnames('livestream-studio__preview', {
                 'livestream-studio__preview--active': hasCamera,
                 'livestream-studio__preview--live': isLive,
-                'livestream-studio__preview--portrait': isMobile && facingMode === 'user',
+                'livestream-studio__preview--portrait': isMobile && isPortraitOrientation(),
               })}
             >
               {(isFloating || previewTab === 'preview') && <StreamPreview canvasRef={compositorCanvasRef} />}

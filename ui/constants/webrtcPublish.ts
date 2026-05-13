@@ -58,6 +58,17 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
   },
 };
 
+export function isPortraitOrientation(): boolean {
+  if (typeof window === 'undefined') return true;
+  const type = window.screen?.orientation?.type;
+  if (typeof type === 'string') return type.startsWith('portrait');
+  const angle = typeof window.orientation === 'number' ? Math.abs(window.orientation) : null;
+  if (angle === 0 || angle === 180) return true;
+  if (angle === 90) return false;
+  if (typeof window.matchMedia === 'function') return window.matchMedia('(orientation: portrait)').matches;
+  return true;
+}
+
 export function getWebrtcPublishVideoConstraints(
   presetId: WebrtcPublishPresetId,
   facingMode?: 'user' | 'environment'
@@ -68,9 +79,7 @@ export function getWebrtcPublishVideoConstraints(
     const facing = facingMode || 'user';
     video.facingMode = { exact: facing };
 
-    // Front camera on mobile is portrait — swap width/height so constraints
-    // match the camera's native orientation (e.g., 720x1280 not 1280x720)
-    if (facing === 'user') {
+    if (isPortraitOrientation()) {
       const origWidth = video.width;
       video.width = video.height;
       video.height = origWidth;
