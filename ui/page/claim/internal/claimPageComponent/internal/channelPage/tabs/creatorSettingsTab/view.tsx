@@ -33,6 +33,9 @@ import {
 import { selectChannelHasMembershipTiersForId } from 'redux/selectors/memberships';
 import { doListAllMyMembershipTiers } from 'redux/actions/memberships';
 import { selectMyChannelClaims } from 'redux/selectors/claims';
+import { selectYoutubeChannels } from 'redux/selectors/user';
+import CopyableText from 'component/copyableText';
+import { DOMAIN } from 'config';
 type ChannelSettings = {
   comments_enabled?: boolean;
   min_tip_amount_comment?: number;
@@ -68,6 +71,12 @@ export default function CreatorSettingsTab(props: Props) {
   const settingsByChannelId = useAppSelector(selectSettingsByChannelId);
   const moderationDelegatesById = useAppSelector(selectModerationDelegatesById);
   const myChannelClaims = useAppSelector(selectMyChannelClaims);
+  const youtubeChannels = useAppSelector(selectYoutubeChannels);
+  const matchingYoutubeChannel = (youtubeChannels || []).find((c: any) => c.status_token);
+  const youtubeStatusToken = matchingYoutubeChannel?.status_token || null;
+  const youtubeSyncLauncherUrl = youtubeStatusToken
+    ? `https://${DOMAIN}/$/spinner?launch=${encodeURIComponent(`odysee://token/${youtubeStatusToken}`)}`
+    : null;
   const areCommentsMembersOnly = useAppSelector((state) => selectMembersOnlyCommentsForChannelId(state, activeChannelClaim.claim_id));
   const commentBlockWords = (channelClaim: ChannelClaim, words: Array<string>) => dispatch(doCommentBlockWords(channelClaim, words));
   const commentUnblockWords = (channelClaim: ChannelClaim, words: Array<string>) => dispatch(doCommentUnblockWords(channelClaim, words));
@@ -429,6 +438,34 @@ export default function CreatorSettingsTab(props: Props) {
                     <TagsSearch label={__('Muted words')} labelAddNew={__('Add words')} labelSuggestions={__('Suggestions')} onRemove={removeMutedWord} onSelect={addMutedWords} disableAutoFocus tagsPassedIn={mutedWordTags} placeholder={__('Add words to block')} hideSuggestions disableControlTags />
                   </div>
                 </SettingsRow>} />
+
+            {youtubeStatusToken && (
+              <Card
+                background
+                isBodyList
+                title={__('YouTube Sync')}
+                body={
+                  <SettingsRow
+                    title={
+                      matchingYoutubeChannel?.yt_channel_name ||
+                      matchingYoutubeChannel?.lbry_channel_name ||
+                      __('Self-sync token')
+                    }
+                    subtitle={__('Use this token in the self-sync desktop app to claim and sync this channel.')}
+                    multirow
+                  >
+                    <CopyableText
+                      primaryButton
+                      copyable={youtubeStatusToken}
+                      snackMessage={__('Token copied.')}
+                    />
+                    {youtubeSyncLauncherUrl && (
+                      <Button button="primary" label={__('Open in self-sync app')} href={youtubeSyncLauncherUrl} />
+                    )}
+                  </SettingsRow>
+                }
+              />
+            )}
           </>}
       </div>
     </div>;

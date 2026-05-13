@@ -17,7 +17,6 @@ import {
   selectYouTubeImportVideosComplete,
   selectYouTubeImportPending,
   selectUserIsPending,
-  selectUserExperimentalUi,
 } from 'redux/selectors/user';
 import { doResolveUris } from 'redux/actions/claims';
 import './style.lazy.scss';
@@ -37,8 +36,6 @@ export default function YoutubeTransferStatus(props: Props) {
   const youtubeImportPending = useAppSelector(selectYouTubeImportPending);
   const userFetchPending = useAppSelector(selectUserIsPending);
   const videosImported = useAppSelector(selectYouTubeImportVideosComplete);
-  const experimentalUi = useAppSelector(selectUserExperimentalUi);
-
   const claimChannels = () => dispatch(doClaimYoutubeChannels());
   const updateUser = () => dispatch(doUserFetch());
   const checkYoutubeTransfer = () => dispatch(doCheckYoutubeTransfer());
@@ -48,7 +45,6 @@ export default function YoutubeTransferStatus(props: Props) {
   const hasPendingTransfers = youtubeChannels.some(
     (status) => status.transfer_state === YOUTUBE_STATUSES.YOUTUBE_SYNC_PENDING_TRANSFER
   );
-  // Get the first available status token for self-sync
   const firstAvailableToken = hasChannels
     ? youtubeChannels.find((channel) => channel.status_token)?.status_token
     : null;
@@ -56,7 +52,7 @@ export default function YoutubeTransferStatus(props: Props) {
   const selfSyncLauncherUrl = selfSyncDeepLink
     ? `https://${DOMAIN}/$/spinner?launch=${encodeURIComponent(selfSyncDeepLink)}`
     : null;
-  const showSelfSyncCard = experimentalUi || autoOpenSync;
+  const showSelfSyncCard = Boolean(firstAvailableToken);
   const hasAutoOpenedRef = React.useRef(false);
 
   function clearAutoOpenParamsFromUrl() {
