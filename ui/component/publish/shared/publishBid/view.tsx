@@ -14,6 +14,7 @@ import {
   selectTakeOverAmount,
 } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
+import './style.scss';
 type Props = {};
 
 function PublishBid(props: Props) {
@@ -27,7 +28,6 @@ function PublishBid(props: Props) {
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const [bidError, setBidError] = useState<string | undefined>(undefined);
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
-  const [bidHasExceededDefaultAmount] = React.useState(previousBidAmount && previousBidAmount > MINIMUM_PUBLISH_BID);
   useEffect(() => {
     if (!previousBidAmount || bid < MINIMUM_PUBLISH_BID) {
       updatePublishForm({
@@ -58,40 +58,44 @@ function PublishBid(props: Props) {
       })
     );
   }, [bid, previousBidAmount, balance, dispatch]);
-  return bidHasExceededDefaultAmount ? (
+  return (
     <Card
       className={!name ? 'disabled' : ''}
       actions={
-        <FormField
-          type="number"
-          name="content_bid"
-          min={0}
-          step="any"
-          placeholder="0.123"
-          className="form-field--price-amount"
-          label={<LbcSymbol postfix={__('Deposit')} size={12} />}
-          value={bid}
-          error={bidError}
-          onChange={(event) =>
-            updatePublishForm({
-              bid: parseFloat(event.target.value),
-            })
-          }
-          onWheel={(e) => e.stopPropagation()}
-          helper={
-            <>
+        <div className="publish-bid__row">
+          <div className="publish-bid__input">
+            <FormField
+              type="number"
+              name="content_bid"
+              min={0}
+              step="any"
+              placeholder="0.123"
+              className="form-field--price-amount"
+              label={<LbcSymbol postfix={__('Deposit')} />}
+              value={bid}
+              error={bidError}
+              onChange={(event) =>
+                updatePublishForm({
+                  bid: parseFloat(event.target.value),
+                })
+              }
+              onWheel={(e) => e.stopPropagation()}
+            />
+            <WalletSpendableBalanceHelp inline />
+          </div>
+          <div className="publish-bid__helper">
+            <span className="help">
               <BidHelpText
                 uri={'lbry://' + name}
                 amountNeededForTakeover={amountNeededForTakeover}
                 isResolvingUri={isResolvingUri}
               />
-              <WalletSpendableBalanceHelp inline />
-            </>
-          }
-        />
+            </span>
+          </div>
+        </div>
       }
     />
-  ) : null;
+  );
 }
 
 export default PublishBid;
