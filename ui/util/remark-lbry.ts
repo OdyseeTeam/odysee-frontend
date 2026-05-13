@@ -118,6 +118,65 @@ function stripTrailingPunctuation(url: string): string {
   return url.slice(0, end);
 }
 
+function countCharacter(value: string, character: string): number {
+  let count = 0;
+  for (let i = 0; i < value.length; i++) {
+    if (value[i] === character) count++;
+  }
+  return count;
+}
+
+function getBalancingClosers(url: string, nextText: string): string {
+  let closers = '';
+
+  while (closers.length < nextText.length) {
+    const nextCharacter = nextText[closers.length];
+    const pair = TRAILING_PAIRS.find(([, close]) => close === nextCharacter);
+
+    if (!pair) break;
+
+    const candidateUrl = `${url}${closers}`;
+    const opens = countCharacter(candidateUrl, pair[0]);
+    const closes = countCharacter(candidateUrl, pair[1]);
+
+    if (opens <= closes) break;
+
+    closers += nextCharacter;
+  }
+
+  return closers;
+}
+
+function mergeBalancingPunctuation(node: MdastNode, index: number | undefined, parent: MdastNode | undefined) {
+  if (typeof index !== 'number' || !parent?.children || !node.url) {
+    return;
+  }
+
+  const nextNode = parent.children[index + 1];
+
+  if (nextNode?.type !== 'text' || !nextNode.value) {
+    return;
+  }
+
+  const closers = getBalancingClosers(node.url, nextNode.value);
+
+  if (!closers) {
+    return;
+  }
+
+  node.url += closers;
+  node.children?.forEach((child) => {
+    if (child.type === 'text' && child.value === node.url.slice(0, -closers.length)) {
+      child.value = node.url || child.value;
+    }
+  });
+
+  nextNode.value = nextNode.value.slice(closers.length);
+  if (!nextNode.value) {
+    parent.children.splice(index + 1, 1);
+  }
+}
+
 function locateBareLink(value: string, fromIndex: number): number {
   const sub = value.slice(fromIndex);
   const match = bareLinkRegex.exec(sub);
@@ -294,7 +353,9 @@ const transform = (tree: MdastNode): void => {
     return index + nextChildren.length;
   });
 
-  visit(tree, 'link', (node: MdastNode, _index: number | undefined, parent: MdastNode | undefined) => {
+  visit(tree, 'link', (node: MdastNode, index: number | undefined, parent: MdastNode | undefined) => {
+    mergeBalancingPunctuation(node, index, parent);
+
     if (parent?.type === 'paragraph') {
       setAutoEmbed(node);
     }

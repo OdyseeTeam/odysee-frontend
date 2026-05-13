@@ -103,14 +103,44 @@
     margin-top: var(--spacing-m);
   }
 
+  ul,
   ol {
+    padding-left: 0;
+
     li {
       list-style-position: outside;
       margin-left: var(--spacing-l);
       margin-bottom: var(--spacing-m);
+
       p {
-        margin-top: var(--spacing-m);
+        display: inline;
       }
+
+      > ul,
+      > ol {
+        margin-top: var(--spacing-s);
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  ul {
+    li {
+      list-style-type: disc;
+
+      li {
+        list-style-type: circle;
+
+        li {
+          list-style-type: square;
+        }
+      }
+    }
+  }
+
+  ol {
+    li {
+      list-style-type: decimal;
     }
   }
 
