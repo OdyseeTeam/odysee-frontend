@@ -6,6 +6,7 @@ import {
   hyperchatColorHex,
   type ChatPlaceholderMessage,
 } from 'util/livestreamChatPlaceholders';
+import { applyChromaKey, releaseChromaKey } from 'util/chromaKey';
 import './style.scss';
 
 export type CropRegion = {
@@ -52,6 +53,12 @@ export type CompositorLayer = {
   chatHyperchatOnly?: boolean;
   chatNewOnTop?: boolean;
   freeAspect?: boolean;
+  chromaKey?: {
+    enabled: boolean;
+    color: string;
+    threshold: number;
+    smoothness: number;
+  };
 };
 
 type Props = {
@@ -264,6 +271,7 @@ export default function LivestreamCompositor(props: Props) {
       if (!activeIds.has(id)) {
         video.srcObject = null;
         videoElementsRef.current.delete(id);
+        releaseChromaKey(id);
       }
     }
   }, [layers]);
@@ -316,9 +324,21 @@ export default function LivestreamCompositor(props: Props) {
           ctx.clip();
         }
 
+        let drawSource: CanvasImageSource = source;
+        if (layer.chromaKey?.enabled && !widgetCanvas && video) {
+          const srcW = video.videoWidth || 0;
+          const srcH = video.videoHeight || 0;
+          const keyed = applyChromaKey(layer.id, video, srcW, srcH, {
+            color: layer.chromaKey.color,
+            threshold: layer.chromaKey.threshold,
+            smoothness: layer.chromaKey.smoothness,
+          });
+          if (keyed) drawSource = keyed;
+        }
+
         if (layer.crop) {
           ctx.drawImage(
-            source,
+            drawSource,
             layer.crop.sx,
             layer.crop.sy,
             layer.crop.sw,
@@ -329,7 +349,7 @@ export default function LivestreamCompositor(props: Props) {
             layer.height
           );
         } else {
-          ctx.drawImage(source, layer.x, layer.y, layer.width, layer.height);
+          ctx.drawImage(drawSource, layer.x, layer.y, layer.width, layer.height);
         }
 
         ctx.restore();
@@ -805,9 +825,7 @@ export default function LivestreamCompositor(props: Props) {
           );
         })}
 
-      {layers.length === 0 && (
-        <div className="livestream-compositor__empty">{__('Select video sources from the panel')}</div>
-      )}
+      {layers.length === 0 && <div className="livestream-compositor__empty">{__('Select sources from the panel')}</div>}
     </div>
   );
 }

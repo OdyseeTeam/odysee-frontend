@@ -23,7 +23,6 @@ import { selectUser } from 'redux/selectors/user';
 import { selectPendingLivestreamsForChannelId, selectLivestreamsForChannelId } from 'redux/selectors/livestream';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
-import LivestreamStudio from 'component/livestreamStudio';
 import ClaimPreview from 'component/claimPreview';
 import LivestreamQuickCreate from 'component/livestreamQuickCreate/view';
 import { lazyImport } from 'util/lazyImport';
@@ -105,6 +104,15 @@ export default function LivestreamSetupPage() {
   const streamKey = createStreamKey();
   const pendingLength = pendingClaims.length;
   const approvedLivestreamClaimCount = myLivestreamClaims.length;
+  const studioMountRef = React.useRef<HTMLDivElement | null>(null);
+  const setStudioMountAction = publishCtx.actions.setStudioMount;
+  const handleStudioMountRef = React.useCallback(
+    (el: HTMLDivElement | null) => {
+      studioMountRef.current = el;
+      setStudioMountAction(el);
+    },
+    [setStudioMountAction]
+  );
   const totalLivestreamClaims = React.useMemo(() => {
     const seenIds = new Set<string>();
     const seenNames = new Set<string>();
@@ -133,6 +141,29 @@ export default function LivestreamSetupPage() {
         .catch(() => setSigData({ signature: null, signing_ts: null }));
     }
   }, [channelName, channelId]);
+
+  React.useEffect(() => {
+    if (!channelId || !BROWSER_STREAM_ENABLED) return;
+    publishCtx.actions.setStudioProps({
+      streamKey,
+      livestreamUri: totalLivestreamClaims[0]?.canonical_url,
+      livestreamEnabled,
+      hasApprovedLivestreamClaim: approvedLivestreamClaimCount > 0,
+      presetId,
+      signature: sigData.signature,
+      signingTs: sigData.signing_ts,
+    });
+  }, [
+    channelId,
+    streamKey,
+    totalLivestreamClaims,
+    livestreamEnabled,
+    approvedLivestreamClaimCount,
+    presetId,
+    sigData.signature,
+    sigData.signing_ts,
+    publishCtx.actions,
+  ]);
 
   const [hasReplays, setHasReplays] = React.useState(false);
   React.useEffect(() => {
@@ -174,11 +205,22 @@ export default function LivestreamSetupPage() {
   }, [channelId, pendingLength, dispatch]);
 
   const defaultTab = BROWSER_STREAM_ENABLED ? 'Preview' : 'Setup';
-  const initialTab = urlTab && VALID_LIVESTREAM_TABS.includes(urlTab) ? urlTab : defaultTab;
+  const TAB_STORAGE_KEY = 'livestream-setup-last-tab';
+  const initialTab = (() => {
+    if (urlTab && VALID_LIVESTREAM_TABS.includes(urlTab)) return urlTab;
+    try {
+      const stored = localStorage.getItem(TAB_STORAGE_KEY);
+      if (stored && VALID_LIVESTREAM_TABS.includes(stored)) return stored;
+    } catch {}
+    return defaultTab;
+  })();
   const [tab, setTabState] = React.useState(initialTab);
   const setTab = React.useCallback(
     (next: string) => {
       setTabState(next);
+      try {
+        localStorage.setItem(TAB_STORAGE_KEY, next);
+      } catch {}
       const sp = new URLSearchParams(search);
       if (next === defaultTab) sp.delete('t');
       else sp.set('t', next);
@@ -381,21 +423,12 @@ export default function LivestreamSetupPage() {
         </div>
       )}
 
-      {/* Browser Stream Tab (WebRTC) — always mounted, hidden on other tabs to preserve state */}
       {!fetchingChannels && channelId && BROWSER_STREAM_ENABLED && (
         <div
           className={classnames({ disabled: editingURI })}
           style={tab !== 'Stream' ? { display: 'none' } : undefined}
         >
-          <LivestreamStudio
-            streamKey={streamKey}
-            livestreamUri={totalLivestreamClaims[0]?.canonical_url}
-            livestreamEnabled={livestreamEnabled}
-            hasApprovedLivestreamClaim={approvedLivestreamClaimCount > 0}
-            presetId={presetId}
-            signature={sigData.signature}
-            signingTs={sigData.signing_ts}
-          />
+          <div ref={handleStudioMountRef} className="livestream-setup__studio-host" />
         </div>
       )}
 

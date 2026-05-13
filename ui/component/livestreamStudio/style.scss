@@ -1,5 +1,13 @@
 @import 'init/breakpoints';
 
+.livestream-studio-portal-host {
+  display: contents;
+}
+
+.livestream-studio--floating {
+  display: none !important;
+}
+
 .livestream-studio {
   margin-top: var(--spacing-s);
   display: flex;

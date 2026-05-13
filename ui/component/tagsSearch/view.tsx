@@ -26,6 +26,7 @@ import {
   doToggleTagFollowDesktop as doToggleTagFollowDesktopAction,
   doAddTag as doAddTagAction,
 } from 'redux/actions/tags';
+import { doToast } from 'redux/actions/notifications';
 type Props = {
   tagsPassedIn: Array<Tag>;
   unfollowedTags?: Array<Tag>;
@@ -53,18 +54,21 @@ function normalizeTagName(tag: string) {
   return tag.trim().toLowerCase();
 }
 
-function getValidTagsFromInput(input: string, limit: number) {
+function getValidTagsFromInput(input: string, limit: number): { accepted: string[]; rejected: string[] } {
   const safeLimit = Math.max(0, limit);
+  const normalized = Array.from(new Set(input.split(',').map(normalizeTagName).filter(Boolean)));
 
-  return Array.from(
-    new Set(
-      input
-        .split(',')
-        .map(normalizeTagName)
-        .filter(Boolean)
-        .filter((tag) => !UNALLOWED_TAGS.includes(tag))
-    )
-  ).slice(0, safeLimit);
+  const rejected: string[] = [];
+  const accepted: string[] = [];
+  for (const tag of normalized) {
+    if (UNALLOWED_TAGS.includes(tag) || tag.startsWith(INTERNAL_TAG_PREFIX)) {
+      rejected.push(tag);
+    } else {
+      accepted.push(tag);
+    }
+  }
+
+  return { accepted: accepted.slice(0, safeLimit), rejected };
 }
 
 /*
@@ -192,10 +196,19 @@ export default function TagsSearch(props: Props) {
 
   function handleSubmit(e) {
     e.preventDefault();
-    const newTagsArr = getValidTagsFromInput(newTag, limitSelect - countWithoutSpecialTags);
+    const { accepted: newTagsArr, rejected } = getValidTagsFromInput(newTag, limitSelect - countWithoutSpecialTags);
 
     // Split into individual tags, normalize the tags, and remove duplicates with a set.
     setNewTag('');
+
+    if (rejected.length > 0) {
+      dispatch(
+        doToast({
+          message: __('"%tag%" is reserved for internal use and cannot be added as a tag.', { tag: rejected[0] }),
+          isError: true,
+        })
+      );
+    }
 
     if (newTagsArr.length === 0) {
       return;

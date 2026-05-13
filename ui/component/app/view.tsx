@@ -5,7 +5,6 @@ import * as URL_PARAMS from 'constants/urlParams';
 import React, { useEffect, useState } from 'react';
 import { AppContext } from 'contexts/app';
 export { AppContext };
-import { useLivestreamPublish } from 'contexts/livestreamPublish';
 import { isEmbedPath } from 'util/embed';
 import LivestreamPublishProvider from 'component/livestreamPublishProvider';
 import { lazyImport } from 'util/lazyImport';
@@ -36,8 +35,8 @@ import { useIsMobile } from 'effects/use-screensize';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
-  selectGetSyncErrorMessage,
   selectPrefsReady,
+  selectSyncApplyPasswordError,
   selectSyncFatalError,
   selectSyncIsLocked,
 } from 'redux/selectors/sync';
@@ -181,6 +180,21 @@ const YoutubeWelcome = lazyImport(
 // ****************************************************************************
 export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
+import { useLivestreamPublish } from 'contexts/livestreamPublish';
+
+function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
+  const { state } = useLivestreamPublish();
+  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
+  // eslint-disable-next-line no-console
+  console.log('[FloaterGate]', { shouldMount, embedPath, hasStream: !!state.mediaStream, status: state.status });
+  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
+}
+
+function usePublisherFloaterActive() {
+  const { state } = useLivestreamPublish();
+  return Boolean(state.mediaStream && state.status !== 'idle');
+}
+
 // const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
 const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
 const LATEST_PATH = `/$/${PAGES.LATEST}/`;
@@ -193,13 +207,6 @@ type HomepageOrder = {
   hidden: Array<string> | null | undefined;
 };
 
-function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
-  const { state } = useLivestreamPublish();
-  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
-
-  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
-}
-
 function App() {
   const dispatch = useAppDispatch();
   const user = useAppSelector(selectUser);
@@ -209,7 +216,7 @@ function App() {
   const languages = useAppSelector(selectLoadedLanguages);
   const reloadRequired = useAppSelector((state) => state.app.reloadRequired);
   const prefsReady = useAppSelector(selectPrefsReady);
-  const syncError = useAppSelector(selectGetSyncErrorMessage);
+  const syncApplyPasswordError = useAppSelector(selectSyncApplyPasswordError);
   const syncIsLocked = useAppSelector(selectSyncIsLocked);
   const uploadCount = useAppSelector(selectUploadCount);
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
@@ -267,7 +274,9 @@ function App() {
   const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
   const hasModalUrlParam = Boolean(urlParams.get(URL_PARAMS.MODAL));
   const shouldMountModalRouter = !embedPath && Boolean(currentModal || modalError || hasModalUrlParam);
-  const shouldMountFloatingPlayer = !embedPath && Boolean(playingUri?.uri || autoplayCountdownUri);
+  const publisherFloaterActive = usePublisherFloaterActive();
+  const shouldMountFloatingPlayer =
+    !embedPath && !publisherFloaterActive && Boolean(playingUri?.uri || autoplayCountdownUri);
   const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
   let path;
 
@@ -642,10 +651,10 @@ function App() {
   }, [dispatch, hasSignedIn, hasVerifiedEmail]);
   useEffect(() => {
     if (embedPath) return;
-    if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
+    if (syncApplyPasswordError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
       navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
     } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncError, pathname, isAuthenticated, navigate]);
+  }, [syncApplyPasswordError, pathname, isAuthenticated, navigate]);
   useEffect(() => {
     if (embedPath) return;
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {

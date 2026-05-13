@@ -62,6 +62,7 @@ type Props = {
   presetId: import('constants/webrtcPublish').WebrtcPublishPresetId;
   signature?: string;
   signingTs?: string;
+  isFloating?: boolean;
 };
 
 type Status = 'idle' | 'requesting_permission' | 'preview' | 'connecting' | 'live' | 'stopping' | 'error';
@@ -771,6 +772,7 @@ export default function LivestreamStudio(props: Props) {
     };
     loadAnimRef.current = requestAnimationFrame(tick);
   }
+
   const [selectedLayerId, setSelectedLayerId] = React.useState<string | null>(null);
   const [previewTab, setPreviewTab] = React.useState<'preview' | 'compositor' | string>('preview');
   const [activeVideoIds, setActiveVideoIds] = React.useState<Set<string>>(new Set());
@@ -779,17 +781,17 @@ export default function LivestreamStudio(props: Props) {
   const [masterVolume, setMasterVolume] = React.useState<number>(1);
   const [mutedAudios, setMutedAudios] = React.useState<Set<string>>(new Set());
   const audioVolumeBeforeMuteRef = React.useRef<Record<string, number>>({});
-  const sourceStreamsRef = React.useRef<Map<string, MediaStream>>(new Map());
-  const mediaElementsRef = React.useRef<Map<string, HTMLMediaElement>>(new Map());
-  const audioMixerRef = React.useRef<AudioMixer | null>(null);
-  const screenAudioByVideoIdRef = React.useRef<Map<string, string>>(new Map());
+  const sourceStreamsRef = publishCtx.refs.sourceStreamsRef;
+  const mediaElementsRef = publishCtx.refs.mediaElementsRef;
+  const audioMixerRef = publishCtx.refs.audioMixerRef;
+  const screenAudioByVideoIdRef = publishCtx.refs.screenAudioByVideoIdRef;
   const [extraAudioSources, setExtraAudioSources] = React.useState<Array<{ deviceId: string; label: string }>>([]);
   const [extraVideoSources, setExtraVideoSources] = React.useState<VideoSource[]>([]);
   const [activeWidgetIds, setActiveWidgetIds] = React.useState<Set<string>>(new Set());
-  const activatedVideoSourcesRef = React.useRef<Map<string, VideoSource>>(new Map());
-  const activatedAudioSourcesRef = React.useRef<Map<string, AudioSource>>(new Map());
-  const widgetCanvasesRef = React.useRef<Map<string, HTMLCanvasElement>>(new Map());
-  const widgetAnimRef = React.useRef<Map<string, number>>(new Map());
+  const activatedVideoSourcesRef = publishCtx.refs.activatedVideoSourcesRef;
+  const activatedAudioSourcesRef = publishCtx.refs.activatedAudioSourcesRef;
+  const widgetCanvasesRef = publishCtx.refs.widgetCanvasesRef;
+  const widgetAnimRef = publishCtx.refs.widgetAnimRef;
   const compositorLayersRef = React.useRef<CompositorLayer[]>([]);
   const compositorCanvasRef = React.useRef<HTMLCanvasElement | null>(null);
   const isMobile = platform.isMobile();
@@ -878,11 +880,127 @@ export default function LivestreamStudio(props: Props) {
   const p2pEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.P2P_DELIVERY));
   const prefsReady = useAppSelector(selectPrefsReady);
   const [showP2pConfirm, setShowP2pConfirm] = React.useState(false);
+  const [justEnded, setJustEnded] = React.useState(false);
 
-  // Detect if another stream is already active on this channel (e.g. RTMP, or another browser tab)
+  React.useEffect(() => {
+    if (!justEnded) return;
+    const timer = setTimeout(() => setJustEnded(false), 15000);
+    return () => clearTimeout(timer);
+  }, [justEnded]);
+
+  // Detect if another stream is already active on this channel (e.g. RTMP, or another browser tab).
+  // Suppress for ~15s after the user ends their own stream so the polling has time to catch up.
   const existingStreamActive = Boolean(
-    activeLivestream && status !== 'live' && status !== 'connecting' && status !== 'stopping'
+    activeLivestream && status !== 'live' && status !== 'connecting' && status !== 'stopping' && !justEnded
   );
+
+  const DRAFT_KEY = 'livestream-draft-composition';
+  const draftRestoredRef = React.useRef(false);
+
+  React.useEffect(() => {
+    if (!draftRestoredRef.current) return;
+    const isEphemeralId = (id: string) =>
+      id.startsWith('__screen_') || id.startsWith('__videofile_') || id.startsWith('__image_');
+    try {
+      const layerMeta = compositorLayersRef.current
+        .filter((l) => !isEphemeralId(l.id))
+        .map((l) => {
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { stream, crop, aspectRatio, ...rest } = l;
+          return rest as Partial<CompositorLayer> & { id: string };
+        });
+      const draft = {
+        layers: layerMeta,
+        videoSources: Array.from(activeVideoIds)
+          .filter((vid) => !isEphemeralId(vid))
+          .map((vid) => activatedVideoSourcesRef.current.get(vid))
+          .filter((s): s is VideoSource => Boolean(s)),
+        audioSources: Array.from(activeAudioIds)
+          .filter(
+            (aid) => !isEphemeralId(aid) && !aid.startsWith('__screen_audio_') && !aid.startsWith('__videofile_audio_')
+          )
+          .map((aid) => activatedAudioSourcesRef.current.get(aid))
+          .filter((s): s is AudioSource => Boolean(s)),
+        widgetIds: Array.from(activeWidgetIds),
+        audioVolumes,
+        masterVolume,
+        mutedAudios: Array.from(mutedAudios),
+        presetId,
+        savedAt: Date.now(),
+      };
+      if (
+        draft.layers.length === 0 &&
+        draft.videoSources.length === 0 &&
+        draft.audioSources.length === 0 &&
+        draft.widgetIds.length === 0
+      ) {
+        localStorage.removeItem(DRAFT_KEY);
+      } else {
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+      }
+    } catch {}
+  }, [
+    compositorLayers,
+    activeVideoIds,
+    activeAudioIds,
+    activeWidgetIds,
+    audioVolumes,
+    masterVolume,
+    mutedAudios,
+    presetId,
+  ]);
+
+  React.useEffect(() => {
+    if (draftRestoredRef.current) return;
+    let cancelled = false;
+    const restore = async () => {
+      try {
+        const raw = localStorage.getItem(DRAFT_KEY);
+        if (!raw) {
+          draftRestoredRef.current = true;
+          return;
+        }
+        const draft = JSON.parse(raw);
+        if (
+          !draft ||
+          ((!draft.layers || draft.layers.length === 0) &&
+            (!draft.videoSources || draft.videoSources.length === 0) &&
+            (!draft.audioSources || draft.audioSources.length === 0) &&
+            (!draft.widgetIds || draft.widgetIds.length === 0))
+        ) {
+          draftRestoredRef.current = true;
+          return;
+        }
+        if (cancelled) return;
+        if (draft.audioVolumes) setAudioVolumes(draft.audioVolumes);
+        if (typeof draft.masterVolume === 'number') setMasterVolume(draft.masterVolume);
+        if (Array.isArray(draft.mutedAudios)) setMutedAudios(new Set(draft.mutedAudios));
+        const isEphemeralId = (id: string) =>
+          id.startsWith('__screen_') || id.startsWith('__videofile_') || id.startsWith('__image_');
+        await handleLoadSaved({
+          id: 'draft',
+          name: 'Draft',
+          thumbnail: '',
+          layers: (draft.layers || []).filter((l: any) => l.id && !isEphemeralId(l.id)),
+          videoSources: (draft.videoSources || []).filter((s: any) => s.deviceId && !isEphemeralId(s.deviceId)),
+          audioSources: (draft.audioSources || []).filter(
+            (s: any) =>
+              s.deviceId &&
+              !isEphemeralId(s.deviceId) &&
+              !s.deviceId.startsWith('__screen_audio_') &&
+              !s.deviceId.startsWith('__videofile_audio_')
+          ),
+          widgetIds: draft.widgetIds || [],
+          savedAt: draft.savedAt || Date.now(),
+        });
+      } catch {}
+      draftRestoredRef.current = true;
+    };
+    restore();
+    return () => {
+      cancelled = true;
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Viewer count from commentron WebSocket (actual HLS viewer count, not OME's always-1)
   const activeClaimId = useAppSelector((state) =>
@@ -1241,14 +1359,20 @@ export default function LivestreamStudio(props: Props) {
           ]);
         }
       } else {
-        stream = await navigator.mediaDevices.getUserMedia({
-          video: source.deviceId ? { deviceId: { exact: source.deviceId } } : true,
-          audio: false,
-        });
-        const obtainedId = stream.getVideoTracks()[0]?.getSettings().deviceId;
-        if (obtainedId && obtainedId !== id) {
-          source = { ...source, deviceId: obtainedId };
-          id = obtainedId;
+        const existing = sourceStreamsRef.current.get(id);
+        const reusable = existing && existing.getVideoTracks().some((t) => t.readyState === 'live');
+        if (reusable) {
+          stream = existing;
+        } else {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: source.deviceId ? { deviceId: { exact: source.deviceId } } : true,
+            audio: false,
+          });
+          const obtainedId = stream.getVideoTracks()[0]?.getSettings().deviceId;
+          if (obtainedId && obtainedId !== id) {
+            source = { ...source, deviceId: obtainedId };
+            id = obtainedId;
+          }
         }
       }
       sourceStreamsRef.current.set(id, stream);
@@ -1388,20 +1512,26 @@ export default function LivestreamStudio(props: Props) {
         audioConstraint.deviceId = { exact: id };
       }
       let stream: MediaStream;
-      try {
-        stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraint });
-      } catch (firstErr: unknown) {
-        const err = firstErr as DOMException;
-        if (err?.name === 'OverconstrainedError' || err?.name === 'NotFoundError') {
-          stream = await navigator.mediaDevices.getUserMedia({
-            audio: {
-              echoCancellation: true,
-              noiseSuppression: true,
-              autoGainControl: true,
-            },
-          });
-        } else {
-          throw firstErr;
+      const existingAudio = sourceStreamsRef.current.get(`audio-${id}`);
+      const reusableAudio = existingAudio && existingAudio.getAudioTracks().some((t) => t.readyState === 'live');
+      if (reusableAudio) {
+        stream = existingAudio;
+      } else {
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({ audio: audioConstraint });
+        } catch (firstErr: unknown) {
+          const err = firstErr as DOMException;
+          if (err?.name === 'OverconstrainedError' || err?.name === 'NotFoundError') {
+            stream = await navigator.mediaDevices.getUserMedia({
+              audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true,
+              },
+            });
+          } else {
+            throw firstErr;
+          }
         }
       }
       const obtainedId = stream.getAudioTracks()[0]?.getSettings().deviceId || id || `audio-${Date.now()}`;
@@ -1696,6 +1826,20 @@ export default function LivestreamStudio(props: Props) {
       setMediaStream(combined);
     }
   }
+
+  React.useEffect(() => {
+    const hasActivity = activeVideoIds.size > 0 || activeAudioIds.size > 0 || activeWidgetIds.size > 0;
+    if (!hasActivity) return;
+    const id = requestAnimationFrame(() => {
+      if (!compositorCanvasRef.current) return;
+      const combined = buildCompositorStream();
+      if (combined.getTracks().length > 0) {
+        setMediaStream(combined);
+        if (status === 'idle') setStatus('preview');
+      }
+    });
+    return () => cancelAnimationFrame(id);
+  }, [activeVideoIds, activeAudioIds, activeWidgetIds, compositorLayers]); // eslint-disable-line react-hooks/exhaustive-deps
 
   function handleLayerUpdate(id: string, updates: Partial<CompositorLayer>) {
     if (loadAnimRef.current !== null) {
@@ -2177,6 +2321,7 @@ export default function LivestreamStudio(props: Props) {
   }
 
   async function handleStop() {
+    setJustEnded(true);
     await publishCtx.actions.stopStream({
       preservePreview: Boolean(cameraAutoStart),
     });
@@ -2234,9 +2379,11 @@ export default function LivestreamStudio(props: Props) {
     );
   }
 
+  const isFloating = Boolean(props.isFloating);
+
   return (
     <div
-      className="livestream-studio"
+      className={classnames('livestream-studio', { 'livestream-studio--floating': isFloating })}
       onMouseDown={(e) => {
         if (!(e.target as HTMLElement).closest('.livestream-compositor')) {
           setSelectedLayerId(null);
@@ -2286,8 +2433,9 @@ export default function LivestreamStudio(props: Props) {
                 'livestream-studio__preview--portrait': isMobile && facingMode === 'user',
               })}
             >
-              {previewTab === 'preview' && <StreamPreview canvasRef={compositorCanvasRef} />}
-              {previewTab !== 'compositor' &&
+              {(isFloating || previewTab === 'preview') && <StreamPreview canvasRef={compositorCanvasRef} />}
+              {!isFloating &&
+                previewTab !== 'compositor' &&
                 previewTab !== 'preview' &&
                 (() => {
                   const layer = compositorLayers.find((l) => l.id === previewTab);
@@ -2311,6 +2459,16 @@ export default function LivestreamStudio(props: Props) {
                       borderRadius={layer.borderRadius}
                       layerWidth={layer.width}
                       crop={layer.crop}
+                      chromaKey={
+                        layer.chromaKey?.enabled
+                          ? {
+                              layerId: layer.id,
+                              color: layer.chromaKey.color,
+                              threshold: layer.chromaKey.threshold,
+                              smoothness: layer.chromaKey.smoothness,
+                            }
+                          : undefined
+                      }
                       onCropChange={(crop) => {
                         const trackSettings = layer.stream.getVideoTracks()[0]?.getSettings();
                         const sourceAr =
@@ -2328,7 +2486,9 @@ export default function LivestreamStudio(props: Props) {
                 })()}
               <div
                 style={
-                  previewTab !== 'compositor' ? { position: 'absolute', opacity: 0, pointerEvents: 'none' } : undefined
+                  isFloating || previewTab !== 'compositor'
+                    ? { position: 'absolute', opacity: 0, pointerEvents: 'none' }
+                    : undefined
                 }
               >
                 <LivestreamCompositor
@@ -2664,16 +2824,6 @@ export default function LivestreamStudio(props: Props) {
                     </svg>
                   </button>
                 )}
-
-                {(isLive || isConnecting) && (
-                  <Button
-                    button="primary"
-                    className="livestream-studio__stop-btn"
-                    onClick={isConnecting ? handleCancel : handleStop}
-                    disabled={isStopping}
-                    label={isStopping ? __('Ending...') : isConnecting ? __('Cancel') : __('End Stream')}
-                  />
-                )}
               </div>
             )}
           </div>
@@ -2826,6 +2976,31 @@ export default function LivestreamStudio(props: Props) {
                   </p>
                 )}
               </>
+            )}
+            {isConnecting && (
+              <Button
+                button="primary"
+                className="livestream-studio__go-live-btn livestream-studio__stop-btn"
+                onClick={handleCancel}
+                label={__('Cancel')}
+              />
+            )}
+            {isLive && (
+              <Button
+                button="primary"
+                className="livestream-studio__go-live-btn livestream-studio__stop-btn"
+                onClick={handleStop}
+                disabled={isStopping}
+                label={__('End Stream')}
+              />
+            )}
+            {isStopping && (
+              <Button
+                button="primary"
+                className="livestream-studio__go-live-btn livestream-studio__stop-btn"
+                disabled
+                label={__('Ending stream...')}
+              />
             )}
             {errorMessage && (status === 'error' || status === 'preview') && (
               <p className="livestream-studio__error-msg">{errorMessage}</p>

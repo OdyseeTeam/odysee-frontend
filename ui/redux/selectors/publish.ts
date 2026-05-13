@@ -270,45 +270,56 @@ export const selectActiveUploadActivity = createSelector(
 // ****************************************************************************
 export const selectIsScheduled = (state: State) =>
   selectState(state).tags.some((t) => t.name === SCHEDULED_LIVESTREAM_TAG);
-export const selectCollectionClaimUploadParamsForId = (state: State, collectionId: string) => {
-  const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
-  const collection = selectCollectionForId(state, collectionId);
-  const collectionTitle = selectCollectionTitleForId(state, collectionId);
-  const collectionClaimIds = selectClaimIdsForCollectionId(state, collectionId);
-  const claims = collectionClaimIds && collectionClaimIds.filter(Boolean);
-  const activeChannelId = selectActiveChannelClaimId(state);
-  const privateCollectionParams = {
-    title: collectionTitle,
-    description: collection.description,
-    thumbnail_url: collection.thumbnail?.url,
-    claims,
-    tags: collection.tags || [],
-  };
-
-  if (isPrivate) {
-    const collectionPublishCreateParams: CollectionPublishCreateParams = {
-      ...privateCollectionParams,
-      bid: 0.0001 as any,
-      channel_id: activeChannelId,
-      name: sanitizeName(collectionTitle),
+export const selectCollectionClaimUploadParamsForId = createCachedSelector(
+  selectIsCollectionPrivateForId,
+  selectCollectionForId,
+  selectCollectionTitleForId,
+  selectClaimIdsForCollectionId,
+  selectActiveChannelClaimId,
+  selectCollectionClaimPublishUpdateMetadataForId,
+  selectCollectionHasEditsForId,
+  selectCollectionHasUnsavedEditsForId,
+  (
+    isPrivate,
+    collection,
+    collectionTitle,
+    collectionClaimIds,
+    activeChannelId,
+    collectionClaimMetadata,
+    hasEdits,
+    hasUnSavedEdits
+  ) => {
+    const claims = collectionClaimIds && collectionClaimIds.filter(Boolean);
+    const privateCollectionParams = {
+      title: collectionTitle,
+      description: collection.description,
+      thumbnail_url: collection.thumbnail?.url,
+      claims,
+      tags: collection.tags || [],
     };
-    return collectionPublishCreateParams;
+
+    if (isPrivate) {
+      const collectionPublishCreateParams: CollectionPublishCreateParams = {
+        ...privateCollectionParams,
+        bid: 0.0001 as any,
+        channel_id: activeChannelId,
+        name: sanitizeName(collectionTitle),
+      };
+      return collectionPublishCreateParams;
+    }
+
+    const collectionClaimUploadParams: CollectionPublishCreateParams & CollectionPublishUpdateParams = {
+      channel_id: activeChannelId,
+      ...collectionClaimMetadata,
+    };
+
+    if (hasEdits || hasUnSavedEdits) {
+      Object.assign(collectionClaimUploadParams, privateCollectionParams);
+    }
+
+    return collectionClaimUploadParams;
   }
-
-  const collectionClaimMetadata = selectCollectionClaimPublishUpdateMetadataForId(state, collectionId);
-  const collectionClaimUploadParams: CollectionPublishCreateParams & CollectionPublishUpdateParams = {
-    channel_id: activeChannelId,
-    ...collectionClaimMetadata,
-  };
-  const hasEdits = selectCollectionHasEditsForId(state, collectionId);
-  const hasUnSavedEdits = selectCollectionHasUnsavedEditsForId(state, collectionId);
-
-  if (hasEdits || hasUnSavedEdits) {
-    Object.assign(collectionClaimUploadParams, privateCollectionParams);
-  }
-
-  return collectionClaimUploadParams;
-};
+)((state: State, collectionId: string) => collectionId);
 export const selectIsNonPublicVisibilityAllowed = (state: State) => {
   const channel = selectPublishFormValue(state, 'channel');
   return channel && channel !== CHANNEL_ANONYMOUS;

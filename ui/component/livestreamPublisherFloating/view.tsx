@@ -7,6 +7,8 @@ import { makeSelectLivestreamsForChannelId, selectViewersForId } from 'redux/sel
 import { selectClaimIdForUri, selectTitleForUri } from 'redux/selectors/claims';
 import { formatLbryUrlForWeb } from 'util/url';
 import * as PAGES from 'constants/pages';
+import * as ICONS from 'constants/icons';
+import Icon from 'component/common/icon';
 import classnames from 'classnames';
 import useLivestreamMetrics from 'effects/use-livestream-metrics';
 import Lbry from 'lbry';
@@ -316,14 +318,13 @@ export default function LivestreamPublisherFloating() {
     return (
       <>
         <div className="livestream-floating-pill">
-          <span
-            className={classnames('livestream-floating-pill__badge', {
-              'livestream-floating-pill__badge--live': isLive,
-            })}
-          >
-            {isLive && <span className="livestream-floating-pill__dot" />}
-            {isLive ? __('LIVE') : status === 'connecting' ? __('CONNECTING') : __('PREVIEW')}
-          </span>
+          {isLive && (
+            <span className="livestream-floating-pill__badge livestream-floating-pill__badge--live">
+              <span className="livestream-floating-pill__dot" />
+              {__('LIVE')}
+            </span>
+          )}
+          {status === 'connecting' && <span className="livestream-floating-pill__badge">{__('CONNECTING')}</span>}
 
           {isLive && totalViewers > 0 && (
             <span className="livestream-floating-pill__meta">
@@ -348,7 +349,6 @@ export default function LivestreamPublisherFloating() {
           {!isMobile && isLive && throughputLabel && (
             <span className="livestream-floating-pill__meta">{throughputLabel}</span>
           )}
-          {!isMobile && isLive && videoCodec && <span className="livestream-floating-pill__meta">{videoCodec}</span>}
 
           <button
             className="livestream-floating-pill__btn"
@@ -424,6 +424,18 @@ export default function LivestreamPublisherFloating() {
               </svg>
             </button>
           )}
+
+          {status === 'preview' && (
+            <button
+              className="livestream-floating-pill__btn livestream-floating-pill__btn--go-live"
+              onClick={() => void handleGoLiveFromPreview()}
+              disabled={!canStartFromPreview}
+              title={canStartFromPreview ? __('Go live') : __('Select an approved stream claim to go live')}
+            >
+              <Icon icon={ICONS.LIVESTREAM} size={12} />
+              <span>{__('Go Live')}</span>
+            </button>
+          )}
         </div>
 
         {showStopConfirm && (
@@ -479,47 +491,12 @@ export default function LivestreamPublisherFloating() {
     >
       <div className="livestream-floating__inner">
         <video ref={videoRef} className="livestream-floating__video" playsInline muted autoPlay />
-        <div className="livestream-floating__overlay">
-          <div className="livestream-floating__top-bar">
-            <span
-              className={classnames('livestream-floating__badge', {
-                'livestream-floating__badge--live': isLive,
-                'livestream-floating__badge--connecting': status === 'connecting',
-              })}
-            >
-              {isLive ? __('LIVE') : status === 'connecting' ? __('CONNECTING') : __('PREVIEW')}
-            </span>
-          </div>
-          <div className="livestream-floating__bottom-bar">
-            {throughputLabel ? (
-              <span className="livestream-floating__meta">{throughputLabel}</span>
-            ) : videoBitrateKbps != null && videoBitrateKbps > 0 ? (
-              <span className="livestream-floating__meta">
-                {videoBitrateKbps >= 1000
-                  ? `${(videoBitrateKbps / 1000).toFixed(1)} Mbps`
-                  : `${Math.round(videoBitrateKbps)} kbps`}
-              </span>
-            ) : null}
-          </div>
-        </div>
 
-        {/* Controls overlay - visible on hover */}
-        <div className="livestream-floating__controls">
-          {status === 'preview' && (
-            <button
-              className="livestream-floating__control-btn livestream-floating__control-btn--primary livestream-floating__control-btn--wide"
-              onClick={() => void handleGoLiveFromPreview()}
-              title={canStartFromPreview ? __('Go live') : __('Select an approved stream claim to go live')}
-              disabled={!canStartFromPreview}
-            >
-              <span className="livestream-floating__control-btn-label">{__('Go Live')}</span>
-            </button>
-          )}
-
+        {status === 'preview' && (
           <button
-            className="livestream-floating__control-btn"
-            onClick={() => navigate(`/$/${PAGES.LIVESTREAM}`)}
-            title={__('Go to stream page')}
+            className="livestream-floating__close"
+            onClick={() => actions.stopStream()}
+            title={__('Close preview')}
           >
             <svg
               width="16"
@@ -531,81 +508,16 @@ export default function LivestreamPublisherFloating() {
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-              <line x1="8" y1="21" x2="16" y2="21" />
-              <line x1="12" y1="17" x2="12" y2="21" />
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
             </svg>
           </button>
+        )}
 
-          <button
-            className="livestream-floating__control-btn"
-            onClick={() => actions.setFloatingPreviewEnabled(false)}
-            title={__('Minimize to pill')}
-          >
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
-
-          {status === 'preview' && (
-            <button
-              className="livestream-floating__control-btn livestream-floating__control-btn--close"
-              onClick={() => actions.stopStream()}
-              title={__('Close preview')}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <line x1="18" y1="6" x2="6" y2="18" />
-                <line x1="6" y1="6" x2="18" y2="18" />
-              </svg>
-            </button>
-          )}
-
-          {(isLive || status === 'connecting') && (
-            <button
-              className="livestream-floating__control-btn livestream-floating__control-btn--stop"
-              onClick={() => setShowStopConfirm(true)}
-              title={__('End stream')}
-            >
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                <rect x="4" y="4" width="16" height="16" rx="2" />
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Info bar below video - title + stats */}
-      {showInfoBar && (
-        <div className="livestream-floating__info-bar">
-          <button
-            className="livestream-floating__info-title"
-            onClick={() => claimNavigateUrl && navigate(claimNavigateUrl)}
-            title={claimTitle || undefined}
-            disabled={!claimNavigateUrl}
-          >
-            {infoTitle}
-          </button>
-          <div className="livestream-floating__info-stats">
+        <div className="livestream-floating__overlay">
+          <div className="livestream-floating__bottom-bar">
             {isLive && totalViewers > 0 && (
-              <span className="livestream-floating__info-pill">
+              <span className="livestream-floating__meta">
                 <svg
                   width="9"
                   height="9"
@@ -622,26 +534,97 @@ export default function LivestreamPublisherFloating() {
                 {totalViewers}
               </span>
             )}
-            {isLive && throughputLabel && (
-              <span className="livestream-floating__info-pill">
-                <svg
-                  width="8"
-                  height="8"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <line x1="12" y1="19" x2="12" y2="5" />
-                  <polyline points="5 12 12 5 19 12" />
-                </svg>
-                {throughputLabel}
+            {isLive && throughputLabel ? (
+              <span className="livestream-floating__meta">{throughputLabel}</span>
+            ) : videoBitrateKbps != null && videoBitrateKbps > 0 ? (
+              <span className="livestream-floating__meta">
+                {videoBitrateKbps >= 1000
+                  ? `${(videoBitrateKbps / 1000).toFixed(1)} Mbps`
+                  : `${Math.round(videoBitrateKbps)} kbps`}
               </span>
+            ) : null}
+            {resolutionLabel && <span className="livestream-floating__meta">{resolutionLabel}</span>}
+            {fpsLabel && <span className="livestream-floating__meta">{fpsLabel}</span>}
+          </div>
+        </div>
+      </div>
+
+      {/* Info bar below video - title + stats + actions */}
+      {showInfoBar && (
+        <div className="livestream-floating__info-bar">
+          <button
+            className="livestream-floating__info-title"
+            onClick={() => claimNavigateUrl && navigate(claimNavigateUrl)}
+            title={claimTitle || undefined}
+            disabled={!claimNavigateUrl}
+          >
+            {infoTitle}
+          </button>
+          <div className="livestream-floating__info-actions">
+            <button
+              className="livestream-floating__control-btn"
+              onClick={() => navigate(`/$/${PAGES.LIVESTREAM}`)}
+              title={__('Go to stream page')}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                <line x1="8" y1="21" x2="16" y2="21" />
+                <line x1="12" y1="17" x2="12" y2="21" />
+              </svg>
+            </button>
+
+            <button
+              className="livestream-floating__control-btn"
+              onClick={() => actions.setFloatingPreviewEnabled(false)}
+              title={__('Minimize to pill')}
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+            </button>
+
+            {(isLive || status === 'connecting') && (
+              <button
+                className="livestream-floating__control-btn livestream-floating__control-btn--stop livestream-floating__control-btn--wide"
+                onClick={() => setShowStopConfirm(true)}
+                title={__('End stream')}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+                  <rect x="4" y="4" width="16" height="16" rx="2" />
+                </svg>
+                <span className="livestream-floating__control-btn-label">{__('Stop Stream')}</span>
+              </button>
             )}
-            {resolutionLabel && <span className="livestream-floating__info-pill">{resolutionLabel}</span>}
-            {fpsLabel && <span className="livestream-floating__info-pill">{fpsLabel}</span>}
+
+            {status === 'preview' && (
+              <button
+                className="livestream-floating__control-btn livestream-floating__control-btn--primary livestream-floating__control-btn--wide"
+                onClick={() => void handleGoLiveFromPreview()}
+                title={canStartFromPreview ? __('Go live') : __('Select an approved stream claim to go live')}
+                disabled={!canStartFromPreview}
+              >
+                <Icon icon={ICONS.LIVESTREAM} size={14} />
+                <span className="livestream-floating__control-btn-label">{__('Go Live')}</span>
+              </button>
+            )}
           </div>
         </div>
       )}

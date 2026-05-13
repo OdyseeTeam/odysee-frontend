@@ -401,6 +401,71 @@ export default function LivestreamSourceSettings(props: Props) {
               className="livestream-settings__slider"
             />
           </label>
+
+          {(() => {
+            const ck = layer.chromaKey ?? { enabled: false, color: '#00FF00', threshold: 0.4, smoothness: 0.1 };
+            return (
+              <>
+                <div className="livestream-settings__row livestream-settings__row--toggle">
+                  <span className="livestream-settings__label">{__('Greenscreen')}</span>
+                  <button
+                    type="button"
+                    className={classnames('livestream-settings__toggle', {
+                      'livestream-settings__toggle--on': ck.enabled,
+                    })}
+                    onClick={() => onUpdate({ chromaKey: { ...ck, enabled: !ck.enabled } })}
+                    aria-pressed={ck.enabled}
+                  >
+                    <span className="livestream-settings__toggle-knob" />
+                  </button>
+                </div>
+
+                {ck.enabled && (
+                  <>
+                    <div className="livestream-settings__row">
+                      <div className="livestream-settings__row-header">
+                        <span className="livestream-settings__label">{__('Key Color')}</span>
+                      </div>
+                      <ColorSwatch
+                        value={ck.color}
+                        onChange={(hex) => onUpdate({ chromaKey: { ...ck, color: hex } })}
+                      />
+                    </div>
+
+                    <label className="livestream-settings__row">
+                      <div className="livestream-settings__row-header">
+                        <span className="livestream-settings__label">{__('Threshold')}</span>
+                        <span className="livestream-settings__value">{Math.round(ck.threshold * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={Math.round(ck.threshold * 100)}
+                        onChange={(e) => onUpdate({ chromaKey: { ...ck, threshold: Number(e.target.value) / 100 } })}
+                        className="livestream-settings__slider"
+                      />
+                    </label>
+
+                    <label className="livestream-settings__row">
+                      <div className="livestream-settings__row-header">
+                        <span className="livestream-settings__label">{__('Smoothness')}</span>
+                        <span className="livestream-settings__value">{Math.round(ck.smoothness * 100)}%</span>
+                      </div>
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={Math.round(ck.smoothness * 100)}
+                        onChange={(e) => onUpdate({ chromaKey: { ...ck, smoothness: Number(e.target.value) / 100 } })}
+                        className="livestream-settings__slider"
+                      />
+                    </label>
+                  </>
+                )}
+              </>
+            );
+          })()}
         </div>
       )}
     </div>
