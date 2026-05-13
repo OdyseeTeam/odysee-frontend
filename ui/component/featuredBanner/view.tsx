@@ -28,7 +28,11 @@ function getChannelUri(itemUrl: string): string | null {
   }
   if (!path.startsWith('/@')) return null;
   const replaced = path.slice(1).replace(':', '#');
-  return `lbry://${replaced}`;
+  try {
+    return `lbry://${decodeURIComponent(replaced)}`;
+  } catch {
+    return `lbry://${replaced}`;
+  }
 }
 
 function BannerLatestClaims({ channelUri, count }: { channelUri: string; count: number }) {
