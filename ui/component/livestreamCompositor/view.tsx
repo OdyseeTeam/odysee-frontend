@@ -230,6 +230,18 @@ export default function LivestreamCompositor(props: Props) {
   const videoElementsRef = React.useRef<Map<string, HTMLVideoElement>>(new Map());
   const animFrameRef = React.useRef<number>(0);
   const dragRef = React.useRef<DragState | null>(null);
+  const pointersRef = React.useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchRef = React.useRef<{
+    layerId: string;
+    startDist: number;
+    startCenterX: number;
+    startCenterY: number;
+    startLayerX: number;
+    startLayerY: number;
+    startLayerW: number;
+    startLayerH: number;
+    aspectRatio: number;
+  } | null>(null);
   const [containerSize, setContainerSize] = React.useState({ width: 0, height: 0 });
   const layersRef = React.useRef<CompositorLayer[]>(layers);
   layersRef.current = layers;
@@ -418,11 +430,41 @@ export default function LivestreamCompositor(props: Props) {
 
   const didDragRef = React.useRef(false);
 
-  function handleMouseDown(e: React.MouseEvent) {
+  function handlePointerDown(e: React.PointerEvent) {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
+    pointersRef.current.set(e.pointerId, { x: mx, y: my });
+    try {
+      (e.currentTarget as Element).setPointerCapture(e.pointerId);
+    } catch {}
+
+    if (pointersRef.current.size >= 2) {
+      const activeLayerId = dragRef.current?.layerId || selectedLayerId;
+      const pinchLayer = layers.find((l) => l.id === activeLayerId && l.visible && !l.locked);
+      if (pinchLayer) {
+        const pts = [...pointersRef.current.values()];
+        const p0 = pts[0];
+        const p1 = pts[1];
+        const dist = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+        pinchRef.current = {
+          layerId: pinchLayer.id,
+          startDist: dist,
+          startCenterX: (p0.x + p1.x) / 2,
+          startCenterY: (p0.y + p1.y) / 2,
+          startLayerX: pinchLayer.x,
+          startLayerY: pinchLayer.y,
+          startLayerW: pinchLayer.width,
+          startLayerH: pinchLayer.height,
+          aspectRatio: pinchLayer.aspectRatio || pinchLayer.width / pinchLayer.height,
+        };
+        dragRef.current = null;
+        e.preventDefault();
+        return;
+      }
+    }
+
     didDragRef.current = false;
 
     if (selectedLayerId) {
@@ -506,13 +548,44 @@ export default function LivestreamCompositor(props: Props) {
     e.preventDefault();
   }
 
-  function handleMouseMove(e: React.MouseEvent) {
-    const drag = dragRef.current;
-    if (!drag) return;
+  function handlePointerMove(e: React.PointerEvent) {
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
     const mx = e.clientX - rect.left;
     const my = e.clientY - rect.top;
+    if (pointersRef.current.has(e.pointerId)) {
+      pointersRef.current.set(e.pointerId, { x: mx, y: my });
+    }
+
+    const pinch = pinchRef.current;
+    if (pinch && pointersRef.current.size >= 2) {
+      const pts = [...pointersRef.current.values()];
+      const p0 = pts[0];
+      const p1 = pts[1];
+      const dist = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+      const scale = pinch.startDist > 0 ? dist / pinch.startDist : 1;
+      const cx = (p0.x + p1.x) / 2;
+      const cy = (p0.y + p1.y) / 2;
+      const deltaCx = (cx - pinch.startCenterX) / scaleX;
+      const deltaCy = (cy - pinch.startCenterY) / scaleY;
+
+      const newW = Math.max(50, Math.round(pinch.startLayerW * scale));
+      const newH = Math.max(50, Math.round(pinch.startLayerH * scale));
+      const startMidX = pinch.startLayerX + pinch.startLayerW / 2;
+      const startMidY = pinch.startLayerY + pinch.startLayerH / 2;
+      const newX = Math.round(startMidX + deltaCx - newW / 2);
+      const newY = Math.round(startMidY + deltaCy - newH / 2);
+
+      const updates: Partial<CompositorLayer> = { x: newX, y: newY, width: newW, height: newH };
+      const layer = layers.find((l) => l.id === pinch.layerId);
+      if (layer?.displayMode) updates.displayMode = undefined;
+      onLayerUpdate(pinch.layerId, updates);
+      e.preventDefault();
+      return;
+    }
+
+    const drag = dragRef.current;
+    if (!drag) return;
     const dx = (mx - drag.startMouseX) / scaleX;
     const dy = (my - drag.startMouseY) / scaleY;
 
@@ -591,9 +664,16 @@ export default function LivestreamCompositor(props: Props) {
     }
   }
 
-  function handleMouseUp() {
-    dragRef.current = null;
-    didDragRef.current = false;
+  function handlePointerUp(e: React.PointerEvent) {
+    pointersRef.current.delete(e.pointerId);
+    try {
+      (e.currentTarget as Element).releasePointerCapture?.(e.pointerId);
+    } catch {}
+    if (pointersRef.current.size < 2) pinchRef.current = null;
+    if (pointersRef.current.size === 0) {
+      dragRef.current = null;
+      didDragRef.current = false;
+    }
   }
 
   return (
@@ -601,10 +681,10 @@ export default function LivestreamCompositor(props: Props) {
       ref={containerRef}
       className="livestream-compositor"
       style={{ aspectRatio: `${outputWidth} / ${outputHeight}` }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
     >
       <canvas ref={canvasRef} className="livestream-compositor__canvas" />
 
@@ -641,7 +721,7 @@ export default function LivestreamCompositor(props: Props) {
                         layer.displayMode === 'max' || layer.displayMode === 'pip',
                     })}
                     title={layer.displayMode === 'max' ? __('Picture in picture') : __('Fill canvas')}
-                    onMouseDown={(e) => {
+                    onPointerDown={(e) => {
                       e.stopPropagation();
                       const restore = layer.displayMode
                         ? layer.restoreGeometry
@@ -720,7 +800,7 @@ export default function LivestreamCompositor(props: Props) {
                   <button
                     className="livestream-compositor__layer-btn"
                     title={__('Minimize to taskbar')}
-                    onMouseDown={(e) => {
+                    onPointerDown={(e) => {
                       e.stopPropagation();
                       onLayerUpdate(layer.id, {
                         minimized: true,
@@ -737,7 +817,7 @@ export default function LivestreamCompositor(props: Props) {
                       'livestream-compositor__layer-btn--locked': layer.locked,
                     })}
                     title={layer.locked ? __('Unlock') : __('Lock')}
-                    onMouseDown={(e) => {
+                    onPointerDown={(e) => {
                       e.stopPropagation();
                       onLayerUpdate(layer.id, { locked: !layer.locked });
                     }}
@@ -771,7 +851,7 @@ export default function LivestreamCompositor(props: Props) {
                   <button
                     className="livestream-compositor__layer-btn livestream-compositor__layer-btn--close"
                     title={__('Remove')}
-                    onMouseDown={(e) => {
+                    onPointerDown={(e) => {
                       e.stopPropagation();
                       onLayerRemove(layer.id);
                     }}
