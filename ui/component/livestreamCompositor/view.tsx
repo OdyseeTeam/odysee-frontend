@@ -53,6 +53,7 @@ export type CompositorLayer = {
   chatHyperchatOnly?: boolean;
   chatNewOnTop?: boolean;
   freeAspect?: boolean;
+  sourceRotation?: 0 | 90 | 180 | 270;
   chromaKey?: {
     enabled: boolean;
     color: string;
@@ -348,7 +349,28 @@ export default function LivestreamCompositor(props: Props) {
           if (keyed) drawSource = keyed;
         }
 
-        if (layer.crop) {
+        const rotation = layer.sourceRotation || 0;
+        if (rotation) {
+          ctx.translate(layer.x + layer.width / 2, layer.y + layer.height / 2);
+          ctx.rotate((rotation * Math.PI) / 180);
+          const drawW = rotation === 90 || rotation === 270 ? layer.height : layer.width;
+          const drawH = rotation === 90 || rotation === 270 ? layer.width : layer.height;
+          if (layer.crop) {
+            ctx.drawImage(
+              drawSource,
+              layer.crop.sx,
+              layer.crop.sy,
+              layer.crop.sw,
+              layer.crop.sh,
+              -drawW / 2,
+              -drawH / 2,
+              drawW,
+              drawH
+            );
+          } else {
+            ctx.drawImage(drawSource, -drawW / 2, -drawH / 2, drawW, drawH);
+          }
+        } else if (layer.crop) {
           ctx.drawImage(
             drawSource,
             layer.crop.sx,

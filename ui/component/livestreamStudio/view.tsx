@@ -1392,25 +1392,31 @@ export default function LivestreamStudio(props: Props) {
       const resolveSourceSize = (): Promise<{ w: number; h: number }> =>
         new Promise((resolve) => {
           const settings = track?.getSettings();
-          if (source.kind !== 'screen' && settings?.width && settings?.height) {
-            resolve({ w: settings.width, h: settings.height });
-            return;
-          }
           const tempVideo = document.createElement('video');
           tempVideo.muted = true;
           tempVideo.playsInline = true;
           tempVideo.srcObject = new MediaStream([track]);
+          let done = false;
+          const finish = (w: number, h: number) => {
+            if (done) return;
+            done = true;
+            tempVideo.srcObject = null;
+            resolve({ w, h });
+          };
           tempVideo.addEventListener('loadedmetadata', () => {
             const w = tempVideo.videoWidth || settings?.width || outW;
             const h = tempVideo.videoHeight || settings?.height || outH;
-            resolve({ w, h });
-            tempVideo.srcObject = null;
+            finish(w, h);
           });
-          tempVideo.play().catch(() => resolve({ w: settings?.width || outW, h: settings?.height || outH }));
-          setTimeout(() => resolve({ w: settings?.width || outW, h: settings?.height || outH }), 2000);
+          tempVideo.play().catch(() => {});
+          setTimeout(() => finish(settings?.width || outW, settings?.height || outH), 2000);
         });
 
-      const { w: srcW, h: srcH } = await resolveSourceSize();
+      const portraitMobile = platform.isMobile() && isPortraitOrientation();
+      const rawSize = await resolveSourceSize();
+      const needsRotation = portraitMobile && rawSize.w > rawSize.h && source.kind === 'camera';
+      const srcW = needsRotation ? rawSize.h : rawSize.w;
+      const srcH = needsRotation ? rawSize.w : rawSize.h;
       const scale = Math.min(outW / srcW, outH / srcH);
       const layerW = Math.round(srcW * scale);
       const layerH = Math.round(srcH * scale);
@@ -1426,6 +1432,7 @@ export default function LivestreamStudio(props: Props) {
         aspectRatio: srcW / srcH,
         zIndex: compositorLayers.length,
         visible: true,
+        sourceRotation: needsRotation ? 90 : 0,
       };
       activatedVideoSourcesRef.current.set(id, source);
       setCompositorLayers((prev) => [...prev, newLayer]);
