@@ -60,6 +60,9 @@ export const WEBRTC_PUBLISH_PRESETS: Record<
 
 export function isPortraitOrientation(): boolean {
   if (typeof window === 'undefined') return true;
+  if (typeof window.innerWidth === 'number' && typeof window.innerHeight === 'number' && window.innerHeight > 0) {
+    return window.innerHeight >= window.innerWidth;
+  }
   const type = window.screen?.orientation?.type;
   if (typeof type === 'string') return type.startsWith('portrait');
   const angle = typeof window.orientation === 'number' ? Math.abs(window.orientation) : null;

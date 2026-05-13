@@ -776,7 +776,14 @@ export default function LivestreamCompositor(props: Props) {
                         });
                         return;
                       }
-                      const ar = layer.aspectRatio;
+                      const liveVideo = videoElementsRef.current.get(layer.id);
+                      const liveW = liveVideo?.videoWidth || 0;
+                      const liveH = liveVideo?.videoHeight || 0;
+                      const baseAr = liveW > 0 && liveH > 0 ? liveW / liveH : layer.aspectRatio;
+                      const canvasPortrait = outputHeight > outputWidth;
+                      const sourcePortrait = baseAr < 1;
+                      const needRotate = canvasPortrait !== sourcePortrait;
+                      const ar = needRotate ? 1 / baseAr : baseAr;
                       const fitW = Math.min(outputWidth, outputHeight * ar);
                       const fitH = fitW / ar;
                       onLayerUpdate(layer.id, {
@@ -784,6 +791,8 @@ export default function LivestreamCompositor(props: Props) {
                         y: Math.round((outputHeight - fitH) / 2),
                         width: Math.round(fitW),
                         height: Math.round(fitH),
+                        aspectRatio: ar,
+                        sourceRotation: needRotate ? 90 : layer.sourceRotation,
                         displayMode: 'max',
                         restoreGeometry: restore,
                       });
