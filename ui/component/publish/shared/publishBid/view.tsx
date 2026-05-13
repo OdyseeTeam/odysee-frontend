@@ -28,6 +28,7 @@ function PublishBid(props: Props) {
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
   const [bidError, setBidError] = useState<string | undefined>(undefined);
   const previousBidAmount = myClaimForUri && Number(myClaimForUri.amount);
+  const showDepositField = Boolean(myClaimForUri);
   useEffect(() => {
     if (!previousBidAmount || bid < MINIMUM_PUBLISH_BID) {
       updatePublishForm({
@@ -58,7 +59,7 @@ function PublishBid(props: Props) {
       })
     );
   }, [bid, previousBidAmount, balance, dispatch]);
-  return (
+  return showDepositField ? (
     <Card
       className={!name ? 'disabled' : ''}
       actions={
@@ -95,7 +96,7 @@ function PublishBid(props: Props) {
         </div>
       }
     />
-  );
+  ) : null;
 }
 
 export default PublishBid;
