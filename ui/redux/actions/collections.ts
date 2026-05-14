@@ -784,18 +784,23 @@ export const doCollectionEdit =
     const isPrivateVersion = selectHasPrivateCollectionForId(state, collectionId);
     const { uris, remove, replace, order, type, isPreview } = params;
     let hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
+    const collectionHasStoredItems = Boolean(collection.items && collection.items.length);
+    const changesNeedExistingItems = !uris && !remove && !replace && !order;
+    const shouldResolveExistingItems =
+      collectionHasStoredItems && !hasItemsResolved && (!isPrivateVersion || changesNeedExistingItems);
 
-    if (!hasItemsResolved && !isPrivateVersion) {
+    if (shouldResolveExistingItems) {
       await dispatch(
         doFetchItemsInCollection({
           collectionId,
         })
       );
       state = getState();
+      collection = selectCollectionForId(state, collectionId);
       hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
     }
 
-    if (!hasItemsResolved && !isPrivateVersion) {
+    if (shouldResolveExistingItems && !hasItemsResolved) {
       dispatch(
         doToast({
           message: __('Failed to resolve collection items. Please try again.'),

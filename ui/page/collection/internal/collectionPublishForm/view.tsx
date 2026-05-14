@@ -62,11 +62,12 @@ type Props = {
   collectionId: string;
   onDoneForId?: (arg0: any) => any;
   useIds?: boolean;
+  collectionHasItemsResolved?: boolean;
 };
 export const CollectionFormContext = React.createContext<any>(undefined);
 
 const CollectionPublishForm = (props: Props) => {
-  const { collectionId, onDoneForId } = props;
+  const { collectionId, onDoneForId, collectionHasItemsResolved } = props;
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const { search } = useLocation();
@@ -97,7 +98,13 @@ const CollectionPublishForm = (props: Props) => {
   const tabIndex = optimisticTabIndex ?? tabIndexFromUrl;
   const { claims } = formParams;
   const hasClaims = claims && claims.length;
-  const itemError = publishing && !hasClaims ? __('Cannot publish empty list') : undefined;
+  const collectionHasStoredItems = Boolean(currentCollection?.items?.length);
+  const shouldResolveCollectionItems = editing && collectionHasStoredItems && !collectionHasItemsResolved;
+  const itemError = shouldResolveCollectionItems
+    ? __('Playlist items are still loading. Please try again in a moment.')
+    : publishing && !hasClaims
+      ? __('Cannot publish empty list')
+      : undefined;
   const hasChanges =
     (publishing && !hasClaim) ||
     collectionHasEdits ||
@@ -161,10 +168,11 @@ const CollectionPublishForm = (props: Props) => {
   }
 
   async function handleSubmitForm() {
+    if (shouldResolveCollectionItems) return;
     if (!hasChanges) return navigateToCollectionView();
     const trimmedParams = { ...formParams };
     if (trimmedParams.title) trimmedParams.title = trimmedParams.title.trim();
-    if (editing && currentCollection?.items) {
+    if (editing && collectionHasItemsResolved && currentCollection?.items) {
       trimmedParams.claims = currentCollection.items.filter((item) => typeof item === 'string');
     }
     setFormParams(trimmedParams);
@@ -334,7 +342,7 @@ const CollectionPublishForm = (props: Props) => {
           <Submit
             {...({
               button: 'primary',
-              disabled: publishingClaimWithNoChanges || publishPending,
+              disabled: publishingClaimWithNoChanges || publishPending || shouldResolveCollectionItems,
               label: publishPending ? <BusyIndicator message={__('Submitting')} /> : __(editing ? 'Save' : 'Submit'),
             } as any)}
           />
