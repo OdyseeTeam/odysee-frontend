@@ -9,12 +9,16 @@ import * as MODALS from 'constants/modal_types';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doWalletStatus } from 'redux/actions/wallet';
 import { doOpenModal, doClearCache } from 'redux/actions/app';
+import { doFetchClaimListMine } from 'redux/actions/claims';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectMyClaims } from 'redux/selectors/claims';
 
 export default function SettingSystem() {
   const dispatch = useAppDispatch();
 
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
+  const myClaims = useAppSelector(selectMyClaims);
+  const hasClaims = myClaims && myClaims.length > 0;
 
   const clearCache = () => dispatch(doClearCache());
   const updateWalletStatus = () => dispatch(doWalletStatus());
@@ -26,6 +30,7 @@ export default function SettingSystem() {
   React.useEffect(() => {
     if (isAuthenticated || !IS_WEB) {
       updateWalletStatus();
+      dispatch(doFetchClaimListMine());
       getPasswordFromCookie().then((p) => {
         if (typeof p === 'string') {
           setStoredPassword(true);
@@ -61,12 +66,17 @@ export default function SettingSystem() {
 
             <SettingsRow
               title={__('Request account deletion')}
-              subtitle={__('Send account deletion request to Odysee')}
+              subtitle={
+                hasClaims
+                  ? __('You must delete all your uploads before you can delete your account.')
+                  : __('Send account deletion request to Odysee')
+              }
             >
               <Button
                 button="secondary"
                 icon={ALERT}
                 label={__('Delete Account')}
+                disabled={hasClaims}
                 onClick={() => {
                   dispatch(doOpenModal(MODALS.ACCOUNT_DELETE));
                 }}
