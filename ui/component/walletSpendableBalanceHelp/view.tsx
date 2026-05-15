@@ -25,7 +25,7 @@ function WalletSpendableBalanceHelp(props: Props) {
     asset === 'lbc' ? (
       <I18nMessage
         tokens={{
-          LBCBalance: <CreditAmount amount={LBCBalance} precision={4} />,
+          LBCBalance: <CreditAmount amount={LBCBalance} precision={4} showLBC={!inline} />,
         }}
       >
         {text}
@@ -52,7 +52,7 @@ function WalletSpendableBalanceHelp(props: Props) {
 
   if (asset === 'lbc') {
     return !LBCBalance ? null : inline ? (
-      <span className="help--spendable">{getMessage('%LBCBalance% available.')}</span>
+      <span className="help--spendable">{getMessage('%LBCBalance% available')}</span>
     ) : (
       <div className="help">{getMessage('Your immediately spendable balance is %LBCBalance%.')}</div>
     );

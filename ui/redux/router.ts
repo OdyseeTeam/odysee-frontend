@@ -122,15 +122,27 @@ function applyHistoryMethod(method: HistoryMethod, args: Array<any>) {
     }
 
     case 'go':
-      window.history.go(args[0]);
+      if (navigateRef) {
+        navigateRef(args[0]);
+      } else {
+        window.history.go(args[0]);
+      }
       break;
 
     case 'back':
-      window.history.back();
+      if (navigateRef) {
+        navigateRef(-1);
+      } else {
+        window.history.back();
+      }
       break;
 
     case 'forward':
-      window.history.forward();
+      if (navigateRef) {
+        navigateRef(1);
+      } else {
+        window.history.forward();
+      }
       break;
 
     default:

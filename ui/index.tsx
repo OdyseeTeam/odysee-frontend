@@ -77,7 +77,8 @@ import { doFetchUserLocale } from 'redux/actions/user';
 import { Lbryio, doBlackListedDataSubscribe, doFilteredDataSubscribe } from 'lbryinc';
 import { store, persistor } from 'store';
 import app from './app';
-import { BrowserRouter, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { BrowserRouter, MemoryRouter, useLocation, useNavigate, useNavigationType } from 'react-router-dom';
+import { generateInitialUrl } from 'util/url';
 import { PersistGate } from 'redux-persist/integration/react';
 import analytics from 'analytics';
 import { getAuthToken, setAuthToken, doAuthTokenRefresh } from 'util/saved-passwords';
@@ -310,13 +311,23 @@ function AppWrapper() {
         loading={<div className="main--launching" />}
       >
         <div className="app-gate-root">
-          <BrowserRouter>
-            <RouterSyncBridge />
-            <ErrorBoundary>
-              <App />
-              <SnackBar />
-            </ErrorBoundary>
-          </BrowserRouter>
+          {window.cordova ? (
+            <MemoryRouter initialEntries={[generateInitialUrl(window.location.hash)]} initialIndex={0}>
+              <RouterSyncBridge />
+              <ErrorBoundary>
+                <App />
+                <SnackBar />
+              </ErrorBoundary>
+            </MemoryRouter>
+          ) : (
+            <BrowserRouter>
+              <RouterSyncBridge />
+              <ErrorBoundary>
+                <App />
+                <SnackBar />
+              </ErrorBoundary>
+            </BrowserRouter>
+          )}
         </div>
       </PersistGate>
     </Provider>

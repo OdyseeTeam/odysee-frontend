@@ -4,6 +4,7 @@ import { DEBOUNCE_WAIT_DURATION_MS, SEARCH_OPTIONS } from 'constants/search';
 import * as CS from 'constants/claim_search';
 import * as SETTINGS from 'constants/settings';
 import { lighthouse } from 'redux/actions/search';
+import { normalizeURI } from 'util/lbryURI';
 type Props = {
   searchQuery: string;
   claimId: string | null | undefined;
@@ -21,7 +22,7 @@ type Props = {
   customMinMinutes?: number | null | undefined;
   customMaxMinutes?: number | null | undefined;
   onResults?: (results: Array<string> | null | undefined) => void;
-  doResolveUris: (arg0: Array<string>, arg1?: boolean) => void;
+  doResolveUris: (arg0: Array<string>, arg1?: boolean) => any;
 };
 export function SearchResults(props: Props) {
   const {
@@ -133,8 +134,11 @@ export function SearchResults(props: Props) {
   React.useEffect(() => {
     if (noMoreResults.current) return;
     isSearching.current = true;
+    let canceled = false;
     const timer = setTimeout(() => {
       if (searchQuery.trim().length < 3 || !claimId) {
+        isSearching.current = false;
+        setIsSearchingState(false);
         return setSearchResults(null);
       }
 
@@ -159,28 +163,56 @@ export function SearchResults(props: Props) {
             (hideShorts ? `&${SEARCH_OPTIONS.EXCLUDE_SHORTS_DURATION_LTE}=${SETTINGS.SHORTS_DURATION_LTE}` : '')
         )
         .then(({ body: results }) => {
+          if (canceled) return;
+
           const urls = results.map(({ name, claimId }) => {
             return `lbry://${name}#${claimId}`;
           });
           // Batch-resolve the urls before calling 'setSearchResults', as the
           // latter will immediately cause the tiles to resolve, ending up
           // calling doResolveUri one by one before the batched one.
-          doResolveUris(urls, true);
-          // De-dup (LH will return some duplicates) and concat results
-          setSearchResults((prev) => (page === 1 ? urls : Array.from(new Set((prev || []).concat(urls)))));
-          noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
+          return Promise.resolve(doResolveUris(urls, true)).then((resolveResponse) => {
+            if (canceled) return;
+
+            const resolvedUrls = resolveResponse
+              ? urls.filter((url) => {
+                  let normalizedUrl = url;
+
+                  try {
+                    normalizedUrl = normalizeURI(url);
+                  } catch {}
+
+                  const resolveResult = resolveResponse[normalizedUrl] || resolveResponse[url];
+
+                  return !resolveResult || !('error' in resolveResult);
+                })
+              : urls;
+
+            // De-dup (LH will return some duplicates) and concat results
+            setSearchResults((prev) =>
+              page === 1 ? resolvedUrls : Array.from(new Set((prev || []).concat(resolvedUrls)))
+            );
+            noMoreResults.current = !urls || urls.length < SEARCH_PAGE_SIZE;
+          });
         })
         .catch(() => {
+          if (canceled) return;
+
           setPage(1);
           setSearchResults(null);
           noMoreResults.current = false;
         })
         .finally(() => {
+          if (canceled) return;
+
           isSearching.current = false;
           setIsSearchingState(false);
         });
     }, DEBOUNCE_WAIT_DURATION_MS);
-    return () => clearTimeout(timer);
+    return () => {
+      canceled = true;
+      clearTimeout(timer);
+    };
   }, [
     searchQuery,
     claimId,
