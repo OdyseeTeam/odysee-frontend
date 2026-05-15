@@ -233,7 +233,7 @@ export const doStartFloatingPlayingUri =
     );
   };
 export const doPlayNextUri =
-  ({ uri: nextUri, collectionId }: { uri: string; collectionId?: string }) =>
+  ({ uri: nextUri, collectionId, navigateInline }: { uri: string; collectionId?: string; navigateInline?: boolean }) =>
   (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const isFloating = selectIsPlayerFloating(state);
@@ -241,7 +241,8 @@ export const doPlayNextUri =
     const isNextUriInCollection =
       nextCollectionId && selectCollectionForIdHasClaimUrl(state, nextCollectionId, nextUri);
     const floatingPlayerEnabled = nextCollectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
-    const shouldNavigateInline = ((!collectionId && !isFloating) || !floatingPlayerEnabled) && Boolean(nextUri);
+    const shouldNavigateInline =
+      (navigateInline || (!collectionId && !isFloating) || !floatingPlayerEnabled) && Boolean(nextUri);
     const nextPathname = formatLbryUrlForWeb(nextUri);
     const nextSearch = isNextUriInCollection ? generateListSearchUrlParams(nextCollectionId) : '';
 

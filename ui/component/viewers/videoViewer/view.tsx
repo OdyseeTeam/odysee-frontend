@@ -64,7 +64,7 @@ type Props = {
   authenticated?: boolean;
   userId?: string | number;
   shareTelemetry?: boolean;
-  doPlayNextUri: (params: { uri: string }) => void;
+  doPlayNextUri: (params: { uri: string; collectionId?: string; navigateInline?: boolean }) => void;
   recomendedContent?: string[];
   nextPlaylistUri?: string | null;
   videoTheaterMode?: boolean;
