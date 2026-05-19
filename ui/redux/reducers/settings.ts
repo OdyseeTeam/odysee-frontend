@@ -39,6 +39,7 @@ const defaultState = {
     },
     // UI
     [SETTINGS.LANGUAGE]: null,
+    [SETTINGS.AVAILABLE_LANGUAGES]: null,
     [SETTINGS.SEARCH_IN_LANGUAGE]: false,
     [SETTINGS.THEME]: 'system',
     [SETTINGS.THEMES]: ['dark', 'light', 'system'],

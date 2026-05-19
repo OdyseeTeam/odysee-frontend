@@ -7,6 +7,7 @@ export const NEW_USER_ACKNOWLEDGED = 'welcome_acknowledged';
 export const EMAIL_COLLECTION_ACKNOWLEDGED = 'email_collection_acknowledged';
 export const INVITE_ACKNOWLEDGED = 'invite_acknowledged';
 export const LANGUAGE = 'language';
+export const AVAILABLE_LANGUAGES = 'available_languages';
 export const SHOW_MATURE = 'show_mature';
 export const SHOW_ANONYMOUS = 'show_anonymous';
 export const SHOW_UNAVAILABLE = 'show_unavailable';

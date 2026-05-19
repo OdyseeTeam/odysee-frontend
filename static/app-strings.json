@@ -2312,6 +2312,8 @@
   "Content unavailable": "Content unavailable",
   "Channel unavailable": "Channel unavailable",
   "There are language translations available for your location! Do you want to switch from English?": "There are language translations available for your location! Do you want to switch from English?",
+  "There are language translations available for your location! Do you want to switch?": "There are language translations available for your location! Do you want to switch?",
+  "Switch your language to %language%?": "Switch your language to %language%?",
   "Homepage and language translations are available for your location! Do you want to switch?": "Homepage and language translations are available for your location! Do you want to switch?",
   "A homepage is available for your location! Do you want to switch?": "A homepage is available for your location! Do you want to switch?",
   "Switch Now": "Switch Now",

@@ -32,6 +32,8 @@ import {
   STATUS_DOWN,
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
+import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { useIsMobile } from 'effects/use-screensize';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
@@ -188,6 +190,9 @@ const LIVE_PATH = `/$/${PAGES.LIVE_NOW}/`;
 const EMBED_PATH = `/$/${PAGES.EMBED}/`;
 const RTL_LANGUAGE_CODES = new Set(['ar', 'fa', 'he', 'ur']);
 const REWARD_TYPE_REFEREE = 'referee';
+const AVAILABLE_BROWSER_LANGUAGES = [...new Set(Object.values(SUPPORTED_BROWSER_LANGUAGES))];
+const areLanguageListsEqual = (lhs: Array<string>, rhs: Array<string>) =>
+  lhs.length === rhs.length && rhs.every((language) => lhs.includes(language));
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
@@ -227,6 +232,10 @@ function App() {
   const announcement = useAppSelector(selectHomepageAnnouncement);
   const homepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER)) as HomepageOrder;
   const isFypModalShown = useAppSelector((state) => selectClientSetting(state, SETTINGS.FYP_MODAL_SHOWN));
+  const availableLanguages = useAppSelector((state) => selectClientSetting(state, SETTINGS.AVAILABLE_LANGUAGES)) as
+    | Array<string>
+    | null
+    | undefined;
   const personalRecommendations = useAppSelector(selectPersonalRecommendations);
 
   const doSetAssignedLbrynetServer_ = React.useCallback(
@@ -560,6 +569,52 @@ function App() {
       dispatch(doSetLanguage(shouldMigrateLanguage));
     }
   }, [dispatch, shouldMigrateLanguage]);
+  useEffect(() => {
+    if (embedPath || !prefsReady) return;
+    const previouslyAvailableLanguages = Array.isArray(availableLanguages) ? availableLanguages : [];
+    const browserLanguage = window.navigator.language;
+    const browserLanguageKey = SUPPORTED_BROWSER_LANGUAGES[browserLanguage] || browserLanguage.split('-')[0];
+    const newlyAvailableLanguage =
+      browserLanguageKey &&
+      AVAILABLE_BROWSER_LANGUAGES.includes(browserLanguageKey) &&
+      !previouslyAvailableLanguages.includes(browserLanguageKey)
+        ? browserLanguageKey
+        : null;
+
+    if (currentModal) return;
+
+    if (!newlyAvailableLanguage || newlyAvailableLanguage === language) {
+      if (!areLanguageListsEqual(previouslyAvailableLanguages, AVAILABLE_BROWSER_LANGUAGES)) {
+        dispatch(doSetClientSetting(SETTINGS.AVAILABLE_LANGUAGES, AVAILABLE_BROWSER_LANGUAGES));
+      }
+
+      return;
+    }
+
+    const languageName = SUPPORTED_LANGUAGES[newlyAvailableLanguage] || newlyAvailableLanguage;
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('There are language translations available for your location! Do you want to switch?'),
+        subtitle: __('Switch your language to %language%?', {
+          language: languageName,
+        }),
+        labelOk: __('Switch Now'),
+        labelCancel: __('Later'),
+        onConfirm: (closeModal, setIsBusy) => {
+          setIsBusy(true);
+          dispatch(doSetClientSetting(SETTINGS.AVAILABLE_LANGUAGES, AVAILABLE_BROWSER_LANGUAGES));
+          Promise.resolve(dispatch(doSetLanguage(newlyAvailableLanguage))).finally(() => {
+            setIsBusy(false);
+            closeModal();
+          });
+        },
+        onCancel: (closeModal) => {
+          dispatch(doSetClientSetting(SETTINGS.AVAILABLE_LANGUAGES, AVAILABLE_BROWSER_LANGUAGES));
+          closeModal();
+        },
+      })
+    );
+  }, [dispatch, embedPath, prefsReady, availableLanguages, language, currentModal]);
   useEffect(() => {
     if (embedPath) return;
     if (previousHasVerifiedEmail === false && hasVerifiedEmail) {
