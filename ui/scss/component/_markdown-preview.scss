@@ -98,9 +98,11 @@
   dl,
   ul,
   ol,
+  blockquote,
   pre,
   table {
     margin-top: var(--spacing-m);
+    margin-bottom: var(--spacing-m);
   }
 
   ul,

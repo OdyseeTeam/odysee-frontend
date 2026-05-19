@@ -421,6 +421,7 @@ function VideoViewer(props: Props) {
           thumbnail={thumbnail}
           onPlayerReady={onPlayerReady}
           startMuted={autoplayIfEmbedded}
+          showUnmuteHintWhenMuted={muted || autoplayIfEmbedded}
           toggleVideoTheaterMode={toggleVideoTheaterMode}
           claimId={claimId}
           title={claim && ((claim.value && claim.value.title) || claim.name)}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormField } from 'component/common/form';
 import PublishName from 'component/publish/shared/publishName';
+import useThrottle from 'effects/use-throttle';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectPublishFormValue, selectMyClaimForUri } from 'redux/selectors/publish';
 import { doUpdateTitle } from 'redux/actions/publish';
@@ -8,6 +9,7 @@ import { doUpdateTitle } from 'redux/actions/publish';
 type Props = {
   disabled?: boolean;
 };
+const INPUT_THROTTLE_MS = 750;
 
 export default function PublishTitleUrl(props: Props) {
   const { disabled } = props;
@@ -16,10 +18,26 @@ export default function PublishTitleUrl(props: Props) {
   const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
   const uri = (myClaimForUri && myClaimForUri.permanent_url) || '';
   const [urlChangedManually, setUrlChangedManually] = React.useState(false);
+  const [titleValue, setTitleValue] = React.useState(title);
+  const throttledTitle = useThrottle(titleValue, INPUT_THROTTLE_MS);
 
   function handleTitleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    dispatch(doUpdateTitle(event.target.value, urlChangedManually));
+    setTitleValue(event.target.value);
   }
+
+  function flushTitle() {
+    dispatch(doUpdateTitle(titleValue || '', urlChangedManually));
+  }
+
+  React.useEffect(() => {
+    if (title !== titleValue) {
+      setTitleValue(title);
+    } // eslint-disable-next-line react-hooks/exhaustive-deps -- one way update only
+  }, [title]);
+
+  React.useEffect(() => {
+    dispatch(doUpdateTitle(throttledTitle || '', urlChangedManually));
+  }, [dispatch, throttledTitle, urlChangedManually]);
 
   return (
     <>
@@ -29,8 +47,9 @@ export default function PublishTitleUrl(props: Props) {
         label={__('Title')}
         placeholder={__('Descriptive titles work best')}
         disabled={disabled}
-        value={title}
+        value={titleValue}
         onChange={handleTitleChange}
+        onBlur={flushTitle}
         className="fieldset-group"
         max={200}
       />

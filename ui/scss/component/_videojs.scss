@@ -240,7 +240,8 @@ img.odysee-cast-thumbnail {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
-  visibility: hidden;
+  visibility: visible;
+  pointer-events: auto;
 }
 
 .livestreamPlayer {
