@@ -255,6 +255,46 @@
   }
 }
 
+.header__livestream-btn--live {
+  position: relative;
+  background-color: #d33 !important;
+  color: #fff !important;
+
+  .icon {
+    stroke: #fff !important;
+    color: #fff !important;
+  }
+
+  &:hover,
+  &:focus {
+    background-color: #d33 !important;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    animation: header-livestream-live-pulse 3.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes header-livestream-live-pulse {
+  0% {
+    box-shadow: 0 0 0 0 #d33;
+    opacity: 0.6;
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(211, 51, 51, 0.6);
+    opacity: 0;
+  }
+  100% {
+    box-shadow: 0 0 0 8px rgba(211, 51, 51, 0);
+    opacity: 0;
+  }
+}
+
 .wunderbar__wrapper--mobile {
   border-bottom: unset !important;
   .wunderbar__input {

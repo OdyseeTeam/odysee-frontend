@@ -13,6 +13,7 @@ import classnames from 'classnames';
 import ReactPaginateImport from 'react-paginate';
 const ReactPaginate = (ReactPaginateImport as any).default || ReactPaginateImport;
 import 'component/common/paginate.scss';
+import './style.scss';
 import FileSelector from 'component/common/file-selector';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
@@ -30,6 +31,7 @@ type Props = {
   livestreamData: Array<LivestreamReplayItem>;
   isCheckingLivestreams: boolean;
   inEditMode: boolean;
+  hideTitleUrl?: boolean;
 };
 const INPUT_THROTTLE_MS = 750;
 
@@ -46,7 +48,7 @@ const normalizeUrlForProtocol = (url) => {
 };
 
 function PublishLivestream(props: Props) {
-  const { uri, disabled, livestreamData, isCheckingLivestreams, inEditMode } = props;
+  const { uri, disabled, livestreamData, isCheckingLivestreams, inEditMode, hideTitleUrl } = props;
   const dispatch = useAppDispatch();
   const title = useAppSelector((state) => selectPublishFormValue(state, 'title'));
   const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
@@ -190,22 +192,25 @@ function PublishLivestream(props: Props) {
       actions={
         <div className="publish-row--no-margin">
           <React.Fragment>
-            {/* Decide whether to show file upload or replay selector */}
-            <FormField
-              type="text"
-              name="content_title"
-              label={__('Title')}
-              placeholder={__('Descriptive titles work best')}
-              disabled={disabled}
-              value={titleValue}
-              onChange={handleTitleChange}
-              onBlur={flushTitle}
-              className="fieldset-group"
-              max={200}
-              autoFocus
-              autoComplete="off"
-            />
-            <PublishName uri={uri} onChange={() => setUrlChangedManually(true)} />
+            {!hideTitleUrl && (
+              <>
+                <FormField
+                  type="text"
+                  name="content_title"
+                  label={__('Title')}
+                  placeholder={__('Descriptive titles work best')}
+                  disabled={disabled}
+                  value={titleValue}
+                  onChange={handleTitleChange}
+                  onBlur={flushTitle}
+                  className="fieldset-group"
+                  max={200}
+                  autoFocus
+                  autoComplete="off"
+                />
+                <PublishName uri={uri} onChange={() => setUrlChangedManually(true)} />
+              </>
+            )}
             <>
               {inEditMode && (
                 <fieldset-group>
@@ -231,12 +236,8 @@ function PublishLivestream(props: Props) {
               )}
               {showReplaySelector && hasLivestreamData && !isCheckingLivestreams && (
                 <>
-                  <label
-                    style={{
-                      marginTop: 0,
-                    }}
-                  >
-                    {inEditMode && (
+                  {inEditMode && (
+                    <label style={{ marginTop: 0 }}>
                       <FormField
                         name="show-replays"
                         label={replayTitleLabel}
@@ -250,8 +251,8 @@ function PublishLivestream(props: Props) {
                           })
                         }
                       />
-                    )}
-                  </label>
+                    </label>
+                  )}
                   <div
                     className={classnames('replay-picker__container', {
                       disabled: inEditMode && liveEditType !== 'use_replay',
@@ -351,13 +352,8 @@ function PublishLivestream(props: Props) {
               )}
               {showReplaySelector && !hasLivestreamData && !isCheckingLivestreams && (
                 <>
-                  <label
-                    className="disabled"
-                    style={{
-                      marginTop: 0,
-                    }}
-                  >
-                    {inEditMode && (
+                  {inEditMode && (
+                    <label className="disabled" style={{ marginTop: 0 }}>
                       <FormField
                         name="show-replays"
                         label={replayTitleLabel}
@@ -370,8 +366,8 @@ function PublishLivestream(props: Props) {
                           })
                         }
                       />
-                    )}
-                  </label>
+                    </label>
+                  )}
                   <div
                     className="empty disabled"
                     style={{
@@ -384,13 +380,8 @@ function PublishLivestream(props: Props) {
               )}
               {showReplaySelector && isCheckingLivestreams && (
                 <>
-                  <label
-                    className="disabled"
-                    style={{
-                      marginTop: 0,
-                    }}
-                  >
-                    {inEditMode && (
+                  {inEditMode && (
+                    <label className="disabled" style={{ marginTop: 0 }}>
                       <FormField
                         name="replay-source"
                         label={replayTitleLabel}
@@ -404,8 +395,8 @@ function PublishLivestream(props: Props) {
                           })
                         }
                       />
-                    )}
-                  </label>
+                    </label>
+                  )}
                   <div className="main empty--centered-tight">
                     <Spinner type="small" />
                   </div>

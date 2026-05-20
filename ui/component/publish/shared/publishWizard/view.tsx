@@ -147,7 +147,12 @@ export default function PublishWizard(props: Props) {
               />
             </div>
           ) : (
-            <Button button="primary" label={__('Next')} onClick={handleNext} />
+            <Button
+              button="primary"
+              label={__('Next')}
+              onClick={handleNext}
+              disabled={Boolean(steps[activeStep]?.validate && !steps[activeStep].validate?.())}
+            />
           )}
         </div>
       </div>

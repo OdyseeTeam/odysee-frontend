@@ -1,4 +1,17 @@
 import React from 'react';
+import type { AudioMixer } from 'util/audioMixer';
+import type { VideoSource, AudioSource } from 'component/livestreamSourceSelector/view';
+import type { WebrtcPublishPresetId } from 'constants/webrtcPublish';
+
+export type LivestreamStudioProps = {
+  streamKey: string | null;
+  livestreamUri?: string;
+  livestreamEnabled: boolean;
+  hasApprovedLivestreamClaim: boolean;
+  presetId: WebrtcPublishPresetId;
+  signature?: string;
+  signingTs?: string;
+};
 
 export type LivestreamPublishStatus =
   | 'idle'
@@ -40,11 +53,21 @@ export type LivestreamPublishActions = {
   setPc: (pc: RTCPeerConnection | null) => void;
   setResourceUrl: (url: string | null) => void;
   stopStream: (options?: { preservePreview?: boolean }) => Promise<void>;
+  setStudioProps: (props: LivestreamStudioProps | null) => void;
+  setStudioMount: (el: HTMLElement | null) => void;
 };
 
 export type LivestreamPublishRefs = {
   pcRef: React.MutableRefObject<RTCPeerConnection | null>;
   resourceUrlRef: React.MutableRefObject<string | null>;
+  sourceStreamsRef: React.MutableRefObject<Map<string, MediaStream>>;
+  mediaElementsRef: React.MutableRefObject<Map<string, HTMLMediaElement>>;
+  audioMixerRef: React.MutableRefObject<AudioMixer | null>;
+  activatedVideoSourcesRef: React.MutableRefObject<Map<string, VideoSource>>;
+  activatedAudioSourcesRef: React.MutableRefObject<Map<string, AudioSource>>;
+  screenAudioByVideoIdRef: React.MutableRefObject<Map<string, string>>;
+  widgetCanvasesRef: React.MutableRefObject<Map<string, HTMLCanvasElement>>;
+  widgetAnimRef: React.MutableRefObject<Map<string, number>>;
 };
 
 export type LivestreamPublishStore = {
@@ -87,10 +110,20 @@ export const LivestreamPublishContext = React.createContext<LivestreamPublishSto
     setPc: () => {},
     setResourceUrl: () => {},
     stopStream: () => Promise.resolve(),
+    setStudioProps: () => {},
+    setStudioMount: () => {},
   },
   refs: {
     pcRef: { current: null },
     resourceUrlRef: { current: null },
+    sourceStreamsRef: { current: new Map() },
+    mediaElementsRef: { current: new Map() },
+    audioMixerRef: { current: null },
+    activatedVideoSourcesRef: { current: new Map() },
+    activatedAudioSourcesRef: { current: new Map() },
+    screenAudioByVideoIdRef: { current: new Map() },
+    widgetCanvasesRef: { current: new Map() },
+    widgetAnimRef: { current: new Map() },
   },
 });
 

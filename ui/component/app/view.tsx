@@ -5,7 +5,6 @@ import * as URL_PARAMS from 'constants/urlParams';
 import React, { useEffect, useState } from 'react';
 import { AppContext } from 'contexts/app';
 export { AppContext };
-import { useLivestreamPublish } from 'contexts/livestreamPublish';
 import { isEmbedPath } from 'util/embed';
 import LivestreamPublishProvider from 'component/livestreamPublishProvider';
 import { lazyImport } from 'util/lazyImport';
@@ -183,6 +182,21 @@ const YoutubeWelcome = lazyImport(
 // ****************************************************************************
 export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
+import { useLivestreamPublish } from 'contexts/livestreamPublish';
+
+function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
+  const { state } = useLivestreamPublish();
+  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
+  // eslint-disable-next-line no-console
+  console.log('[FloaterGate]', { shouldMount, embedPath, hasStream: !!state.mediaStream, status: state.status });
+  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
+}
+
+function usePublisherFloaterActive() {
+  const { state } = useLivestreamPublish();
+  return Boolean(state.mediaStream && state.status !== 'idle');
+}
+
 // const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
 const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
 const LATEST_PATH = `/$/${PAGES.LATEST}/`;
@@ -197,13 +211,6 @@ type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
 };
-
-function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
-  const { state } = useLivestreamPublish();
-  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
-
-  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
-}
 
 function App() {
   const dispatch = useAppDispatch();
@@ -276,7 +283,9 @@ function App() {
   const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
   const hasModalUrlParam = Boolean(urlParams.get(URL_PARAMS.MODAL));
   const shouldMountModalRouter = !embedPath && Boolean(currentModal || modalError || hasModalUrlParam);
-  const shouldMountFloatingPlayer = !embedPath && Boolean(playingUri?.uri || autoplayCountdownUri);
+  const publisherFloaterActive = usePublisherFloaterActive();
+  const shouldMountFloatingPlayer =
+    !embedPath && !publisherFloaterActive && Boolean(playingUri?.uri || autoplayCountdownUri);
   const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
   let path;
 

@@ -21,6 +21,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development vp dev",
+    "dev:https": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development DEV_HOST=0.0.0.0 DEV_HTTPS_CERT=$HOME/dev-cert.pem DEV_HTTPS_KEY=$HOME/dev-cert-key.pem vp dev",
     "dev:usagi-local": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true vp dev",
     "dev:ssr": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
     "dev:ssr:usagi-local": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true node scripts/dev-web-server.mjs",

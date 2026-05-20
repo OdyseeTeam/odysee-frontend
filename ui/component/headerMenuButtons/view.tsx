@@ -3,6 +3,7 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import * as PUBLISH_TYPES from 'constants/publish_types';
+import classnames from 'classnames';
 import Button from 'component/button';
 import Icon from 'component/common/icon';
 import React from 'react';
@@ -12,9 +13,34 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectActivePipelineItems, selectCurrentUploads } from 'redux/selectors/publish';
 import { doBeginPublish as doBeginPublishAction } from 'redux/actions/publish';
+import { useLivestreamPublish } from 'contexts/livestreamPublish';
 type HeaderMenuButtonProps = {
   authRedirect?: string;
 };
+
+function HeaderLivestreamButton({
+  uploadProps,
+  doBeginPublish,
+}: {
+  uploadProps: { requiresAuth: boolean };
+  doBeginPublish: (type: PublishType) => void;
+}) {
+  const ctx = useLivestreamPublish();
+  const isLive = ctx.state.status === 'live' || ctx.state.status === 'connecting';
+  return (
+    <Tooltip title={isLive ? __('Live') : __('Go live')}>
+      <Button
+        className={classnames('header__navigationItem--icon', {
+          'header__livestream-btn--live': isLive,
+        })}
+        {...uploadProps}
+        onClick={() => doBeginPublish(PUBLISH_TYPES.LIVESTREAM)}
+      >
+        <Icon size={18} icon={ICONS.GOLIVE} aria-hidden />
+      </Button>
+    </Tooltip>
+  );
+}
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const { authRedirect } = props;
   const dispatch = useAppDispatch();
@@ -34,17 +60,7 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   return authenticated ? (
     <div className="header__buttons">
       <UploadManagerMenu hasActivity={hasUploadActivity} onUploadClick={() => doBeginPublish(PUBLISH_TYPES.FILE)} />
-      {livestreamEnabled && (
-        <Tooltip title={__('Go live')}>
-          <Button
-            className="header__navigationItem--icon"
-            {...uploadProps}
-            onClick={() => doBeginPublish(PUBLISH_TYPES.LIVESTREAM)}
-          >
-            <Icon size={18} icon={ICONS.GOLIVE} aria-hidden />
-          </Button>
-        </Tooltip>
-      )}
+      {livestreamEnabled && <HeaderLivestreamButton uploadProps={uploadProps} doBeginPublish={doBeginPublish} />}
       <Tooltip title={__('Post an article')}>
         <Button className="header__navigationItem--icon" onClick={() => doBeginPublish(PUBLISH_TYPES.POST)}>
           <Icon size={18} icon={ICONS.POST} aria-hidden />

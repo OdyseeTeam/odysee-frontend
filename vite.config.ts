@@ -948,6 +948,14 @@ export default defineConfig({
 
   server: {
     port: parseInt(process.env.WEB_SERVER_PORT || process.env.WEBPACK_WEB_PORT || '9090', 10),
+    host: process.env.DEV_HOST || 'localhost',
+    https:
+      process.env.DEV_HTTPS_CERT && process.env.DEV_HTTPS_KEY
+        ? {
+            cert: fs.readFileSync(process.env.DEV_HTTPS_CERT),
+            key: fs.readFileSync(process.env.DEV_HTTPS_KEY),
+          }
+        : undefined,
     open: false,
     fs: {
       allow: [path.resolve(__dirname), ...(useLocalUsagi ? [LOCAL_USAGI_ROOT] : [])],
