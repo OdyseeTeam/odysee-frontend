@@ -17,6 +17,7 @@ const defaultState: SyncState = {
   sharedStateSyncId: -1,
   hashChanged: false,
   fatalError: false,
+  syncDeferredDueToMissingPassword: false,
 };
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state: SyncState) => {
@@ -85,6 +86,7 @@ reducers[ACTIONS.SET_SYNC_COMPLETED] = (state: SyncState, action: any) =>
     // sync was successful, so the user has a synced wallet at this point
     syncHash: action.data.syncHash,
     lastSyncHash: action.data.lastSyncHash !== undefined ? action.data.lastSyncHash : action.data.syncHash,
+    syncDeferredDueToMissingPassword: false,
   });
 
 reducers[ACTIONS.LAST_SYNC_HASH_UPDATED] = (state: SyncState, action: any) =>
@@ -115,6 +117,11 @@ reducers[ACTIONS.SYNC_APPLY_FAILED] = (state: SyncState, action: any) =>
 reducers[ACTIONS.SYNC_APPLY_BAD_PASSWORD] = (state: SyncState) =>
   Object.assign({}, state, {
     syncApplyPasswordError: true,
+  });
+
+reducers[ACTIONS.SYNC_DEFERRED_SET] = (state: SyncState, action: any) =>
+  Object.assign({}, state, {
+    syncDeferredDueToMissingPassword: Boolean(action.data),
   });
 
 reducers[ACTIONS.SYNC_FATAL_ERROR] = (state: SyncState) => {

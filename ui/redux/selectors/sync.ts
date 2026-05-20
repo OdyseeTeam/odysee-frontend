@@ -17,3 +17,4 @@ export const selectSyncApplyPasswordError = (state) => selectState(state).syncAp
 export const selectSyncIsLocked = (state) => selectState(state).syncLocked;
 export const selectPrefsReady = (state) => selectState(state).prefsReady;
 export const selectSyncFatalError = (state) => selectState(state).fatalError;
+export const selectSyncDeferredDueToMissingPassword = (state) => selectState(state).syncDeferredDueToMissingPassword;

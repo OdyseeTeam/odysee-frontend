@@ -140,6 +140,7 @@ type Props = {
   source?: string;
   sourceType?: string;
   startMuted?: boolean;
+  showUnmuteHintWhenMuted?: boolean;
   userId?: string | number;
   defaultQuality?: string | null;
   onPlayerReady: (player: any, node: HTMLVideoElement) => void | (() => void);
@@ -199,6 +200,7 @@ function VideoJsInner(props: Props) {
     source,
     sourceType,
     startMuted,
+    showUnmuteHintWhenMuted,
     userId,
     defaultQuality,
     onPlayerReady,
@@ -247,6 +249,7 @@ function VideoJsInner(props: Props) {
   const videoRef = useRef(null);
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const [tapToUnmuteVisible, setTapToUnmuteVisible] = useState(false);
+  const shouldShowTapToUnmuteRef = useRef(false);
   const [tapToRetryVisible, setTapToRetryVisible] = useState(false);
   const [p2pUiState, setP2PUiState] = useState({
     enabled: false,
@@ -356,6 +359,11 @@ function VideoJsInner(props: Props) {
 
     return resolvedSource;
   }, [resolvedSource, sourceMode]);
+
+  useEffect(() => {
+    shouldShowTapToUnmuteRef.current = Boolean(showUnmuteHintWhenMuted);
+    setTapToUnmuteVisible(false);
+  }, [playbackSource?.src, showUnmuteHintWhenMuted]);
 
   useEffect(() => {
     setSourceMode('adaptive');
@@ -885,6 +893,7 @@ function VideoJsInner(props: Props) {
             if (docEl) docEl.removeAttribute('data-shorts-transitioning');
             if (error.name === 'NotAllowedError') {
               media.muted = true;
+              shouldShowTapToUnmuteRef.current = true;
               const mutedPromise = media.play();
               if (mutedPromise !== undefined) {
                 mutedPromise.then(() => setTapToUnmuteVisible(true)).catch(() => {});
@@ -908,6 +917,41 @@ function VideoJsInner(props: Props) {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [media, playbackSource?.src]);
+
+  useEffect(() => {
+    if (!media) {
+      setTapToUnmuteVisible(false);
+      return;
+    }
+
+    const updateTapToUnmuteVisibility = () => {
+      const isAudible = !media.muted && media.volume > 0;
+      if (isAudible) {
+        shouldShowTapToUnmuteRef.current = false;
+        setTapToUnmuteVisible(false);
+        return;
+      }
+
+      setTapToUnmuteVisible(
+        Boolean(shouldShowTapToUnmuteRef.current && !isAudio && !isCasting && !media.paused && !media.ended)
+      );
+    };
+
+    updateTapToUnmuteVisibility();
+    media.addEventListener('play', updateTapToUnmuteVisibility);
+    media.addEventListener('playing', updateTapToUnmuteVisibility);
+    media.addEventListener('pause', updateTapToUnmuteVisibility);
+    media.addEventListener('ended', updateTapToUnmuteVisibility);
+    media.addEventListener('volumechange', updateTapToUnmuteVisibility);
+
+    return () => {
+      media.removeEventListener('play', updateTapToUnmuteVisibility);
+      media.removeEventListener('playing', updateTapToUnmuteVisibility);
+      media.removeEventListener('pause', updateTapToUnmuteVisibility);
+      media.removeEventListener('ended', updateTapToUnmuteVisibility);
+      media.removeEventListener('volumechange', updateTapToUnmuteVisibility);
+    };
+  }, [media, isAudio, isCasting]);
 
   // Inject generated VTT sprite for non-HLS videos
   const generatedTrackRef = useRef<HTMLTrackElement | null>(null);
@@ -1073,6 +1117,7 @@ function VideoJsInner(props: Props) {
       media.muted = false;
       if (media.volume === 0) media.volume = 1.0;
     }
+    shouldShowTapToUnmuteRef.current = false;
     setTapToUnmuteVisible(false);
   }, [media]);
 

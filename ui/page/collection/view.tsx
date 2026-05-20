@@ -24,11 +24,13 @@ import {
   selectCollectionIsMine,
   selectHasPrivateCollectionForId,
   selectIsCollectionPrivateForId,
+  selectCollectionHasItemsResolvedForId,
 } from 'redux/selectors/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveClaimId as doResolveClaimIdAction } from 'redux/actions/claims';
 import {
   doCollectionEdit as doCollectionEditAction,
+  doFetchItemsInCollection as doFetchItemsInCollectionAction,
   doRemoveFromUnsavedChangesCollectionsForCollectionId as doRemoveUnsavedAction,
 } from 'redux/actions/collections';
 import '../playlists/style.scss';
@@ -50,6 +52,9 @@ const CollectionPage = (props: Props) => {
   const isCollectionMine = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
   const hasPrivate = useAppSelector((state) => selectHasPrivateCollectionForId(state, collectionId));
   const isPrivate = useAppSelector((state) => selectIsCollectionPrivateForId(state, collectionId));
+  const collectionHasItemsResolved = useAppSelector((state) =>
+    selectCollectionHasItemsResolvedForId(state, collectionId)
+  );
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const navigate = useNavigate();
   const { search, state, pathname } = useLocation();
@@ -68,6 +73,8 @@ const CollectionPage = (props: Props) => {
   const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
   const isResolvingCollection = hasClaim === undefined;
   const shouldPromptSignIn = IS_WEB && publishPage && !isAuthenticated;
+  const collectionHasStoredItems = Boolean(collection?.items?.length);
+  const shouldResolveCollectionItems = collectionHasStoredItems && !collectionHasItemsResolved;
 
   React.useEffect(() => {
     if (editing || publishing) {
@@ -86,6 +93,11 @@ const CollectionPage = (props: Props) => {
   }
 
   function saveChanges() {
+    if (shouldResolveCollectionItems) {
+      dispatch(doFetchItemsInCollectionAction({ collectionId }));
+      return;
+    }
+
     dispatch(
       doCollectionEditAction(collectionId, {
         isPreview: false,
@@ -109,6 +121,12 @@ const CollectionPage = (props: Props) => {
       );
     }
   }, [collectionId, dispatch, isPrivate]);
+
+  React.useEffect(() => {
+    if (shouldResolveCollectionItems) {
+      dispatch(doFetchItemsInCollectionAction({ collectionId }));
+    }
+  }, [collectionId, dispatch, shouldResolveCollectionItems]);
 
   if (geoRestriction) {
     return (
@@ -213,7 +231,12 @@ const CollectionPage = (props: Props) => {
             actions={
               <>
                 <div className="section__actions">
-                  <Button button="primary" label={__('Save')} onClick={saveChanges} />
+                  <Button
+                    button="primary"
+                    label={shouldResolveCollectionItems ? __('Loading') : __('Save')}
+                    onClick={saveChanges}
+                    disabled={shouldResolveCollectionItems}
+                  />
                   <Button button="link" label={__('Cancel')} onClick={clearChanges} />
                 </div>
               </>

@@ -79,7 +79,7 @@ function setSavedPassword(value, saveToDisk): Promise<void> {
 
     if (saveToDisk) {
       if (password) {
-        setCookie(SAVED_PASSWORD, password, 14);
+        setCookie(SAVED_PASSWORD, password, 365);
       } else {
         deleteSavedPassword();
       }
@@ -142,6 +142,12 @@ function doAuthTokenRefresh() {
   if (authToken) {
     deleteAuthToken();
     setAuthToken(authToken);
+  }
+
+  const savedPassword = getCookie(SAVED_PASSWORD);
+
+  if (savedPassword) {
+    setCookie(SAVED_PASSWORD, savedPassword, 365);
   }
 }
 

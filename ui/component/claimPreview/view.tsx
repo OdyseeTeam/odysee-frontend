@@ -200,7 +200,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
   const playlistPreviewItem = unavailableUris !== undefined || showIndexes;
   const isCollectionOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const collectionClaimId = isCollection && claim && claim.claim_id;
-  const listId = collectionId || collectionClaimId;
+  const listId = collectionId || collectionClaimId || undefined;
   const WrapperElement: any = wrapperElement || 'li';
   const shouldFetch =
     claim === undefined || (claim !== null && claim.value_type === 'channel' && isEmpty(claim.meta) && !pending);
@@ -284,6 +284,18 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     navigateSearch.set('view', 'shorts');
   }
 
+  function playPlaylistItem() {
+    if (!claim) return;
+
+    dispatch(
+      doPlayNextUri({
+        uri: claim.canonical_url || uri,
+        collectionId: listId,
+        navigateInline: !disableClickNavigation,
+      })
+    );
+  }
+
   const handleNavLinkClick = (e) => {
     const previewTime = (window as any).__previewCurrentTime;
     const previewUnmuted = (window as any).__previewMuted === false;
@@ -298,11 +310,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     }
 
     if (playItemsOnClick && claim) {
-      dispatch(
-        doPlayNextUri({
-          uri: claim?.canonical_url || uri,
-        })
-      );
+      playPlaylistItem();
     }
 
     if (onClick) {
@@ -366,11 +374,7 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     }
 
     if (playItemsOnClick && claim) {
-      return dispatch(
-        doPlayNextUri({
-          uri: claim?.canonical_url || uri,
-        })
-      );
+      return playPlaylistItem();
     }
 
     if (claim && !pending && !disableNavigation && !disableClickNavigation && !isEmbed) {

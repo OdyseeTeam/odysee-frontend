@@ -21,6 +21,8 @@ import remarkGfm from 'remark-gfm';
 import remarkStrip from 'strip-markdown';
 import ZoomableImage from 'component/zoomableImage';
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
+const RE_STANDALONE_HTML_BREAK = /^\s*<br\s*\/?>\s*$/i;
+const RE_FENCED_CODE = /^\s*(```|~~~)/;
 
 function isEmote(title, src) {
   return (
@@ -32,6 +34,39 @@ function isEmote(title, src) {
 
 function isStakeEnoughForPreview(stakedLevel) {
   return !stakedLevel || stakedLevel >= (Number(CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS) || 4);
+}
+
+function normalizeStandaloneHtmlBreaks(content: string) {
+  const lines = content.split('\n');
+  const normalizedLines: Array<string> = [];
+  let insideFence = false;
+
+  lines.forEach((line, index) => {
+    if (RE_FENCED_CODE.test(line)) {
+      insideFence = !insideFence;
+      normalizedLines.push(line);
+      return;
+    }
+
+    if (!insideFence && RE_STANDALONE_HTML_BREAK.test(line)) {
+      if (normalizedLines.length && normalizedLines[normalizedLines.length - 1] !== '') {
+        normalizedLines.push('');
+      }
+
+      normalizedLines.push(line);
+
+      const nextLine = lines[index + 1];
+      if (nextLine !== undefined && nextLine !== '') {
+        normalizedLines.push('');
+      }
+
+      return;
+    }
+
+    normalizedLines.push(line);
+  });
+
+  return normalizedLines.join('\n');
 }
 
 type SimpleTextProps = {
@@ -212,8 +247,9 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
     return '';
   }
 
-  const strippedContent = content
-    ? content.replace(REPLACE_REGEX, (iframeHtml, iframeUrl) => {
+  const normalizedContent = typeof content === 'string' ? normalizeStandaloneHtmlBreaks(content) : content;
+  const strippedContent = normalizedContent
+    ? normalizedContent.replace(REPLACE_REGEX, (iframeHtml, iframeUrl) => {
         if (platform.isSafari()) {
           return iframeUrl;
         }

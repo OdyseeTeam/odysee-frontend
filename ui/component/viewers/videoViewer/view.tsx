@@ -23,6 +23,17 @@ const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
 const PLAYLIST_FULLSCREEN_KEY = 'playlist-preserve-fullscreen';
 
+function isPlaylistPlayerFullscreen() {
+  const fsTarget = document.querySelector('.player-fullscreen-target');
+  const fullscreenElement = getFullscreenElement();
+
+  return Boolean(
+    fsTarget &&
+    fullscreenElement &&
+    (fullscreenElement === fsTarget || fsTarget.contains(fullscreenElement) || fullscreenElement.contains(fsTarget))
+  );
+}
+
 type Props = {
   uri: string;
   source?: string;
@@ -53,7 +64,7 @@ type Props = {
   authenticated?: boolean;
   userId?: string | number;
   shareTelemetry?: boolean;
-  doPlayNextUri: (params: { uri: string }) => void;
+  doPlayNextUri: (params: { uri: string; collectionId?: string; navigateInline?: boolean }) => void;
   recomendedContent?: string[];
   nextPlaylistUri?: string | null;
   videoTheaterMode?: boolean;
@@ -204,8 +215,7 @@ function VideoViewer(props: Props) {
   const handlePlayNextUri = React.useCallback(
     (options?: { manual?: boolean }) => {
       const manual = options && options.manual;
-      const fsTarget = document.querySelector('.player-fullscreen-target');
-      const shouldPreserveFullscreen = Boolean(nextPlaylistUri && fsTarget && getFullscreenElement() === fsTarget);
+      const shouldPreserveFullscreen = Boolean(nextPlaylistUri && isPlaylistPlayerFullscreen());
 
       if (shouldPreserveFullscreen) {
         sessionStorage.setItem(PLAYLIST_FULLSCREEN_KEY, 'true');
@@ -411,6 +421,7 @@ function VideoViewer(props: Props) {
           thumbnail={thumbnail}
           onPlayerReady={onPlayerReady}
           startMuted={autoplayIfEmbedded}
+          showUnmuteHintWhenMuted={muted || autoplayIfEmbedded}
           toggleVideoTheaterMode={toggleVideoTheaterMode}
           claimId={claimId}
           title={claim && ((claim.value && claim.value.title) || claim.name)}

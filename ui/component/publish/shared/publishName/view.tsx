@@ -67,6 +67,13 @@ function PublishName(props: Props) {
     setName(event.target.value);
   }
 
+  function flushName() {
+    updatePublishForm({
+      name: name || '',
+    });
+    setBlurred(true);
+  }
+
   useEffect(() => {
     // Cases: Form was cleared; Sanitized; New file selected
     if (publishFormName !== name) {
@@ -109,7 +116,7 @@ function PublishName(props: Props) {
           error={nameError}
           disabled={shouldLockName}
           onChange={handleChange}
-          onBlur={() => setBlurred(true)}
+          onBlur={flushName}
           autoComplete="off"
         />
       </fieldset-group>

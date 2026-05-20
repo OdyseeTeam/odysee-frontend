@@ -20,6 +20,7 @@ import { doClearPublish, doUpdatePublishForm } from 'redux/actions/publish';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { doFetchNoSourceClaimsForChannelId } from 'redux/actions/claims';
 import { selectUser } from 'redux/selectors/user';
+import { selectUserHasValidOdyseeMembership } from 'redux/selectors/memberships';
 import { selectPendingLivestreamsForChannelId, selectLivestreamsForChannelId } from 'redux/selectors/livestream';
 import { selectBalance } from 'redux/selectors/wallet';
 import { selectPublishFormValues } from 'redux/selectors/publish';
@@ -54,7 +55,8 @@ export default function LivestreamSetupPage() {
   ) as Array<StreamClaim>;
   const user = useAppSelector(selectUser);
   const balance = useAppSelector(selectBalance);
-  const BROWSER_STREAM_ENABLED = true;
+  const hasPremium = useAppSelector(selectUserHasValidOdyseeMembership);
+  const BROWSER_STREAM_ENABLED = Boolean(hasPremium);
   const VALID_LIVESTREAM_TABS = BROWSER_STREAM_ENABLED
     ? ALL_LIVESTREAM_TABS
     : ALL_LIVESTREAM_TABS.filter((t) => t !== 'Stream' && t !== 'Preview');
@@ -346,7 +348,7 @@ export default function LivestreamSetupPage() {
               disabled={balance < 0.01}
             >
               <Icon icon={ICONS.CAMERA} size={16} />
-              {__('Browser Stream')}
+              {__('Browser Stream (Beta)')}
             </button>
           )}
           <button

@@ -80,11 +80,6 @@
     padding: var(--spacing-xxs);
   }
 
-  .card__body {
-    max-height: 20rem;
-    overflow: scroll;
-  }
-
   .card__header--between {
     padding-bottom: var(--spacing-s);
     .card__title {
@@ -108,15 +103,18 @@
   .card__body {
     background-color: rgba(var(--color-header-background-base), 0.9);
     max-height: 100%;
+    overflow-x: hidden;
     overflow-y: hidden;
     display: flex;
     .claim-list {
       max-height: 100%;
       width: 100%;
+      min-width: 0;
       overflow-y: hidden;
 
       .ul--no-style {
         max-height: 100%;
+        min-width: 0;
         overflow-y: scroll !important;
         overflow-x: hidden;
         &::-webkit-scrollbar {

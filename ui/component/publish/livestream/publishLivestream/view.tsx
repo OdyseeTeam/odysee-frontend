@@ -6,6 +6,7 @@ import Card from 'component/common/card';
 import { FormField } from 'component/common/form';
 import Spinner from 'component/spinner';
 import PublishName from '../../shared/publishName';
+import useThrottle from 'effects/use-throttle';
 import CopyableText from 'component/copyableText';
 import dayjs from 'util/dayjs';
 import classnames from 'classnames';
@@ -32,6 +33,7 @@ type Props = {
   inEditMode: boolean;
   hideTitleUrl?: boolean;
 };
+const INPUT_THROTTLE_MS = 750;
 
 const normalizeUrlForProtocol = (url) => {
   if (url && url.startsWith('https://')) {
@@ -65,6 +67,8 @@ function PublishLivestream(props: Props) {
   const livestreamDataStr = JSON.stringify(livestreamData);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
   const [urlChangedManually, setUrlChangedManually] = React.useState(false);
+  const [titleValue, setTitleValue] = React.useState(title);
+  const throttledTitle = useThrottle(titleValue, INPUT_THROTTLE_MS);
   const [selectedFileIndex, setSelectedFileIndex] = useState(null);
   const PAGE_SIZE = 4;
   const [currentPage, setCurrentPage] = useState(1);
@@ -100,7 +104,11 @@ function PublishLivestream(props: Props) {
   }
 
   function handleTitleChange(event) {
-    doUpdateTitle(event.target.value, urlChangedManually);
+    setTitleValue(event.target.value);
+  }
+
+  function flushTitle() {
+    doUpdateTitle(titleValue || '', urlChangedManually);
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
@@ -168,6 +176,14 @@ function PublishLivestream(props: Props) {
       setSelectedFileIndex(null);
     }
   }, [liveEditType, dispatch]);
+  React.useEffect(() => {
+    if (title !== titleValue) {
+      setTitleValue(title);
+    } // eslint-disable-next-line react-hooks/exhaustive-deps -- one way update only
+  }, [title]);
+  React.useEffect(() => {
+    doUpdateTitle(throttledTitle || '', urlChangedManually);
+  }, [throttledTitle, urlChangedManually]); // eslint-disable-line react-hooks/exhaustive-deps -- avoid recreating dispatcher
   return (
     <Card
       className={classnames({
@@ -184,8 +200,9 @@ function PublishLivestream(props: Props) {
                   label={__('Title')}
                   placeholder={__('Descriptive titles work best')}
                   disabled={disabled}
-                  value={title}
+                  value={titleValue}
                   onChange={handleTitleChange}
+                  onBlur={flushTitle}
                   className="fieldset-group"
                   max={200}
                   autoFocus
