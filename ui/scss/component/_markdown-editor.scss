@@ -10,6 +10,7 @@
   border-radius: var(--border-radius);
   color: var(--color-input);
   overflow: hidden;
+  --markdown-editor-max-height: 32rem;
 }
 
 .markdown-editor__toolbar {
@@ -62,6 +63,7 @@
 .markdown-editor__preview {
   width: 100%;
   min-height: 20rem;
+  max-height: var(--markdown-editor-max-height);
   background: transparent;
   color: var(--color-input);
 }
@@ -71,6 +73,11 @@
   resize: vertical;
   padding: var(--spacing-s);
   line-height: 1.55;
+  overflow-x: hidden;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  word-break: break-word;
 
   &::placeholder {
     color: var(--color-input-placeholder);

@@ -213,7 +213,7 @@ export function GetLinksData(
     //     orderBy: CS.ORDER_BY_NEW,
     //     pageSize: getPageSize(24),
     //     limitClaimsPerChannel: 1,
-    //     releaseTime: `>${Math.floor(moment().subtract(1, 'months').startOf('week').unix())}`,
+    //     releaseTime: `>${Math.floor(dayjs().subtract(1, 'months').startOf('week').unix())}`,
     //     duration: '<=180',
     //     excludeShorts: false,
     //     // channelIds: subscribedChannelIds,
