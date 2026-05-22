@@ -42,6 +42,12 @@ reducers[ACTIONS.GET_SYNC_STARTED] = (state: SyncState) =>
     getSyncIsPending: true,
     getSyncErrorMessage: null,
     syncApplyPasswordError: false,
+    syncDeferredDueToMissingPassword: false,
+  });
+
+reducers[ACTIONS.GET_SYNC_DEFERRED] = (state: SyncState) =>
+  Object.assign({}, state, {
+    getSyncIsPending: false,
   });
 
 reducers[ACTIONS.SET_SYNC_LOCK] = (state: SyncState, action: any) =>

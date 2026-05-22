@@ -39,6 +39,7 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
   selectPrefsReady,
   selectSyncApplyPasswordError,
+  selectSyncDeferredDueToMissingPassword,
   selectSyncFatalError,
   selectSyncIsLocked,
 } from 'redux/selectors/sync';
@@ -222,6 +223,7 @@ function App() {
   const reloadRequired = useAppSelector((state) => state.app.reloadRequired);
   const prefsReady = useAppSelector(selectPrefsReady);
   const syncApplyPasswordError = useAppSelector(selectSyncApplyPasswordError);
+  const syncDeferredDueToMissingPassword = useAppSelector(selectSyncDeferredDueToMissingPassword);
   const syncIsLocked = useAppSelector(selectSyncIsLocked);
   const uploadCount = useAppSelector(selectUploadCount);
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
@@ -706,10 +708,23 @@ function App() {
   }, [dispatch, hasSignedIn, hasVerifiedEmail]);
   useEffect(() => {
     if (embedPath) return;
-    if (syncApplyPasswordError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
+    if (
+      (syncApplyPasswordError || syncDeferredDueToMissingPassword) &&
+      isAuthenticated &&
+      !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) &&
+      !currentModal
+    ) {
       navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
-    } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncApplyPasswordError, pathname, isAuthenticated, navigate]);
+    }
+  }, [
+    currentModal,
+    syncApplyPasswordError,
+    syncDeferredDueToMissingPassword,
+    pathname,
+    isAuthenticated,
+    navigate,
+    embedPath,
+  ]);
   useEffect(() => {
     if (embedPath) return;
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {

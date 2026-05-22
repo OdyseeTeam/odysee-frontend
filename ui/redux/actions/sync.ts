@@ -227,6 +227,13 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
       .then((status) => {
         capturedWalletStatus = status;
         if (status.is_locked) {
+          if (isSyncApplyUnsafe(status, password)) {
+            dispatch({ type: ACTIONS.SYNC_DEFERRED_SET, data: true });
+            dispatch({ type: ACTIONS.GET_SYNC_DEFERRED });
+            handleCallback(null, false);
+            return SYNC_DEFERRED_MARKER;
+          }
+
           return Lbry.wallet_unlock({
             password,
           });
@@ -236,6 +243,10 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
         return true;
       })
       .then((isUnlocked) => {
+        if (isUnlocked === SYNC_DEFERRED_MARKER) {
+          return SYNC_DEFERRED_MARKER;
+        }
+
         if (isUnlocked) {
           return Lbry.sync_hash();
         }
@@ -243,18 +254,27 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
         data.unlockFailed = true;
         throw new Error();
       })
-      .then((hash?: string) => {
-        data.lastSyncHash = hash;
+      .then((hash?: string | typeof SYNC_DEFERRED_MARKER) => {
+        if (hash === SYNC_DEFERRED_MARKER) {
+          return SYNC_DEFERRED_MARKER;
+        }
+
+        const syncHash = hash as string;
+        data.lastSyncHash = syncHash;
         return Lbryio.call(
           'sync',
           'get',
           {
-            hash,
+            hash: syncHash,
           },
           'post'
         );
       })
       .then((response: any) => {
+        if (response === SYNC_DEFERRED_MARKER) {
+          return SYNC_DEFERRED_MARKER;
+        }
+
         const syncHash = response.hash;
         data.syncHash = syncHash;
         data.syncData = response.data;
@@ -337,11 +357,9 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
             },
           });
 
-          if (badPasswordError) {
-            dispatch({
-              type: ACTIONS.SYNC_APPLY_BAD_PASSWORD,
-            });
-          }
+          dispatch({
+            type: ACTIONS.SYNC_APPLY_BAD_PASSWORD,
+          });
 
           handleCallback(syncAttemptError);
         } else if (!tooBigDataError && data.hasSyncedWallet) {
