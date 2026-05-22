@@ -31,6 +31,7 @@ const FILTERS = {
     'lastViewedAnnouncement',
     'recsysEntries',
     'uriAccessKeys',
+    'collectionLastPlayedUris',
   ]),
   subscriptions: createFilter('subscriptions', ['subscriptions', 'following']),
   settings: createBlacklistFilter('settings', ['loadedLanguages']),

@@ -123,12 +123,23 @@ const normalizePlayingUriForCompare = (value: PlayingUri | null | undefined) => 
 export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const currentPlayingUri = selectPlayingUri(state);
+  const collectionId = playingUri.collection?.collectionId;
 
   const nextSnapshot = normalizePlayingUriForCompare(playingUri);
   const currentSnapshot = normalizePlayingUriForCompare(currentPlayingUri);
 
   if (JSON.stringify(nextSnapshot) === JSON.stringify(currentSnapshot)) {
     return Promise.resolve();
+  }
+
+  if (collectionId && collectionId !== COLLECTIONS_CONSTS.QUEUE_ID && playingUri.uri) {
+    dispatch({
+      type: ACTIONS.SET_COLLECTION_LAST_PLAYED_URI,
+      data: {
+        collectionId,
+        uri: playingUri.uri,
+      },
+    });
   }
 
   return dispatch({

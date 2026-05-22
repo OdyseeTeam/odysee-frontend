@@ -134,6 +134,7 @@ $contentMaxWidth: 60rem;
 .notification__wrapper {
   width: 100%;
   display: flex;
+  position: relative;
   padding: var(--spacing-m) 0;
   justify-content: space-between;
   flex-direction: column;
@@ -175,6 +176,12 @@ $contentMaxWidth: 60rem;
     top: 0.4rem;
     left: 0.4rem;
   }
+}
+
+.notification__link-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
 }
 
 .notification__wrapper--unread {

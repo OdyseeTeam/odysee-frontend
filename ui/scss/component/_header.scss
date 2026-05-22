@@ -656,6 +656,28 @@
       border-top: 1px solid var(--color-header-background);
       transition: border-left 0.4s;
 
+      &.menu__list--notification--with-overlay {
+        pointer-events: none;
+
+        a,
+        button,
+        input,
+        select,
+        textarea,
+        [role='button'],
+        [data-notification-ignore],
+        .delete-notification {
+          position: relative;
+          z-index: 2;
+          pointer-events: auto;
+        }
+
+        .notification__link-overlay {
+          z-index: 1;
+          pointer-events: auto;
+        }
+      }
+
       .notification__icon {
         margin-top: 0;
         margin-left: 0;

@@ -2,7 +2,7 @@ import { lazyImport } from 'util/lazyImport';
 import { Menu, MenuList, MenuButton, MenuItem } from 'component/common/menu';
 import { parseURI } from 'util/lbryURI';
 import { RULE } from 'constants/notifications';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -16,7 +16,6 @@ import UriIndicator from 'component/uriIndicator';
 import { getNotificationLink, getNotificationTarget } from './helpers/target';
 import { generateNotificationTitle } from './helpers/title';
 import { generateNotificationText } from './helpers/text';
-import { isInteractiveNotificationClick } from './helpers/click';
 import { useAppDispatch } from 'redux/hooks';
 import { doReadNotifications, doDeleteNotification as doDeleteNotificationAction } from 'redux/actions/notifications';
 import { doGetMembershipSupportersList as doGetMembershipSupportersListAction } from 'redux/actions/memberships';
@@ -140,20 +139,9 @@ function Notification(props: Props) {
     if (notificationAction) notificationAction();
   }
 
-  function handleNotificationLinkClick(event) {
-    if (isInteractiveNotificationClick(event)) return;
-
+  function handleNotificationLinkClick() {
     if (!is_read) doReadNotificationsAction([notification.id]);
-    if (notificationLink) navigate(notificationLink);
     if (notificationAction) notificationAction();
-  }
-
-  function handleNotificationLinkKeyDown(event) {
-    if (event.key !== 'Enter' && event.key !== ' ') return;
-    if (isInteractiveNotificationClick(event)) return;
-
-    event.preventDefault();
-    handleNotificationLinkClick(event);
   }
 
   const Wrapper = menuButton
@@ -164,13 +152,14 @@ function Notification(props: Props) {
       )
     : notificationLink
       ? (props: { children: any }) => (
-          <div
-            role="link"
-            tabIndex={0}
-            className="menu__link--notification"
-            onClick={handleNotificationLinkClick}
-            onKeyDown={handleNotificationLinkKeyDown}
-          >
+          <div className="menu__link--notification menu__link--notification--with-overlay">
+            <Link
+              aria-label={notification_parameters?.device?.title || __('Open notification')}
+              className="notification__link-overlay"
+              onAuxClick={handleNotificationLinkClick}
+              onClick={handleNotificationLinkClick}
+              to={notificationLink}
+            />
             {props.children}
           </div>
         )

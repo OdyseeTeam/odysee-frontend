@@ -35,6 +35,8 @@ export const selectPrimaryUri = (state: State) => selectState(state).primaryUri;
 export const selectLastViewedAnnouncement = (state: State) => selectState(state).lastViewedAnnouncement;
 export const selectRecsysEntries = (state: State) => selectState(state).recsysEntries;
 export const selectAutoplayCountdownUri = (state: State) => selectState(state).autoplayCountdownUri;
+export const selectCollectionLastPlayedUriForId = (state: State, collectionId: string | null | undefined) =>
+  collectionId ? selectState(state).collectionLastPlayedUris?.[collectionId] : undefined;
 export const selectIsAutoplayCountdownForUri = (state: State, uri: string) => selectAutoplayCountdownUri(state) === uri;
 export const selectCollectionForIdIsPlayingShuffle = (state: State, collectionId: string) => {
   const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
