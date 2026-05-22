@@ -331,6 +331,7 @@ function VideoJsInner(props: Props) {
     isProtectedContent,
     activeLivestreamForChannel,
     uri,
+    userId,
     doSetVideoSourceLoaded
   );
   const [sourceMode, setSourceMode] = useState<'adaptive' | 'original'>('adaptive');

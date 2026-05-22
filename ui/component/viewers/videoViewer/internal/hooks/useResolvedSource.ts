@@ -19,6 +19,7 @@ export default function useResolvedSource(
   isProtectedContent,
   activeLivestreamForChannel,
   uri,
+  userId,
   doSetVideoSourceLoaded
 ) {
   const [resolved, setResolved] = useState(null);
@@ -102,10 +103,12 @@ export default function useResolvedSource(
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);
+        const headers = userId !== undefined && userId !== null ? { 'X-Odysee-User-Id': String(userId) } : undefined;
         try {
           response = await fetch(source, {
             method: 'HEAD',
             cache: 'no-store',
+            ...(headers ? { headers } : {}),
             signal: controller.signal,
           });
         } catch (e) {
@@ -190,7 +193,7 @@ export default function useResolvedSource(
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [source, sourceType, isLivestreamClaim, userClaimId]);
+  }, [source, sourceType, isLivestreamClaim, userClaimId, userId]);
 
   return resolved;
 }
