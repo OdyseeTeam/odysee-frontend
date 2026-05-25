@@ -359,6 +359,8 @@ reach-portal {
   }
 
   .notification__link-overlay {
+    position: absolute;
+    inset: 0;
     z-index: 1;
     pointer-events: auto;
   }
