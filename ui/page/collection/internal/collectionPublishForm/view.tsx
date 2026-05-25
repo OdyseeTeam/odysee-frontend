@@ -99,7 +99,7 @@ const CollectionPublishForm = (props: Props) => {
   const { claims } = formParams;
   const hasClaims = claims && claims.length;
   const collectionHasStoredItems = Boolean(currentCollection?.items?.length);
-  const shouldResolveCollectionItems = editing && collectionHasStoredItems && !collectionHasItemsResolved;
+  const shouldResolveCollectionItems = collectionHasStoredItems && !collectionHasItemsResolved;
   const itemError = shouldResolveCollectionItems
     ? __('Playlist items are still loading. Please try again in a moment.')
     : publishing && !hasClaims

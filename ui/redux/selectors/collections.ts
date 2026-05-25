@@ -429,12 +429,17 @@ export const selectClaimIdsForCollectionId = createSelector(
   selectClaimIdsByUri,
   (isPrivate, items, byUri) => {
     if (!items || !isPrivate) return items;
-    const ids = new Set([]);
+    const ids = new Set<string | null>();
     const notFetched = items.some((item) => {
       const claimId = byUri[normalizeURI(item)];
 
       if (claimId === undefined) {
         return true;
+      }
+
+      if (claimId === null) {
+        ids.add(null);
+        return false;
       }
 
       // Skip in-flight preview claims and anything that isn't a real hex claim_id —
