@@ -578,6 +578,10 @@ function ClaimListDiscover(props: Props) {
     options.content_aspect_ratio = contentAspectRatio;
   }
 
+  if (hideYouTubeMirrors) {
+    options.exclude_youtube_mirrors = true;
+  }
+
   const hasMatureTags = tagsParam && tagsParam.split(',').some((t) => MATURE_TAGS.includes(t));
   const searchKey = createNormalizedClaimSearchKey(options);
   const claimSearchResult = claimSearchByQuery[searchKey];
