@@ -211,7 +211,9 @@ export const isClaimShort = (claim: Claim | null | undefined): boolean => {
 };
 export const isClaimYouTubeMirror = (claim: Claim | null | undefined): boolean => {
   if (!claim || !claim.value) return false;
-  const description = (claim.value as StreamMetadata)?.description;
+  const value = claim.value as StreamMetadata;
+  if (claim.value_type !== 'stream' || value.stream_type !== 'video') return false;
+  const description = value.description;
   if (!description) return false;
   return /\.\.\.\s*\n\s*(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)[\w-]+/i.test(
     description
