@@ -223,6 +223,11 @@
     flex-wrap: unset;
   }
 
+  @media (max-width: $breakpoint-small) {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+
   .claim-search__menu-group:last-of-type {
     margin-right: unset;
   }
@@ -246,6 +251,13 @@
     }
     &.stretch {
       width: 100%;
+    }
+  }
+
+  @media (max-width: $breakpoint-small) {
+    &.stretch {
+      flex: 1 0 100%;
+      min-width: 0;
     }
   }
 }
