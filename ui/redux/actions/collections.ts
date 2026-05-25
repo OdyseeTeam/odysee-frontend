@@ -204,6 +204,19 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
         const publishStartedAt = Math.floor(Date.now() / 1000);
         if (!collectionClaim?.meta.creation_timestamp) collectionClaim.meta.creation_timestamp = createdAtTimestamp;
         if (!collectionClaim?.timestamp) collectionClaim.timestamp = publishStartedAt;
+        const publishedCollection = {
+          ...collection,
+          id: collectionClaim.claim_id,
+          name: fullParams.title || collection.name,
+          title: fullParams.title || collection.title || collection.name,
+          description: fullParams.description,
+          thumbnail: fullParams.thumbnail_url ? { url: fullParams.thumbnail_url } : collection.thumbnail,
+          tags: fullParams.tags || collection.tags || [],
+          items: fullParams.claims || [],
+          itemCount: fullParams.claims ? fullParams.claims.length : 0,
+          createdAt: collectionClaim.meta?.creation_timestamp || collectionClaim.timestamp,
+          updatedAt: collectionClaim.timestamp || publishStartedAt,
+        };
         dispatch({
           type: ACTIONS.DELETE_ID_FROM_LOCAL_COLLECTIONS,
           data: collectionId,
@@ -232,6 +245,10 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
               data: {
                 claims: [collectionClaim],
               },
+            },
+            {
+              type: ACTIONS.COLLECTION_CLAIM_ITEMS_RESOLVE_COMPLETE,
+              data: publishedCollection,
             },
             doCheckPendingClaims(() => {}) as any
           )
@@ -715,18 +732,39 @@ export const doFetchThumbnailClaimsForCollectionIds =
 export const doSortCollectionByKey =
   (collectionId: string, sortByKey: string, sortOrder: string) => async (dispatch: Dispatch, getState: GetState) => {
     let state = getState();
-    const collection: Collection = selectCollectionForId(state, collectionId);
+    let collection: Collection = selectCollectionForId(state, collectionId);
+
+    if (!collection) return false;
+
+    if (collection.items?.length && !selectCollectionHasItemsResolvedForId(state, collectionId)) {
+      await dispatch(
+        doFetchItemsInCollection({
+          collectionId,
+        })
+      );
+      state = getState();
+      collection = selectCollectionForId(state, collectionId);
+    }
+
+    if (!collection?.items) return false;
+
     // Get claims or return the uri/claimId if not resolved
-    const claims = collection.items.map((item) => {
+    const claimEntries = collection.items.map((item) => {
       // Item should be either claim_id or permanent url
       const claimIdMatch = item.match(/[a-f|0-9]{40}$/);
       const claimId = claimIdMatch ? claimIdMatch[0] : null;
-      return claimId ? selectClaimForClaimId(state, claimId) : item;
+      return {
+        claim: claimId ? selectClaimForClaimId(state, claimId) : item,
+        item,
+      };
     });
     // Save unresolved uris
-    const resolvedClaims = claims.filter((claim) => typeof claim !== 'string');
-    const unresolvedItems = claims.filter((claim) => typeof claim === 'string');
-    const sortedClaims = [...resolvedClaims].sort((a, b) => {
+    const resolvedClaimEntries = claimEntries.filter(({ claim }) => claim && typeof claim !== 'string');
+    const unresolvedItems = claimEntries
+      .filter(({ claim }) => !claim || typeof claim === 'string')
+      .map(({ item }) => item)
+      .filter(Boolean);
+    const sortedClaims = [...resolvedClaimEntries].sort(({ claim: a }, { claim: b }) => {
       if (sortByKey === COLS.SORT_KEYS.RELEASED_AT) {
         const keyA = a?.value?.release_time || a?.meta?.creation_timestamp || 0;
         const keyB = b?.value?.release_time || b?.meta?.creation_timestamp || 0;
@@ -754,8 +792,10 @@ export const doSortCollectionByKey =
           });
         }
       }
+
+      return 0;
     });
-    let sortedUris = sortedClaims.map((claim) => claim?.permanent_url);
+    let sortedUris = sortedClaims.map(({ claim }) => claim?.permanent_url || claim?.canonical_url || claim?.claim_id);
     sortedUris = sortedUris.concat(unresolvedItems);
     return dispatch({
       type: ACTIONS.COLLECTION_EDIT,
