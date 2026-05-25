@@ -1,4 +1,9 @@
-import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import {
+  selectClientSetting,
+  selectHideYouTubeMirrors,
+  selectLanguage,
+  selectShowMatureContent,
+} from 'redux/selectors/settings';
 import {
   selectClaimsByUri,
   selectClaimForClaimId,
@@ -10,7 +15,7 @@ import {
   selectIsUriResolving,
 } from 'redux/selectors/claims';
 import { parseURI } from 'util/lbryURI';
-import { isClaimNsfw } from 'util/claim';
+import { isClaimNsfw, isClaimYouTubeMirror } from 'util/claim';
 import { objSelectorEqualityCheck } from 'util/redux-utils';
 import { createSelector } from 'reselect';
 import { createCachedSelector } from 're-reselect';
@@ -110,7 +115,8 @@ const selectRecommendedContentFilteredForUri = createCachedSelector(
   selectRecommendedContentRawForUri,
   selectRecClaimsByIdForUri,
   selectMutedChannels,
-  (claim, recommendationsRaw, recClaimsByUri, blockedChannels) => {
+  selectHideYouTubeMirrors,
+  (claim, recommendationsRaw, recClaimsByUri, blockedChannels, hideYouTubeMirrors) => {
     if (!claim || !recommendationsRaw) {
       return;
     }
@@ -133,7 +139,8 @@ const selectRecommendedContentFilteredForUri = createCachedSelector(
       } catch (e) {}
 
       const isPending = recClaim?.claim_id?.startsWith('pending-') || recClaim?.confirmations === 0;
-      return !isEqualUri && !isRecChannelBlocked && !isPending;
+      const isYouTubeMirror = hideYouTubeMirrors && isClaimYouTubeMirror(recClaim);
+      return !isEqualUri && !isRecChannelBlocked && !isPending && !isYouTubeMirror;
     });
   }
 )((state, uri) => String(uri));
