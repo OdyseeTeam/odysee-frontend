@@ -578,15 +578,29 @@ function ClaimListDiscover(props: Props) {
     options.content_aspect_ratio = contentAspectRatio;
   }
 
-  if (hideYouTubeMirrors) {
-    options.exclude_youtube_mirrors = true;
-  }
-
   const hasMatureTags = tagsParam && tagsParam.split(',').some((t) => MATURE_TAGS.includes(t));
   const searchKey = createNormalizedClaimSearchKey(options);
   const claimSearchResult = claimSearchByQuery[searchKey];
   const claimSearchResultLastPageReached = claimSearchByQueryLastPageReached[searchKey];
   const isUnfetchedClaimSearch = claimSearchResult === undefined;
+  const excludeUrisStr = JSON.stringify(excludeUris);
+  const filteredClaimSearchResult = React.useMemo(() => {
+    if (!claimSearchResult) {
+      return claimSearchResult;
+    }
+
+    if (!hasPins) {
+      return filterYouTubeMirrors(claimSearchResult, claimsByUri, hideYouTubeMirrors);
+    }
+
+    const newUris = Array.from(new Set(claimSearchResult));
+    const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+    let newFinalUris = filterExcludedUris(injected, excludeUris);
+    newFinalUris = filterYouTubeMirrors(newFinalUris, claimsByUri, hideYouTubeMirrors);
+    return newFinalUris;
+  }, [claimSearchResult, claimsByUri, excludeUris, hasPins, hideYouTubeMirrors, orderParam, pins, resolvedPinUris]);
+  const claimSearchResultCount = claimSearchResult ? claimSearchResult.length : 0;
+  const filteredClaimSearchResultCount = filteredClaimSearchResult ? filteredClaimSearchResult.length : 0;
   // uncomment to fix an item on a page
   //   const fixUri = 'lbry://@corbettreport#0/lbryodysee#5';
   //   if (
@@ -612,24 +626,27 @@ function ClaimListDiscover(props: Props) {
     if (didNavigateForward) {
       effectivePage = 1;
     } else if (claimSearchResult) {
-      effectivePage = Math.max(1, Math.ceil(claimSearchResult.length / dynamicPageSize));
+      effectivePage = Math.max(1, Math.ceil(filteredClaimSearchResultCount / dynamicPageSize));
     }
   }
 
-  options.page = effectivePage;
+  const shouldFetchMoreFilteredResults =
+    !loading &&
+    !claimSearchResultLastPageReached &&
+    claimSearchResultCount > 0 &&
+    filteredClaimSearchResultCount < dynamicPageSize * effectivePage &&
+    claimSearchResultCount % dynamicPageSize === 0;
+  const searchPage =
+    claimSearchResult && shouldFetchMoreFilteredResults
+      ? Math.floor(claimSearchResultCount / dynamicPageSize) + 1
+      : effectivePage;
+
+  options.page = searchPage;
 
   const shouldPerformSearch = // -- pins alone will be resolved by the doResolveUris/doResolveClaimIds call
     hasPins && !channelIdsParam
       ? false
-      : !uris &&
-        (claimSearchResult === undefined ||
-          didNavigateForward ||
-          (!loading &&
-            !claimSearchResultLastPageReached &&
-            claimSearchResult &&
-            claimSearchResult.length &&
-            claimSearchResult.length < dynamicPageSize * options.page &&
-            claimSearchResult.length % dynamicPageSize === 0));
+      : !uris && (claimSearchResult === undefined || didNavigateForward || shouldFetchMoreFilteredResults);
 
   // Don't use the query from createNormalizedClaimSearchKey for the effect since that doesn't include page & release_time
   const optionsStringForEffect = JSON.stringify(options);
@@ -681,7 +698,6 @@ function ClaimListDiscover(props: Props) {
       doResolveUris(pins.urls, true);
     }
   }, [pins, doResolveUris, doResolveClaimIds, hasPins]);
-  const excludeUrisStr = JSON.stringify(excludeUris);
   React.useEffect(() => {
     const excludeUris = JSON.parse(excludeUrisStr);
 
@@ -696,17 +712,9 @@ function ClaimListDiscover(props: Props) {
       // --- searched uris
       if (isUnfetchedClaimSearch && prevUris.current) {
         setFinalUris(prevUris.current);
-      } else if (!hasPins) {
-        let newFinalUris = filterYouTubeMirrors(claimSearchResult, claimsByUri, hideYouTubeMirrors);
-        setFinalUris(newFinalUris);
-        prevUris.current = newFinalUris;
       } else {
-        const newUris = Array.from(new Set(claimSearchResult));
-        const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
-        let newFinalUris = filterExcludedUris(injected, excludeUris);
-        newFinalUris = filterYouTubeMirrors(newFinalUris, claimsByUri, hideYouTubeMirrors);
-        setFinalUris(newFinalUris);
-        prevUris.current = newFinalUris;
+        setFinalUris(filteredClaimSearchResult);
+        prevUris.current = filteredClaimSearchResult;
       }
     } else if (resolvedPinUris && !channelIdsParam) {
       setFinalUris(resolvedPinUris);
@@ -717,6 +725,7 @@ function ClaimListDiscover(props: Props) {
     claimSearchResult,
     claimsByUri,
     excludeUrisStr,
+    filteredClaimSearchResult,
     hasPins,
     hideYouTubeMirrors,
     isUnfetchedClaimSearch,
