@@ -339,7 +339,34 @@ reach-portal {
   width: 100%;
   display: flex;
   align-items: flex-start;
+  position: relative;
+  z-index: 2;
+}
 
+.menu__link--notification--with-overlay {
+  pointer-events: none;
+
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [role='button'],
+  [data-notification-ignore] {
+    position: relative;
+    z-index: 2;
+    pointer-events: auto;
+  }
+
+  .notification__link-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: auto;
+  }
+}
+
+.menu__link--notification {
   .icon__wrapper {
     height: 2.5rem;
     width: 2.5rem;

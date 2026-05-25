@@ -1,39 +1,36 @@
 import type { DoPublishDesktop } from 'redux/actions/publish';
 
-/*
-  On submit, this component calls publish, which dispatches doPublishDesktop.
-  doPublishDesktop calls lbry-redux Lbry publish method using lbry-redux publish state as params.
-  Publish simply instructs the SDK to find the file path on disk and publish it with the provided metadata.
-  On web, the Lbry publish method call is overridden in platform/web/api-setup, using a function in platform/web/publish.
-  File upload is carried out in the background by that function.
- */
 import { SITE_NAME } from 'config';
 import * as ICONS from 'constants/icons';
 import Icon from 'component/common/icon';
 import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
+import classnames from 'classnames';
 import Lbry from 'lbry';
 import { buildURI, isURIValid, isNameValid } from 'util/lbryURI';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
 import { BITRATE } from 'constants/publish';
 import Button from 'component/button';
 import ChannelSelector from 'component/channelSelector';
-import classnames from 'classnames';
-import TagsSelect from 'component/tagsSelect';
+import PublishLivestream from 'component/publish/livestream/publishLivestream';
+import PublishTitleUrl from 'component/publish/shared/publishTitleUrl';
 import PublishDescription from 'component/publish/shared/publishDescription';
 import PublishAdditionalOptions from 'component/publish/shared/publishAdditionalOptions';
 import PublishFormErrors from 'component/publish/shared/publishFormErrors';
-import PublishStreamReleaseDate from 'component/publish/shared/publishStreamReleaseDate';
-import PublishLivestream from 'component/publish/livestream/publishLivestream';
+import PublishReleaseDate from 'component/publish/shared/publishReleaseDate';
+import PublishVisibility from 'component/publish/shared/publishVisibility';
+import PublishProtectedContent from 'component/publishProtectedContent';
+import PublishControlTags from 'component/publish/shared/publishControlTags/view';
+import PublishTagsPicker from 'component/publish/shared/publishTagsPicker/view';
+import PublishSummary from 'component/publish/shared/publishSummary/view';
+import PublishWizard from 'component/publish/shared/publishWizard';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
+import Tooltip from 'component/common/tooltip';
 import { toHex } from 'util/hex';
 import { lazyImport } from 'util/lazyImport';
 import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
-import { useIsMobile } from 'effects/use-screensize';
-import Tooltip from 'component/common/tooltip';
-import PublishProtectedContent from 'component/publishProtectedContent';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doResetThumbnailStatus, doClearPublish, doUpdatePublishForm, doPublishDesktop } from 'redux/actions/publish';
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
@@ -44,36 +41,17 @@ import {
   selectPublishFormValue,
   selectMyClaimForUri,
 } from 'redux/selectors/publish';
-import { selectIsStreamPlaceholderForUri } from 'redux/selectors/claims';
-import * as RENDER_MODES from 'constants/file_render_modes';
 import * as SETTINGS from 'constants/settings';
 import { doClaimInitialRewards } from 'redux/actions/rewards';
-import {
-  selectUnclaimedRewardValue,
-  selectIsClaimingInitialRewards,
-  selectHasClaimedInitialRewards,
-} from 'redux/selectors/rewards';
+import { selectIsClaimingInitialRewards, selectHasClaimedInitialRewards } from 'redux/selectors/rewards';
 import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/selectors/app';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { selectUser } from 'redux/selectors/user';
 import { selectBalance } from 'redux/selectors/wallet';
-const SelectThumbnail = lazyImport(
-  () =>
-    import(
-      'component/selectThumbnail'
-      /* webpackChunkName: "selectThumbnail" */
-    )
-);
+
+const SelectThumbnail = lazyImport(() => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */));
 const PublishPrice = lazyImport(
-  () =>
-    import(
-      'component/publish/shared/publishPrice'
-      /* webpackChunkName: "publish" */
-    )
+  () => import('component/publish/shared/publishPrice' /* webpackChunkName: "publish" */)
 );
-type LiveCreateTypeValue = 'new_placeholder' | 'choose_replay' | 'edit_placeholder';
-type LiveEditTypeValue = 'update_only' | 'use_replay' | 'upload_replay';
 
 type ReplayApiItem = {
   Status: string;
@@ -89,15 +67,18 @@ type Props = {
   disabled?: boolean;
 };
 
-function LivestreamForm(props: Props) {
-  const { setClearStatus } = props;
+function normalizeReplayUrl(url) {
+  if (!url) return '';
+  if (url.startsWith('https://') || url.startsWith('http://')) return url;
+  return `https://${url}`;
+}
 
+function LivestreamForm(props: Props) {
+  const { setClearStatus, disabled: propDisabled = false } = props;
   const dispatch = useAppDispatch();
-  const formValues = useAppSelector((state) => selectPublishFormValues(state));
+  const formValues = useAppSelector(selectPublishFormValues);
   const {
     tags,
-    filePath: formFilePath,
-    fileText,
     fileBitrate,
     bid,
     bidError,
@@ -110,60 +91,70 @@ function LivestreamForm(props: Props) {
     description,
     name,
     publishing,
+    publishSuccess,
+    publishError,
     liveCreateType = 'new_placeholder',
     liveEditType = 'use_replay',
   } = formValues;
+
   const myClaimForUri = useAppSelector((state) => selectMyClaimForUri(state, true));
   const permanentUrl = (myClaimForUri && myClaimForUri.permanent_url) || '';
-  const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, permanentUrl));
-  const isPostClaim =
-    useAppSelector((state) => makeSelectFileRenderModeForUri(permanentUrl)(state)) === RENDER_MODES.MARKDOWN;
-  const isStillEditing = useAppSelector((state) => selectIsStillEditing(state));
+  const isStillEditing = useAppSelector(selectIsStillEditing);
   const filePath = useAppSelector((state) => selectPublishFormValue(state, 'filePath'));
   const remoteFileUrl = useAppSelector((state) => selectPublishFormValue(state, 'remoteFileUrl'));
-  const publishSuccess = useAppSelector((state) => selectPublishFormValue(state, 'publishSuccess'));
-  const publishError = useAppSelector((state) => selectPublishFormValue(state, 'publishError'));
-  const modal = useAppSelector((state) => selectModal(state));
+  const modal = useAppSelector(selectModal);
   const enablePublishPreview = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW));
-  const activeChannelClaim = useAppSelector((state) => selectActiveChannelClaim(state));
-  const user = useAppSelector((state) => selectUser(state));
-  const isClaimingInitialRewards = useAppSelector((state) => selectIsClaimingInitialRewards(state));
-  const hasClaimedInitialRewards = useAppSelector((state) => selectHasClaimedInitialRewards(state));
-  const memberRestrictionStatus = useAppSelector((state) => selectMemberRestrictionStatus(state)) as any as {
-    isApplicable: boolean;
-    isSelectionValid: boolean;
-    isRestricting: boolean;
-    details: Record<string, boolean>;
-  };
-  const balance = useAppSelector((state) => selectBalance(state));
+  const activeChannelClaim = useAppSelector(selectActiveChannelClaim);
+  const incognito = useAppSelector(selectIncognito);
+  const isClaimingInitialRewards = useAppSelector(selectIsClaimingInitialRewards);
+  const hasClaimedInitialRewards = useAppSelector(selectHasClaimedInitialRewards);
+  const memberRestrictionStatus = useAppSelector(selectMemberRestrictionStatus);
+  const balance = useAppSelector(selectBalance);
+  const releaseTimeValue = useAppSelector((state) => selectPublishFormValue(state, 'releaseTime'));
+  const isScheduled = Boolean(releaseTimeValue);
 
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
-  const clearPublish = () => dispatch(doClearPublish());
-  const resolveUri = (uri: string) => dispatch(doResolveUri(uri));
   const publish: DoPublishDesktop = (fp, preview) => dispatch(doPublishDesktop(fp, preview));
-  const resetThumbnailStatus = () => dispatch(doResetThumbnailStatus());
-  const checkAvailability = (n: string) => dispatch(doCheckPublishNameAvailability(n));
-  const claimInitialRewards = () => dispatch(doClaimInitialRewards());
+
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const createTypeShortcut = urlParams.get('s');
-  const isMobile = useIsMobile();
   const inEditMode = Boolean(editingURI);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
-  const [isCheckingLivestreams, setCheckingLivestreams] = React.useState(false);
-  // Used to check if the url name has changed:
-  // A new file needs to be provided
-  const [prevName, setPrevName] = React.useState<string | false>(false);
-  const [waitForFile] = useState(false);
-  const [livestreamData, setLivestreamData] = React.useState<LivestreamReplayItem[]>([]);
+
+  const formIdRef = React.useRef('livestream-draft');
+
+  useEffect(() => {
+    const currentPublish = (window as any).store?.getState?.()?.publish;
+    if (!currentPublish?.editingURI) {
+      dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: formIdRef.current } });
+    }
+    dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: formIdRef.current } });
+    if (!bid) updatePublishForm({ bid: 0.001 });
+    return () => {
+      const currentState = (window as any).store?.getState?.()?.publish;
+      if (currentState?.activeFormId === formIdRef.current) {
+        dispatch({ type: 'PUBLISH_SAVE_FORM', data: { id: formIdRef.current } });
+      }
+    };
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const [activeStep, setActiveStep] = useState(0);
+  const [prevName, setPrevName] = useState<string | false>(false);
+  const [previewing, setPreviewing] = useState(false);
+  const [isCheckingLivestreams, setCheckingLivestreams] = useState(false);
+  const [livestreamData, setLivestreamData] = useState<LivestreamReplayItem[]>([]);
   const hasLivestreamData = livestreamData && Boolean(livestreamData.length);
   const TAGS_LIMIT = 5;
+
   const formDisabled = publishing;
-  // const nameEdited = isStillEditing && name !== prevName;
   const thumbnailUploaded = uploadThumbnailStatus === THUMBNAIL_STATUSES.COMPLETE && thumbnail;
-  const waitingForFile = waitForFile && !remoteFileUrl && !filePath;
-  // If they are editing, they don't need a new file chosen
+  const requiresReplayUrl =
+    liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay');
+  const requiresFile = liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay';
+  const waitingForFile = !remoteFileUrl && !filePath && (requiresReplayUrl || requiresFile);
+
   const formValidLessFile =
     (!memberRestrictionStatus.isApplicable || memberRestrictionStatus.isSelectionValid) &&
     name &&
@@ -179,97 +170,139 @@ function LivestreamForm(props: Props) {
   const isOverwritingExistingClaim = !editingURI && myClaimForUri;
   const formValid = isOverwritingExistingClaim
     ? false
-    : editingURI && !filePath // if we're editing we don't need a file
+    : editingURI && !filePath
       ? isStillEditing && formValidLessFile && !waitingForFile
       : formValidLessFile;
-  const [previewing, setPreviewing] = React.useState(false);
-  const requiresReplayUrl =
-    liveCreateType === 'choose_replay' || (liveCreateType === 'edit_placeholder' && liveEditType === 'use_replay');
-  const requiresFile = liveCreateType === 'edit_placeholder' && liveEditType === 'upload_replay';
-  const disabled = !title || !name || (requiresReplayUrl && !remoteFileUrl) || (requiresFile && !filePath);
+  const hasSelectedReplay = React.useMemo(() => {
+    if (!requiresReplayUrl || !remoteFileUrl || !hasLivestreamData) return false;
+    return livestreamData.some((item) => normalizeReplayUrl(item?.data?.fileLocation) === remoteFileUrl);
+  }, [hasLivestreamData, livestreamData, remoteFileUrl, requiresReplayUrl]);
   const isClear = !title && !name && !description && !thumbnail;
+  const isFormIncomplete =
+    isClaimingInitialRewards ||
+    formDisabled ||
+    !formValid ||
+    uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
+    (requiresReplayUrl && !hasSelectedReplay) ||
+    (requiresFile && !filePath) ||
+    previewing;
+
   useEffect(() => {
-    setClearStatus(isClear); // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [isClear]);
+    if (setClearStatus) setClearStatus(isClear);
+  }, [isClear, setClearStatus]);
+
   useEffect(() => {
-    if (activeChannelName && activeChannelId) {
-      fetchLivestreams(activeChannelId, activeChannelName);
-    }
-  }, [activeChannelName, activeChannelId]);
+    if (activeChannelName && activeChannelId) fetchLivestreams(activeChannelId, activeChannelName);
+  }, [activeChannelName, activeChannelId]); // eslint-disable-line react-hooks/exhaustive-deps
+
   useEffect(() => {
-    if (!hasClaimedInitialRewards) {
-      dispatch(doClaimInitialRewards());
-    }
+    if (!hasClaimedInitialRewards) dispatch(doClaimInitialRewards());
   }, [hasClaimedInitialRewards, dispatch]);
+
   useEffect(() => {
     if (!modal) {
-      const timer = setTimeout(() => {
-        setPreviewing(false);
-      }, 250);
+      const timer = setTimeout(() => setPreviewing(false), 250);
       return () => clearTimeout(timer);
     }
   }, [modal]);
+
   useEffect(() => {
     if (publishError) {
       setPreviewing(false);
-      updatePublishForm({
-        publishError: undefined,
-      });
-    } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [publishError]);
+      updatePublishForm({ publishError: undefined });
+    }
+  }, [publishError]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // move this to lbryinc OR to a file under ui, and/or provide a standardized livestreaming config.
-  async function fetchLivestreams(channelId: string | undefined, channelName: string | undefined) {
+  useEffect(() => {
+    if (publishSuccess) updatePublishForm({ publishSuccess: false });
+  }, [dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (!thumbnail) dispatch(doResetThumbnailStatus());
+  }, [thumbnail, dispatch]);
+
+  useEffect(() => {
+    if (isStillEditing && (!prevName || (typeof prevName === 'string' && prevName.trim() === ''))) {
+      if (name !== prevName) setPrevName(name);
+    }
+  }, [name, prevName, isStillEditing]);
+
+  useEffect(() => {
+    let uri: string | undefined;
+    try {
+      uri = name ? buildURI({ streamName: name, channelName: activeChannelName } as LbryUrlObj, true) : undefined;
+    } catch {}
+    if (activeChannelName && name) {
+      try {
+        const uriLessChannel = buildURI({ streamName: name }, true);
+        dispatch(doResolveUri(uriLessChannel));
+      } catch {}
+    }
+    const isValid = uri && isURIValid(uri);
+    if (uri && isValid && name) {
+      dispatch(doResolveUri(uri));
+      dispatch(doCheckPublishNameAvailability(name));
+      updatePublishForm({ uri });
+    }
+  }, [name, activeChannelName, dispatch]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (editingURI) dispatch(doResolveUri(editingURI));
+  }, [editingURI, dispatch]);
+
+  useEffect(() => {
+    if (editingURI) {
+      updatePublishForm({ liveCreateType: 'edit_placeholder' });
+    } else if (createTypeShortcut === 'Replay') {
+      updatePublishForm({ liveCreateType: 'choose_replay' });
+    } else {
+      updatePublishForm({ liveCreateType: 'new_placeholder' });
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    if (incognito) updatePublishForm({ channel: undefined, channelId: undefined });
+    else if (activeChannelName) updatePublishForm({ channel: activeChannelName, channelId: activeChannelId });
+  }, [activeChannelName, activeChannelId, incognito]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  async function fetchLivestreams(channelId?: string, channelName?: string) {
     if (!channelId || !channelName) {
       setCheckingLivestreams(false);
       return;
     }
-
     setCheckingLivestreams(true);
-
     try {
-      const signedMessage = await Lbry.channel_sign({
-        channel_id: channelId,
-        hexdata: toHex(channelName),
-      });
-
+      const signedMessage = await Lbry.channel_sign({ channel_id: channelId, hexdata: toHex(channelName) });
       if (!signedMessage?.signature) {
         setCheckingLivestreams(false);
         return;
       }
-
       const encodedChannelName = encodeURIComponent(channelName);
-      const newEndpointUrl =
+      const url =
         `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
         `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName}`;
-      const responseFromNewApi = await fetch(newEndpointUrl);
-      const json = await responseFromNewApi.json();
+      const json = await (await fetch(url)).json();
       const data: Array<ReplayApiItem> = json?.data || json || [];
       const newData: Array<LivestreamReplayItem> = [];
-
-      if (data && data.length > 0) {
-        for (const dataItem of data) {
-          const statusNorm = typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
-          if (statusNorm === 'inprogress' || statusNorm === 'ready') {
-            const objectToPush: LivestreamReplayItem = {
-              data: {
-                claimId: '',
-                url: dataItem.URL,
-                fileLocation: dataItem.URL,
-                fileDuration:
-                  statusNorm === 'inprogress'
-                    ? __('Processing...(') + (dataItem.PercentComplete ?? '') + '%)'
-                    : String((dataItem.Duration ?? 0) / 1000000000),
-                percentComplete: dataItem.PercentComplete,
-                thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
-                uploadedAt: dataItem.Created,
-              },
-            };
-            newData.push(objectToPush);
-          }
+      for (const dataItem of data) {
+        const statusNorm = typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';
+        if (statusNorm === 'inprogress' || statusNorm === 'ready') {
+          newData.push({
+            data: {
+              claimId: '',
+              url: dataItem.URL,
+              fileLocation: dataItem.URL,
+              fileDuration:
+                statusNorm === 'inprogress'
+                  ? __('Processing...(') + (dataItem.PercentComplete ?? '') + '%)'
+                  : String((dataItem.Duration ?? 0) / 1000000000),
+              percentComplete: dataItem.PercentComplete,
+              thumbnails: dataItem.ThumbnailURLs !== null ? dataItem.ThumbnailURLs : [],
+              uploadedAt: dataItem.Created,
+            },
+          });
         }
       }
-
       setLivestreamData(newData);
     } catch (e) {
       console.warn('[LivestreamForm] Failed to fetch replays:', e); // eslint-disable-line no-console
@@ -278,355 +311,273 @@ function LivestreamForm(props: Props) {
     }
   }
 
-  let submitLabel;
-
-  if (isClaimingInitialRewards) {
-    submitLabel = __('Claiming credits...');
-  } else if (publishing) {
-    if (isStillEditing || inEditMode) {
-      submitLabel = __('Saving...');
-    } else {
-      submitLabel = __('Creating...');
-    }
-  } else if (previewing) {
-    submitLabel = <Spinner type="small" />;
-  } else {
-    if (isStillEditing || inEditMode) {
-      submitLabel = __('Save');
-    } else {
-      submitLabel = __('Create');
-    }
-  }
-
-  // if you enter the page and it is stuck in publishing, "stop it."
-  useEffect(() => {
-    if (publishing || publishSuccess) {
-      dispatch(doClearPublish());
-    } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch]);
-  useEffect(() => {
-    if (!thumbnail) {
-      dispatch(doResetThumbnailStatus());
-    }
-  }, [thumbnail, dispatch]);
-  // Save previous name of the editing claim
-  useEffect(() => {
-    if (isStillEditing && (!prevName || (typeof prevName === 'string' && prevName.trim() === ''))) {
-      if (name !== prevName) {
-        setPrevName(name);
-      }
-    }
-  }, [name, prevName, setPrevName, isStillEditing]);
-  // Every time the channel or name changes, resolve the uris to find winning bid amounts
-  useEffect(() => {
-    // We are only going to store the full uri, but we need to resolve the uri with and without the channel name
-    let uri;
-
-    try {
-      uri =
-        name &&
-        buildURI(
-          {
-            streamName: name,
-            channelName: activeChannelName,
-          } as LbryUrlObj,
-          true
-        );
-    } catch (e) {}
-
-    if (activeChannelName && name) {
-      // resolve without the channel name so we know the winning bid for it
-      try {
-        const uriLessChannel = buildURI(
-          {
-            streamName: name,
-          },
-          true
-        );
-        dispatch(doResolveUri(uriLessChannel));
-      } catch (e) {}
-    }
-
-    const isValid = uri && isURIValid(uri);
-
-    if (uri && isValid && name) {
-      dispatch(doResolveUri(uri));
-      dispatch(doCheckPublishNameAvailability(name));
-      dispatch(
-        doUpdatePublishForm({
-          uri,
-        })
-      );
-    }
-  }, [name, activeChannelName, dispatch]);
-  // because publish editingUri is channel_short/claim_long and we don't have that, resolve it.
-  useEffect(() => {
-    if (editingURI) {
-      dispatch(doResolveUri(editingURI));
-    }
-  }, [editingURI, dispatch]);
-  useEffect(() => {
-    if (createTypeShortcut === 'Replay') {
-      updatePublishForm({
-        liveCreateType: 'choose_replay',
-      });
-    } // eslint-disable-next-line react-hooks/exhaustive-deps -- on mount only
-  }, []);
-  useEffect(() => {
-    dispatch(
-      doUpdatePublishForm({
-        channel: activeChannelName || undefined,
-        channelId: activeChannelId || undefined,
-      })
-    );
-  }, [activeChannelName, activeChannelId, dispatch]);
-
-  async function handlePublish() {
-    let outputFile = filePath;
-
+  function handlePublish() {
     if (enablePublishPreview) {
       setPreviewing(true);
-      publish(outputFile, true);
+      publish(filePath, true);
     } else {
-      publish(outputFile, false);
+      publish(filePath, false);
     }
   }
 
-  if (publishing) {
-    return (
-      <div className="main--empty">
-        <h1 className="section__subtitle">{__('Publishing...')}</h1>
-        <Spinner delayed />
-      </div>
-    );
-  }
+  let submitLabel: any;
+  if (isClaimingInitialRewards) submitLabel = __('Claiming credits...');
+  else if (publishing) submitLabel = isStillEditing || inEditMode ? __('Saving...') : __('Creating...');
+  else if (previewing) submitLabel = <Spinner type="small" />;
+  else submitLabel = isStillEditing || inEditMode ? __('Save') : __('Create');
 
-  const isFormIncomplete =
-    isClaimingInitialRewards ||
-    formDisabled ||
-    !formValid ||
-    uploadThumbnailStatus === THUMBNAIL_STATUSES.IN_PROGRESS ||
-    (requiresReplayUrl && !remoteFileUrl) ||
-    (requiresFile && !filePath) ||
-    previewing;
-  // Editing claim uri
+  const isReplayMode = liveCreateType === 'choose_replay' || liveCreateType === 'edit_placeholder';
+  const wizardSteps = isReplayMode
+    ? [
+        { label: 'Replay', validate: () => !!remoteFileUrl || !!filePath },
+        { label: 'Details', validate: () => !!title && !!name && isNameValid(name) },
+        { label: 'Visibility' },
+        { label: inEditMode ? 'Update' : 'Publish' },
+      ]
+    : [
+        { label: 'Details', validate: () => !!title && !!name && isNameValid(name) },
+        { label: 'Visibility' },
+        { label: inEditMode ? 'Update' : 'Publish' },
+      ];
+
+  const showDatePicker =
+    liveCreateType === 'new_placeholder' || (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only');
+
+  const headerTitle =
+    liveCreateType === 'choose_replay'
+      ? __('Publish replay')
+      : inEditMode
+        ? __('Edit livestream')
+        : __('Create livestream');
+
   return (
-    <div className={balance < 0.01 ? 'disabled' : ''}>
-      <div className="card-stack">
-        <Card className="publish-livestream-header">
+    <div className={classnames('card-stack', { disabled: balance < 0.01 })}>
+      <div className="livestream-form__header">
+        <h1 className="page__title">
+          <Icon icon={ICONS.LIVESTREAM_MONOCHROME} />
+          <label>{headerTitle}</label>
+        </h1>
+        {!isClear && (
           <Button
-            key={'New'}
-            icon={ICONS.LIVESTREAM_MONOCHROME}
-            iconSize={18}
-            label={__('New Livestream')}
-            button="alt"
-            onClick={() =>
-              updatePublishForm({
-                liveCreateType: 'new_placeholder',
-              })
-            }
-            disabled={editingURI}
-            className={classnames('button-toggle', {
-              'button-toggle--active': liveCreateType === 'new_placeholder',
-            })}
+            onClick={() => dispatch(doClearPublish())}
+            icon={ICONS.REFRESH}
+            button="primary"
+            label={__('Clear')}
+            className="livestream-form__clear"
           />
-          {liveCreateType !== 'edit_placeholder' && (
-            <Button
-              key={'Replay'}
-              icon={ICONS.MENU}
-              iconSize={18}
-              label={__('Choose Replay')}
-              button="alt"
-              onClick={() =>
-                updatePublishForm({
-                  liveCreateType: 'choose_replay',
-                })
-              }
-              disabled={!hasLivestreamData}
-              className={classnames('button-toggle', {
-                'button-toggle--active': liveCreateType === 'choose_replay',
-              })}
-              style={{ borderRadius: '0 var(--border-radius) var(--border-radius) 0' }}
-            />
-          )}
-          {liveCreateType === 'edit_placeholder' && (
-            <Button
-              key={'Edit'}
-              icon={ICONS.EDIT}
-              iconSize={18}
-              label={__('Edit / Update')}
-              button="alt"
-              className="button-toggle button-toggle--active"
-              style={{ borderRadius: '0 var(--border-radius) var(--border-radius) 0' }}
-            />
-          )}
-          {/* @ts-ignore -- selectedChannelUrl is managed internally */}
-          {!isMobile && <ChannelSelector hideAnon isTabHeader />}
-          <Tooltip title={__('Check for Replays')}>
-            <Button
-              button="secondary"
-              label={__('Check for Replays')}
-              disabled={isCheckingLivestreams}
-              icon={ICONS.REFRESH}
-              onClick={() => fetchLivestreams(activeChannelId, activeChannelName)}
-            />
-          </Tooltip>
-        </Card>
+        )}
+      </div>
 
-        <Card
-          background
-          body={
-            <div className="publish-row">
-              <PublishLivestream
-                inEditMode={inEditMode}
-                uri={permanentUrl}
-                disabled={publishing}
-                livestreamData={livestreamData}
-                isCheckingLivestreams={isCheckingLivestreams}
-              />
-            </div>
-          }
-        />
-
-        <Card
-          background
-          title={__('Description')}
-          body={
-            <div className="publish-row">
-              <PublishDescription disabled={disabled} />
-            </div>
-          }
-        />
-
-        {!publishing && (
-          <>
+      <PublishWizard
+        steps={wizardSteps}
+        activeStep={activeStep}
+        onStepChange={(step) => setActiveStep(step)}
+        onPublish={handlePublish}
+        publishLabel={submitLabel}
+        publishDisabled={isFormIncomplete || !formValid}
+        publishing={publishing || previewing}
+        publishFooterLeft={<ChannelSelector hideAnon disabled={publishing} isPublishMenu />}
+      >
+        {/* Step: Replay (only in replay mode) */}
+        {isReplayMode && (
+          <div className="card-stack">
             <Card
               background
-              title={__('Thumbnail')}
               body={
-                <div className="publish-row">
+                <div className="publish-details">
+                  <div className="publish-livestream-header">
+                    <Tooltip title={__('Check for Replays')}>
+                      <Button
+                        button="secondary"
+                        label={__('Check for Replays')}
+                        disabled={isCheckingLivestreams}
+                        icon={ICONS.REFRESH}
+                        onClick={() => fetchLivestreams(activeChannelId, activeChannelName)}
+                      />
+                    </Tooltip>
+                  </div>
+                  <PublishLivestream
+                    inEditMode={inEditMode}
+                    uri={permanentUrl}
+                    disabled={publishing}
+                    livestreamData={livestreamData}
+                    isCheckingLivestreams={isCheckingLivestreams}
+                    hideTitleUrl
+                  />
+                </div>
+              }
+            />
+          </div>
+        )}
+
+        {/* Step 1/2: Details */}
+        <div className="card-stack">
+          <Card
+            background
+            body={
+              <div className="publish-details">
+                <PublishTitleUrl disabled={publishing || propDisabled} />
+
+                <div>
+                  <h3 className="publish-details__title">{__('Description')}</h3>
+                  <PublishDescription disabled={publishing || propDisabled} />
+                </div>
+
+                <div>
+                  <h3 className="publish-details__title">{__('Thumbnail')}</h3>
                   <React.Suspense fallback={null}>
                     <SelectThumbnail />
                   </React.Suspense>
                 </div>
-              }
-              {...({ livestreamData } as any)}
-            />
 
-            <div
-              className={classnames({
-                'card--disabled': disabled,
-              })}
-            >
-              {(liveCreateType === 'new_placeholder' ||
-                (liveCreateType === 'edit_placeholder' && liveEditType === 'update_only')) && (
-                <Card background title={__('Date')} body={<PublishStreamReleaseDate />} />
-              )}
-
-              <h2 className="card__title" style={{ marginTop: 'var(--spacing-l)' }}>
-                {__('Tags')}
-              </h2>
-
-              <TagsSelect
-                suggestMature={false}
-                disableAutoFocus
-                hideHeader
-                label={__('Selected Tags')}
-                excludedControlTags={null}
-                limitSelect={TAGS_LIMIT}
-                help={
-                  <span
-                    style={{
-                      fontSize: 'var(--font-xsmall)',
-                      color: 'var(--color-text-subtitle)',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 'var(--spacing-xs)',
+                <div>
+                  <h3 className="publish-details__title">{__('Tags')}</h3>
+                  <PublishTagsPicker
+                    tags={tags}
+                    limitSelect={TAGS_LIMIT}
+                    onAdd={(newTags) => {
+                      const validated: Array<Tag> = [];
+                      newTags.forEach((t: Tag) => {
+                        if (!tags.some((tag: Tag) => tag.name === t.name)) validated.push(t);
+                      });
+                      updatePublishForm({ tags: [...tags, ...validated] });
                     }}
-                  >
-                    <Icon icon={ICONS.INFO} size={12} />
-                    <span>
-                      {__(
-                        "Add tags that are relevant to your content so those who're looking for it can find it more easily. If your content is best suited for mature audiences, ensure it is tagged 'mature'."
-                      )}
-                    </span>
-                  </span>
-                }
-                placeholder={__('gaming, crypto')}
-                onSelect={(newTags) => {
-                  const validatedTags = [];
-                  newTags.forEach((newTag) => {
-                    if (!tags.some((tag) => tag.name === newTag.name)) {
-                      validatedTags.push(newTag);
-                    }
-                  });
-                  updatePublishForm({
-                    tags: [...tags, ...validatedTags],
-                  });
-                }}
-                onRemove={(clickedTag) => {
-                  const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
-                  updatePublishForm({
-                    tags: newTags,
-                  });
-                }}
-                tagsChosen={tags}
-              />
+                    onRemove={(t: Tag) => updatePublishForm({ tags: tags.filter((tag: Tag) => tag.name !== t.name) })}
+                  />
+                </div>
 
-              {/* @ts-ignore -- isStillEditing is resolved internally */}
-              <PublishProtectedContent claim={myClaimForUri} />
+                {showDatePicker && (
+                  <div>
+                    <h3 className="publish-details__title">{__('When do you want to go live?')}</h3>
+                    <div className="publish-visibility__options publish-visibility__options--two">
+                      <button
+                        type="button"
+                        className={classnames('publish-visibility__option', {
+                          'publish-visibility__option--selected': !isScheduled,
+                        })}
+                        onClick={() => updatePublishForm({ releaseTime: undefined })}
+                      >
+                        <div className="publish-visibility__option-header">
+                          <Icon icon={ICONS.GLOBE} size={18} />
+                          <span>{__('Anytime')}</span>
+                        </div>
+                        <p className="publish-visibility__option-desc">
+                          {__('Go live whenever you want without a scheduled time.')}
+                        </p>
+                      </button>
 
-              {liveCreateType === 'choose_replay' && (
-                <React.Suspense fallback={null}>
-                  <PublishPrice {...({ disabled: !!disabled } as any)} />
-                </React.Suspense>
-              )}
+                      <button
+                        type="button"
+                        className={classnames('publish-visibility__option', {
+                          'publish-visibility__option--selected': isScheduled,
+                        })}
+                        onClick={() => {
+                          if (!isScheduled) {
+                            const d = new Date();
+                            d.setHours(d.getHours() + 1);
+                            d.setMinutes(d.getMinutes() + 30);
+                            d.setMinutes(0, 0, 0);
+                            updatePublishForm({ releaseTime: Math.round(d.getTime() / 1000) });
+                          }
+                        }}
+                      >
+                        <div className="publish-visibility__option-header">
+                          <Icon icon={ICONS.TIMERCHECK} size={18} />
+                          <span>{__('Scheduled')}</span>
+                        </div>
+                        <p className="publish-visibility__option-desc">
+                          {__('Set a specific time when you will go live.')}
+                        </p>
+                        {isScheduled && (
+                          <div className="publish-visibility__scheduled" onClick={(e) => e.stopPropagation()}>
+                            <PublishReleaseDate />
+                          </div>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                )}
 
-              <PublishAdditionalOptions
-                isLivestream
-                disabled={disabled}
-                showSchedulingOptions={liveCreateType === 'new_placeholder' || liveCreateType === 'edit_placeholder'} // ^--- the name is wrong. should be "hide" instead
-              />
-            </div>
-          </>
-        )}
-        <section>
-          <div className="section__actions publish__actions">
-            {/* @ts-ignore -- selectedChannelUrl is managed internally */}
-            <ChannelSelector hideAnon disabled={isFormIncomplete} isPublishMenu />
-            <Button button="primary" onClick={handlePublish} label={submitLabel} disabled={isFormIncomplete} />
-          </div>
-          <div className="help">
-            {!formDisabled && !formValid ? (
-              <PublishFormErrors title={title} waitForFile={waitingForFile} />
-            ) : (
-              <I18nMessage
-                tokens={{
-                  odysee_terms_of_service: (
-                    <Button
-                      button="link"
-                      href="https://odysee.com/$/tos"
-                      label={__('%site_name% Terms of Service', {
-                        site_name: SITE_NAME,
-                      })}
-                    />
-                  ),
-                  odysee_community_guidelines: (
-                    <Button
-                      button="link"
-                      href="https://help.odysee.tv/communityguidelines/"
-                      navigateTarget="_blank"
-                      label={__('Community Guidelines')}
-                    />
-                  ),
-                }}
-              >
-                By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
-              </I18nMessage>
-            )}
-          </div>
-        </section>
-      </div>
+                <PublishAdditionalOptions
+                  isLivestream
+                  disabled={formDisabled || propDisabled}
+                  showSchedulingOptions={showDatePicker}
+                  defaultExpand={false}
+                />
+              </div>
+            }
+          />
+        </div>
+
+        {/* Step 2: Visibility */}
+        <div className="card-stack">
+          <Card
+            background
+            body={
+              <div className="publish-details">
+                <PublishVisibility />
+                {/* @ts-ignore -- isStillEditing is resolved internally */}
+                <PublishProtectedContent claim={myClaimForUri} />
+                {liveCreateType === 'choose_replay' && (
+                  <React.Suspense fallback={null}>
+                    <PublishPrice {...({ disabled: formDisabled } as any)} />
+                  </React.Suspense>
+                )}
+                <PublishControlTags
+                  tags={tags}
+                  onSelect={(newTags) => {
+                    const validated: Array<Tag> = [];
+                    newTags.forEach((t: Tag) => {
+                      if (!tags.some((tag: Tag) => tag.name === t.name)) validated.push(t);
+                    });
+                    updatePublishForm({ tags: [...tags, ...validated] });
+                  }}
+                  onRemove={(t: Tag) => updatePublishForm({ tags: tags.filter((tag: Tag) => tag.name !== t.name) })}
+                />
+              </div>
+            }
+          />
+        </div>
+
+        {/* Step 3: Publish */}
+        <div className="card-stack">
+          <Card
+            background
+            body={
+              <div className="publish-details">
+                <PublishSummary />
+                {!formDisabled && !formValid ? (
+                  <PublishFormErrors title={title} waitForFile={waitingForFile} />
+                ) : (
+                  <div className="help">
+                    <I18nMessage
+                      tokens={{
+                        odysee_terms_of_service: (
+                          <Button
+                            button="link"
+                            href="https://odysee.com/$/tos"
+                            label={__('%site_name% Terms of Service', { site_name: SITE_NAME })}
+                          />
+                        ),
+                        odysee_community_guidelines: (
+                          <Button
+                            button="link"
+                            href="https://help.odysee.tv/communityguidelines/"
+                            navigateTarget="_blank"
+                            label={__('Community Guidelines')}
+                          />
+                        ),
+                      }}
+                    >
+                      By continuing, you accept the %odysee_terms_of_service% and %odysee_community_guidelines%.
+                    </I18nMessage>
+                  </div>
+                )}
+              </div>
+            }
+          />
+        </div>
+      </PublishWizard>
     </div>
   );
 }

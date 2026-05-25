@@ -222,9 +222,18 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
       changed?: boolean;
       hasSyncedWallet?: boolean;
     } = {};
+    let capturedWalletStatus: any = null;
     return Lbry.wallet_status()
       .then((status) => {
+        capturedWalletStatus = status;
         if (status.is_locked) {
+          if (isSyncApplyUnsafe(status, password)) {
+            dispatch({ type: ACTIONS.SYNC_DEFERRED_SET, data: true });
+            dispatch({ type: ACTIONS.GET_SYNC_DEFERRED });
+            handleCallback(null, false);
+            return SYNC_DEFERRED_MARKER;
+          }
+
           return Lbry.wallet_unlock({
             password,
           });
@@ -234,6 +243,10 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
         return true;
       })
       .then((isUnlocked) => {
+        if (isUnlocked === SYNC_DEFERRED_MARKER) {
+          return SYNC_DEFERRED_MARKER;
+        }
+
         if (isUnlocked) {
           return Lbry.sync_hash();
         }
@@ -241,18 +254,27 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
         data.unlockFailed = true;
         throw new Error();
       })
-      .then((hash?: string) => {
-        data.lastSyncHash = hash;
+      .then((hash?: string | typeof SYNC_DEFERRED_MARKER) => {
+        if (hash === SYNC_DEFERRED_MARKER) {
+          return SYNC_DEFERRED_MARKER;
+        }
+
+        const syncHash = hash as string;
+        data.lastSyncHash = syncHash;
         return Lbryio.call(
           'sync',
           'get',
           {
-            hash,
+            hash: syncHash,
           },
           'post'
         );
       })
       .then((response: any) => {
+        if (response === SYNC_DEFERRED_MARKER) {
+          return SYNC_DEFERRED_MARKER;
+        }
+
         const syncHash = response.hash;
         data.syncHash = syncHash;
         data.syncData = response.data;
@@ -260,6 +282,18 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
         data.hasSyncedWallet = true;
 
         if (!response.error && response.changed) {
+          if (isSyncApplyUnsafe(capturedWalletStatus, password)) {
+            dispatch({ type: ACTIONS.SYNC_DEFERRED_SET, data: true });
+            data.changed = false;
+            data.syncData = undefined;
+            dispatch({
+              type: ACTIONS.GET_SYNC_COMPLETED,
+              data,
+            });
+            handleCallback(null, false);
+            return SYNC_DEFERRED_MARKER;
+          }
+
           return Lbry.sync_apply({
             password,
             data: response.data,
@@ -268,6 +302,10 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
         }
       })
       .then((response) => {
+        if (response === SYNC_DEFERRED_MARKER) {
+          return;
+        }
+
         if (!response) {
           dispatch({
             type: ACTIONS.GET_SYNC_COMPLETED,
@@ -319,11 +357,9 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
             },
           });
 
-          if (badPasswordError) {
-            dispatch({
-              type: ACTIONS.SYNC_APPLY_BAD_PASSWORD,
-            });
-          }
+          dispatch({
+            type: ACTIONS.SYNC_APPLY_BAD_PASSWORD,
+          });
 
           handleCallback(syncAttemptError);
         } else if (!tooBigDataError && data.hasSyncedWallet) {
@@ -363,6 +399,12 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
           //   call sync_apply to get data to sync
           //   first time sync. use any string for old hash
           if (noWalletError) {
+            if (isSyncApplyUnsafe(capturedWalletStatus, password)) {
+              dispatch({ type: ACTIONS.SYNC_DEFERRED_SET, data: true });
+              handleCallback(null, false);
+              return;
+            }
+
             return Lbry.sync_apply({
               password,
             })
@@ -684,6 +726,15 @@ export function doPopulateSharedUserState(sharedSettings: any) {
   };
 }
 
+const SYNC_DEFERRED_MARKER = { __syncDeferred: true } as const;
+
+function isSyncApplyUnsafe(walletStatus: any, password: string | null | undefined): boolean {
+  return (
+    Boolean(walletStatus && walletStatus.is_encrypted) &&
+    (password === '' || password === null || password === undefined)
+  );
+}
+
 async function syncSharedPreferenceWrite(
   dispatch: Dispatch,
   getState: GetState,
@@ -704,9 +755,19 @@ async function syncSharedPreferenceWrite(
   const walletStatus = await Lbry.wallet_status();
 
   if (walletStatus.is_locked) {
-    await Lbry.wallet_unlock({
+    const unlocked = await Lbry.wallet_unlock({
       password,
     });
+
+    if (!unlocked) {
+      dispatch({ type: ACTIONS.SYNC_DEFERRED_SET, data: true });
+      return;
+    }
+  }
+
+  if (isSyncApplyUnsafe(walletStatus, password)) {
+    dispatch({ type: ACTIONS.SYNC_DEFERRED_SET, data: true });
+    return;
   }
 
   const { hash: walletHash, data: walletData } = await Lbry.sync_apply({
@@ -740,7 +801,6 @@ export function doPreferenceSet(
     try {
       await Lbry.preference_set(options);
       const syncHash = await Lbry.sync_hash();
-      dispatch(doUpdateLastSyncHash(syncHash));
 
       if (key === 'shared') {
         try {

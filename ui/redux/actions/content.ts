@@ -123,12 +123,23 @@ const normalizePlayingUriForCompare = (value: PlayingUri | null | undefined) => 
 export const doSetPlayingUri = (playingUri: PlayingUri) => async (dispatch: Dispatch, getState: GetState) => {
   const state = getState();
   const currentPlayingUri = selectPlayingUri(state);
+  const collectionId = playingUri.collection?.collectionId;
 
   const nextSnapshot = normalizePlayingUriForCompare(playingUri);
   const currentSnapshot = normalizePlayingUriForCompare(currentPlayingUri);
 
   if (JSON.stringify(nextSnapshot) === JSON.stringify(currentSnapshot)) {
     return Promise.resolve();
+  }
+
+  if (collectionId && collectionId !== COLLECTIONS_CONSTS.QUEUE_ID && playingUri.uri) {
+    dispatch({
+      type: ACTIONS.SET_COLLECTION_LAST_PLAYED_URI,
+      data: {
+        collectionId,
+        uri: playingUri.uri,
+      },
+    });
   }
 
   return dispatch({
@@ -233,7 +244,7 @@ export const doStartFloatingPlayingUri =
     );
   };
 export const doPlayNextUri =
-  ({ uri: nextUri, collectionId }: { uri: string; collectionId?: string }) =>
+  ({ uri: nextUri, collectionId, navigateInline }: { uri: string; collectionId?: string; navigateInline?: boolean }) =>
   (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const isFloating = selectIsPlayerFloating(state);
@@ -241,7 +252,8 @@ export const doPlayNextUri =
     const isNextUriInCollection =
       nextCollectionId && selectCollectionForIdHasClaimUrl(state, nextCollectionId, nextUri);
     const floatingPlayerEnabled = nextCollectionId === 'queue' || selectClientSetting(state, SETTINGS.FLOATING_PLAYER);
-    const shouldNavigateInline = ((!collectionId && !isFloating) || !floatingPlayerEnabled) && Boolean(nextUri);
+    const shouldNavigateInline =
+      (navigateInline || (!collectionId && !isFloating) || !floatingPlayerEnabled) && Boolean(nextUri);
     const nextPathname = formatLbryUrlForWeb(nextUri);
     const nextSearch = isNextUriInCollection ? generateListSearchUrlParams(nextCollectionId) : '';
 

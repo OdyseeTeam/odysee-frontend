@@ -1,5 +1,6 @@
 import React from 'react';
 import type { CropRegion } from 'component/livestreamCompositor/view';
+import { applyChromaKey } from 'util/chromaKey';
 import './style.scss';
 
 type Props = {
@@ -9,6 +10,7 @@ type Props = {
   videoStyle?: React.CSSProperties;
   borderRadius?: number;
   layerWidth?: number;
+  chromaKey?: { layerId: string; color: string; threshold: number; smoothness: number };
 };
 
 type DragState = {
@@ -20,9 +22,11 @@ type DragState = {
 };
 
 export default function LivestreamCropSelector(props: Props) {
-  const { stream, crop, onCropChange, videoStyle, borderRadius, layerWidth } = props;
+  const { stream, crop, onCropChange, videoStyle, borderRadius, layerWidth, chromaKey } = props;
   const containerRef = React.useRef<HTMLDivElement>(null);
   const videoRef = React.useRef<HTMLVideoElement>(null);
+  const canvasRef = React.useRef<HTMLCanvasElement>(null);
+  const rafRef = React.useRef<number>(0);
   const dragRef = React.useRef<DragState | null>(null);
   const [videoSize, setVideoSize] = React.useState({ w: 0, h: 0 });
   const [containerSize, setContainerSize] = React.useState({ w: 0, h: 0 });
@@ -51,6 +55,45 @@ export default function LivestreamCropSelector(props: Props) {
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
+
+  React.useEffect(() => {
+    if (!chromaKey) {
+      cancelAnimationFrame(rafRef.current);
+      return;
+    }
+    const video = videoRef.current;
+    const canvas = canvasRef.current;
+    if (!video || !canvas) return;
+
+    function tick() {
+      const v = videoRef.current;
+      const c = canvasRef.current;
+      if (!v || !c || !chromaKey) return;
+      const w = v.videoWidth;
+      const h = v.videoHeight;
+      if (w > 0 && h > 0 && v.readyState >= 2) {
+        if (c.width !== w || c.height !== h) {
+          c.width = w;
+          c.height = h;
+        }
+        const keyed = applyChromaKey(`__crop__${chromaKey.layerId}`, v, w, h, {
+          color: chromaKey.color,
+          threshold: chromaKey.threshold,
+          smoothness: chromaKey.smoothness,
+        });
+        if (keyed) {
+          const ctx2d = c.getContext('2d');
+          if (ctx2d) {
+            ctx2d.clearRect(0, 0, w, h);
+            ctx2d.drawImage(keyed, 0, 0);
+          }
+        }
+      }
+      rafRef.current = requestAnimationFrame(tick);
+    }
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [chromaKey?.layerId, chromaKey?.color, chromaKey?.threshold, chromaKey?.smoothness, chromaKey]);
 
   function getDisplayRect() {
     if (!videoSize.w || !containerSize.w) return null;
@@ -168,12 +211,13 @@ export default function LivestreamCropSelector(props: Props) {
       <video
         ref={videoRef}
         className="livestream-crop__video"
-        style={videoStyle}
+        style={chromaKey ? { ...videoStyle, visibility: 'hidden', position: 'absolute' } : videoStyle}
         muted
         playsInline
         autoPlay
         disablePictureInPicture
       />
+      {chromaKey && <canvas ref={canvasRef} className="livestream-crop__video" style={videoStyle} />}
 
       {crop && cropOverlayStyle && (
         <div className="livestream-crop__region" style={cropOverlayStyle}>

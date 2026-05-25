@@ -1,9 +1,8 @@
 import { lazyImport } from 'util/lazyImport';
 import { Menu, MenuList, MenuButton, MenuItem } from 'component/common/menu';
-import { NavLink } from 'react-router-dom';
 import { parseURI } from 'util/lbryURI';
 import { RULE } from 'constants/notifications';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import * as ICONS from 'constants/icons';
 import Button from 'component/button';
 import ChannelThumbnail from 'component/channelThumbnail';
@@ -134,14 +133,14 @@ function Notification(props: Props) {
     } catch (e) {}
   }
 
-  const navLinkProps = {
-    to: notificationLink,
-    onClick: (e) => e.stopPropagation(),
-  };
-
   function handleNotificationClick() {
     if (!is_read) doReadNotificationsAction([notification.id]);
     if (menuButton && notificationLink) navigate(notificationLink);
+    if (notificationAction) notificationAction();
+  }
+
+  function handleNotificationLinkClick() {
+    if (!is_read) doReadNotificationsAction([notification.id]);
     if (notificationAction) notificationAction();
   }
 
@@ -153,9 +152,16 @@ function Notification(props: Props) {
       )
     : notificationLink
       ? (props: { children: any }) => (
-          <NavLink {...navLinkProps} className="menu__link--notification" onClick={handleNotificationClick}>
+          <div className="menu__link--notification menu__link--notification--with-overlay">
+            <Link
+              aria-label={notification_parameters?.device?.title || __('Open notification')}
+              className="notification__link-overlay"
+              onAuxClick={handleNotificationLinkClick}
+              onClick={handleNotificationLinkClick}
+              to={notificationLink}
+            />
             {props.children}
-          </NavLink>
+          </div>
         )
       : (props: { children: any }) => (
           <span

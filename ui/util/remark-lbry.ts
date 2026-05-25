@@ -43,7 +43,10 @@ const BARE_LINK_DOMAINS = [
   'odysee.com',
 ];
 const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
-const bareLinkRegex = new RegExp(`(?:^|(?<=\\s))((?:https?://)?(?:${bareDomainPattern})(?:/[^\\s]*)?)`, 'i');
+const bareLinkRegex = new RegExp(
+  `(?:^|(?<=\\s))((?:(?:https?://|www\\.)[^\\s<>"']+|(?:https?://)?(?:${bareDomainPattern})(?:/[^\\s<>"']*)?))`,
+  'i'
+);
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
 const mentionToken = '@';
 const invalidRegex = /[-_.+=?!@#$%^&*:;,{}<>\w/\\]/;
@@ -77,6 +80,101 @@ function handlePunctuation(value: string): string {
   });
 
   return punctuationIndex ? value.substring(0, punctuationIndex) : value;
+}
+
+const TRAILING_PAIRS: Array<[string, string]> = [
+  ['(', ')'],
+  ['[', ']'],
+  ['{', '}'],
+];
+const TRAILING_PUNCTUATION = '.,;:!?';
+
+// Strip trailing punctuation from a bare URL, but keep paired brackets balanced
+// so links like https://en.wikipedia.org/wiki/Mark_Levine_(disambiguation) survive.
+function stripTrailingPunctuation(url: string): string {
+  let end = url.length;
+  while (end > 0) {
+    const last = url.charAt(end - 1);
+    if (TRAILING_PUNCTUATION.includes(last)) {
+      end--;
+      continue;
+    }
+    const pair = TRAILING_PAIRS.find(([, close]) => close === last);
+    if (pair) {
+      const slice = url.slice(0, end);
+      let opens = 0;
+      let closes = 0;
+      for (let i = 0; i < slice.length; i++) {
+        if (slice[i] === pair[0]) opens++;
+        else if (slice[i] === pair[1]) closes++;
+      }
+      if (closes > opens) {
+        end--;
+        continue;
+      }
+    }
+    break;
+  }
+  return url.slice(0, end);
+}
+
+function countCharacter(value: string, character: string): number {
+  let count = 0;
+  for (let i = 0; i < value.length; i++) {
+    if (value[i] === character) count++;
+  }
+  return count;
+}
+
+function getBalancingClosers(url: string, nextText: string): string {
+  let closers = '';
+
+  while (closers.length < nextText.length) {
+    const nextCharacter = nextText[closers.length];
+    const pair = TRAILING_PAIRS.find(([, close]) => close === nextCharacter);
+
+    if (!pair) break;
+
+    const candidateUrl = `${url}${closers}`;
+    const opens = countCharacter(candidateUrl, pair[0]);
+    const closes = countCharacter(candidateUrl, pair[1]);
+
+    if (opens <= closes) break;
+
+    closers += nextCharacter;
+  }
+
+  return closers;
+}
+
+function mergeBalancingPunctuation(node: MdastNode, index: number | undefined, parent: MdastNode | undefined) {
+  if (typeof index !== 'number' || !parent?.children || !node.url) {
+    return;
+  }
+
+  const nextNode = parent.children[index + 1];
+
+  if (nextNode?.type !== 'text' || !nextNode.value) {
+    return;
+  }
+
+  const closers = getBalancingClosers(node.url, nextNode.value);
+
+  if (!closers) {
+    return;
+  }
+
+  node.url += closers;
+  node.children?.forEach((child) => {
+    if (child.type === 'text' && child.value === node.url.slice(0, -closers.length)) {
+      child.value = node.url || child.value;
+    }
+  });
+
+  nextNode.value = nextNode.value.slice(closers.length);
+  if (!nextNode.value) {
+    parent.children.splice(index + 1, 1);
+  }
 }
 
 function locateBareLink(value: string, fromIndex: number): number {
@@ -189,7 +287,7 @@ function splitTextNode(value: string): MdastNode[] {
 
     const isBareLink = nextIndex === nextBare && nextIndex !== nextUri && nextIndex !== nextMention;
     if (isBareLink) {
-      const cleaned = rawMatch.replace(/[.,;:!?)}\]]+$/, '');
+      const cleaned = stripTrailingPunctuation(rawMatch);
       const url = /^https?:\/\//i.test(cleaned) ? cleaned : `https://${cleaned}`;
       nodes.push({
         type: 'link',
@@ -255,7 +353,9 @@ const transform = (tree: MdastNode): void => {
     return index + nextChildren.length;
   });
 
-  visit(tree, 'link', (node: MdastNode, _index: number | undefined, parent: MdastNode | undefined) => {
+  visit(tree, 'link', (node: MdastNode, index: number | undefined, parent: MdastNode | undefined) => {
+    mergeBalancingPunctuation(node, index, parent);
+
     if (parent?.type === 'paragraph') {
       setAutoEmbed(node);
     }

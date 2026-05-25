@@ -4,7 +4,7 @@ import Page from 'component/page';
 import * as PAGES from 'constants/pages';
 import * as COLLECTIONS_CONSTS from 'constants/collections';
 import { COLLECTION_PAGE } from 'constants/urlParams';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import CollectionPublishForm from './internal/collectionPublishForm';
 import CollectionHeader from './internal/collectionHeader';
 import Spinner from 'component/spinner';
@@ -24,10 +24,13 @@ import {
   selectCollectionIsMine,
   selectHasPrivateCollectionForId,
   selectIsCollectionPrivateForId,
+  selectCollectionHasItemsResolvedForId,
 } from 'redux/selectors/collections';
+import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveClaimId as doResolveClaimIdAction } from 'redux/actions/claims';
 import {
   doCollectionEdit as doCollectionEditAction,
+  doFetchItemsInCollection as doFetchItemsInCollectionAction,
   doRemoveFromUnsavedChangesCollectionsForCollectionId as doRemoveUnsavedAction,
 } from 'redux/actions/collections';
 import '../playlists/style.scss';
@@ -49,6 +52,10 @@ const CollectionPage = (props: Props) => {
   const isCollectionMine = useAppSelector((state) => selectCollectionIsMine(state, collectionId));
   const hasPrivate = useAppSelector((state) => selectHasPrivateCollectionForId(state, collectionId));
   const isPrivate = useAppSelector((state) => selectIsCollectionPrivateForId(state, collectionId));
+  const collectionHasItemsResolved = useAppSelector((state) =>
+    selectCollectionHasItemsResolvedForId(state, collectionId)
+  );
+  const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const navigate = useNavigate();
   const { search, state, pathname } = useLocation();
   const isEmbedPath = pathname && pathname.startsWith('/$/embed');
@@ -65,6 +72,9 @@ const CollectionPage = (props: Props) => {
   const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
   const isResolvingCollection = hasClaim === undefined;
+  const shouldPromptSignIn = IS_WEB && publishPage && !isAuthenticated;
+  const collectionHasStoredItems = Boolean(collection?.items?.length);
+  const shouldResolveCollectionItems = collectionHasStoredItems && !collectionHasItemsResolved;
 
   React.useEffect(() => {
     if (editing || publishing) {
@@ -83,6 +93,11 @@ const CollectionPage = (props: Props) => {
   }
 
   function saveChanges() {
+    if (shouldResolveCollectionItems) {
+      dispatch(doFetchItemsInCollectionAction({ collectionId }));
+      return;
+    }
+
     dispatch(
       doCollectionEditAction(collectionId, {
         isPreview: false,
@@ -107,6 +122,12 @@ const CollectionPage = (props: Props) => {
     }
   }, [collectionId, dispatch, isPrivate]);
 
+  React.useEffect(() => {
+    if (shouldResolveCollectionItems) {
+      dispatch(doFetchItemsInCollectionAction({ collectionId }));
+    }
+  }, [collectionId, dispatch, shouldResolveCollectionItems]);
+
   if (geoRestriction) {
     return (
       <Page noSideNavigation={isEmbedPath}>
@@ -120,6 +141,11 @@ const CollectionPage = (props: Props) => {
         </div>
       </Page>
     );
+  }
+
+  if (shouldPromptSignIn) {
+    const redirect = encodeURIComponent(`${pathname}${search}`);
+    return <Navigate replace to={`/$/${PAGES.AUTH_SIGNIN}?redirect=${redirect}`} />;
   }
 
   if (!hasPrivate && isResolvingCollection) {
@@ -205,7 +231,12 @@ const CollectionPage = (props: Props) => {
             actions={
               <>
                 <div className="section__actions">
-                  <Button button="primary" label={__('Save')} onClick={saveChanges} />
+                  <Button
+                    button="primary"
+                    label={shouldResolveCollectionItems ? __('Loading') : __('Save')}
+                    onClick={saveChanges}
+                    disabled={shouldResolveCollectionItems}
+                  />
                   <Button button="link" label={__('Cancel')} onClick={clearChanges} />
                 </div>
               </>

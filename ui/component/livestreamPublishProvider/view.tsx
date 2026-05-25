@@ -1,19 +1,21 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import {
   LivestreamPublishContext,
   INITIAL_PUBLISH_STATE,
   type LivestreamPublishState,
   type LivestreamPublishStatus,
+  type LivestreamStudioProps,
 } from 'contexts/livestreamPublish';
+import type { AudioMixer } from 'util/audioMixer';
+import type { VideoSource, AudioSource } from 'component/livestreamSourceSelector/view';
+
+const LivestreamStudio = React.lazy(() => import('component/livestreamStudio'));
 
 type Props = {
   children: React.ReactNode;
 };
 
-/**
- * Inline stop logic so this module has zero heavy imports (keeps Vite HMR fast).
- * Mirrors stopWhipPublish() from util/livestreamWhip without importing it.
- */
 async function stopPublishSessionInline(pc: RTCPeerConnection | null, resourceUrl: string | null) {
   try {
     if (resourceUrl) await fetch(resourceUrl, { method: 'DELETE' });
@@ -28,6 +30,31 @@ export default function LivestreamPublishProvider({ children }: Props) {
   const listenersRef = React.useRef<Set<() => void>>(new Set());
   const pcRef = React.useRef<RTCPeerConnection | null>(null);
   const resourceUrlRef = React.useRef<string | null>(null);
+  const sourceStreamsRef = React.useRef<Map<string, MediaStream>>(new Map());
+  const mediaElementsRef = React.useRef<Map<string, HTMLMediaElement>>(new Map());
+  const audioMixerRef = React.useRef<AudioMixer | null>(null);
+  const activatedVideoSourcesRef = React.useRef<Map<string, VideoSource>>(new Map());
+  const activatedAudioSourcesRef = React.useRef<Map<string, AudioSource>>(new Map());
+  const screenAudioByVideoIdRef = React.useRef<Map<string, string>>(new Map());
+  const widgetCanvasesRef = React.useRef<Map<string, HTMLCanvasElement>>(new Map());
+  const widgetAnimRef = React.useRef<Map<string, number>>(new Map());
+
+  const studioHostRef = React.useRef<HTMLDivElement | null>(null);
+  if (!studioHostRef.current && typeof document !== 'undefined') {
+    studioHostRef.current = document.createElement('div');
+    studioHostRef.current.className = 'livestream-studio-portal-host';
+  }
+
+  React.useEffect(() => {
+    const host = studioHostRef.current;
+    if (host && !host.parentNode) document.body.appendChild(host);
+    return () => {
+      if (host && host.parentNode) host.parentNode.removeChild(host);
+    };
+  }, []);
+
+  const [studioProps, setStudioPropsState] = React.useState<LivestreamStudioProps | null>(null);
+  const [isAttachedToSetup, setIsAttachedToSetup] = React.useState(false);
 
   function notify() {
     listenersRef.current.forEach((fn) => fn());
@@ -92,11 +119,46 @@ export default function LivestreamPublishProvider({ children }: Props) {
             });
           }
         },
+        setStudioProps: (props: LivestreamStudioProps | null) => setStudioPropsState(props),
+        setStudioMount: (el: HTMLElement | null) => {
+          const host = studioHostRef.current;
+          if (!host) return;
+          if (el) {
+            if (host.parentNode !== el) el.appendChild(host);
+            setIsAttachedToSetup(true);
+          } else {
+            if (host.parentNode !== document.body) document.body.appendChild(host);
+            setIsAttachedToSetup(false);
+          }
+        },
       },
-      refs: { pcRef, resourceUrlRef },
+      refs: {
+        pcRef,
+        resourceUrlRef,
+        sourceStreamsRef,
+        mediaElementsRef,
+        audioMixerRef,
+        activatedVideoSourcesRef,
+        activatedAudioSourcesRef,
+        screenAudioByVideoIdRef,
+        widgetCanvasesRef,
+        widgetAnimRef,
+      },
     }),
     [] // eslint-disable-line react-hooks/exhaustive-deps
   );
 
-  return <LivestreamPublishContext.Provider value={contextValue}>{children}</LivestreamPublishContext.Provider>;
+  return (
+    <LivestreamPublishContext.Provider value={contextValue}>
+      {children}
+      {studioProps && studioHostRef.current && (
+        <React.Suspense fallback={null}>
+          {ReactDOM.createPortal(
+            <LivestreamStudio {...studioProps} isFloating={!isAttachedToSetup} />,
+            studioHostRef.current
+          )}
+        </React.Suspense>
+      )}
+    </LivestreamPublishContext.Provider>
+  );
 }

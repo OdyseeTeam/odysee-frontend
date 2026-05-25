@@ -11,6 +11,7 @@ const defaultState: ContentState = {
     collection: {},
   },
   uriAccessKeys: {},
+  collectionLastPlayedUris: {},
   positions: {},
   history: [],
   lastViewedAnnouncement: [],
@@ -37,6 +38,11 @@ const contentSlice = createSlice({
           return;
         }
         state.uriAccessKeys[uri] = { ...newKey };
+      })
+      .addCase(ACTIONS.SET_COLLECTION_LAST_PLAYED_URI, (state, action: any) => {
+        const { collectionId, uri } = action.data;
+        if (!collectionId || !uri) return;
+        state.collectionLastPlayedUris[collectionId] = uri;
       })
       .addCase(ACTIONS.SET_CONTENT_POSITION, (state, action: any) => {
         const { claimId, outpoint, position } = action.data;

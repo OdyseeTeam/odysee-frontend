@@ -22,6 +22,11 @@ const SelectThumbnail = lazyImport(
     )
 );
 const TAGS_LIMIT = 5;
+function normalizeTag(tag: any) {
+  if (typeof tag === 'string') return { name: tag };
+  return tag;
+}
+
 type Props = {
   collectionId: string;
   formParams: any;
@@ -38,6 +43,7 @@ function CollectionGeneralTab(props: Props) {
   const { search } = useLocation();
   const urlParams = new URLSearchParams(search);
   const publishing = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLISH;
+  const selectedTags = React.useMemo(() => (tags || []).map(normalizeTag).filter((tag) => tag?.name), [tags]);
   const [thumbStatus, setThumbStatus] = React.useState<string | undefined>();
   const [thumbError, setThumbError] = React.useState<string | undefined>();
 
@@ -190,21 +196,21 @@ function CollectionGeneralTab(props: Props) {
               onSelect={(newTags) => {
                 const validatedTags = [];
                 newTags.forEach((newTag) => {
-                  if (!tags.some((tag) => tag.name === newTag.name)) {
+                  if (!selectedTags.some((tag) => tag.name === newTag.name)) {
                     validatedTags.push(newTag);
                   }
                 });
                 updateFormParams({
-                  tags: [...tags, ...validatedTags],
+                  tags: [...selectedTags, ...validatedTags],
                 });
               }}
               onRemove={(clickedTag) => {
-                const newTags = tags.slice().filter((tag) => tag.name !== clickedTag.name);
+                const newTags = selectedTags.filter((tag) => tag.name !== clickedTag.name);
                 updateFormParams({
                   tags: newTags,
                 });
               }}
-              tagsChosen={tags}
+              tagsChosen={selectedTags}
             />
           </div>
         }

@@ -308,7 +308,33 @@ export default function ChatLayout(props: Props) {
       )
     );
   }, [notAuthedToLiveChat, channelTitle, chatUnlocked, isLivestreamChatMembersOnly]);
-  if (!claimId) return null;
+  if (!claimId) {
+    return (
+      <div className="chat__wrapper">
+        {!hideHeader && (
+          <div className="chat__header">
+            <div className="chat__toggle-mode">
+              <Button button="alt" className="button-toggle button-toggle--active" label={__('Livestream Chat')} />
+            </div>
+          </div>
+        )}
+        <div className="livestream-comments__wrapper">
+          <div className="livestream-comments__top-actions" />
+          <ChatComments
+            uri={uri}
+            comments={[]}
+            isMobile={false}
+            isCompact={false}
+            handleCommentClick={() => {}}
+            {...({} as any)}
+          />
+          <div className="chat__comment-create">
+            <CommentCreate isLivestream uri={uri} bottom embed={false} disableInput />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (openedPopoutWindow || chatHidden) {
     return (

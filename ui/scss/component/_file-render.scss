@@ -762,7 +762,6 @@
 // ****************************************************************************
 
 .video-js--tap-to-unmute {
-  visibility: hidden; // Start off as hidden.
   z-index: 2;
   position: absolute;
   top: var(--spacing-xs);
@@ -778,10 +777,6 @@
     opacity: 1;
     color: var(--color-primary);
     border: 1px solid var(--color-primary);
-  }
-
-  @media (max-width: $breakpoint-small) {
-    display: none !important;
   }
 }
 

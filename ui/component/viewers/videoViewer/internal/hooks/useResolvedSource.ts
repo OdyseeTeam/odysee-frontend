@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
+import { isHlsPlaybackUrl, isSignedOdycdnPlaybackUrl } from 'util/playback-url';
 
 const stripeEnvironment = getStripeEnvironment();
 const HLS_FILETYPE = 'application/x-mpegURL';
@@ -18,6 +19,7 @@ export default function useResolvedSource(
   isProtectedContent,
   activeLivestreamForChannel,
   uri,
+  userId,
   doSetVideoSourceLoaded
 ) {
   const [resolved, setResolved] = useState(null);
@@ -80,16 +82,33 @@ export default function useResolvedSource(
         return;
       }
 
+      const signedOdycdnSource = isSignedOdycdnPlaybackUrl(source);
+      if (signedOdycdnSource || (isProtectedContent && source && isHlsPlaybackUrl(source))) {
+        const isHls = isHlsPlaybackUrl(source);
+        setResolved({
+          src: source,
+          type: isHls ? HLS_FILETYPE : sourceType,
+          isHls,
+          originalSrc: isHls ? null : { type: sourceType, src: source },
+          hlsSrc: isHls ? { src: source, type: HLS_FILETYPE } : null,
+          thumbnailBasePath: isHls ? source.substring(0, source.lastIndexOf('/')) : null,
+        });
+        doSetVideoSourceLoaded(uri);
+        return;
+      }
+
       let response;
       const MAX_RETRIES = 5;
       const RETRY_DELAYS = [2000, 3000, 5000, 8000, 12000];
       for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
         const controller = new AbortController();
         const timeout = setTimeout(() => controller.abort(), 5000);
+        const headers = userId !== undefined && userId !== null ? { 'X-Odysee-User-Id': String(userId) } : undefined;
         try {
           response = await fetch(source, {
             method: 'HEAD',
             cache: 'no-store',
+            ...(headers ? { headers } : {}),
             signal: controller.signal,
           });
         } catch (e) {
@@ -174,7 +193,7 @@ export default function useResolvedSource(
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [source, sourceType, isLivestreamClaim, userClaimId]);
+  }, [source, sourceType, isLivestreamClaim, userClaimId, userId]);
 
   return resolved;
 }

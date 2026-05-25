@@ -22,13 +22,16 @@ import {
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
+  selectCollectionForIdHasClaimUrl,
   selectFirstItemUrlForCollection,
   selectAreCollectionItemsFetchingForId,
 } from 'redux/selectors/collections';
+import { selectCollectionLastPlayedUriForId } from 'redux/selectors/content';
 import { selectHomepageFetched, selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveUri, doResolveClaimId, doFetchLatestClaimForChannel } from 'redux/actions/claims';
 import { doBeginPublish } from 'redux/actions/publish';
 import { doOpenModal } from 'redux/actions/app';
+import * as MODALS from 'constants/modal_types';
 import { getChannelIdFromClaim } from 'util/claim';
 import { selectIsSubscribedForUri } from 'redux/selectors/subscriptions';
 import { selectLatestLiveClaimForChannel, selectLatestLiveUriForChannel } from 'redux/selectors/livestream';
@@ -62,6 +65,7 @@ type Props = {
 const ClaimPageComponent = (props: Props) => {
   const { uri, latestContentPath, liveContentPath } = props;
   const dispatch = useAppDispatch();
+  const navigate = useNavigate();
   const location = useLocation();
   const { search, pathname, hash } = location;
   const urlParams = new URLSearchParams(search);
@@ -79,6 +83,12 @@ const ClaimPageComponent = (props: Props) => {
   const latestClaimUrl = liveContentPath ? latestLiveUri : latestContentClaim && latestContentClaim.canonical_url;
   const collection = useAppSelector((state) => selectCollectionForId(state, collectionId));
   const collectionFirstItemUri = useAppSelector((state) => selectFirstItemUrlForCollection(state, collectionId));
+  const playlistLastPlayedUri = useAppSelector((state) => selectCollectionLastPlayedUriForId(state, collectionId));
+  const playlistLastPlayedUriIsInCollection = useAppSelector((state) =>
+    collectionId && playlistLastPlayedUri
+      ? selectCollectionForIdHasClaimUrl(state, collectionId, playlistLastPlayedUri)
+      : false
+  );
   const creatorSettings = useAppSelector((state) => selectSettingsForChannelId(state, channelClaimId));
   const linkedCommentId = urlParams.get(LINKED_COMMENT_QUERY_PARAM);
   const threadCommentId = urlParams.get(THREAD_COMMENT_QUERY_PARAM);
@@ -88,6 +98,66 @@ const ClaimPageComponent = (props: Props) => {
   // In embed mode with live/latest path, use the resolved URL instead of the channel URL
   const effectiveUri = isEmbed && isNewestPath && latestClaimUrl ? latestClaimUrl : uri;
   const { isChannel } = parseURI(effectiveUri);
+  const shouldPromptPlaylistResume = Boolean(
+    !isEmbed &&
+    claim &&
+    isCollection &&
+    collection?.type === COL_TYPES.PLAYLIST &&
+    collectionFirstItemUri &&
+    playlistLastPlayedUri &&
+    playlistLastPlayedUri !== collectionFirstItemUri &&
+    playlistLastPlayedUriIsInCollection
+  );
+  const playlistResumePromptKey =
+    claim?.claim_id && playlistLastPlayedUri ? `${claim.claim_id}:${playlistLastPlayedUri}` : null;
+  const playlistResumePromptShownRef = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    if (
+      !shouldPromptPlaylistResume ||
+      !claim?.claim_id ||
+      !collectionFirstItemUri ||
+      !playlistLastPlayedUri ||
+      playlistResumePromptShownRef.current === playlistResumePromptKey
+    ) {
+      return;
+    }
+
+    playlistResumePromptShownRef.current = playlistResumePromptKey;
+
+    const firstItemUrlParams = new URLSearchParams(search);
+    firstItemUrlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
+    const firstItemUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${firstItemUrlParams.toString()}`);
+
+    const resumeUrlParams = new URLSearchParams(search);
+    resumeUrlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
+    const resumeUrl = formatLbryUrlForWeb(`${playlistLastPlayedUri}?${resumeUrlParams.toString()}`);
+
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('Continue playlist?'),
+        subtitle: __('Do you want to continue with the last played video in this playlist?'),
+        labelOk: __('Continue'),
+        labelCancel: __('Start from beginning'),
+        onConfirm: (closeModal: () => void) => {
+          closeModal();
+          navigate(resumeUrl, { replace: true });
+        },
+        onCancel: (closeModal: () => void) => closeModal(),
+      })
+    );
+    navigate(firstItemUrl, { replace: true });
+  }, [
+    claim?.claim_id,
+    collectionFirstItemUri,
+    dispatch,
+    navigate,
+    playlistLastPlayedUri,
+    playlistResumePromptKey,
+    search,
+    shouldPromptPlaylistResume,
+  ]);
+
   useEffect(() => {
     if (!latestClaimUrl && liveContentPath && claimId) {
       dispatch(doFetchChannelIsLiveForId(claimId));
@@ -182,6 +252,13 @@ const ClaimPageComponent = (props: Props) => {
         case COL_TYPES.PLAYLIST: {
           urlParams.set(COLLECTIONS_CONSTS.COLLECTION_ID, claim.claim_id);
           const newUrl = formatLbryUrlForWeb(`${collectionFirstItemUri}?${urlParams.toString()}`);
+          if (shouldPromptPlaylistResume) {
+            return (
+              <div className="main--empty">
+                <Spinner delayed />
+              </div>
+            );
+          }
           return <Navigate replace to={newUrl} />;
         }
 

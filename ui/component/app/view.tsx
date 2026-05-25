@@ -5,7 +5,6 @@ import * as URL_PARAMS from 'constants/urlParams';
 import React, { useEffect, useState } from 'react';
 import { AppContext } from 'contexts/app';
 export { AppContext };
-import { useLivestreamPublish } from 'contexts/livestreamPublish';
 import { isEmbedPath } from 'util/embed';
 import LivestreamPublishProvider from 'component/livestreamPublishProvider';
 import { lazyImport } from 'util/lazyImport';
@@ -32,12 +31,15 @@ import {
   STATUS_DOWN,
 } from 'web/effects/use-degraded-performance';
 import LANGUAGE_MIGRATIONS from 'constants/language-migrations';
+import SUPPORTED_BROWSER_LANGUAGES from 'constants/supported_browser_languages';
+import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { useIsMobile } from 'effects/use-screensize';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import {
-  selectGetSyncErrorMessage,
   selectPrefsReady,
+  selectSyncApplyPasswordError,
+  selectSyncDeferredDueToMissingPassword,
   selectSyncFatalError,
   selectSyncIsLocked,
 } from 'redux/selectors/sync';
@@ -181,6 +183,21 @@ const YoutubeWelcome = lazyImport(
 // ****************************************************************************
 export const MAIN_WRAPPER_CLASS = 'main-wrapper';
 export const IS_MAC = navigator.userAgent.indexOf('Mac OS X') !== -1;
+import { useLivestreamPublish } from 'contexts/livestreamPublish';
+
+function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
+  const { state } = useLivestreamPublish();
+  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
+  // eslint-disable-next-line no-console
+  console.log('[FloaterGate]', { shouldMount, embedPath, hasStream: !!state.mediaStream, status: state.status });
+  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
+}
+
+function usePublisherFloaterActive() {
+  const { state } = useLivestreamPublish();
+  return Boolean(state.mediaStream && state.status !== 'idle');
+}
+
 // const imaLibraryPath = 'https://imasdk.googleapis.com/js/sdkloader/ima3.js';
 const oneTrustScriptSrc = 'https://cdn.cookielaw.org/scripttemplates/otSDKStub.js';
 const LATEST_PATH = `/$/${PAGES.LATEST}/`;
@@ -188,17 +205,13 @@ const LIVE_PATH = `/$/${PAGES.LIVE_NOW}/`;
 const EMBED_PATH = `/$/${PAGES.EMBED}/`;
 const RTL_LANGUAGE_CODES = new Set(['ar', 'fa', 'he', 'ur']);
 const REWARD_TYPE_REFEREE = 'referee';
+const AVAILABLE_BROWSER_LANGUAGES = [...new Set(Object.values(SUPPORTED_BROWSER_LANGUAGES))];
+const areLanguageListsEqual = (lhs: Array<string>, rhs: Array<string>) =>
+  lhs.length === rhs.length && rhs.every((language) => lhs.includes(language));
 type HomepageOrder = {
   active: Array<string> | null | undefined;
   hidden: Array<string> | null | undefined;
 };
-
-function LivestreamPublisherFloatingGate({ embedPath }: { embedPath: boolean }) {
-  const { state } = useLivestreamPublish();
-  const shouldMount = !embedPath && Boolean(state.mediaStream && state.status !== 'idle');
-
-  return <React.Suspense fallback={null}>{shouldMount && <LivestreamPublisherFloating />}</React.Suspense>;
-}
 
 function App() {
   const dispatch = useAppDispatch();
@@ -209,7 +222,8 @@ function App() {
   const languages = useAppSelector(selectLoadedLanguages);
   const reloadRequired = useAppSelector((state) => state.app.reloadRequired);
   const prefsReady = useAppSelector(selectPrefsReady);
-  const syncError = useAppSelector(selectGetSyncErrorMessage);
+  const syncApplyPasswordError = useAppSelector(selectSyncApplyPasswordError);
+  const syncDeferredDueToMissingPassword = useAppSelector(selectSyncDeferredDueToMissingPassword);
   const syncIsLocked = useAppSelector(selectSyncIsLocked);
   const uploadCount = useAppSelector(selectUploadCount);
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
@@ -227,6 +241,10 @@ function App() {
   const announcement = useAppSelector(selectHomepageAnnouncement);
   const homepageOrder = useAppSelector((state) => selectClientSetting(state, SETTINGS.HOMEPAGE_ORDER)) as HomepageOrder;
   const isFypModalShown = useAppSelector((state) => selectClientSetting(state, SETTINGS.FYP_MODAL_SHOWN));
+  const availableLanguages = useAppSelector((state) => selectClientSetting(state, SETTINGS.AVAILABLE_LANGUAGES)) as
+    | Array<string>
+    | null
+    | undefined;
   const personalRecommendations = useAppSelector(selectPersonalRecommendations);
 
   const doSetAssignedLbrynetServer_ = React.useCallback(
@@ -267,7 +285,9 @@ function App() {
   const embedLatestPath = embedPath && (featureParam === PAGES.LATEST || featureParam === PAGES.LIVE_NOW);
   const hasModalUrlParam = Boolean(urlParams.get(URL_PARAMS.MODAL));
   const shouldMountModalRouter = !embedPath && Boolean(currentModal || modalError || hasModalUrlParam);
-  const shouldMountFloatingPlayer = !embedPath && Boolean(playingUri?.uri || autoplayCountdownUri);
+  const publisherFloaterActive = usePublisherFloaterActive();
+  const shouldMountFloatingPlayer =
+    !embedPath && !publisherFloaterActive && Boolean(playingUri?.uri || autoplayCountdownUri);
   const isNewestPath = latestContentPath || liveContentPath || embedLatestPath;
   let path;
 
@@ -561,6 +581,52 @@ function App() {
     }
   }, [dispatch, shouldMigrateLanguage]);
   useEffect(() => {
+    if (embedPath || !prefsReady) return;
+    const previouslyAvailableLanguages = Array.isArray(availableLanguages) ? availableLanguages : [];
+    const browserLanguage = window.navigator.language;
+    const browserLanguageKey = SUPPORTED_BROWSER_LANGUAGES[browserLanguage] || browserLanguage.split('-')[0];
+    const newlyAvailableLanguage =
+      browserLanguageKey &&
+      AVAILABLE_BROWSER_LANGUAGES.includes(browserLanguageKey) &&
+      !previouslyAvailableLanguages.includes(browserLanguageKey)
+        ? browserLanguageKey
+        : null;
+
+    if (currentModal) return;
+
+    if (!newlyAvailableLanguage || newlyAvailableLanguage === language) {
+      if (!areLanguageListsEqual(previouslyAvailableLanguages, AVAILABLE_BROWSER_LANGUAGES)) {
+        dispatch(doSetClientSetting(SETTINGS.AVAILABLE_LANGUAGES, AVAILABLE_BROWSER_LANGUAGES));
+      }
+
+      return;
+    }
+
+    const languageName = SUPPORTED_LANGUAGES[newlyAvailableLanguage] || newlyAvailableLanguage;
+    dispatch(
+      doOpenModal(MODALS.CONFIRM, {
+        title: __('There are language translations available for your location! Do you want to switch?'),
+        subtitle: __('Switch your language to %language%?', {
+          language: languageName,
+        }),
+        labelOk: __('Switch Now'),
+        labelCancel: __('Later'),
+        onConfirm: (closeModal, setIsBusy) => {
+          setIsBusy(true);
+          dispatch(doSetClientSetting(SETTINGS.AVAILABLE_LANGUAGES, AVAILABLE_BROWSER_LANGUAGES));
+          Promise.resolve(dispatch(doSetLanguage(newlyAvailableLanguage))).finally(() => {
+            setIsBusy(false);
+            closeModal();
+          });
+        },
+        onCancel: (closeModal) => {
+          dispatch(doSetClientSetting(SETTINGS.AVAILABLE_LANGUAGES, AVAILABLE_BROWSER_LANGUAGES));
+          closeModal();
+        },
+      })
+    );
+  }, [dispatch, embedPath, prefsReady, availableLanguages, language, currentModal]);
+  useEffect(() => {
     if (embedPath) return;
     if (previousHasVerifiedEmail === false && hasVerifiedEmail) {
       analytics.event.emailVerified();
@@ -642,10 +708,23 @@ function App() {
   }, [dispatch, hasSignedIn, hasVerifiedEmail]);
   useEffect(() => {
     if (embedPath) return;
-    if (syncError && isAuthenticated && !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) && !currentModal) {
+    if (
+      (syncApplyPasswordError || syncDeferredDueToMissingPassword) &&
+      isAuthenticated &&
+      !pathname.includes(PAGES.AUTH_WALLET_PASSWORD) &&
+      !currentModal
+    ) {
       navigate(`/$/${PAGES.AUTH_WALLET_PASSWORD}?redirect=${pathname}`);
-    } // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [syncError, pathname, isAuthenticated, navigate]);
+    }
+  }, [
+    currentModal,
+    syncApplyPasswordError,
+    syncDeferredDueToMissingPassword,
+    pathname,
+    isAuthenticated,
+    navigate,
+    embedPath,
+  ]);
   useEffect(() => {
     if (embedPath) return;
     if (prefsReady && isAuthenticated && (pathname === '/' || pathname === `/$/${PAGES.HELP}`) && announcement !== '') {

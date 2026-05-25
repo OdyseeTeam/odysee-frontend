@@ -21,6 +21,7 @@
   "type": "module",
   "scripts": {
     "dev": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development vp dev",
+    "dev:https": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development DEV_HOST=0.0.0.0 DEV_HTTPS_CERT=$HOME/dev-cert.pem DEV_HTTPS_KEY=$HOME/dev-cert-key.pem vp dev",
     "dev:usagi-local": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true vp dev",
     "dev:ssr": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development node scripts/dev-web-server.mjs",
     "dev:ssr:usagi-local": "node scripts/fix-homepage-extensions.cjs && cross-env NODE_ENV=development USE_LOCAL_USAGI=true node scripts/dev-web-server.mjs",
@@ -87,7 +88,6 @@
     "lodash-es": "^4.17.14",
     "mammoth": "^1.4.16",
     "match-sorter": "^6.3.0",
-    "moment": "^2.29.4",
     "odysee-media-usagi": "git+https://github.com/OdyseeTeam/odysee-media-usagi.git#main",
     "p2p-media-loader-hlsjs": "^2.2.2",
     "parse-duration": "^1.0.0",
@@ -177,6 +177,10 @@
   "pnpm": {
     "overrides": {
       "react-is": "^18.3.1"
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@firebase/util",
+      "protobufjs"
+    ]
   }
 }

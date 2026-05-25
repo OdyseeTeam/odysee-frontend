@@ -17,11 +17,16 @@ import {
   selectCollectionAutoPublishForId,
   selectCollectionHasEditsForId,
   selectCollectionPublishErrorForId,
+  selectCollectionSavedForId,
 } from 'redux/selectors/collections';
 import { selectClaimForClaimId } from 'redux/selectors/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { doEnableCollectionShuffle } from 'redux/actions/content';
-import { doSetCollectionAutoPublish, doRetryCollectionPublish } from 'redux/actions/collections';
+import {
+  doSetCollectionAutoPublish,
+  doRetryCollectionPublish,
+  doToggleCollectionSavedForId,
+} from 'redux/actions/collections';
 
 type Props = {
   inline?: boolean;
@@ -42,6 +47,7 @@ function CollectionMenuList(props: Props) {
   const autoPublish = useAppSelector((state) => selectCollectionAutoPublishForId(state, collectionId));
   const collectionHasEdits = useAppSelector((state) => selectCollectionHasEditsForId(state, collectionId));
   const publishError = useAppSelector((state) => selectCollectionPublishErrorForId(state, collectionId));
+  const collectionSavedForId = useAppSelector((state) => selectCollectionSavedForId(state, collectionId));
 
   return (
     <Menu>
@@ -150,6 +156,17 @@ function CollectionMenuList(props: Props) {
                   </div>
                 </MenuItem>
               </>
+            )}
+            {!isBuiltin && !isMyCollection && collectionSavedForId && (
+              <MenuItem
+                className="comment__menu-option"
+                onSelect={() => dispatch(doToggleCollectionSavedForId(collectionId))}
+              >
+                <div className="menu__link">
+                  <Icon aria-hidden icon={ICONS.PLAYLIST_FILLED} />
+                  {__('Unsave')}
+                </div>
+              </MenuItem>
             )}
           </>
         )}

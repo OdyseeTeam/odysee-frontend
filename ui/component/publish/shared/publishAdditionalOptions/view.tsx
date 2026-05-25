@@ -33,7 +33,7 @@ function PublishAdditionalOptions(props: Props) {
   return (
     <div className="publish-additional">
       {showReleaseDate && <PublishReleaseDate />}
-      <div style={{ marginTop: 'var(--spacing-m)' }}>
+      <div>
         <FormField
           label={__('Language')}
           type="select"
@@ -53,7 +53,7 @@ function PublishAdditionalOptions(props: Props) {
         </FormField>
       </div>
 
-      <div style={{ marginTop: 'var(--spacing-m)', marginBottom: 'var(--spacing-m)' }}>
+      <div>
         <LicenseType
           licenseType={licenseType}
           otherLicenseDescription={otherLicenseDescription}

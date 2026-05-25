@@ -109,6 +109,7 @@
   .card__body {
     background-color: rgba(var(--color-header-background-base), 0.9);
     max-height: 100%;
+    overflow-x: hidden;
     overflow-y: hidden;
     overscroll-behavior: contain;
     touch-action: pan-y;
@@ -116,10 +117,12 @@
     .claim-list {
       max-height: 100%;
       width: 100%;
+      min-width: 0;
       overflow-y: hidden;
 
       .ul--no-style {
         max-height: 100%;
+        min-width: 0;
         overflow-y: scroll !important;
         overflow-x: hidden;
         overscroll-behavior-y: contain;

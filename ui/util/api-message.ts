@@ -31,7 +31,7 @@ const MESSAGE_MAP = Object.freeze([{
   replacement: 'Please do not spam.'
 }, {
   originalMsg: /^this creator has set minimum account age requirements that are not currently met: (.*) minutes$/,
-  replacement: "Your channel does not meet the creator's minimum channel-age limit.",
+  replacement: "Your channel does not meet the creator's minimum channel-age limit of %duration%.",
   type: TYPES.INVALID_CHANNEL_AGE
 }, {
   originalMsg: /^You only watched content (.*) days in the last week and it needs to be at least (.*) to get the credit.$/,
@@ -71,7 +71,9 @@ export function resolveApiMessage(message: string = '') {
 
       if (match) {
         if (config.type === TYPES.INVALID_CHANNEL_AGE) {
-          return __(config.replacement) + ' ' + secondsToDhms(parseInt(match[1]) * 60);
+          return __(config.replacement, {
+            duration: secondsToDhms(parseInt(match[1]) * 60),
+          });
         }
 
         const subs = {};

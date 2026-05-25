@@ -11,6 +11,7 @@ import { FormField } from 'component/common/form';
 import I18nMessage from 'component/i18nMessage';
 import Spinner from 'component/spinner';
 import PublishName from 'component/publish/shared/publishName';
+import useThrottle from 'effects/use-throttle';
 import classnames from 'classnames';
 import * as PAGES from 'constants/pages';
 import { SOURCE_SELECT } from 'constants/publish_sources';
@@ -41,6 +42,7 @@ type Props = {
   setPrevFileText?: (text: string) => void;
   setWaitForFile?: (wait: boolean) => void;
 };
+const INPUT_THROTTLE_MS = 750;
 
 function PublishFile(props: Props) {
   const { uri, disabled, fileSource } = props;
@@ -72,6 +74,8 @@ function PublishFile(props: Props) {
   });
 
   const [urlChangedManually, setUrlChangedManually] = React.useState(false);
+  const [titleValue, setTitleValue] = React.useState(title);
+  const throttledTitle = useThrottle(titleValue, INPUT_THROTTLE_MS);
   const [optimizerDismissed, setOptimizerDismissed] = React.useState(false);
   const showOptimizer = isVid && fileBitrate > BITRATE.RECOMMENDED && filePath instanceof File && !optimizerDismissed;
   const [livestreamData, setLivestreamData] = React.useState<LivestreamReplayItem[]>([]);
@@ -155,6 +159,14 @@ function PublishFile(props: Props) {
       fetchLivestreams(activeChannelClaim.claim_id, activeChannelName);
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
   }, [claimChannelId, activeChannelName]);
+  useEffect(() => {
+    if (title !== titleValue) {
+      setTitleValue(title);
+    } // eslint-disable-next-line react-hooks/exhaustive-deps -- one way update only
+  }, [title]);
+  useEffect(() => {
+    dispatch(doUpdateTitle(throttledTitle || '', urlChangedManually));
+  }, [dispatch, throttledTitle, urlChangedManually]);
 
   function linkReplays() {
     return (
@@ -255,7 +267,11 @@ function PublishFile(props: Props) {
   }
 
   function handleTitleChange(event) {
-    dispatch(doUpdateTitle(event.target.value, urlChangedManually));
+    setTitleValue(event.target.value);
+  }
+
+  function flushTitle() {
+    dispatch(doUpdateTitle(titleValue || '', urlChangedManually));
   }
 
   function handleFileChange(file: WebFile, clearName = true) {
@@ -364,8 +380,9 @@ function PublishFile(props: Props) {
                 label={__('Title')}
                 placeholder={__('Descriptive titles work best')}
                 disabled={disabled}
-                value={title}
+                value={titleValue}
                 onChange={handleTitleChange}
+                onBlur={flushTitle}
                 className="fieldset-group"
                 max={200}
                 ref={titleInput}

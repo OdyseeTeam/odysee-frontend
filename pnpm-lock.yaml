@@ -119,9 +119,6 @@ importers:
       match-sorter:
         specifier: ^6.3.0
         version: 6.4.0
-      moment:
-        specifier: ^2.29.4
-        version: 2.30.1
       odysee-media-usagi:
         specifier: git+https://github.com/OdyseeTeam/odysee-media-usagi.git#main
         version: git+https://git@github.com:OdyseeTeam/odysee-media-usagi.git#d1a7d2dca37d74ff06c8fa5b33a101f6fe843af1
@@ -3509,9 +3506,6 @@ packages:
 
   mnemonist@0.39.8:
     resolution: {integrity: sha512-vyWo2K3fjrUw8YeeZ1zF0fy6Mu59RHokURlld8ymdUPjMlD9EC9ov1/YPqTgqRvUN9nTr3Gqfz29LYAmu0PHPQ==}
-
-  moment@2.30.1:
-    resolution: {integrity: sha512-uEmtNhbDOrWPFS+hdjFCBfy9f2YoyzRpwcl+DqpC6taX21FzsTLQVbMV/W7PzNSX6x/bhC1zA3c2UQ5NzH6how==, tarball: https://registry.npmjs.org/moment/-/moment-2.30.1.tgz}
 
   mrmime@2.0.1:
     resolution: {integrity: sha512-Y3wQdFg2Va6etvQ5I82yUhGdsKrcYox6p7FfL1LbK2J4V01F9TGlepTIhnK24t7koZibmg82KGglhA1XK5IsLQ==}
@@ -8081,8 +8075,6 @@ snapshots:
   mnemonist@0.39.8:
     dependencies:
       obliterator: 2.0.5
-
-  moment@2.30.1: {}
 
   mrmime@2.0.1: {}
 

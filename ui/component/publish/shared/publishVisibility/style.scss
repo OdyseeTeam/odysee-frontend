@@ -13,6 +13,14 @@
   @media (max-width: $breakpoint-xxsmall) {
     grid-template-columns: 1fr;
   }
+
+  &--two {
+    grid-template-columns: repeat(2, 1fr);
+
+    @media (max-width: $breakpoint-xxsmall) {
+      grid-template-columns: 1fr;
+    }
+  }
 }
 
 .publish-visibility__option {

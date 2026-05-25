@@ -4,6 +4,7 @@ import { LBRY_WEB_PUBLISH_API_V4 } from 'config';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 const V4_INIT_UPLOAD = `${LBRY_WEB_PUBLISH_API_V4}/uploads/`;
 const v4_INIT_URL = `${LBRY_WEB_PUBLISH_API_V4}/urls/`;
+const STATUS_RETRY_DELAYS_MS = [1000, 3000, 7000];
 type SdkFilePath = string;
 // ****************************************************************************
 // isEditingMetaOnly
@@ -257,74 +258,58 @@ export type PublishStatus = {
   status: 'success' | 'pending' | 'not_found' | 'error' | 'unknown';
   sdkResult?: {};
   error?: Error;
+  retryable?: boolean;
 };
-export function checkPublishStatus(authToken: string, queryId: PublishId): Promise<PublishStatus> {
-  return new Promise((resolve, reject) => {
-    fetch(`${LBRY_WEB_PUBLISH_API_V4}/${queryId}`, {
-      method: 'GET',
-      headers: {
-        [X_LBRY_AUTH_TOKEN]: authToken,
-        'Content-Type': 'application/json',
-      },
-    })
-      .then((response) => {
-        switch (response.status) {
-          case 204:
-            resolve({
-              status: 'pending',
-            });
-            break;
 
-          case 404:
-            resolve({
-              status: 'not_found',
-            });
-            break;
+function isRetryableStatusCode(status: number) {
+  return status === 404 || status === 429 || status >= 500;
+}
 
-          case 200:
-            convertResponseToJson(response)
-              .then((json) => {
-                if (json && json.result && !json.error) {
-                  resolve({
-                    status: 'success',
-                    sdkResult: json.result,
-                  });
-                } else {
-                  resolve({
-                    status: 'error',
-                    error: json?.error
-                      ? v4Error(`${json?.error?.message || json?.error}`, {
-                          response: json,
-                        })
-                      : v4Error('Invalid SDK response', {
-                          response: json,
-                        }),
-                  });
-                }
-              })
-              .catch((err) =>
-                resolve({
-                  status: 'error',
-                  error: v4Error(err, {
-                    step: 'status',
-                    inputs: {
-                      queryId,
-                    },
-                  }),
-                })
-              );
-            break;
+async function getPublishStatus(authToken: string, queryId: PublishId): Promise<PublishStatus> {
+  const response = await fetch(`${LBRY_WEB_PUBLISH_API_V4}/${queryId}`, {
+    method: 'GET',
+    headers: {
+      [X_LBRY_AUTH_TOKEN]: authToken,
+      'Content-Type': 'application/json',
+    },
+  });
 
-          default:
-            assert(false, 'unhandled status:', response);
-            resolve({
-              status: 'unknown',
-            });
-            break;
+  switch (response.status) {
+    case 204:
+      return {
+        status: 'pending',
+      };
+
+    case 404:
+      return {
+        status: 'not_found',
+        retryable: true,
+      };
+
+    case 200:
+      try {
+        const json = await convertResponseToJson(response);
+
+        if (json && json.result && !json.error) {
+          return {
+            status: 'success',
+            sdkResult: json.result,
+          };
         }
-      })
-      .catch((err) =>
-        resolve({
+
+        return {
+          status: 'error',
+          error: json?.error
+            ? v4Error(`${json?.error?.message || json?.error}`, {
+                response: json,
+              })
+            : v4Error('Invalid SDK response', {
+                response: json,
+              }),
+          retryable: !json?.error,
+        };
+      } catch (err) {
+        return {
           status: 'error',
           error: v4Error(err, {
             step: 'status',
@@ -332,9 +317,65 @@ export function checkPublishStatus(authToken: string, queryId: PublishId): Promi
               queryId,
             },
           }),
-        })
-      );
-  });
+          retryable: true,
+        };
+      }
+
+    default:
+      return {
+        status: isRetryableStatusCode(response.status) ? 'unknown' : 'error',
+        error: v4Error(`Unexpected publish status response (${response.status})`, {
+          step: 'status',
+          responseStatus: response.status,
+          inputs: {
+            queryId,
+          },
+        }),
+        retryable: isRetryableStatusCode(response.status),
+      };
+  }
+}
+
+export async function checkPublishStatus(authToken: string, queryId: PublishId): Promise<PublishStatus> {
+  let lastStatus: PublishStatus | null = null;
+
+  for (let attempt = 0; attempt <= STATUS_RETRY_DELAYS_MS.length; attempt++) {
+    try {
+      const status = await getPublishStatus(authToken, queryId);
+      lastStatus = status;
+
+      if (!status.retryable) {
+        return status;
+      }
+    } catch (err) {
+      lastStatus = {
+        status: 'error',
+        error: v4Error(err, {
+          step: 'status',
+          inputs: {
+            queryId,
+          },
+        }),
+        retryable: true,
+      };
+    }
+
+    const retryDelay = STATUS_RETRY_DELAYS_MS[attempt];
+    if (retryDelay === undefined) break;
+    await yieldThread(retryDelay);
+  }
+
+  return (
+    lastStatus || {
+      status: 'error',
+      error: v4Error('Invalid SDK response', {
+        step: 'status',
+        inputs: {
+          queryId,
+        },
+      }),
+    }
+  );
 }
 
 // ****************************************************************************

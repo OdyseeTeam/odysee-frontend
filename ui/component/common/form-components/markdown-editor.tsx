@@ -3,6 +3,7 @@ import classnames from 'classnames';
 import './syntax-highlighter.scss';
 import MarkdownPreview from 'component/common/markdown-preview';
 import { openContextMenu } from 'util/context-menu';
+import { NavigationPrompt } from 'component/common/navigation-prompt';
 
 type Props = {
   className?: string;
@@ -109,14 +110,22 @@ function getLineAndColumn(value: string, cursorIndex: number): { column: number;
 export default function MarkdownEditor(props: Props) {
   const { className, disabled, id, inputRef, onChange, placeholder, value } = props;
   const [previewOpen, setPreviewOpen] = React.useState(false);
+  const initialValue = React.useRef<string | null>(null);
   const [cursor, setCursor] = React.useState<CursorState>({
     start: 0,
     end: 0,
   });
   const stringValue = typeof value === 'string' ? value : value === undefined || value === null ? '' : String(value);
+  const shouldWarnOnUnload = !disabled && initialValue.current !== null && stringValue !== initialValue.current;
   const lineCount = stringValue ? stringValue.split('\n').length : 1;
   const wordCount = getWordCount(stringValue);
   const { line, column } = getLineAndColumn(stringValue, cursor.end);
+
+  React.useEffect(() => {
+    if (initialValue.current === null && !disabled) {
+      initialValue.current = stringValue;
+    }
+  }, [disabled, stringValue]);
 
   const syncCursor = React.useCallback(() => {
     const input = inputRef.current;
@@ -214,6 +223,11 @@ export default function MarkdownEditor(props: Props) {
 
   return (
     <div className={classnames('markdown-editor', className, previewOpen && 'markdown-editor--preview')}>
+      <NavigationPrompt
+        when={shouldWarnOnUnload}
+        message={__('You have unsaved markdown text, are you sure you want to leave?')}
+      />
+
       <div className="markdown-editor__toolbar" role="toolbar" aria-label={__('Markdown formatting options')}>
         <div className="markdown-editor__toolbar-group">
           {toolbarButtons.map((button) => (
@@ -249,6 +263,7 @@ export default function MarkdownEditor(props: Props) {
         disabled={disabled}
         placeholder={placeholder === undefined || placeholder === null ? undefined : String(placeholder)}
         value={stringValue}
+        wrap="soft"
         onChange={(event) => {
           onChange?.(event.target.value);
           syncCursor();

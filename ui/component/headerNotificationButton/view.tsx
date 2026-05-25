@@ -1,5 +1,5 @@
 import { ENABLE_UI_NOTIFICATIONS } from 'config';
-import { useNavigate } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import Icon from 'component/common/icon';
@@ -18,7 +18,6 @@ import { getNotificationLocation } from '../notification/helpers/target';
 import { generateNotificationTitle } from '../notification/helpers/title';
 import { generateNotificationText } from '../notification/helpers/text';
 import { parseURI } from 'util/lbryURI';
-import { NavLink } from 'react-router-dom';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectNotifications, selectUnseenNotificationCount } from 'redux/selectors/notifications';
 import {
@@ -81,7 +80,6 @@ export default function NotificationHeaderButton() {
   const doSeeAllNotifications = () => dispatch(doSeeAllNotificationsAction());
   const doGetMembershipSupportersList = () => dispatch(doGetMembershipSupportersListAction());
   const list = notifications.slice(0, 20);
-  const navigate = useNavigate();
   const notificationsEnabled = authenticated && (ENABLE_UI_NOTIFICATIONS || (user && user.experimental_ui));
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [clicked, setClicked] = React.useState(false);
@@ -124,10 +122,6 @@ export default function NotificationHeaderButton() {
       setClicked(false);
     }
   };
-
-  function handleMenuClick() {
-    navigate(`/$/${PAGES.NOTIFICATIONS}`);
-  }
 
   function handleNotificationDelete(e, id) {
     e.stopPropagation();
@@ -196,14 +190,19 @@ export default function NotificationHeaderButton() {
         icon = <Icon icon={ICONS.NOTIFICATION} sectionIcon />;
     }
 
-    function handleNotificationClick() {
+    const notificationLocation = getNotificationLocation(notification, undefined);
+    const notificationState = !disableAutoplay ? undefined : { forceDisableAutoplay: true };
+
+    function handleNotificationClick(closeMenu: boolean) {
       const { id, is_read: isRead } = notification;
 
       if (!isRead) {
         seeNotification([String(id)]);
         readNotification([id]);
-        if (notificationAction) notificationAction();
       }
+
+      if (notificationAction) notificationAction();
+      if (closeMenu) handleClose();
     }
 
     let channelName;
@@ -215,15 +214,22 @@ export default function NotificationHeaderButton() {
     }
 
     return (
-      <NavLink
+      <div
         key={id}
-        onClick={handleNotificationClick}
-        to={{
-          ...getNotificationLocation(notification, undefined),
-        }}
-        state={!disableAutoplay ? undefined : { forceDisableAutoplay: true }}
-        className={is_read ? 'menu__list--notification' : 'menu__list--notification menu__list--notification-unread'}
+        className={
+          is_read
+            ? 'menu__list--notification menu__list--notification--with-overlay'
+            : 'menu__list--notification menu__list--notification--with-overlay menu__list--notification-unread'
+        }
       >
+        <Link
+          aria-label={notification_parameters?.device?.title || __('Open notification')}
+          className="notification__link-overlay"
+          onAuxClick={() => handleNotificationClick(false)}
+          onClick={() => handleNotificationClick(true)}
+          state={notificationState}
+          to={notificationLocation}
+        />
         <div className="notification__icon">{icon}</div>
         <div className="menu__list--notification-info">
           <div className="menu__list--notification-type">
@@ -242,7 +248,7 @@ export default function NotificationHeaderButton() {
         <div className="delete-notification" onClick={(e) => handleNotificationDelete(e, id)}>
           <Icon icon={ICONS.DELETE} sectionIcon />
         </div>
-      </NavLink>
+      </div>
     );
   }
 
@@ -272,7 +278,7 @@ export default function NotificationHeaderButton() {
               )}
             </div>
 
-            <NavLink onClick={handleMenuClick} to={`/$/${PAGES.NOTIFICATIONS}`}>
+            <NavLink onClick={handleClose} to={`/$/${PAGES.NOTIFICATIONS}`}>
               <div className="menu__list--notifications-more">
                 {__('View all')}
                 <PushPromptInDrawer />

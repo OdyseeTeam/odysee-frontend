@@ -146,6 +146,7 @@ export default function ClaimList(props: Props) {
   const currentActiveItem = React.useRef<string>();
   // Resolve the index for injectedItem, if provided; else injectedIndex will be 'undefined'.
   const listRef = React.useRef<HTMLElement>(null);
+  const scrollableListRef = React.useRef<HTMLElement | null>(null);
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
   const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);
   // Exclude prefix uris in these results variables. We don't want to show
@@ -164,7 +165,8 @@ export default function ClaimList(props: Props) {
   const totalLength = tileUris.length;
   const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
   // -- Progressive rendering for large lists (#3206) --
-  const isLargeList = droppableProvided && sortedUris.length > INITIAL_VISIBLE_COUNT;
+  const supportsProgressiveRender = !tileLayout && Boolean(collectionId || droppableProvided);
+  const isLargeList = supportsProgressiveRender && sortedUris.length > INITIAL_VISIBLE_COUNT;
   const activeIndex = isLargeList && activeUri ? sortedUris.indexOf(activeUri) : 0;
   const desiredVisibleCount = isLargeList
     ? Math.min(sortedUris.length, Math.max(INITIAL_VISIBLE_COUNT, activeIndex + ACTIVE_ITEM_BUFFER))
@@ -187,7 +189,17 @@ export default function ClaimList(props: Props) {
   React.useEffect(() => {
     if (!isLargeList || visibleCount >= sortedUris.length) return;
 
-    const handleScroll = debounce(() => {
+    const loadMoreIfNearBottom = () => {
+      const listEl = scrollableListRef.current;
+
+      if (listEl && listEl.scrollHeight > listEl.clientHeight) {
+        if (listEl.scrollTop + listEl.clientHeight >= listEl.scrollHeight - 400) {
+          setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, sortedUris.length));
+        }
+
+        return;
+      }
+
       const mainEl = document.querySelector(`.${MAIN_CLASS}`);
       if (mainEl) {
         const mainBoundingRect = mainEl.getBoundingClientRect();
@@ -195,10 +207,19 @@ export default function ClaimList(props: Props) {
           setVisibleCount((prev) => Math.min(prev + LOAD_MORE_COUNT, sortedUris.length));
         }
       }
-    }, 100);
+    };
+
+    const handleScroll = debounce(loadMoreIfNearBottom, 100);
+    const listEl = scrollableListRef.current;
 
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    if (listEl) listEl.addEventListener('scroll', handleScroll);
+    loadMoreIfNearBottom();
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      if (listEl) listEl.removeEventListener('scroll', handleScroll);
+    };
   }, [isLargeList, sortedUris.length, visibleCount]);
   const displayedUris = isLargeList ? sortedUris.slice(0, visibleCount) : sortedUris;
   React.useEffect(() => {
@@ -305,7 +326,6 @@ export default function ClaimList(props: Props) {
       setHasActive(sortedUris.some((uri) => activeUri && uri === activeUri));
     }
   }, [activeUri, setHasActive, sortedUris]);
-  const scrollableListRef = React.useRef<HTMLElement | null>(null);
   const listRefCb = React.useCallback(
     (node) => {
       if (node) {
@@ -506,12 +526,19 @@ export default function ClaimList(props: Props) {
               )}
             </>
           ) : (
-            sortedUris.map((uri, index) => (
-              <React.Fragment key={uri}>
-                {getInjectedItem(index)}
-                {getClaimPreview(uri, index)}
-              </React.Fragment>
-            ))
+            <>
+              {displayedUris.map((uri, index) => (
+                <React.Fragment key={uri}>
+                  {getInjectedItem(index)}
+                  {getClaimPreview(uri, index)}
+                </React.Fragment>
+              ))}
+              {isLargeList && visibleCount < sortedUris.length && (
+                <li className="claim-list__loading-more">
+                  <Spinner type="small" />
+                </li>
+              )}
+            </>
           )}
         </ul>
       )}
