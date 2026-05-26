@@ -26,6 +26,7 @@ import {
 import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import {
   selectUrlsForCollectionId,
+  selectUrlsForCollectionIdNonDeleted,
   selectCollectionForIdHasClaimUrl,
   selectFirstItemUrlForCollection,
   selectIsLastCollectionItemForIdAndUri,
@@ -845,7 +846,7 @@ export const doEnableCollectionShuffle =
     ); // make sure we have the URIS in the collection
 
     const state = getState();
-    const urls = selectUrlsForCollectionId(state, collectionId);
+    const urls = selectUrlsForCollectionIdNonDeleted(state, collectionId);
     const collectionIsPlaying = selectIsCollectionPlayingForId(state, collectionId);
     let newUrls = urls
       .map((item) => ({

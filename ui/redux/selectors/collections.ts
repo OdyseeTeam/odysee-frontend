@@ -578,28 +578,34 @@ export const selectIndexForUrlInCollectionForId = createCachedSelector(
 )((state, id, uri) => `${id}:${uri}`);
 export const selectIndexForUriInPlayingCollectionForId = createCachedSelector(
   selectCollectionForIdClaimForUriItem,
-  (state: State, id: string) => selectUrlsForCollectionId(state, id),
+  (state: State, id: string) => selectUrlsForCollectionIdNonDeleted(state, id),
   selectCollectionForIdIsPlayingShuffle,
   (uriItem, collectionUrls, playingCollectionShuffleUrls) => {
-    const uris = playingCollectionShuffleUrls || collectionUrls;
+    const uris = playingCollectionShuffleUrls
+      ? playingCollectionShuffleUrls.filter((uri) => collectionUrls?.includes(uri))
+      : collectionUrls;
     const index = uris && uris.findIndex((uri) => uri === uriItem);
     if (index > -1) return index;
     return null;
   }
 )((state, id, uri) => `${id}:${uri}`);
 export const selectIsLastCollectionItemForIdAndUri = (state: State, collectionId: string, uri: string) => {
-  const index = selectIndexForUrlInCollectionForId(state, collectionId, uri);
-  const length = selectCollectionLengthForId(state, collectionId);
+  const index = selectIndexForUriInPlayingCollectionForId(state, collectionId, uri);
+  const length = selectCountForCollectionIdNonDeleted(state, collectionId);
   return index === length - 1;
 };
 export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelector(
-  selectUrlsForCollectionId,
+  selectUrlsForCollectionIdNonDeleted,
   selectIndexForUriInPlayingCollectionForId,
   selectCollectionForIdIsPlayingShuffle,
   selectCollectionForIdIsPlayingLoop,
   (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
     if (currentIndex === null) return null;
-    const uris = playingCollectionShuffleUrls || collectionUrls;
+    const uris = playingCollectionShuffleUrls
+      ? playingCollectionShuffleUrls.filter((uri) => collectionUrls?.includes(uri))
+      : collectionUrls;
+
+    if (!uris?.length) return null;
 
     if (currentIndex === 0 && isLooped) {
       return uris[uris.length - 1];
@@ -609,13 +615,17 @@ export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelec
   }
 )((state, url, id) => `${String(url)}:${String(id)}`);
 export const selectNextUriForUriInPlayingCollectionForId = createCachedSelector(
-  selectUrlsForCollectionId,
+  selectUrlsForCollectionIdNonDeleted,
   selectIndexForUriInPlayingCollectionForId,
   selectCollectionForIdIsPlayingShuffle,
   selectCollectionForIdIsPlayingLoop,
   (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
     if (currentIndex === null) return null;
-    const uris = playingCollectionShuffleUrls || collectionUrls;
+    const uris = playingCollectionShuffleUrls
+      ? playingCollectionShuffleUrls.filter((uri) => collectionUrls?.includes(uri))
+      : collectionUrls;
+
+    if (!uris?.length) return null;
 
     if (currentIndex === uris.length - 1 && isLooped) {
       return uris[0];
