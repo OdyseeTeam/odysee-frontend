@@ -545,9 +545,11 @@ const doFetchCollectionItems =
         const failedToResolveUris = selectFailedToResolveUris(freshState);
         const failedToResolveIds = selectFailedToResolveIds(freshState);
         const failedItems = failedToResolveIds.concat(failedToResolveUris);
+        const hasFailedItems = items.some((item) => failedItems.includes(item));
+        const hasResolvingItems = items.some((item) => resolvingIds.includes(item) || resolvingUris.includes(item));
 
-        if (items.some((item) => failedItems.includes(item))) {
-          // itemsWereFetching stays true
+        if (hasFailedItems && !hasResolvingItems) {
+          itemsWereFetching = false;
         } else if (
           batches.every((b) => b.uris.length === 0) &&
           batches.some((b) => b.ids.length > 0) &&
