@@ -8,6 +8,7 @@ import {
   selectUrlsForCollectionIdNonDeleted,
   selectClaimIdsForCollectionId,
   selectCollectionHasItemsResolvedForId,
+  selectCountForCollectionId,
 } from 'redux/selectors/collections';
 import { doResolveClaimId } from 'redux/actions/claims';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
@@ -37,9 +38,14 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
     const collectionHasItemsResolved = useAppSelector((state) =>
       selectCollectionHasItemsResolvedForId(state, collectionId)
     );
+    const rawCollectionItemCount = useAppSelector((state) => selectCountForCollectionId(state, collectionId));
+    const collectionItemCount = typeof rawCollectionItemCount === 'number' ? rawCollectionItemCount : 0;
 
     const collectionItems = useIds ? collectionIds : collectionUrls;
     const shouldFetchCollectionItems = collectionItems === undefined || !collectionHasItemsResolved;
+    const hasNoResolvedItems = Array.isArray(collectionItems) && collectionItems.length === 0;
+    const shouldKeepLoading =
+      collectionItems === undefined || (!collectionHasItemsResolved && collectionItemCount > 0 && hasNoResolvedItems);
 
     React.useEffect(() => {
       if (!isPrivate) {
@@ -53,7 +59,7 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
       }
     }, [collectionId, dispatch, shouldFetchCollectionItems]);
 
-    if (collectionItems === undefined) {
+    if (shouldKeepLoading) {
       return (
         <div className="main--empty">
           <Spinner />

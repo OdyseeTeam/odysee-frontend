@@ -126,7 +126,8 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
     const state = getState();
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
     const collection = selectCollectionForId(state, collectionId);
-    const createdAtTimestamp = collection.createdAt;
+    const publishStartedAt = Math.floor(Date.now() / 1000);
+    const createdAtTimestamp = collection.createdAt || publishStartedAt;
     const params: Record<string, any> = {
       channel_id: options.channel_id,
       bid: creditsToString(options.bid),
@@ -201,9 +202,12 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
 
       function success(response: CollectionCreateResponse & { outputs?: Array<Claim> }) {
         const collectionClaim = response.outputs ? response.outputs[0] : response;
-        const publishStartedAt = Math.floor(Date.now() / 1000);
-        if (!collectionClaim?.meta.creation_timestamp) collectionClaim.meta.creation_timestamp = createdAtTimestamp;
-        if (!collectionClaim?.timestamp) collectionClaim.timestamp = publishStartedAt;
+        const collectionClaimWithMeta = collectionClaim as any;
+        if (!collectionClaimWithMeta.meta) collectionClaimWithMeta.meta = {};
+        if (!collectionClaimWithMeta.meta.creation_timestamp) {
+          collectionClaimWithMeta.meta.creation_timestamp = createdAtTimestamp;
+        }
+        if (!collectionClaimWithMeta.timestamp) collectionClaimWithMeta.timestamp = publishStartedAt;
         const publishedCollection = {
           ...collection,
           id: collectionClaim.claim_id,
@@ -244,6 +248,12 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
               type: ACTIONS.UPDATE_PENDING_CLAIMS,
               data: {
                 claims: [collectionClaim],
+              },
+            },
+            {
+              type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
+              data: {
+                resolvedCollection: publishedCollection,
               },
             },
             {
@@ -617,9 +627,12 @@ export const doFetchItemsInCollection =
       if (collection.items.length > 0) {
         promisedCollectionItemsFetch = collection.items && dispatch(doFetchCollectionItems(collection.items, pageSize));
       } else {
+        const collectionKey = selectCollectionKeyForId(state, collectionId);
         return dispatch({
-          type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL,
-          data: collectionId,
+          type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
+          data: {
+            resolvedCollection: { ...collection, items: [], itemCount: 0, key: collectionKey },
+          },
         });
       }
     } else {
