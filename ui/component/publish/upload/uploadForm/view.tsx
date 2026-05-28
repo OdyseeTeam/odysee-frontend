@@ -72,6 +72,7 @@ import { selectModal, selectActiveChannelClaim, selectIncognito } from 'redux/se
 import { selectClientSetting } from 'redux/selectors/settings';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
 import { doFetchCreatorSettings } from 'redux/actions/comments';
+import { selectUploadTemplatesForChannelId } from 'redux/selectors/comments';
 
 const loadSelectThumbnail = () => import('component/selectThumbnail' /* webpackChunkName: "selectThumbnail" */);
 const SelectThumbnail: React.LazyExoticComponent<React.ComponentType<any>> = lazyImport(loadSelectThumbnail);
@@ -170,6 +171,17 @@ function UploadForm(props: Props) {
   }, [!!isInProgress]);
   const activeChannelName = activeChannelClaim && activeChannelClaim.name;
   const activeChannelId = activeChannelClaim && activeChannelClaim.claim_id;
+  const templateChannelId = channelId || activeChannelId;
+  const uploadTemplates = useAppSelector((state) =>
+    templateChannelId ? selectUploadTemplatesForChannelId(state, templateChannelId) : []
+  );
+  const defaultUploadTemplate = React.useMemo(() => {
+    return uploadTemplates
+      .filter((template) => template.isPinned && template.data && Object.keys(template.data).length > 0)
+      .sort((a, b) => Number(b.lastUsedAt || b.createdAt || 0) - Number(a.lastUsedAt || a.createdAt || 0))[0];
+  }, [uploadTemplates]);
+  const publishDetailsAreClear =
+    !title && !name && !description && !thumbnail && (!Array.isArray(tags) || tags.length === 0);
   const fileMimeType =
     myClaimForUri && myClaimForUri.value && myClaimForUri.value.source
       ? myClaimForUri.value.source.media_type
@@ -213,11 +225,10 @@ function UploadForm(props: Props) {
   }, [hasClaimedInitialRewards, claimInitialRewards]);
 
   useEffect(() => {
-    const templateChannelId = channelId || activeChannelId;
     if (templateChannelId && !inEditMode) {
       fetchCreatorSettings(templateChannelId);
     }
-  }, [channelId, activeChannelId, inEditMode, fetchCreatorSettings]);
+  }, [templateChannelId, inEditMode, fetchCreatorSettings]);
 
   useEffect(() => {
     if (!modal) {
@@ -401,6 +412,7 @@ function UploadForm(props: Props) {
   // -- Form persistence --
   const activeFormId = useAppSelector((state) => selectPublishFormValue(state, 'activeFormId'));
   const pipelineIdForForm = React.useRef(activeFormId && !activeFormId.startsWith('__new_') ? activeFormId : uuid());
+  const defaultTemplateAppliedRef = React.useRef<string | null>(null);
   const previewOrderRef = React.useRef(++previewOrderCounter);
 
   const savedStep = useAppSelector((state) => state.publish.activeStep);
@@ -443,6 +455,7 @@ function UploadForm(props: Props) {
       const isNew = activeFormId.startsWith('__new_');
       const newId = isNew ? uuid() : activeFormId;
       pipelineIdForForm.current = newId;
+      defaultTemplateAppliedRef.current = null;
       dispatch({ type: 'PUBLISH_RESTORE_FORM', data: { id: newId } });
       dispatch({ type: 'PUBLISH_SET_ACTIVE_FORM', data: { id: newId } });
       const s = window.store?.getState?.()?.publish;
@@ -450,6 +463,21 @@ function UploadForm(props: Props) {
       if (isNew) applyActiveChannel();
     }
   }, [activeFormId]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  React.useEffect(() => {
+    if (inEditMode || !templateChannelId || !defaultUploadTemplate?.data || !publishDetailsAreClear) {
+      return;
+    }
+
+    const defaultTemplateKey = `${pipelineIdForForm.current}:${templateChannelId}:${defaultUploadTemplate.id}`;
+
+    if (defaultTemplateAppliedRef.current === defaultTemplateKey) {
+      return;
+    }
+
+    updatePublishForm({ ...defaultUploadTemplate.data });
+    defaultTemplateAppliedRef.current = defaultTemplateKey;
+  }, [defaultUploadTemplate, inEditMode, publishDetailsAreClear, templateChannelId, updatePublishForm]);
 
   // -- Pipeline --
   const pipelineItemIdRef = React.useRef<string>(uuid());

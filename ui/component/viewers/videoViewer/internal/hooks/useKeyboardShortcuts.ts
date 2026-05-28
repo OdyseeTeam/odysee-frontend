@@ -245,6 +245,5 @@ export default function useKeyboardShortcuts({
       if (container) container.removeEventListener('wheel', handleWheel);
       clearHoldTimeout();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [media, isMobile, isLivestreamClaim]);
+  }, [containerRef, getState, isMobile, isLivestreamClaim, media, playNext, playPrevious, toggleVideoTheaterMode]);
 }
