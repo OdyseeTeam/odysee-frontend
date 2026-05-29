@@ -14,6 +14,18 @@ export type LbryRpcMock = {
   callsFor: (method: string) => Array<LbryRpcCall>;
 };
 
+export class LbryRpcError {
+  code: number;
+  message: string;
+  data?: { name?: string; [key: string]: unknown };
+
+  constructor(code: number, message: string, data?: { name?: string; [key: string]: unknown }) {
+    this.code = code;
+    this.message = message;
+    this.data = data;
+  }
+}
+
 type MockOptions = {
   failOnUnhandled?: boolean;
   unexpectedMethods?: Array<string>;
@@ -92,6 +104,23 @@ export async function mockLbryRpc(page: Page, handlers: HandlerMap, options: Moc
     calls.push(call);
 
     const result = typeof handler === 'function' ? await (handler as LbryRpcHandler)(call) : handler;
+
+    if (result instanceof LbryRpcError) {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          error: {
+            code: result.code,
+            message: result.message,
+            data: result.data,
+          },
+          id: call.id,
+        }),
+      });
+      return;
+    }
 
     await route.fulfill({
       status: 200,

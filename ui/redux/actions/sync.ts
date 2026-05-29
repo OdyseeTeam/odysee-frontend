@@ -1,5 +1,6 @@
 import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
+import analytics from 'analytics';
 import { Lbryio } from 'lbryinc';
 import Lbry from 'lbry';
 import { doWalletEncrypt, doWalletDecrypt } from 'redux/actions/wallet';
@@ -11,7 +12,7 @@ import {
   selectSyncIsLocked,
 } from 'redux/selectors/sync';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { getSavedPassword, getAuthToken } from 'util/saved-passwords';
+import { getSavedPassword, getAuthToken, deleteSavedPassword } from 'util/saved-passwords';
 import { doHandleSyncComplete } from 'redux/actions/app';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
@@ -20,6 +21,20 @@ const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
 const NO_WALLET_ERROR = 'no wallet found for this user';
 const BAD_PASSWORD_ERROR_NAME = 'InvalidPasswordError';
+
+type GetSyncData = {
+  unlockFailed?: boolean;
+  lastSyncHash?: string;
+  syncHash?: string | null;
+  syncData?: any;
+  changed?: boolean;
+  hasSyncedWallet?: boolean;
+};
+
+type HistoricVictimRecoveryResult = {
+  recovered: boolean;
+  newHash?: string;
+};
 
 /**
  * Checks if there is a newer sync session, indicating that fetched data from
@@ -214,14 +229,7 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
     dispatch({
       type: ACTIONS.GET_SYNC_STARTED,
     });
-    const data: {
-      unlockFailed?: boolean;
-      lastSyncHash?: string;
-      syncHash?: string | null;
-      syncData?: any;
-      changed?: boolean;
-      hasSyncedWallet?: boolean;
-    } = {};
+    const data: GetSyncData = {};
     let capturedWalletStatus: any = null;
     return Lbry.wallet_status()
       .then((status) => {
@@ -270,7 +278,7 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
           'post'
         );
       })
-      .then((response: any) => {
+      .then(async (response: any) => {
         if (response === SYNC_DEFERRED_MARKER) {
           return SYNC_DEFERRED_MARKER;
         }
@@ -283,6 +291,20 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
 
         if (!response.error && response.changed) {
           if (isSyncApplyUnsafe(capturedWalletStatus, password)) {
+            if (isNonEmptySyncData(response.data)) {
+              const recoveryResult = await tryHistoricVictimRecovery(dispatch, response, data);
+
+              if (recoveryResult.recovered) {
+                data.changed = true;
+                dispatch({
+                  type: ACTIONS.GET_SYNC_COMPLETED,
+                  data,
+                });
+                handleCallback(null, true);
+                return SYNC_DEFERRED_MARKER;
+              }
+            }
+
             dispatch({ type: ACTIONS.SYNC_DEFERRED_SET, data: true });
             data.changed = false;
             data.syncData = undefined;
@@ -363,6 +385,41 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
 
           handleCallback(syncAttemptError);
         } else if (!tooBigDataError && data.hasSyncedWallet) {
+          if (badPasswordError && isNonEmptySyncData(data.syncData)) {
+            return tryHistoricVictimRecovery(
+              dispatch,
+              {
+                data: data.syncData,
+                hash: data.syncHash,
+              },
+              data
+            ).then((recoveryResult) => {
+              if (recoveryResult.recovered) {
+                data.changed = true;
+                dispatch({
+                  type: ACTIONS.GET_SYNC_COMPLETED,
+                  data,
+                });
+                handleCallback(null, true);
+                return;
+              }
+
+              const error = (syncAttemptError && syncAttemptError.message) || 'Error getting synced wallet';
+              dispatch({
+                type: ACTIONS.GET_SYNC_FAILED,
+                data: {
+                  error,
+                },
+              });
+
+              dispatch({
+                type: ACTIONS.SYNC_APPLY_BAD_PASSWORD,
+              });
+
+              handleCallback(error);
+            });
+          }
+
           const error = (syncAttemptError && syncAttemptError.message) || 'Error getting synced wallet';
           dispatch({
             type: ACTIONS.GET_SYNC_FAILED,
@@ -557,6 +614,115 @@ export function doSetPrefsReady() {
     data: true,
   };
 }
+
+function isNonEmptySyncData(syncData: any): syncData is string {
+  return typeof syncData === 'string' && syncData.length > 0;
+}
+
+function logHistoricVictimRecoveryError(error: any, label: string) {
+  const logError = error instanceof Error ? error : new Error(error?.message || label);
+  analytics.log(logError, undefined, label).catch(() => {});
+}
+
+function alignLastSyncHashToServer(data: GetSyncData) {
+  if (data.syncHash) {
+    data.lastSyncHash = data.syncHash;
+  }
+}
+
+async function tryHistoricVictimRecovery(
+  dispatch: Dispatch,
+  syncResponse: { data: string; hash?: string | null },
+  data: GetSyncData
+): Promise<HistoricVictimRecoveryResult> {
+  try {
+    await Lbry.sync_apply({
+      password: '',
+      data: syncResponse.data,
+      blocking: true,
+    });
+  } catch {
+    return { recovered: false };
+  }
+
+  dispatch({
+    type: ACTIONS.HISTORIC_VICTIM_RECOVERED,
+    data: Date.now(),
+  });
+
+  try {
+    await deleteSavedPassword();
+  } catch (deleteError) {
+    logHistoricVictimRecoveryError(deleteError, 'historic-victim-recovery-delete-saved-password');
+  }
+
+  let decryptResult;
+  try {
+    decryptResult = await Lbry.wallet_decrypt();
+  } catch (decryptError) {
+    logHistoricVictimRecoveryError(decryptError, 'historic-victim-recovery-wallet-decrypt');
+    alignLastSyncHashToServer(data);
+    return { recovered: true };
+  }
+
+  if (decryptResult !== true) {
+    logHistoricVictimRecoveryError(
+      new Error('wallet_decrypt did not return true'),
+      'historic-victim-recovery-wallet-decrypt'
+    );
+    alignLastSyncHashToServer(data);
+    return { recovered: true };
+  }
+
+  let rePackResp;
+  try {
+    rePackResp = await Lbry.sync_apply({
+      password: '',
+    });
+  } catch (rePackError) {
+    logHistoricVictimRecoveryError(rePackError, 'historic-victim-recovery-sync-apply-repack');
+    alignLastSyncHashToServer(data);
+    return { recovered: true };
+  }
+
+  const oldHash = data.syncHash || syncResponse.hash;
+
+  if (!oldHash || !rePackResp?.hash || !rePackResp?.data) {
+    logHistoricVictimRecoveryError(
+      new Error('Missing hash or data for historic victim sync/set'),
+      'historic-victim-recovery-sync-set'
+    );
+    alignLastSyncHashToServer(data);
+    return { recovered: true };
+  }
+
+  let setSyncResult;
+  try {
+    setSyncResult = await dispatch(doSetSync(oldHash, rePackResp.hash, rePackResp.data));
+  } catch (setSyncError) {
+    logHistoricVictimRecoveryError(setSyncError, 'historic-victim-recovery-sync-set');
+    alignLastSyncHashToServer(data);
+    return { recovered: true };
+  }
+
+  if (setSyncResult?.type !== ACTIONS.SET_SYNC_COMPLETED || !setSyncResult?.data?.syncHash) {
+    logHistoricVictimRecoveryError(
+      setSyncResult?.data?.error || new Error('sync/set failed'),
+      'historic-victim-recovery-sync-set'
+    );
+    alignLastSyncHashToServer(data);
+    return { recovered: true };
+  }
+
+  data.syncHash = setSyncResult.data.syncHash;
+  data.lastSyncHash = setSyncResult.data.syncHash;
+
+  return {
+    recovered: true,
+    newHash: setSyncResult.data.syncHash,
+  };
+}
+
 type SharedData = {
   version: '0.1';
   value: {

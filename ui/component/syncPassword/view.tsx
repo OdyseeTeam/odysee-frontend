@@ -1,4 +1,5 @@
 import React from 'react';
+import { useStore } from 'react-redux';
 import { Form, FormField } from 'component/common/form';
 import Button from 'component/button';
 import Card from 'component/common/card';
@@ -8,13 +9,18 @@ import I18nMessage from 'component/i18nMessage';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { SITE_HELP_EMAIL } from 'config';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
-import { selectGetSyncIsPending, selectSyncApplyPasswordError } from 'redux/selectors/sync';
+import {
+  selectGetSyncIsPending,
+  selectHistoricVictimRecoveredAt,
+  selectSyncApplyPasswordError,
+} from 'redux/selectors/sync';
 import { doGetSyncDesktop } from 'redux/actions/sync';
 import { selectUserEmail } from 'redux/selectors/user';
 import { doSignOut, doHandleSyncComplete } from 'redux/actions/app';
 
 function SyncPassword() {
   const dispatch = useAppDispatch();
+  const store = useStore();
   const getSyncIsPending = useAppSelector(selectGetSyncIsPending);
   const email = useAppSelector(selectUserEmail);
   const passwordError = useAppSelector(selectSyncApplyPasswordError);
@@ -26,13 +32,21 @@ function SyncPassword() {
   const [rememberPassword, setRememberPassword] = usePersistedState('sync-password:remember', true);
 
   function handleSubmit() {
+    const recoveredAtBefore = selectHistoricVictimRecoveredAt(store.getState());
+
     dispatch(
       doGetSyncDesktop((error, hasDataChanged) => {
         dispatch(doHandleSyncComplete(error, hasDataChanged, undefined));
 
         if (!error) {
+          const recoveredAtAfter = selectHistoricVictimRecoveredAt(store.getState());
+          const recoveredDuringSubmit = recoveredAtAfter !== null && recoveredAtAfter !== recoveredAtBefore;
+
           navigate(redirect || '/');
-          setSavedPassword(password, rememberPassword);
+
+          if (!recoveredDuringSubmit) {
+            setSavedPassword(password, rememberPassword);
+          }
         }
       }, password)
     );

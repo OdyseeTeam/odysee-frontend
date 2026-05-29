@@ -107,6 +107,7 @@ function getPasswordFromCookie(): Promise<string | null> {
 
 function deleteSavedPassword() {
   return new Promise<void>((resolve) => {
+    sessionPassword = null;
     deleteCookie(SAVED_PASSWORD);
     resolve();
   });

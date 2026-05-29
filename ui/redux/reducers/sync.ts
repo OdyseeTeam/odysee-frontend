@@ -18,6 +18,7 @@ const defaultState: SyncState = {
   hashChanged: false,
   fatalError: false,
   syncDeferredDueToMissingPassword: false,
+  historicVictimRecoveredAt: null,
 };
 
 reducers[ACTIONS.USER_STATE_POPULATE] = (state: SyncState) => {
@@ -43,6 +44,7 @@ reducers[ACTIONS.GET_SYNC_STARTED] = (state: SyncState) =>
     getSyncErrorMessage: null,
     syncApplyPasswordError: false,
     syncDeferredDueToMissingPassword: false,
+    historicVictimRecoveredAt: null,
   });
 
 reducers[ACTIONS.GET_SYNC_DEFERRED] = (state: SyncState) =>
@@ -128,6 +130,11 @@ reducers[ACTIONS.SYNC_APPLY_BAD_PASSWORD] = (state: SyncState) =>
 reducers[ACTIONS.SYNC_DEFERRED_SET] = (state: SyncState, action: any) =>
   Object.assign({}, state, {
     syncDeferredDueToMissingPassword: Boolean(action.data),
+  });
+
+reducers[ACTIONS.HISTORIC_VICTIM_RECOVERED] = (state: SyncState, action: any) =>
+  Object.assign({}, state, {
+    historicVictimRecoveredAt: action.data,
   });
 
 reducers[ACTIONS.SYNC_FATAL_ERROR] = (state: SyncState) => {
