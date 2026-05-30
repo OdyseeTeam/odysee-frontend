@@ -13,7 +13,7 @@ import SettingsRow from 'component/settingsRow';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 
 import { doSetClientSetting } from 'redux/actions/settings';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectShowMatureContent, selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 type Price = {
@@ -28,6 +28,7 @@ export default function SettingContent() {
   const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
   const hideLivestreams = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES));
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
   const defaultCollectionAction = useAppSelector((state) => selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION));
 
   const instantPurchaseEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED));
@@ -64,6 +65,10 @@ export default function SettingContent() {
 
             <SettingsRow title={__('Hide livestreams in categories')} subtitle={__(HELP.HIDE_LIVESTREAMS)}>
               <FormField type="checkbox" name="hide_livestreams" checked={hideLivestreams} onChange={() => setClientSetting(SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES, !hideLivestreams)} />
+            </SettingsRow>
+
+            <SettingsRow title={__('Hide YouTube mirrored videos')} subtitle={__(HELP.HIDE_YOUTUBE_MIRRORS)}>
+              <FormField type="checkbox" name="hide_youtube_mirrors" checked={hideYouTubeMirrors} onChange={() => setClientSetting(SETTINGS.HIDE_YOUTUBE_MIRRORS, !hideYouTubeMirrors)} />
             </SettingsRow>
 
             <SettingsRow title={__('Default playlist action')} subtitle={__(HELP.DEFAULT_PLAYLIST_ACTION)}>
@@ -104,6 +109,7 @@ const HELP = {
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
   HIDE_SHORTS: 'You will not see vertical videos less than 3 minutes.',
   HIDE_LIVESTREAMS: 'You will not see livestreams in non-following categories.',
+  HIDE_YOUTUBE_MIRRORS: 'You will not see videos that are mirrored from YouTube.',
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE:

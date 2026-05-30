@@ -11,13 +11,20 @@ import { SEARCH_PAGE_SIZE } from 'constants/search';
 import * as SETTINGS from 'constants/settings';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doSearch } from 'redux/actions/search';
+import { selectClaimsByUri } from 'redux/selectors/claims';
 import {
   selectIsSearching,
   makeSelectSearchUrisForQuery,
   selectSearchOptions,
   makeSelectHasReachedMaxResultsLength,
 } from 'redux/selectors/search';
-import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import {
+  selectClientSetting,
+  selectHideYouTubeMirrors,
+  selectLanguage,
+  selectShowMatureContent,
+} from 'redux/selectors/settings';
+import { isClaimYouTubeMirror } from 'util/claim';
 import { getSearchQueryString } from 'util/query-params';
 
 export default function SearchPage() {
@@ -30,6 +37,8 @@ export default function SearchPage() {
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
   const baseSearchOptions = useAppSelector(selectSearchOptions);
   const isSearching = useAppSelector(selectIsSearching);
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
+  const claimsByUri = useAppSelector(selectClaimsByUri);
 
   const urlParams = new URLSearchParams(routerSearch);
   let urlQuery = urlParams.get('q') || null;
@@ -52,6 +61,11 @@ export default function SearchPage() {
   const query = getSearchQueryString(urlQuery, searchOptions);
   const uris = useAppSelector((state) => makeSelectSearchUrisForQuery(query)(state));
   const hasReachedMaxResultsLength = useAppSelector((state) => makeSelectHasReachedMaxResultsLength(query)(state));
+  const filteredUris = React.useMemo(() => {
+    if (!uris || !hideYouTubeMirrors) return uris || [];
+
+    return uris.filter((uri) => !isClaimYouTubeMirror(claimsByUri[uri]));
+  }, [claimsByUri, hideYouTubeMirrors, uris]);
 
   const [from, setFrom] = React.useState(0);
   const [currentUrlQuery, setCurrentUrlQuery] = React.useState(urlQuery);
@@ -105,10 +119,26 @@ export default function SearchPage() {
     resetPage();
     setCurrentUrlQuery(urlQuery);
   }, [urlQuery]);
+  useEffect(() => {
+    const requestedResultCount = from + SEARCH_PAGE_SIZE;
+
+    if (
+      hideYouTubeMirrors &&
+      currentUrlQuery &&
+      !isSearching &&
+      uris &&
+      uris.length > 0 &&
+      uris.length >= requestedResultCount &&
+      filteredUris.length < requestedResultCount &&
+      !hasReachedMaxResultsLength
+    ) {
+      setFrom((prev) => prev + SEARCH_PAGE_SIZE);
+    }
+  }, [currentUrlQuery, filteredUris.length, from, hasReachedMaxResultsLength, hideYouTubeMirrors, isSearching, uris]);
 
   function loadMore() {
     if (!isSearching && !hasReachedMaxResultsLength) {
-      setFrom(from + SEARCH_PAGE_SIZE);
+      setFrom((prev) => prev + SEARCH_PAGE_SIZE);
     }
   }
 
@@ -121,7 +151,7 @@ export default function SearchPage() {
       <section className="search">
         {urlQuery && isValid && <SearchTopClaim query={modifiedUrlQuery} isSearching={isSearching} />}
         <ClaimList
-          uris={uris || []}
+          uris={filteredUris}
           loading={isSearching}
           useLoadingSpinner
           onScrollBottom={loadMore} // 'page' is 1-indexed; It's not the same as 'from', but it just

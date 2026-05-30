@@ -43,6 +43,7 @@ export const SEARCH_OPTIONS = {
   EXCLUDE_SHORTS: 'exclude_shorts',
   EXCLUDE_SHORTS_ASPECT_RATIO_LTE: 'exclude_shorts_aspect_ratio_lte',
   EXCLUDE_SHORTS_DURATION_LTE: 'exclude_shorts_duration_lte',
+  EXCLUDE_YOUTUBE_MIRRORS: 'exclude_youtube_mirrors',
   CHANNEL_IDS: 'channel_ids',
 };
 export const SEARCH_PAGE_SIZE = 20;
