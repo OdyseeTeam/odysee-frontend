@@ -25,6 +25,7 @@ import {
   selectHasPrivateCollectionForId,
   selectIsCollectionPrivateForId,
   selectCollectionHasItemsResolvedForId,
+  selectCollectionHasUnsavedEditsForId,
 } from 'redux/selectors/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveClaimId as doResolveClaimIdAction } from 'redux/actions/claims';
@@ -54,6 +55,9 @@ const CollectionPage = (props: Props) => {
   const isPrivate = useAppSelector((state) => selectIsCollectionPrivateForId(state, collectionId));
   const collectionHasItemsResolved = useAppSelector((state) =>
     selectCollectionHasItemsResolvedForId(state, collectionId)
+  );
+  const collectionHasUnsavedEdits = useAppSelector((state) =>
+    selectCollectionHasUnsavedEditsForId(state, collectionId)
   );
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const navigate = useNavigate();
@@ -93,6 +97,10 @@ const CollectionPage = (props: Props) => {
   }
 
   function saveChanges() {
+    if (!collectionHasUnsavedEdits && !shouldResolveCollectionItems) {
+      return;
+    }
+
     if (shouldResolveCollectionItems) {
       dispatch(doFetchItemsInCollectionAction({ collectionId }));
       return;
@@ -235,7 +243,7 @@ const CollectionPage = (props: Props) => {
                     button="primary"
                     label={shouldResolveCollectionItems ? __('Loading') : __('Save')}
                     onClick={saveChanges}
-                    disabled={shouldResolveCollectionItems}
+                    disabled={shouldResolveCollectionItems || !collectionHasUnsavedEdits}
                   />
                   <Button button="link" label={__('Cancel')} onClick={clearChanges} />
                 </div>
