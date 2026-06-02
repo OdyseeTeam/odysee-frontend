@@ -79,7 +79,7 @@ function UserEmailReturning() {
                   type="email"
                   id="username"
                   autoComplete="username"
-                  name="sign_in_email"
+                  name="username"
                   label={__('Email')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}

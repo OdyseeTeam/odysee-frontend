@@ -48,7 +48,7 @@ export default function UserSignInPassword(props: Props) {
             <Form onSubmit={handleSubmit} className="section">
               <input
                 type="email"
-                name="sign_in_email"
+                name="username"
                 id="username"
                 autoComplete="username"
                 value={emailToVerify || ''}
@@ -69,7 +69,7 @@ export default function UserSignInPassword(props: Props) {
               <FormField
                 autoFocus
                 type="password"
-                name="sign_in_password"
+                name="password"
                 id="password"
                 autoComplete="current-password"
                 label={__('Password')}
