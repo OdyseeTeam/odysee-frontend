@@ -7,7 +7,7 @@ const Rss = require('rss');
 
 const dayjs = require('dayjs');
 
-const { generateContentUrl } = require('./fetchStreamUrl');
+const { generateDownloadUrl } = require('./fetchStreamUrl');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 const NUM_ENTRIES = 500;
@@ -108,7 +108,7 @@ function fetchStreamUrls(claims) {
       return [];
     }
 
-    const results = claims.map((c) => generateContentUrl(c));
+    const results = claims.map((c) => generateDownloadUrl(c));
     return results;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console
