@@ -258,6 +258,8 @@ function ClaimListDiscover(props: Props) {
   );
   const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
+  const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const languageSetting = useAppSelector(selectLanguage);
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
   const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
@@ -376,6 +378,7 @@ function ClaimListDiscover(props: Props) {
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
   const notTagInput: NotTagInput = {
     notTags,
+    hiddenTags,
     showNsfw,
     hideMembersOnly,
   };

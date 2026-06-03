@@ -115,6 +115,7 @@ function resolveSearchOptions(resolveProps: any) {
     forceShowReposts,
     hideMembersOnly,
     mutedAndBlockedChannelIds,
+    hiddenTags,
     hideShorts,
     search,
     pageSize,
@@ -141,6 +142,7 @@ function resolveSearchOptions(resolveProps: any) {
   const feeAmountParam = feeAmountInUrl || feeAmount;
   const notTagInput: NotTagInput = {
     notTags,
+    hiddenTags,
     showNsfw,
     hideMembersOnly,
   };
@@ -265,6 +267,8 @@ function ClaimTilesDiscover(props: Props) {
   const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
   const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
+  const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
+  const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
   const routerSearch = useAppSelector((state) => state.router?.location?.search || '');
   const options = resolveSearchOptions({
@@ -273,6 +277,7 @@ function ClaimTilesDiscover(props: Props) {
     hideReposts,
     forceShowReposts,
     mutedAndBlockedChannelIds,
+    hiddenTags,
     hideShorts,
     pageSize: 8,
     search: routerSearch,
