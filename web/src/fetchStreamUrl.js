@@ -1,15 +1,10 @@
 const Mime = require('mime-types');
 
-const { PLAYER_SERVER, URL } = require('../../config.cjs');
+const { PLAYER_SERVER } = require('../../config.cjs');
 
 const { lbryProxy: Lbry } = require('../lbry');
 
 const { buildURI } = require('./lbryURI');
-
-function encodeWithSpecialCharEncode(string) {
-  // encodeURIComponent doesn't encode "'" and others, which can break route params.
-  return encodeURIComponent(string).replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29');
-}
 
 async function fetchStreamUrl(claimName, claimId) {
   const uri = buildURI({
@@ -50,7 +45,15 @@ function generateContentUrl(claim) {
 }
 
 function generateDownloadUrl(claim) {
-  return `${URL}/$/download/${encodeWithSpecialCharEncode(claim.name)}/${claim.claim_id}`;
+  const value = claim?.value;
+
+  if (value?.source?.media_type && value?.source?.sd_hash) {
+    const fileExt = `.${Mime.extension(value.source.media_type)}`;
+    const sdHash = value.source.sd_hash.slice(0, 6);
+    return `${PLAYER_SERVER}/v6/streams/${claim.claim_id}/${sdHash}${fileExt}`;
+  }
+
+  return `${PLAYER_SERVER}/v6/streams/${claim.claim_id}`;
 }
 
 module.exports = {
