@@ -60,6 +60,10 @@ function createTextNode(value: string): MdastNode {
 }
 
 function handlePunctuation(value: string): string {
+  if (value.includes('?')) {
+    return stripTrailingPunctuation(value);
+  }
+
   const protocolIndex = value.indexOf(protocol) === 0 ? protocol.length - 1 : 0;
   const channelModifierIndex =
     (value.indexOf(':', protocolIndex) >= 0 && value.indexOf(':', protocolIndex)) ||

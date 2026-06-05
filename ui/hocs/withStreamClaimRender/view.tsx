@@ -156,7 +156,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     } = currentLocation as { search: string; href?: string; state: any; pathname?: string };
     const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
-    const urlParams = search ? new URLSearchParams(search) : null;
+    const uriQueryIndex = uri.indexOf('?');
+    const uriSearch = uriQueryIndex >= 0 ? uri.slice(uriQueryIndex) : '';
+    const urlParams = uriSearch || search ? new URLSearchParams(uriSearch) : null;
+    if (urlParams && search) {
+      new URLSearchParams(search).forEach((value, key) => urlParams.set(key, value));
+    }
     const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
     const collectionId =
       (urlParams && (urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || urlParams.get('lid'))) ||

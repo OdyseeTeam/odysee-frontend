@@ -19,13 +19,26 @@ type Props = {
   parentCommentId?: string;
 };
 
+function getCleanLbryUri(uri: string) {
+  if (!uri.startsWith('lbry://')) {
+    return uri;
+  }
+
+  const withoutProtocol = uri.slice(7);
+  const queryIndex = withoutProtocol.indexOf('?');
+  const path = queryIndex >= 0 ? withoutProtocol.slice(0, queryIndex) : withoutProtocol;
+  const query = queryIndex >= 0 ? withoutProtocol.slice(queryIndex) : '';
+
+  return `lbry://${path.replace(/:/g, '#')}${query}`;
+}
+
 const ClaimLinkPreview = (props: Props) => {
   const { uri, title, channel, parentCommentId } = props;
 
   const playingUri = useAppSelector(selectPlayingUri);
   const renderMode = useAppSelector((state) => selectFileRenderModeForUri(state, uri));
   const isLivestreamClaim = useAppSelector((state) => selectIsStreamPlaceholderForUri(state, uri));
-  const cleanUri = uri.includes('lbry://') ? 'lbry://' + uri.slice(7).replace(/:/g, '#') : uri;
+  const cleanUri = getCleanLbryUri(uri);
   // each claimLink in a page will have a unique id for identifying duplicates (same URI multiple times)
   const claimLinkIdRef = React.useRef(uuid());
   const claimLinkId = claimLinkIdRef.current;
