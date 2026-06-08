@@ -1,16 +1,24 @@
 const Mime = require('mime-types');
 
-const { PLAYER_SERVER } = require('../../config.cjs');
+const { PLAYER_SERVER, HYPERBEAM_PLAYBACK_URL } = require('../../config.cjs');
 
 const { lbryProxy: Lbry } = require('../lbry');
 
 const { buildURI } = require('./lbryURI');
 
+const HYPERBEAM_TIMEOUT_MS = 5000;
+
 async function fetchStreamUrl(claimName, claimId) {
   const uri = buildURI({
-    claimName,
-    claimId,
+    streamName: claimName,
+    streamClaimId: claimId,
   });
+
+  const hyperbeamStreamUrl = await fetchHyperbeamStreamUrl(uri);
+  if (hyperbeamStreamUrl) {
+    return hyperbeamStreamUrl;
+  }
+
   return await Lbry.get({
     uri,
   })
@@ -18,6 +26,43 @@ async function fetchStreamUrl(claimName, claimId) {
     .catch((error) => {
       return '';
     });
+}
+
+async function fetchHyperbeamStreamUrl(uri) {
+  const requestUrl = buildHyperbeamPlaybackUrl(uri);
+  if (!requestUrl) {
+    return '';
+  }
+
+  try {
+    const response = await fetch(requestUrl, { signal: timeoutSignal(HYPERBEAM_TIMEOUT_MS) });
+    if (response.ok) {
+      const body = await response.json().catch(() => null);
+      return (body && (body.streaming_url || body['streaming-url'])) || '';
+    }
+  } catch (error) {
+    return '';
+  }
+
+  return '';
+}
+
+function buildHyperbeamPlaybackUrl(uri) {
+  if (!HYPERBEAM_PLAYBACK_URL) {
+    return '';
+  }
+
+  try {
+    const url = new URL(HYPERBEAM_PLAYBACK_URL);
+    url.searchParams.set('url', uri);
+    return url.toString();
+  } catch (error) {
+    return '';
+  }
+}
+
+function timeoutSignal(ms) {
+  return typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? AbortSignal.timeout(ms) : undefined;
 }
 
 /**
@@ -60,4 +105,5 @@ module.exports = {
   fetchStreamUrl,
   generateContentUrl,
   generateDownloadUrl,
+  buildHyperbeamPlaybackUrl,
 };

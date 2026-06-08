@@ -1,4 +1,5 @@
 import { COMMENT_SERVER_API } from 'config';
+import { fetchHyperbeamCommentById, fetchHyperbeamCommentList } from 'util/hyperbeam';
 // prettier-ignore
 const Comments = {
   url: COMMENT_SERVER_API,
@@ -10,10 +11,10 @@ const Comments = {
   moderation_remove_delegate: (params: ModerationRemoveDelegateParams) => fetchCommentsApi('moderation.RemoveDelegate', params),
   moderation_list_delegates: (params: ModerationListDelegatesParams) => fetchCommentsApi('moderation.ListDelegates', params),
   moderation_am_i: (params: ModerationAmIParams) => fetchCommentsApi('moderation.AmI', params),
-  comment_list: (params: CommentListParams) => fetchCommentsApi('comment.List', params),
+  comment_list: (params: CommentListParams) => fetchHyperbeamCommentList(params).then((result) => result || fetchCommentsApi('comment.List', params)),
   comment_abandon: (params: CommentAbandonParams) => fetchCommentsApi('comment.Abandon', params),
   comment_create: (params: CommentCreateParams) => fetchCommentsApi('comment.Create', params),
-  comment_by_id: (params: CommentByIdParams) => fetchCommentsApi('comment.ByID', params),
+  comment_by_id: (params: CommentByIdParams) => fetchHyperbeamCommentById(params).then((result) => result || fetchCommentsApi('comment.ByID', params)),
   comment_pin: (params: CommentPinParams) => fetchCommentsApi('comment.Pin', params),
   comment_edit: (params: CommentEditParams) => fetchCommentsApi('comment.Edit', params),
   reaction_list: (params: ReactionListParams) => fetchCommentsApi('reaction.List', params),

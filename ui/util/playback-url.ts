@@ -15,6 +15,18 @@ export function isSignedOdycdnPlaybackUrl(src: string | null | undefined): boole
   }
 }
 
+export function isHyperbeamPlaybackUrl(src: string | null | undefined): boolean {
+  if (!src) return false;
+
+  try {
+    const baseUrl = typeof window !== 'undefined' ? window.location.href : undefined;
+    const url = new URL(src, baseUrl);
+    return url.pathname.includes('/~lbry-stream@1.0/media');
+  } catch {
+    return src.includes('~lbry-stream@1.0/media');
+  }
+}
+
 export function isHlsPlaybackUrl(src: string | null | undefined): boolean {
   if (!src) return false;
 

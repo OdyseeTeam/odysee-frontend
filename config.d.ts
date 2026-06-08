@@ -39,6 +39,8 @@ interface Config {
   THUMBNAIL_QUALITY: string | undefined;
   THUMBNAIL_CDN_SIZE_LIMIT_BYTES: string | undefined;
   PLAYER_SERVER: string | undefined;
+  HYPERBEAM_PLAYBACK_URL: string | undefined;
+  HYPERBEAM_BASE_URL: string | undefined;
   SITE_TITLE: string | undefined;
   SITE_NAME: string | undefined;
   SITE_DESCRIPTION: string | undefined;
