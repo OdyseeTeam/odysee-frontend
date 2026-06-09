@@ -1,7 +1,8 @@
-import { LIVESTREAM_SERVER_API } from 'config';
+import { LIVESTREAM_SERVER_API, ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 const Livestream = {
   url: LIVESTREAM_SERVER_API,
-  enabled: Boolean(LIVESTREAM_SERVER_API),
+  enabled: Boolean(ODYSEE_HYPERBEAM_NODE_API || LIVESTREAM_SERVER_API),
 } as {
   url: any;
   enabled: boolean;
@@ -34,6 +35,28 @@ function makeRequest(url, options) {
   return fetch(url, options).then(checkAndParse);
 }
 
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.livestream);
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function unwrapHyperbeamNodeJson(json) {
+  if (json?.error) {
+    throw new Error(json.error.message || json.error);
+  }
+
+  return Object.prototype.hasOwnProperty.call(json, 'result') ? json.result : json;
+}
+
 Livestream.call = (resource, action, params = {}, method = 'post') => {
   if (!Livestream.enabled) {
     return Promise.reject(new Error(__('Odysee internal API is disabled')));
@@ -41,6 +64,25 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
 
   if (!(method === 'get' || method === 'post')) {
     return Promise.reject(new Error(__('Invalid method')));
+  }
+
+  const node = hyperbeamNodeBase();
+  if (node) {
+    const payload = {
+      resource,
+      action,
+      params,
+      method,
+    };
+    const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.livestream, 'livestream', {
+      params64: base64Url(JSON.stringify(payload)),
+    });
+    return fetch(url, { method: 'GET', headers: { accept: 'application/json' } })
+      .then((res) => {
+        if (!res.ok) throw new Error(`livestream device ${res.status}`);
+        return res.json();
+      })
+      .then(unwrapHyperbeamNodeJson);
   }
 
   Object.keys(params).forEach((key) => {

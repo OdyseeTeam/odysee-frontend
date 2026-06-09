@@ -9,7 +9,8 @@ import Lbry from 'lbry';
 import { toHex } from 'util/hex';
 import CopyableText from 'component/copyableText';
 import Card from 'component/common/card';
-import { getLivestreamIngestRtmpUrl, NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import { getLivestreamIngestRtmpUrl } from 'constants/livestream';
+import Livestream from 'livestream';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import classnames from 'classnames';
 import Icon from 'component/common/icon';
@@ -171,14 +172,20 @@ export default function LivestreamSetupPage() {
   React.useEffect(() => {
     if (!channelId || !channelName || !sigData.signature || !sigData.signing_ts) return;
     let cancelled = false;
-    const url =
-      `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
-      `&signature=${sigData.signature}&signature_ts=${sigData.signing_ts}&channel_name=${encodeURIComponent(channelName)}`;
-    fetch(url)
-      .then((r) => r.json())
-      .then((json) => {
+    Livestream.call(
+      'replays',
+      'list',
+      {
+        channel_claim_id: String(channelId),
+        signature: sigData.signature,
+        signature_ts: sigData.signing_ts,
+        channel_name: channelName,
+      },
+      'get'
+    )
+      .then((data: Array<any>) => {
         if (cancelled) return;
-        const data: Array<any> = json?.data || json || [];
+        data = data || [];
         const usable = data.some((d: any) => {
           const s = typeof d?.Status === 'string' ? d.Status.toLowerCase() : '';
           return s === 'inprogress' || s === 'ready';

@@ -68,6 +68,7 @@ import {
 } from 'redux/actions/settings';
 import { doToast } from 'redux/actions/notifications';
 import { doSyncLoop } from 'redux/actions/sync';
+import HyperbeamDebugConsole from 'component/hyperbeamDebugConsole';
 import {
   doSignIn,
   doSetIncognito,
@@ -819,6 +820,7 @@ function App() {
               )}
               {getStatusNag()}
               {useDebugLog && <DebugLog />}
+              {useDebugLog && <HyperbeamDebugConsole />}
             </React.Suspense>
           </AppContext.Provider>
         )}

@@ -1,4 +1,4 @@
-import { RECSYS_ENDPOINT } from 'config';
+import { ODYSEE_HYPERBEAM_NODE_API, RECSYS_ENDPOINT } from 'config';
 import { selectUser } from 'redux/selectors/user';
 import { selectRecommendedMetaForClaimId } from 'redux/selectors/search';
 import { parseURI } from 'util/lbryURI';
@@ -11,8 +11,47 @@ import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
 import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
 import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
 import { history } from 'redux/router';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 const recsysEndpoint = RECSYS_ENDPOINT;
 const DEFAULT_RECSYS_ID = 'lighthouse-v0';
+
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.search);
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function sendRecsysEntryThroughHyperbeamNode(entry: any) {
+  const node = hyperbeamNodeBase();
+  if (!node) return null;
+  const params64 = base64Url(JSON.stringify({ entry }));
+  const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.search, 'recsys_entry', { params64 });
+  const usePost = url.length > 1800;
+
+  return fetch(usePost ? `${node}/recsys_entry` : url, {
+    method: usePost ? 'POST' : 'GET',
+    headers: {
+      [X_LBRY_AUTH_TOKEN]: getAuthToken(),
+      accept: 'application/json',
+      ...(usePost ? { 'content-type': 'application/json' } : {}),
+    },
+    ...(usePost ? { body: JSON.stringify({ params64 }) } : {}),
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`recsys device failed with ${response.status}`);
+    }
+
+    return response.json();
+  });
+}
 
 const getClaimIdsFromUris = (uris) => {
   return uris
@@ -173,6 +212,21 @@ const recsys: Recsys = {
     if (recsys.entries[claimId] && shareTelemetry) {
       // Exclude `events` in the submission https://github.com/OdyseeTeam/odysee-frontend/issues/1317
       const { events, ...entryData } = recsys.entries[claimId];
+      const nodeSend = sendRecsysEntryThroughHyperbeamNode(entryData);
+
+      if (nodeSend) {
+        return nodeSend
+          .then(() => {
+            if (!isTentative) {
+              delete recsys.entries[claimId];
+              recsys.saveEntries();
+            }
+          })
+          .catch((err) => {
+            console.log('RECSYS: failed to send HyperBEAM entry', err); // eslint-disable-line no-console
+          });
+      }
+
       const data = JSON.stringify(entryData);
       return fetch(recsysEndpoint, {
         method: 'POST',

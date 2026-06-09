@@ -10,7 +10,9 @@ self.addEventListener('activate', (event) => {
     caches
       .keys()
       .then((names) => Promise.all(names.map((name) => caches.delete(name))))
-      .then(() => self.clients.claim())
+      .then(() => self.registration.unregister())
+      .then(() => self.clients.matchAll({ includeUncontrolled: true, type: 'window' }))
+      .then((clients) => clients.forEach((client) => client.navigate(client.url)))
   );
 });
 

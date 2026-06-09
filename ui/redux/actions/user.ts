@@ -17,15 +17,31 @@ import { selectIsRewardApproved } from 'redux/selectors/rewards';
 import { doToast } from 'redux/actions/notifications';
 import rewards from 'rewards';
 import { Lbryio } from 'lbryinc';
-import { DOMAIN, LOCALE_API } from 'config';
+import { DOMAIN, LOCALE_API, ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { getDefaultLanguage } from 'util/default-languages';
 import { LocalStorage, LS } from 'util/storage';
 import { doMembershipMine } from 'redux/actions/memberships';
 import { selectDefaultChannelId } from 'redux/selectors/settings';
 import { ODYSEE_TIER_NAMES } from 'constants/memberships';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase } from 'util/hyperbeamDevices';
 export let sessionStorageAvailable = false;
 const CHECK_INTERVAL = 200;
 const AUTH_WAIT_TIMEOUT = 10000;
+
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.internalApis);
+}
+
+function hyperbeamNodeFetchJson(key: string) {
+  const node = hyperbeamNodeBase();
+  if (!node) return null;
+
+  return fetch(`${node}/${key}`, {
+    method: 'GET',
+    headers: { accept: 'application/json' },
+  });
+}
+
 export function doFetchInviteStatus(shouldCallRewardList = true) {
   return (dispatch) => {
     dispatch({
@@ -1065,7 +1081,7 @@ export function doCheckYoutubeTransfer() {
 }
 export function doFetchUserLocale(isRetry = false) {
   return (dispatch) => {
-    fetch(LOCALE_API)
+    (hyperbeamNodeFetchJson('locale') || fetch(LOCALE_API))
       .then(async (res) => {
         let json: Record<string, any> = {};
 

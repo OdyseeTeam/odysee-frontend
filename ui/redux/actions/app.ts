@@ -615,13 +615,11 @@ export function doGetAndPopulatePreferences(syncId?: number) {
 export function doHandleSyncComplete(error: any, hasNewData: any, syncId: any) {
   return (dispatch: Dispatch, getState: GetState) => {
     if (!error) {
-      if (hasNewData) {
-        if (syncInvalidated(getState, syncId)) {
-          return;
-        }
-
-        dispatch(doGetAndPopulatePreferences(syncId));
+      if (syncInvalidated(getState, syncId)) {
+        return;
       }
+
+      dispatch(doGetAndPopulatePreferences(syncId));
     } else {
       // eslint-disable-next-line no-console
       console.error('Error in doHandleSyncComplete', error);

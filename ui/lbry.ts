@@ -2,7 +2,9 @@ import analytics from 'analytics';
 import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from 'constants/errors';
 import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
-import { PROXY_URL_NO_CF } from 'config';
+import { ODYSEE_HYPERBEAM_NODE_API, PROXY_URL_NO_CF } from 'config';
+import { getAuthToken } from 'util/saved-passwords';
+import { hyperbeamDeviceUrl, hyperbeamMethodDevice } from 'util/hyperbeamDevices';
 
 import 'proxy-polyfill';
 
@@ -122,6 +124,8 @@ const Lbry: LbryTypes = {
   account_set: (params = {}) => daemonCallWithResult('account_set', params),
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
+  sync_get: (params = {}) => daemonCallWithResult('sync_get', params),
+  sync_set: (params = {}) => daemonCallWithResult('sync_set', params),
   // Preferences
   preference_get: (params = {}) => daemonCallWithResult('preference_get', params),
   preference_set: (params = {}) => daemonCallWithResult('preference_set', params),
@@ -278,6 +282,11 @@ export function apiCall(
   resolve: (...args: Array<any>) => any,
   reject: (...args: Array<any>) => any
 ) {
+  const nodeRead = hyperbeamNodeSdkCall(method, params);
+  if (nodeRead) {
+    return nodeRead.then(resolve, reject);
+  }
+
   let apiRequestHeaders = Lbry.apiRequestHeaders;
 
   if (params && params[NO_AUTH]) {
@@ -336,6 +345,151 @@ export function apiCall(
         reject(err);
       }
     });
+}
+
+function hyperbeamNodeSdkCall(method: string, params: any): Promise<any> | null {
+  switch (method) {
+    case 'resolve': {
+      const urls = Array.isArray(params?.urls)
+        ? params.urls
+        : params?.urls
+          ? [params.urls]
+          : Array.isArray(params?.uris)
+            ? params.uris
+            : params?.uris
+              ? [params.uris]
+              : params?.uri
+                ? [params.uri]
+                : [];
+      return urls.length ? hyperbeamNodeFetchJson('resolve', 'urls64', urls) : null;
+    }
+    case 'claim_search':
+      return hyperbeamNodeFetchJson(
+        'claim_search',
+        'params64',
+        stripHyperbeamNodeOnlyParams(claimSearchParamHook(params || {}))
+      );
+    case 'status':
+    case 'version':
+    case 'get':
+    case 'collection_resolve':
+    case 'collection_list':
+    case 'claim_list':
+    case 'channel_list':
+    case 'channel_sign':
+    case 'stream_list':
+    case 'support_list':
+    case 'transaction_show':
+    case 'file_list':
+    case 'blob_list':
+    case 'wallet_balance':
+    case 'wallet_list':
+    case 'preference_get':
+    case 'preference_set':
+    case 'wallet_status':
+    case 'wallet_unlock':
+    case 'wallet_lock':
+    case 'wallet_encrypt':
+    case 'wallet_decrypt':
+    case 'purchase_list':
+    case 'account_list':
+    case 'settings_get':
+    case 'settings_set':
+    case 'settings_clear':
+    case 'ffmpeg_find':
+    case 'address_is_mine':
+    case 'address_unused':
+    case 'address_list':
+    case 'transaction_list':
+    case 'txo_list':
+    case 'sync_hash':
+    case 'sync_apply':
+    case 'sync_get':
+    case 'sync_set':
+      return hyperbeamNodeFetchJson(method, 'params64', stripHyperbeamNodeOnlyParams(params || {}));
+    default:
+      return null;
+  }
+}
+
+export function debugHyperbeamNode(data: any) {
+  const url = hyperbeamDeviceUrl('~odysee-internal-apis@1.0', 'debug', {
+    params64: base64Url(JSON.stringify(data || {})),
+  });
+  if (!url) return;
+
+  try {
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+      },
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function stripHyperbeamNodeOnlyParams(params: Record<string, any>) {
+  const clean = { ...params };
+  delete clean[NO_AUTH];
+  return clean;
+}
+
+function hyperbeamNodeFetchJson(key: string, paramName: string, value: any): Promise<any> | null {
+  const encoded = base64Url(JSON.stringify(value));
+  const device = hyperbeamMethodDevice(key);
+  const url = hyperbeamDeviceUrl(device, key, { [paramName]: encoded });
+  if (!url) return null;
+
+  const base = url.slice(0, url.indexOf(`/${key}?`));
+  const request =
+    url.length > 1800
+      ? fetch(`${base}/${key}`, {
+          method: 'POST',
+          headers: {
+            ...hyperbeamNodeRequestHeaders(),
+            'content-type': 'application/json',
+          },
+          body: JSON.stringify({ [paramName]: encoded }),
+        })
+      : fetch(url, { method: 'GET', headers: hyperbeamNodeRequestHeaders() });
+
+  return fetchWithTimeout(60000, request).then((response: Response | string) => {
+    if (typeof response !== 'object') {
+      throw new Error(`${key}: HyperBEAM device fetch failed`);
+    }
+
+    return checkAndParse(response, key).then(unwrapJsonRpcResult);
+  });
+}
+
+function hyperbeamNodeRequestHeaders() {
+  const headers: Record<string, string> = { accept: 'application/json' };
+  const savedAuthToken = getAuthToken();
+  if (savedAuthToken) headers[X_LBRY_AUTH_TOKEN] = savedAuthToken;
+
+  [X_LBRY_AUTH_TOKEN, 'X-Odysee-User-Id', 'Authorization'].forEach((key) => {
+    const value = Lbry.apiRequestHeaders[key];
+    if (value) headers[key] = value;
+  });
+  return headers;
+}
+
+function unwrapJsonRpcResult(json: any) {
+  if (json?.error) {
+    throw new Error(json.error.message || json.error);
+  }
+
+  return json && Object.prototype.hasOwnProperty.call(json, 'result') ? json.result : json;
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 function daemonCallWithResult(

@@ -245,6 +245,9 @@ router.get('*', async (ctx, next) => {
   if (ctx.status < 300 || ctx.status >= 400) {
     ctx.set('Cache-Control', 'no-cache, no-store, must-revalidate');
     ctx.set('Content-Type', 'text/html; charset=utf-8');
+    if (/^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(ctx.hostname)) {
+      ctx.set('Clear-Site-Data', '"cache"');
+    }
     ctx.body = html;
   }
 });

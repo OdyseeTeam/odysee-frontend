@@ -1,11 +1,74 @@
 import * as tus from 'tus-js-client';
 import NoopUrlStorage from 'tus-js-client/lib/noopUrlStorage';
-import { LBRY_WEB_PUBLISH_API_V4 } from 'config';
+import { LBRY_WEB_PUBLISH_API_V4, ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from '../../ui/util/hyperbeamDevices';
 const V4_INIT_UPLOAD = `${LBRY_WEB_PUBLISH_API_V4}/uploads/`;
 const v4_INIT_URL = `${LBRY_WEB_PUBLISH_API_V4}/urls/`;
 const STATUS_RETRY_DELAYS_MS = [1000, 3000, 7000];
 type SdkFilePath = string;
+
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.productEvents);
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function publishV4HyperbeamNodeCall(authToken: string, action: string, params: Record<string, any> = {}) {
+  const node = hyperbeamNodeBase();
+  if (!node) return null;
+
+  const params64 = base64Url(JSON.stringify({ action, ...params }));
+  const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.productEvents, 'publish_v4', { params64 });
+  const usePost = url.length > 1800;
+
+  return fetch(usePost ? `${node}/publish_v4` : url, {
+    method: usePost ? 'POST' : 'GET',
+    headers: {
+      [X_LBRY_AUTH_TOKEN]: authToken,
+      accept: 'application/json',
+      ...(usePost ? { 'Content-Type': 'application/json' } : {}),
+    },
+    ...(usePost ? { body: JSON.stringify({ params64 }) } : {}),
+  })
+    .then(convertResponseToJson)
+    .then((json) => {
+      if (json?.error) {
+        throw new Error(json.error.message || json.error);
+      }
+
+      return json;
+    });
+}
+
+function hyperbeamNodeTusUrl(upstreamUrl: string | null | undefined) {
+  const node = hyperbeamNodeBase();
+  if (!node || !upstreamUrl) return upstreamUrl;
+
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.productEvents, 'publish_v4_tus', { url64: base64Url(upstreamUrl) });
+}
+
+export function getTusUpstreamUrl(url: string | null | undefined) {
+  const node = hyperbeamNodeBase();
+  if (!node || !url || !url.startsWith(`${node}/publish_v4_tus?`)) return url;
+
+  const url64 = new URL(url).searchParams.get('url64');
+  if (!url64) return url;
+
+  const normalized = url64.replace(/-/g, '+').replace(/_/g, '/');
+  const padded = `${normalized}${'='.repeat((4 - (normalized.length % 4)) % 4)}`;
+  const binary = atob(padded);
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
 // ****************************************************************************
 // isEditingMetaOnly
 // ****************************************************************************
@@ -52,14 +115,17 @@ export type TokenRequestResponse = {
 };
 export function requestUploadToken(authToken: string, remoteUrl?: string): Promise<TokenRequestResponse> {
   return new Promise((resolve, reject) => {
-    fetch(remoteUrl ? v4_INIT_URL : V4_INIT_UPLOAD, {
-      method: 'POST',
-      headers: {
-        [X_LBRY_AUTH_TOKEN]: authToken,
-        'Content-Type': 'application/json',
-      },
-    })
-      .then(convertResponseToJson)
+    const nodeRequest = publishV4HyperbeamNodeCall(authToken, remoteUrl ? 'init_url' : 'init_upload');
+    const directRequest = () =>
+      fetch(remoteUrl ? v4_INIT_URL : V4_INIT_UPLOAD, {
+        method: 'POST',
+        headers: {
+          [X_LBRY_AUTH_TOKEN]: authToken,
+          'Content-Type': 'application/json',
+        },
+      }).then(convertResponseToJson);
+
+    (nodeRequest ? nodeRequest.then((response) => response.body) : directRequest())
       .then((json) => validateJson(json, 'upload_token_created', (p) => p.token && p.location))
       .then((payload) =>
         resolve({
@@ -79,19 +145,30 @@ export function requestUploadToken(authToken: string, remoteUrl?: string): Promi
 // ****************************************************************************
 // Step: Start Remote URL publishing
 // ****************************************************************************
-export function startRemoteUrl(uploadToken: TokenRequestResponse, remoteUrl: string): Promise<SdkFilePath> {
+export function startRemoteUrl(
+  authToken: string,
+  uploadToken: TokenRequestResponse,
+  remoteUrl: string
+): Promise<SdkFilePath> {
   return new Promise((resolve, reject) => {
-    fetch(uploadToken.location, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${uploadToken.token}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        url: remoteUrl,
-      }),
-    })
-      .then(convertResponseToJson)
+    const nodeRequest = publishV4HyperbeamNodeCall(authToken, 'start_remote_url', {
+      location: uploadToken.location,
+      upload_token: uploadToken.token,
+      remote_url: remoteUrl,
+    });
+    const directRequest = () =>
+      fetch(uploadToken.location, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${uploadToken.token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          url: remoteUrl,
+        }),
+      }).then(convertResponseToJson);
+
+    (nodeRequest ? nodeRequest.then((response) => response.body) : directRequest())
       .then((json) => validateJson(json, 'url_created', (p) => p.upload_id))
       .then((payload) => resolve(`${uploadToken.location}${payload.upload_id}`))
       .catch((err) =>
@@ -134,10 +211,10 @@ export function startTus(
     const tusSession = new tus.Upload(file as File, {
       ...(uploadUrl
         ? {
-            uploadUrl: uploadUrl,
+            uploadUrl: hyperbeamNodeTusUrl(uploadUrl),
           }
         : {
-            endpoint: uploadLocation,
+            endpoint: hyperbeamNodeTusUrl(uploadLocation),
           }),
       chunkSize: 50 * 1024 * 1024,
       // 50MB
@@ -219,20 +296,24 @@ export function createClaim(
           }
         : {}),
     };
-    fetch(`${LBRY_WEB_PUBLISH_API_V4}/`, {
-      method: 'POST',
-      headers: {
-        [X_LBRY_AUTH_TOKEN]: authToken,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        jsonrpc: '2.0',
-        method: params.claim_id ? 'stream_update' : 'stream_create',
-        params: sdkParams,
-        id: Date.now(),
-      }),
-    })
-      .then(convertResponseToJson)
+    const body = {
+      jsonrpc: '2.0',
+      method: params.claim_id ? 'stream_update' : 'stream_create',
+      params: sdkParams,
+      id: Date.now(),
+    };
+    const nodeRequest = publishV4HyperbeamNodeCall(authToken, 'create_claim', { body });
+    const directRequest = () =>
+      fetch(`${LBRY_WEB_PUBLISH_API_V4}/`, {
+        method: 'POST',
+        headers: {
+          [X_LBRY_AUTH_TOKEN]: authToken,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(body),
+      }).then(convertResponseToJson);
+
+    (nodeRequest ? nodeRequest.then((response) => response.body) : directRequest())
       .then((json) => validateJson(json, 'query_created', (p) => p.query_id))
       .then((payload) => {
         cb.onSuccess(payload.query_id);
@@ -266,13 +347,19 @@ function isRetryableStatusCode(status: number) {
 }
 
 async function getPublishStatus(authToken: string, queryId: PublishId): Promise<PublishStatus> {
-  const response = await fetch(`${LBRY_WEB_PUBLISH_API_V4}/${queryId}`, {
-    method: 'GET',
-    headers: {
-      [X_LBRY_AUTH_TOKEN]: authToken,
-      'Content-Type': 'application/json',
-    },
-  });
+  const nodeResponse = await publishV4HyperbeamNodeCall(authToken, 'status', { query_id: queryId });
+  const response = nodeResponse
+    ? {
+        status: nodeResponse.status,
+        json: async () => nodeResponse.body,
+      }
+    : await fetch(`${LBRY_WEB_PUBLISH_API_V4}/${queryId}`, {
+        method: 'GET',
+        headers: {
+          [X_LBRY_AUTH_TOKEN]: authToken,
+          'Content-Type': 'application/json',
+        },
+      });
 
   switch (response.status) {
     case 204:
@@ -288,7 +375,7 @@ async function getPublishStatus(authToken: string, queryId: PublishId): Promise<
 
     case 200:
       try {
-        const json = await convertResponseToJson(response);
+        const json = nodeResponse ? await response.json() : await convertResponseToJson(response as Response);
 
         if (json && json.result && !json.error) {
           return {

@@ -2,6 +2,9 @@ import * as ACTIONS from 'constants/action_types';
 import Lbry from 'lbry';
 // Use browser-native URLSearchParams instead of Node's querystring module
 import analytics from 'analytics';
+import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { getAuthToken as getSavedAuthToken } from 'util/saved-passwords';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 const Lbryio: {
   enabled: boolean;
   authenticationPromise: Promise<any> | null;
@@ -28,12 +31,81 @@ const Lbryio: {
 const EXCHANGE_RATE_TIMEOUT = 20 * 60 * 1000;
 const INTERNAL_APIS_DOWN = 'internal_apis_down';
 
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.internalApis);
+}
+
+function hyperbeamNodeConfigured() {
+  return Boolean(hyperbeamNodeBase());
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function unwrapJsonRpcResult(json) {
+  if (json && json.error) {
+    throw new Error(json.error.message || json.error);
+  }
+
+  return json && Object.prototype.hasOwnProperty.call(json, 'result') ? json.result : json;
+}
+
+function hyperbeamNodeFetchJson(key: string, params: any = {}, authToken: string | null = null) {
+  const base = hyperbeamNodeBase();
+  const params64 = base64Url(JSON.stringify(params || {}));
+  const headers: Record<string, string> = {
+    Accept: 'application/json',
+  };
+
+  if (authToken) {
+    headers['X-Lbry-Auth-Token'] = authToken;
+  }
+
+  return fetch(hyperbeamDeviceUrl(HYPERBEAM_DEVICE.internalApis, key, { params64 }), {
+    method: 'GET',
+    headers,
+  }).then(async (response) => {
+    const json = await response.json().catch(() => null);
+
+    if (!response.ok) {
+      const error = new Error(json?.error || `HyperBEAM device ${key} failed with ${response.status}`);
+      (error as any).response = response;
+      (error as any).status = response.status;
+      (error as any).body = json;
+      throw error;
+    }
+
+    return unwrapJsonRpcResult(json);
+  });
+}
+
+function hyperbeamProductMethod(resource: string, action: string) {
+  return `${resource}_${action}`.replace(/[^a-zA-Z0-9_]+/g, '_');
+}
+
+function hyperbeamNodeProductApiCall(
+  resource: string,
+  action: string,
+  params: any = {},
+  authToken: string | null = null
+) {
+  const nodeParams = authToken ? { auth_token: authToken, ...params } : params;
+
+  return hyperbeamNodeFetchJson(hyperbeamProductMethod(resource, action), nodeParams, authToken);
+}
+
 // We can't use env's because they aren't passed into node_modules
 Lbryio.setLocalApi = (endpoint) => {
   Lbryio.CONNECTION_STRING = endpoint.replace(/\/*$/, '/'); // exactly one slash at the end;
 };
 
-Lbryio.call = (resource, action, params = {}, method = 'post') => {
+Lbryio.call = (resource, action, params = {}, method = 'post', noAuth = false) => {
   if (!Lbryio.enabled) {
     return Promise.reject(new Error(__('LBRY internal API is disabled')));
   }
@@ -91,43 +163,60 @@ Lbryio.call = (resource, action, params = {}, method = 'post') => {
   }
 
   return Lbryio.getAuthToken().then((token) => {
-    const fullParams = {
-      auth_token: token,
-      ...params,
-    };
-    Object.keys(fullParams).forEach((key) => {
-      const value = fullParams[key];
+    const nodeAuthToken = noAuth ? null : token;
+    const directRequest = () => {
+      const fullParams = {
+        auth_token: token,
+        ...params,
+      };
+      Object.keys(fullParams).forEach((key) => {
+        const value = fullParams[key];
 
-      if (typeof value === 'object') {
-        fullParams[key] = JSON.stringify(value);
+        if (typeof value === 'object') {
+          fullParams[key] = JSON.stringify(value);
+        }
+      });
+      const qs = new URLSearchParams(fullParams).toString();
+      let url = `${Lbryio.CONNECTION_STRING}${resource}/${action}?${qs}`;
+      let options = {
+        method: 'GET',
+      };
+
+      if (method === 'post') {
+        options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: qs,
+        } as any;
+        url = `${Lbryio.CONNECTION_STRING}${resource}/${action}`;
       }
-    });
-    const qs = new URLSearchParams(fullParams).toString();
-    let url = `${Lbryio.CONNECTION_STRING}${resource}/${action}?${qs}`;
-    let options = {
-      method: 'GET',
+
+      return makeRequest(url, options)
+        .then((response) => {
+          sendCallAnalytics(resource, action, params);
+          return response.data;
+        })
+        .catch((error) => {
+          sendFailedCallAnalytics(resource, action, params, error);
+          throw error;
+        });
     };
 
-    if (method === 'post') {
-      options = {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: qs,
-      } as any;
-      url = `${Lbryio.CONNECTION_STRING}${resource}/${action}`;
+    if (hyperbeamNodeConfigured()) {
+      return hyperbeamNodeProductApiCall(resource, action, params, nodeAuthToken)
+        .then((response) => {
+          sendCallAnalytics(resource, action, params);
+          return response;
+        })
+        .catch((error) => {
+          sendFailedCallAnalytics(resource, action, params, error);
+          throw error;
+        });
     }
 
-    return makeRequest(url, options)
-      .then((response) => {
-        sendCallAnalytics(resource, action, params);
-        return response.data;
-      })
-      .catch((error) => {
-        sendFailedCallAnalytics(resource, action, params, error);
-        throw error;
-      });
+    return directRequest();
   });
 };
 
@@ -142,6 +231,14 @@ Lbryio.getAuthToken = () =>
         resolve(token);
       });
     } else if (typeof window !== 'undefined') {
+      const savedAuthToken = getSavedAuthToken();
+
+      if (savedAuthToken) {
+        Lbryio.authToken = savedAuthToken;
+        resolve(savedAuthToken);
+        return;
+      }
+
       const { store } = window;
 
       if (store) {
@@ -157,7 +254,14 @@ Lbryio.getAuthToken = () =>
     }
   });
 
-Lbryio.getCurrentUser = () => Lbryio.call('user', 'me');
+Lbryio.getCurrentUser = () =>
+  Lbryio.getAuthToken().then((token) => {
+    if (hyperbeamNodeConfigured() && token) {
+      return hyperbeamNodeFetchJson('user_me', {}, token);
+    }
+
+    return Lbryio.call('user', 'me');
+  });
 
 Lbryio.authenticate = (domain, language) => {
   if (!Lbryio.enabled) {

@@ -231,9 +231,22 @@ function addPWA() {
   head += '<link rel="manifest" href="/public/pwa/manifest.json"/>';
   head += '<link rel="apple-touch-icon" sizes="180x180" href="/public/pwa/icon-180.png">';
   head += `<script>
-      window.addEventListener('load', function() {
-        if("serviceWorker" in navigator){navigator.serviceWorker.register("/sw.js", { scope: "/" })}
-      });
+      (function() {
+        var isLocal = /^(localhost|127\\.0\\.0\\.1|0\\.0\\.0\\.0)$/.test(window.location.hostname);
+        if (!("serviceWorker" in navigator)) return;
+        if (isLocal) {
+          navigator.serviceWorker.getRegistrations().then(function(registrations) {
+            registrations.forEach(function(registration) { registration.unregister(); });
+          });
+          if (window.caches) caches.keys().then(function(names) {
+            names.forEach(function(name) { caches.delete(name); });
+          });
+          return;
+        }
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register("/sw.js", { scope: "/" });
+        });
+      })();
     </script>`;
   return head;
 }

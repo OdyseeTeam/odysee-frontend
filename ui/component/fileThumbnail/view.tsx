@@ -19,6 +19,8 @@ import { selectUser } from 'redux/selectors/user';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import analytics from 'analytics';
+import { ODYSEE_HYPERBEAM_NODE_API } from '../../../config';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 
 const previewViewedUris = new Set<string>();
 
@@ -42,6 +44,21 @@ const FALLBACK = MISSING_THUMB_DEFAULT
       thumbnail: MISSING_THUMB_DEFAULT,
     })
   : undefined;
+
+function hyperbeamNodeMediaUrl(uri?: string) {
+  if (!uri || !ODYSEE_HYPERBEAM_NODE_API) return '';
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.stream, 'media', { uri64: base64Url(uri) });
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 
 function isMissingThumbLike(url: string | null | undefined) {
   if (!url) return false;
@@ -115,6 +132,7 @@ function FileThumbnail(props: Props) {
   // VOD hover preview: get streaming URL and duration for non-livestream video content
   const claim = useAppSelector((state) => (uri ? selectClaimForUri(state, uri) : undefined));
   const streamingUrl = useAppSelector((state) => (uri ? selectStreamingUrlForUri(state, uri) : undefined));
+  const previewStreamingUrl = hyperbeamNodeMediaUrl(uri) || streamingUrl;
   const isVideoContent = Boolean(claim?.value?.video || claim?.value?.source?.media_type?.startsWith('video'));
   const videoDuration = claim?.value?.video?.duration || 0;
   const canPreviewOnHover =
@@ -135,7 +153,7 @@ function FileThumbnail(props: Props) {
     progress: hlsProgress,
     thumbnailBasePath,
   } = useHlsVideoPreview(
-    canPreviewOnHover ? streamingUrl || null : null,
+    canPreviewOnHover ? previewStreamingUrl || null : null,
     canPreviewOnHover ? uri : undefined,
     isHovering && canPreviewOnHover
   );
@@ -144,7 +162,7 @@ function FileThumbnail(props: Props) {
 
   const liveFrameUrl = useLiveThumbnailFrame(liveThumbnail, Boolean(isHovering && liveThumbnail));
   const vodPreview = useVideoPreviewOnHover(
-    shouldUseFallbackFrames ? streamingUrl || null : null,
+    shouldUseFallbackFrames ? previewStreamingUrl || null : null,
     shouldUseFallbackFrames ? uri : undefined,
     videoDuration,
     isHovering && shouldUseFallbackFrames

@@ -2,9 +2,32 @@
 
 import { getLivestreamTurnServer } from 'constants/livestream';
 import type { WebrtcPublishVideoCodecPreference } from 'constants/webrtcPublish';
+import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 
 const DEFAULT_ICE_GATHER_TIMEOUT_MS = 4000;
 const WHIP_DEBUG = process.env.NODE_ENV === 'development';
+
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.livestream);
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function hyperbeamNodeWhipUrl(upstreamUrl: string) {
+  const node = hyperbeamNodeBase();
+  if (!node) return upstreamUrl;
+
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.livestream, 'livestream_whip', { url64: base64Url(upstreamUrl) });
+}
 
 /**
  * Wait until ICE gathering is done, or timeout, or end-of-candidates.
@@ -364,7 +387,8 @@ export async function startWhipPublish(
 
     logSdpCandidates('Offer candidates', sdp);
 
-    const response = await fetch(whipUrl, {
+    const signalingUrl = hyperbeamNodeWhipUrl(whipUrl);
+    const response = await fetch(signalingUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/sdp' },
       body: sdp,
@@ -413,7 +437,7 @@ export async function startWhipPublish(
     };
 
     const resourceUrl = response.headers.get('Location');
-    return { pc, resourceUrl: resourceUrl ? new URL(resourceUrl, whipUrl).href : null };
+    return { pc, resourceUrl: resourceUrl ? new URL(resourceUrl, signalingUrl).href : null };
   } catch (e) {
     try {
       pc.close();

@@ -87,6 +87,26 @@ export const doTipAccountStatus = () => async (dispatch: Dispatch, getState: Get
       };
     })
     .catch((error) => {
+      const status = error?.status || error?.response?.status;
+      const body = error?.body || {};
+      const upstreamStatus = body?.upstream_status;
+      const upstreamBody = String(body?.upstream_body || '');
+      const isAuthRejected =
+        status === 401 ||
+        status === 403 ||
+        upstreamStatus === 401 ||
+        upstreamStatus === 403 ||
+        (body?.error === 'lbryio_frontdoor_failed' && upstreamBody.includes('authentication required'));
+
+      if (isAuthRejected) {
+        console.info('odysee_hyperbeam account/status auth rejected', error?.body || error); // eslint-disable-line no-console
+        dispatch({
+          type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE,
+          data: null,
+        });
+        return;
+      }
+
       if (error.message === 'account not linked to user, please link first') {
         dispatch({
           type: ACTIONS.STRIPE_ACCOUNT_STATUS_COMPLETE,

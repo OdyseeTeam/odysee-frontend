@@ -1,6 +1,5 @@
 import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
-import { Lbryio } from 'lbryinc';
 import Lbry from 'lbry';
 import { doWalletEncrypt, doWalletDecrypt } from 'redux/actions/wallet';
 import {
@@ -14,7 +13,10 @@ import { selectClientSetting } from 'redux/selectors/settings';
 import { getSavedPassword, getAuthToken } from 'util/saved-passwords';
 import { doHandleSyncComplete } from 'redux/actions/app';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
+import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
+import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 let syncTimer = null;
 const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
@@ -89,16 +91,11 @@ export function doSetSync(oldHash: string, newHash: string, data: any) {
     dispatch({
       type: ACTIONS.SET_SYNC_STARTED,
     });
-    return Lbryio.call(
-      'sync',
-      'set',
-      {
-        old_hash: oldHash,
-        new_hash: newHash,
-        data,
-      },
-      'post'
-    )
+    return Lbry.sync_set({
+      old_hash: oldHash,
+      new_hash: newHash,
+      data,
+    })
       .then((response) => {
         if (!response.hash) {
           throw Error('No hash returned for sync/set.');
@@ -261,14 +258,9 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
 
         const syncHash = hash as string;
         data.lastSyncHash = syncHash;
-        return Lbryio.call(
-          'sync',
-          'get',
-          {
-            hash: syncHash,
-          },
-          'post'
-        );
+        return Lbry.sync_get({
+          hash: syncHash,
+        });
       })
       .then((response: any) => {
         if (response === SYNC_DEFERRED_MARKER) {
@@ -458,14 +450,9 @@ export function doCheckSync() {
       type: ACTIONS.GET_SYNC_STARTED,
     });
     Lbry.sync_hash().then((hash) => {
-      Lbryio.call(
-        'sync',
-        'get',
-        {
-          hash,
-        },
-        'post'
-      )
+      Lbry.sync_get({
+        hash,
+      })
         .then((response) => {
           const data = {
             hasSyncedWallet: true,
@@ -507,14 +494,9 @@ export function doSyncEncryptAndDecrypt(oldPassword: string, newPassword: string
     const data: { oldHash?: string } = {};
     return Lbry.sync_hash()
       .then((hash) =>
-        Lbryio.call(
-          'sync',
-          'get',
-          {
-            hash,
-          },
-          'post'
-        )
+        Lbry.sync_get({
+          hash,
+        })
       )
       .then((syncGetResponse) => {
         data.oldHash = syncGetResponse.hash;
@@ -581,9 +563,97 @@ type SharedData = {
   };
 };
 
+function decodeSharedStateValue(value: any) {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  try {
+    return JSON.parse(value);
+  } catch (e) {
+    return value;
+  }
+}
+
+function unwrapSharedState(rawObj: any) {
+  const decoded = decodeSharedStateValue(rawObj);
+
+  if (!decoded) {
+    return null;
+  }
+
+  if (decoded.version === '0.1' && decoded.value) {
+    return {
+      ...decoded,
+      value: decodeSharedStateValue(decoded.value),
+    };
+  }
+
+  if (decoded.shared) {
+    return unwrapSharedState(decoded.shared);
+  }
+
+  if (decoded.type && decoded.value) {
+    return unwrapSharedState(decoded.value);
+  }
+
+  if (typeof decoded === 'object') {
+    return {
+      version: '0.1',
+      value: decoded,
+    };
+  }
+
+  return null;
+}
+
+function followingToSubscriptions(following: any) {
+  if (!Array.isArray(following)) {
+    return undefined;
+  }
+
+  return following
+    .map((item) => {
+      if (typeof item === 'string') {
+        return item;
+      }
+
+      return item && typeof item.uri === 'string' ? item.uri : null;
+    })
+    .filter(Boolean);
+}
+
+function debugHyperbeamSharedState(data: any) {
+  try {
+    const encoded = base64UrlEncode(JSON.stringify(data || {}));
+    const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.internalApis, 'debug', { params64: encoded });
+    if (!url) return;
+
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        accept: 'application/json',
+      },
+    }).catch(() => {});
+  } catch (e) {}
+}
+
+function base64UrlEncode(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 function extractUserState(rawObj: SharedData) {
-  if (rawObj && rawObj.version === '0.1' && rawObj.value) {
-    const hasOwn = (key) => Object.prototype.hasOwnProperty.call(rawObj.value, key);
+  const sharedState = unwrapSharedState(rawObj);
+
+  if (sharedState && sharedState.version === '0.1' && sharedState.value) {
+    const value = sharedState.value;
+    const hasOwn = (key) => Object.prototype.hasOwnProperty.call(value, key);
 
     const {
       subscriptions,
@@ -601,11 +671,13 @@ function extractUserState(rawObj: SharedData) {
       savedCollectionIds,
       autoPublishById,
       lastViewedAnnouncement,
-    } = rawObj.value;
+    } = value;
+    const derivedSubscriptions = Array.isArray(subscriptions) ? subscriptions : followingToSubscriptions(following);
+
     return {
-      ...(hasOwn('subscriptions')
+      ...(Array.isArray(derivedSubscriptions)
         ? {
-            subscriptions,
+            subscriptions: derivedSubscriptions,
           }
         : {}),
       ...(hasOwn('following')
@@ -685,7 +757,7 @@ function extractUserState(rawObj: SharedData) {
 }
 
 export function doPopulateSharedUserState(sharedSettings: any) {
-  return (dispatch: Dispatch) => {
+  return (dispatch: Dispatch, getState: GetState) => {
     const {
       subscriptions,
       following,
@@ -703,6 +775,24 @@ export function doPopulateSharedUserState(sharedSettings: any) {
       autoPublishById,
       lastViewedAnnouncement,
     } = extractUserState(sharedSettings);
+
+    // HyperBEAM migration diagnostic: verifies whether normalized shared state reaches Redux.
+    console.info('odysee_hyperbeam USER_STATE_POPULATE', {
+      subscriptions: Array.isArray(subscriptions) ? subscriptions.length : null,
+      following: Array.isArray(following) ? following.length : null,
+      firstSubscription: Array.isArray(subscriptions) ? subscriptions[0] : null,
+    });
+    debugHyperbeamSharedState({
+      event: 'USER_STATE_POPULATE',
+      subscriptions: Array.isArray(subscriptions) ? subscriptions.length : null,
+      following: Array.isArray(following) ? following.length : null,
+      firstSubscription: Array.isArray(subscriptions) ? subscriptions[0] : null,
+    });
+
+    dispatch({
+      type: ACTIONS.CLEAR_CLAIM_SEARCH_HISTORY,
+    });
+
     dispatch({
       type: ACTIONS.USER_STATE_POPULATE,
       data: {
@@ -723,10 +813,40 @@ export function doPopulateSharedUserState(sharedSettings: any) {
         lastViewedAnnouncement,
       },
     });
+
+    const selectedSubscriptionIds = selectSubscriptionIds(getState());
+    debugHyperbeamSharedState({
+      event: 'USER_STATE_POPULATE_REDUX',
+      subscriptionIds: Array.isArray(selectedSubscriptionIds) ? selectedSubscriptionIds.length : null,
+      firstSubscriptionId: Array.isArray(selectedSubscriptionIds) ? selectedSubscriptionIds[0] : null,
+    });
   };
 }
 
 const SYNC_DEFERRED_MARKER = { __syncDeferred: true } as const;
+
+function normalizePreferenceValue(preference: any) {
+  let normalized = preference;
+
+  if (typeof normalized === 'string') {
+    try {
+      normalized = JSON.parse(normalized);
+    } catch (e) {
+      return preference;
+    }
+  }
+
+  if (normalized && normalized.type === 'object' && typeof normalized.value === 'string') {
+    try {
+      return {
+        ...normalized,
+        value: JSON.parse(normalized.value),
+      };
+    } catch (e) {}
+  }
+
+  return normalized;
+}
 
 function isSyncApplyUnsafe(walletStatus: any, password: string | null | undefined): boolean {
   return (
@@ -844,7 +964,7 @@ export function doPreferenceGet(
     return Lbry.preference_get(options)
       .then((result) => {
         if (result) {
-          const preference = result[key];
+          const preference = normalizePreferenceValue(result[key]);
           return success(preference);
         }
 

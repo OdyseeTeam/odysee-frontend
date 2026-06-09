@@ -1,4 +1,5 @@
-import { SDK_API_PATH } from 'config';
+import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from '../../ui/util/hyperbeamDevices';
 import { useEffect } from 'react';
 import { getAuthToken } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
@@ -15,6 +16,24 @@ export const STATUS_OK = 'ok';
 export const STATUS_DEGRADED = 'degraded';
 export const STATUS_FAILING = 'failing';
 export const STATUS_DOWN = 'down';
+
+const getGeneralState = (status) => {
+  const nodeStatus = status?.result || status;
+
+  if (status?.general_state) {
+    return status.general_state;
+  }
+
+  if (nodeStatus?.general_state) {
+    return nodeStatus.general_state;
+  }
+
+  if (nodeStatus?.is_running && nodeStatus?.connection_status?.code === 'connected') {
+    return STATUS_GENERAL_STATE.OK;
+  }
+
+  return STATUS_GENERAL_STATE.FAILING;
+};
 
 const getParams = (user) => {
   const headers = {};
@@ -34,17 +53,18 @@ export function useDegradedPerformance(onDegradedPerformanceCallback, user, doSe
   const hasUser = user !== undefined && user !== null;
   useEffect(() => {
     if (hasUser) {
-      // The status endpoint is the only endpoint at "v2" currently
-      // This should be moved into the config once more endpoints are using it
-      const STATUS_ENDPOINT = `${SDK_API_PATH}/status`.replace('v1', 'v2');
+      const STATUS_ENDPOINT = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.internalApis, 'status', { params64: 'e30' });
       fetchWithTimeout(STATUS_TIMEOUT_LIMIT, fetch(STATUS_ENDPOINT, getParams(user)))
         .then((response: any) => response.json())
         .then((status) => {
-          doSetAssignedLbrynetServer(status?.user?.assigned_lbrynet_server);
+          const nodeStatus = status?.result || status;
+          const generalState = getGeneralState(status);
 
-          if (status.general_state === STATUS_GENERAL_STATE.OFFLINE) {
+          doSetAssignedLbrynetServer(nodeStatus?.user?.assigned_lbrynet_server);
+
+          if (generalState === STATUS_GENERAL_STATE.OFFLINE) {
             onDegradedPerformanceCallback(STATUS_DOWN);
-          } else if (status.general_state !== STATUS_GENERAL_STATE.OK) {
+          } else if (generalState !== STATUS_GENERAL_STATE.OK) {
             onDegradedPerformanceCallback(STATUS_FAILING);
           }
         })

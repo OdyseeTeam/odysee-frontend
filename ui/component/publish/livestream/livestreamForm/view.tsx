@@ -30,7 +30,7 @@ import Spinner from 'component/spinner';
 import Tooltip from 'component/common/tooltip';
 import { toHex } from 'util/hex';
 import { lazyImport } from 'util/lazyImport';
-import { NEW_LIVESTREAM_REPLAY_API } from 'constants/livestream';
+import Livestream from 'livestream';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doResetThumbnailStatus, doClearPublish, doUpdatePublishForm, doPublishDesktop } from 'redux/actions/publish';
 import { doResolveUri, doCheckPublishNameAvailability } from 'redux/actions/claims';
@@ -277,12 +277,18 @@ function LivestreamForm(props: Props) {
         setCheckingLivestreams(false);
         return;
       }
-      const encodedChannelName = encodeURIComponent(channelName);
-      const url =
-        `${NEW_LIVESTREAM_REPLAY_API}?channel_claim_id=${String(channelId)}` +
-        `&signature=${signedMessage.signature}&signature_ts=${signedMessage.signing_ts}&channel_name=${encodedChannelName}`;
-      const json = await (await fetch(url)).json();
-      const data: Array<ReplayApiItem> = json?.data || json || [];
+      const data: Array<ReplayApiItem> =
+        (await Livestream.call(
+          'replays',
+          'list',
+          {
+            channel_claim_id: String(channelId),
+            signature: signedMessage.signature,
+            signature_ts: signedMessage.signing_ts,
+            channel_name: channelName,
+          },
+          'get'
+        )) || [];
       const newData: Array<LivestreamReplayItem> = [];
       for (const dataItem of data) {
         const statusNorm = typeof dataItem.Status === 'string' ? dataItem.Status.toLowerCase() : '';

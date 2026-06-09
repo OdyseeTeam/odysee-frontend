@@ -18,12 +18,60 @@ import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
 import { getRecommendationSearchOptions, getShortsRecommendationSearchOptions } from 'util/search';
-import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
+import { ODYSEE_HYPERBEAM_NODE_API, SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { getAuthToken } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 const isDev = process.env.NODE_ENV !== 'production';
+
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.search);
+}
+
+function hyperbeamNodeConfigured() {
+  return Boolean(hyperbeamNodeBase());
+}
+
+function base64Url(value: string) {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  bytes.forEach((byte) => {
+    binary += String.fromCharCode(byte);
+  });
+
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function hyperbeamNodeFetchJson(key: string, params: any, authToken?: string | null) {
+  const headers: Record<string, string> = { accept: 'application/json' };
+  if (authToken) {
+    headers[X_LBRY_AUTH_TOKEN] = authToken;
+  }
+
+  return fetch(
+    hyperbeamDeviceUrl(HYPERBEAM_DEVICE.search, key, { params64: base64Url(JSON.stringify(params || {})) }),
+    {
+      method: 'GET',
+      headers,
+    }
+  ).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HyperBEAM device ${key} failed with ${response.status}`);
+    }
+
+    return response.json();
+  });
+}
+
+function hyperbeamNodeSearch(kind: string, query: string, userSuffix: string) {
+  return hyperbeamNodeFetchJson('search', { kind, query, user_suffix: userSuffix });
+}
+
+function hyperbeamNodeRecsysFyp(params: any) {
+  return hyperbeamNodeFetchJson('recsys_fyp', params, getAuthToken());
+}
 // ****************************************************************************
 // FYP
 // ****************************************************************************
@@ -33,6 +81,17 @@ const isDev = process.env.NODE_ENV !== 'production';
 assert(RECSYS_FYP_ENDPOINT, 'RECSYS_FYP_ENDPOINT not defined!');
 const recsysFyp = {
   fetchPersonalRecommendations: (userId: string) => {
+    if (hyperbeamNodeConfigured()) {
+      return hyperbeamNodeRecsysFyp({ action: 'fetch', user_id: userId }).catch((error) => {
+        console.log('FYP: fetch node', {
+          error,
+          userId,
+        }); // eslint-disable-line no-console
+
+        return {};
+      });
+    }
+
     return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp`, {
       headers: {
         [X_LBRY_AUTH_TOKEN]: getAuthToken(),
@@ -50,6 +109,18 @@ const recsysFyp = {
       });
   },
   markPersonalRecommendations: (userId: string, gid: string) => {
+    if (hyperbeamNodeConfigured()) {
+      return hyperbeamNodeRecsysFyp({ action: 'mark', user_id: userId, gid }).catch((error) => {
+        console.log('FYP: mark node', {
+          error,
+          userId,
+          gid,
+        }); // eslint-disable-line no-console
+
+        return {};
+      });
+    }
+
     return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp/${gid}/mark`, {
       method: 'POST',
       headers: {
@@ -66,6 +137,27 @@ const recsysFyp = {
     });
   },
   ignoreRecommendation: (userId: string, gid: string, claimId: string, ignoreChannel: boolean) => {
+    if (hyperbeamNodeConfigured()) {
+      return hyperbeamNodeRecsysFyp({
+        action: 'ignore',
+        user_id: userId,
+        gid,
+        claim_id: claimId,
+        ignore_channel: ignoreChannel,
+      })
+        .then((result) => result)
+        .catch((error) => {
+          console.log('FYP: ignore node', {
+            error,
+            userId,
+            gid,
+            claimId,
+          }); // eslint-disable-line no-console
+
+          return {};
+        });
+    }
+
     let endpoint = `${RECSYS_FYP_ENDPOINT}/${userId}/fyp/${gid}/c/${claimId}/ignore`;
 
     if (ignoreChannel) {
@@ -109,6 +201,10 @@ let lighthouse = {
   user_id: '',
   uid: '',
   search: (queryString: string) => {
+    if (hyperbeamNodeConfigured()) {
+      return hyperbeamNodeSearch('primary', queryString, lighthouse.uid);
+    }
+
     if (lighthouse.uid) {
       return fetch(`${lighthouse.CONNECTION_STRING}?${queryString}${lighthouse.uid}`).then(handleFetchResponse);
     } else {
@@ -116,6 +212,10 @@ let lighthouse = {
     }
   },
   searchRecommendations: (queryString: string) => {
+    if (hyperbeamNodeConfigured()) {
+      return hyperbeamNodeSearch('recommendations', queryString, `${lighthouse.user_id}${lighthouse.uid}`);
+    }
+
     if (lighthouse.user_id) {
       return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}${lighthouse.uid}`).then(
         handleFetchResponse
@@ -190,7 +290,10 @@ export const doSearch =
       type: ACTIONS.SEARCH_START,
     });
     const isSearchingRecommendations = searchOptions.hasOwnProperty(SEARCH_OPTIONS.RELATED_TO);
-    const cmd = isSearchingRecommendations && !isDev ? lighthouse.searchRecommendations : lighthouse.search;
+    const cmd =
+      isSearchingRecommendations && (!isDev || hyperbeamNodeConfigured())
+        ? lighthouse.searchRecommendations
+        : lighthouse.search;
     cmd(queryWithOptions)
       .then((data: SearchResults) => {
         const { body: result, poweredBy, uuid } = data;

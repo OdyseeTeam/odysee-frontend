@@ -3,7 +3,7 @@ import * as ABANDON_STATES from 'constants/abandon_states';
 import * as FILE_LIST from 'constants/file_list';
 import * as TAGS from 'constants/tags';
 import { Lbryio, doFetchViewCount } from 'lbryinc';
-import Lbry from 'lbry';
+import Lbry, { debugHyperbeamNode } from 'lbry';
 import { normalizeURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import {
@@ -850,6 +850,16 @@ export function doClaimSearch(
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     const alreadyFetching = selectIsFetchingClaimSearchForQuery(state, query);
+    debugHyperbeamNode({
+      event: 'DO_CLAIM_SEARCH',
+      channelIds: Array.isArray(options.channel_ids) ? options.channel_ids.length : null,
+      claimIds: Array.isArray(options.claim_ids) ? options.claim_ids.length : null,
+      page: options.page,
+      pageSize: options.page_size,
+      alreadyFetching,
+      query,
+    });
+
     if (alreadyFetching) {
       return Promise.resolve();
     }

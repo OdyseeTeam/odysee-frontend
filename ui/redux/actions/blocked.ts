@@ -1,8 +1,24 @@
 import * as ACTIONS from 'constants/action_types';
-import { GEO_BLOCK_API } from 'config';
+import { GEO_BLOCK_API, ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { doAlertWaitingForSync } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase } from 'util/hyperbeamDevices';
+
+function hyperbeamNodeBase() {
+  return hyperbeamDeviceBase(HYPERBEAM_DEVICE.internalApis);
+}
+
+function hyperbeamNodeFetchJson(key: string) {
+  const node = hyperbeamNodeBase();
+  if (!node) return null;
+
+  return fetch(`${node}/${key}`, {
+    method: 'GET',
+    headers: { accept: 'application/json' },
+  });
+}
+
 export function doToggleMuteChannel(uri: string, showLink: boolean, unmute: boolean = false) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
@@ -42,7 +58,7 @@ export function doFetchGeoBlockedList() {
     dispatch({
       type: ACTIONS.FETCH_GBL_STARTED,
     });
-    fetch(GEO_BLOCK_API)
+    (hyperbeamNodeFetchJson('geo_block') || fetch(GEO_BLOCK_API))
       .then(async (res) => {
         let json = {};
 

@@ -2,6 +2,12 @@
 require('proxy-polyfill');
 
 const { PROXY_URL_NO_CF } = require('../config.cjs');
+const {
+  hyperbeamNodeConfigured,
+  hyperbeamNodeClaimSearch,
+  hyperbeamNodeResolve,
+  hyperbeamNodeSdkCall: hyperbeamNodeGenericSdkCall,
+} = require('./src/odyseeHyperbeamNode');
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 //
@@ -119,6 +125,8 @@ const Lbry = {
   txo_list: (params = {}) => daemonCallWithResult('txo_list', params),
   sync_hash: (params = {}) => daemonCallWithResult('sync_hash', params),
   sync_apply: (params = {}) => daemonCallWithResult('sync_apply', params),
+  sync_get: (params = {}) => daemonCallWithResult('sync_get', params),
+  sync_set: (params = {}) => daemonCallWithResult('sync_set', params),
   // Preferences
   preference_get: (params = {}) => daemonCallWithResult('preference_get', params),
   preference_set: (params = {}) => daemonCallWithResult('preference_set', params),
@@ -187,6 +195,11 @@ function checkAndParse(response) {
 }
 
 function apiCall(method, params, resolve, reject) {
+  const nodeRead = hyperbeamNodeSdkCall(method, params);
+  if (nodeRead) {
+    return nodeRead.then(resolve, reject);
+  }
+
   const counter = new Date().getTime();
   const options = {
     method: 'POST',
@@ -228,6 +241,57 @@ function apiCall(method, params, resolve, reject) {
       return resolve(response.result);
     })
     .catch(reject);
+}
+
+function hyperbeamNodeSdkCall(method, params) {
+  if (!hyperbeamNodeConfigured()) return null;
+
+  switch (method) {
+    case 'resolve':
+      return hyperbeamNodeResolve(params, Lbry.apiRequestHeaders);
+    case 'claim_search':
+      return hyperbeamNodeClaimSearch(params, Lbry.apiRequestHeaders);
+    case 'status':
+    case 'version':
+    case 'get':
+    case 'collection_resolve':
+    case 'collection_list':
+    case 'claim_list':
+    case 'channel_list':
+    case 'channel_sign':
+    case 'stream_list':
+    case 'support_list':
+    case 'transaction_show':
+    case 'file_list':
+    case 'blob_list':
+    case 'wallet_balance':
+    case 'wallet_list':
+    case 'preference_get':
+    case 'preference_set':
+    case 'wallet_status':
+    case 'wallet_unlock':
+    case 'wallet_lock':
+    case 'wallet_encrypt':
+    case 'wallet_decrypt':
+    case 'purchase_list':
+    case 'account_list':
+    case 'settings_get':
+    case 'settings_set':
+    case 'settings_clear':
+    case 'ffmpeg_find':
+    case 'address_is_mine':
+    case 'address_unused':
+    case 'address_list':
+    case 'transaction_list':
+    case 'txo_list':
+    case 'sync_hash':
+    case 'sync_apply':
+    case 'sync_get':
+    case 'sync_set':
+      return hyperbeamNodeGenericSdkCall(method, params, Lbry.apiRequestHeaders);
+    default:
+      return null;
+  }
 }
 
 function daemonCallWithResult(name, params = {}) {

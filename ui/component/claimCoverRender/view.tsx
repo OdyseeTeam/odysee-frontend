@@ -29,6 +29,10 @@ type Props = {
   isShortsContext?: boolean;
   isFloatingContext?: boolean;
   obscurePreview?: boolean;
+  hidePreview?: boolean;
+  onPointerDownCapture?: (event: React.PointerEvent<HTMLElement>) => void;
+  onMouseDownCapture?: (event: React.MouseEvent<HTMLElement>) => void;
+  onTouchStartCapture?: (event: React.TouchEvent<HTMLElement>) => void;
 };
 
 function isMissingThumbLike(url: string | null | undefined) {
@@ -51,6 +55,10 @@ const ClaimCoverRender = (props: Props) => {
     isShortsContext,
     isFloatingContext,
     obscurePreview,
+    hidePreview,
+    onPointerDownCapture,
+    onMouseDownCapture,
+    onTouchStartCapture,
   } = props;
   // -- redux --
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
@@ -112,17 +120,52 @@ const ClaimCoverRender = (props: Props) => {
   });
   const isNavigateLink = href;
   const Wrapper = isNavigateLink ? Button : 'div';
+  const handlePointerDownCapture = React.useCallback(
+    (event: React.PointerEvent<HTMLElement>) => {
+      if (event.target instanceof HTMLElement) {
+        const playButton = event.target.closest('.button--play');
+        playButton?.classList.add('button--play-morphing');
+      }
+      onPointerDownCapture?.(event);
+    },
+    [onPointerDownCapture]
+  );
+  const handleMouseDownCapture = React.useCallback(
+    (event: React.MouseEvent<HTMLElement>) => {
+      if (event.target instanceof HTMLElement) {
+        const playButton = event.target.closest('.button--play');
+        playButton?.classList.add('button--play-morphing');
+      }
+      onMouseDownCapture?.(event);
+    },
+    [onMouseDownCapture]
+  );
+  const handleTouchStartCapture = React.useCallback(
+    (event: React.TouchEvent<HTMLElement>) => {
+      if (event.target instanceof HTMLElement) {
+        const playButton = event.target.closest('.button--play');
+        playButton?.classList.add('button--play-morphing');
+      }
+      onTouchStartCapture?.(event);
+    },
+    [onTouchStartCapture]
+  );
+
   return (
     <Wrapper
       ref={shouldUseShortsCoverLayout ? swipeRef : passedRef}
       href={href}
       onClick={onClick}
+      onPointerDownCapture={handlePointerDownCapture}
+      onMouseDownCapture={handleMouseDownCapture}
+      onTouchStartCapture={handleTouchStartCapture}
       onMouseEnter={liveThumbnail ? () => setIsHovering(true) : undefined}
       onMouseLeave={liveThumbnail ? () => setIsHovering(false) : undefined}
       style={
         !enableLiveCrossfade &&
         stableCoverThumb &&
         !obscurePreview &&
+        !hidePreview &&
         !(isCurrentlyPlaying && shouldUseShortsCoverLayout) &&
         !(shouldUseShortsCoverLayout && autoplayMedia)
           ? {
@@ -140,6 +183,7 @@ const ClaimCoverRender = (props: Props) => {
         'content__cover--theater-mode': theaterMode && !isMobile,
         'content__cover--link': isNavigateLink,
         'card__media--nsfw': obscurePreview,
+        'content__cover--preview-hidden': hidePreview,
         'content__cover--side-panel-open': sidePanelOpen && !isMobile,
         'content__cover--live-refreshing': isLiveRefreshing,
       })}

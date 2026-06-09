@@ -290,6 +290,7 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
       });
   };
 };
+
 export function doPurchaseUri(
   uri: string,
   costInfo: {

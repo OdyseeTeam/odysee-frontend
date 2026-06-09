@@ -2,6 +2,7 @@ import * as ACTIONS from 'constants/action_types';
 import * as PAGES from 'constants/pages';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import Lbry from 'lbry';
+import { doGetAndPopulatePreferences } from 'redux/actions/app';
 import { getAuthToken } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
 type Store = {
@@ -21,6 +22,7 @@ export const populateAuthTokenHeader = (store: Store) => {
           dispatch({
             type: ACTIONS.USER_LOGGED_IN_BROADCAST,
           });
+          dispatch(doGetAndPopulatePreferences());
         }
 
         break;

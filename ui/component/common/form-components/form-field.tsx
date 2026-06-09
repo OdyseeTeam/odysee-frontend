@@ -4,6 +4,7 @@ import { IMG_CDN_PUBLISH_URL, JSON_RESPONSE_KEYS, UPLOAD_CONFIG } from 'constant
 import { FF_MAX_CHARS_DEFAULT } from 'constants/form-field';
 import { lazyImport } from 'util/lazyImport';
 import React, { useRef, useState, useEffect } from 'react';
+import uploadThumbnail from 'services/thumbnailUpload';
 import { InputSimple, BlockWrapWrapper } from './input-simple';
 import { InputSelect } from './input-select';
 import { CountInfo, QuickAction, Label } from './common';
@@ -133,6 +134,24 @@ export function FormField(props: Props) {
         urlText: '![image]({filename})',
         jsonFieldName: JSON_RESPONSE_KEYS.UPLOADED_URL,
         errorText: '![image]("failed to upload file")',
+        uploadFile(file) {
+          const data = new FormData();
+          const filename = file?.name || `image-${Date.now()}.png`;
+          data.append(UPLOAD_CONFIG.BLOB_KEY, file, filename);
+          data.append(UPLOAD_CONFIG.ACTION_KEY, UPLOAD_CONFIG.ACTION_VAL);
+
+          uploadThumbnail(data)
+            .then((json) => {
+              this.onFileUploadResponse({
+                responseText: JSON.stringify(json || {}),
+              });
+            })
+            .catch(() => {
+              this.onFileUploadError({});
+            });
+
+          return null;
+        },
       });
     }
   }

@@ -1,4 +1,4 @@
-import { requestUploadToken, startTus } from './publish-v4-tasks';
+import { getTusUpstreamUrl, requestUploadToken, startTus } from './publish-v4-tasks';
 import { X_LBRY_AUTH_TOKEN } from '../../ui/constants/token';
 import Lbry from '../../ui/lbry';
 
@@ -59,7 +59,7 @@ export function startEarlyUpload(file: File, cb: EarlyUploadCallbacks): EarlyUpl
             }
             if (session.url) {
               clearInterval(pollUrl);
-              resolveLocation(session.url);
+              resolveLocation(getTusUpstreamUrl(session.url));
             }
           }, 100);
         },
@@ -87,7 +87,7 @@ export function startEarlyUpload(file: File, cb: EarlyUploadCallbacks): EarlyUpl
           if (aborted) {
             reject(new Error('Upload aborted'));
           } else {
-            resolve({ tusUrl: session.url });
+            resolve({ tusUrl: getTusUpstreamUrl(session.url) });
           }
         })
         .catch(reject);

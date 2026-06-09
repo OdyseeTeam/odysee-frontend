@@ -15,6 +15,8 @@ let pushSystem: Record<string, any> | null = null;
 const PUSH_SERVICE_WORKER_URL = '/sw.js';
 const PUSH_SERVICE_WORKER_SCOPE = '/';
 
+const isLocalhost = () => /^(localhost|127\.0\.0\.1|0\.0\.0\.0)$/.test(window.location.hostname);
+
 const getTokenList = (value: unknown): Array<any> => {
   if (Array.isArray(value)) return value;
   if (value && typeof value === 'object') {
@@ -37,6 +39,7 @@ const subscriptionMetaData = () => {
 
 const getPushServiceWorkerRegistration = async (): Promise<ServiceWorkerRegistration | null> => {
   if (!('serviceWorker' in navigator)) return null;
+  if (isLocalhost()) return null;
 
   const existingRegistration = await navigator.serviceWorker.getRegistration(PUSH_SERVICE_WORKER_SCOPE);
   if (existingRegistration) return existingRegistration;

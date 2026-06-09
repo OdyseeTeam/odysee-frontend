@@ -563,6 +563,16 @@ function uiModuleResolverPlugin() {
 const isProduction = process.env.NODE_ENV === 'production';
 const isServeCommand = process.argv.some((arg) => arg === 'dev' || arg === 'serve');
 
+function stripGeneratedHtmlTags(html: string) {
+  return html
+    .replace(/[ \t]*<script>[\s\S]*?<\/script>\n?/g, (tag) =>
+      tag.includes('legacy=1') && tag.includes('legacy-') ? '' : tag
+    )
+    .replace(/[ \t]*<script\b[^>]*src="\/public\/assets\/[^"]+"[^>]*><\/script>\n?/g, '')
+    .replace(/[ \t]*<link\s+rel="modulepreload"[^>]*href="\/public\/assets\/[^"]+"[^>]*>\n?/g, '')
+    .replace(/[ \t]*<link\s+rel="stylesheet"[^>]*href="\/public\/assets\/[^"]+"[^>]*>\n?/g, '');
+}
+
 // Post-build plugin: generates a single transpiled legacy bundle for browsers that don't support ES modules.
 // Modern browsers load the normal `<script type="module">` chunks. Old browsers (pre-2021) ignore those
 // and load a `<script nomodule>` fallback instead. The fallback is a single concatenated + Babel-transpiled
@@ -637,7 +647,7 @@ var s=document.createElement('script');s.src='/${legacyFilename}';document.head.
 
         const templateHtml = path.join(outDir, 'index-web.html');
         if (fs.existsSync(templateHtml)) {
-          const tmpl = fs.readFileSync(templateHtml, 'utf8');
+          const tmpl = stripGeneratedHtmlTags(fs.readFileSync(templateHtml, 'utf8'));
           const updatedTmpl = tmpl.replace('<head>', `<head>\n    ${detectorScript}`);
           fs.writeFileSync(templateHtml, updatedTmpl, 'utf8');
         }
@@ -665,7 +675,7 @@ function ssrTemplatePlugin() {
         if (!fs.existsSync(builtHtml) || !fs.existsSync(templateHtml)) return;
 
         const built = fs.readFileSync(builtHtml, 'utf8');
-        const template = fs.readFileSync(templateHtml, 'utf8');
+        const template = stripGeneratedHtmlTags(fs.readFileSync(templateHtml, 'utf8'));
 
         // Extract all <script>, <link rel="modulepreload">, and <link rel="stylesheet"> tags from built HTML
         const assetTags = [];

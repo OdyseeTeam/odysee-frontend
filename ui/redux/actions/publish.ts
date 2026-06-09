@@ -33,8 +33,8 @@ import { navigateTo } from 'redux/router';
 import analytics from 'analytics';
 import { doOpenModal, doSetActiveChannel, doSetIncognito } from 'redux/actions/app';
 import { CC_LICENSES, COPYRIGHT, OTHER, NONE, PUBLIC_DOMAIN } from 'constants/licenses';
-import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import * as THUMBNAIL_STATUSES from 'constants/thumbnail_upload_statuses';
+import uploadThumbnail from 'services/thumbnailUpload';
 import { sanitizeName, buildURI } from 'util/lbryURI';
 import { getVideoBitrate, resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
@@ -637,18 +637,7 @@ export const doUploadThumbnail =
     });
 
     const doUpload = (data) => {
-      return fetch(IMG_CDN_PUBLISH_URL, {
-        method: 'POST',
-        body: data,
-      })
-        .then((res) => res.text())
-        .then((text) => {
-          try {
-            return text.length ? JSON.parse(text) : {};
-          } catch {
-            throw new Error(text);
-          }
-        })
+      return uploadThumbnail(data)
         .then((json) => {
           if (json.type !== 'success') {
             return uploadError(

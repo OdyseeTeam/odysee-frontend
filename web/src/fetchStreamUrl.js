@@ -2,22 +2,21 @@ const Mime = require('mime-types');
 
 const { PLAYER_SERVER } = require('../../config.cjs');
 
-const { lbryProxy: Lbry } = require('../lbry');
-
 const { buildURI } = require('./lbryURI');
+const { hyperbeamNodeMediaUrl, resolveHyperbeamNodeUri } = require('./odyseeHyperbeamNode');
 
 async function fetchStreamUrl(claimName, claimId) {
   const uri = buildURI({
     claimName,
     claimId,
   });
-  return await Lbry.get({
-    uri,
-  })
-    .then(({ streaming_url }) => streaming_url)
-    .catch((error) => {
-      return '';
-    });
+  const nodeResponse = await resolveHyperbeamNodeUri(uri).catch(() => null);
+
+  if (nodeResponse?.media?.status === 'available') {
+    return hyperbeamNodeMediaUrl(uri);
+  }
+
+  return '';
 }
 
 /**
@@ -44,6 +43,11 @@ function generateContentUrl(claim) {
   return streamUrl(claim);
 }
 
+function generateHyperbeamNodeContentUrl(claim) {
+  const uri = claim?.canonical_url || claim?.permanent_url;
+  return uri ? hyperbeamNodeMediaUrl(uri) : '';
+}
+
 function generateDownloadUrl(claim) {
   const value = claim?.value;
 
@@ -59,5 +63,6 @@ function generateDownloadUrl(claim) {
 module.exports = {
   fetchStreamUrl,
   generateContentUrl,
+  generateHyperbeamNodeContentUrl,
   generateDownloadUrl,
 };

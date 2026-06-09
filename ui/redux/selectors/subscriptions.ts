@@ -28,7 +28,17 @@ export const selectSubscriptionUris = createSelector(
 );
 export const selectSubscriptionIds = createSelector(selectSubscriptions, (subscriptions) => {
   if (subscriptions) {
-    return Container.Arr.useStableEmpty(subscriptions.map((sub) => parseURI(sub.uri).channelClaimId));
+    return Container.Arr.useStableEmpty(
+      subscriptions
+        .map((sub) => {
+          try {
+            return parseURI(sub.uri).channelClaimId;
+          } catch (e) {
+            return null;
+          }
+        })
+        .filter(Boolean)
+    );
   } else {
     return Container.Arr.EMPTY;
   }

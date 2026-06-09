@@ -1,12 +1,12 @@
 import React from 'react';
 import { THUMBNAIL_CDN_SIZE_LIMIT_BYTES } from 'config';
 import FileSelector from 'component/common/file-selector';
-import { IMG_CDN_PUBLISH_URL } from 'constants/cdn_urls';
 import { FormField, Form } from 'component/common/form';
 import Button from 'component/button';
 import Card from 'component/common/card';
 import usePersistedState from 'effects/use-persisted-state';
 import Icon from 'component/common/icon';
+import uploadThumbnail from 'services/thumbnailUpload';
 // @ts-ignore
 import ReactCrop, { centerCrop, makeAspectCrop, Crop, PixelCrop } from 'react-image-crop';
 import * as ICONS from 'constants/icons';
@@ -151,18 +151,7 @@ function SelectAsset(props: Props) {
     }
 
     data.append('upload', 'Upload');
-    return fetch(IMG_CDN_PUBLISH_URL, {
-      method: 'POST',
-      body: data,
-    })
-      .then((res) => res.text())
-      .then((text) => {
-        try {
-          return text.length ? JSON.parse(text) : {};
-        } catch {
-          throw new Error(text);
-        }
-      })
+    return uploadThumbnail(data)
       .then((json) => {
         return json.type === 'success'
           ? onSuccess(`${json.message}`)

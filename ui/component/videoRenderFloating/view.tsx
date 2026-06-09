@@ -83,6 +83,10 @@ import { getVideoClaimAspectRatio, isClaimShort as isClaimShortUtil } from 'util
 import { doOpenModal as doOpenModalAction } from 'redux/actions/app';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { selectShortsSidePanelOpen, selectShortsPlaylist } from 'redux/selectors/shorts';
+const HYPERBEAM_STARTUP_BEGIN_EVENT = 'odysee-hyperbeam-startup-begin';
+const HYPERBEAM_STARTUP_READY_EVENT = 'odysee-hyperbeam-startup-ready';
+const HYPERBEAM_PENDING_STARTUP_URI_KEY = '__odyseeHyperbeamPendingStartupUri';
+
 function MiniPlayerPlayButton() {
   const [state, setState] = React.useState('paused');
 
@@ -192,6 +196,297 @@ function isDraggingPlayerControl(e: any) {
   return !!el.closest('.media-controls, .media-slider');
 }
 
+type StartupGraphNode = {
+  id: number;
+  x: number;
+  y: number;
+  delayMs: number;
+};
+
+type StartupGraphLine = {
+  id: string;
+  fromId: number;
+  toId: number;
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  delayMs: number;
+  mesh?: boolean;
+};
+
+type StartupGraphPacket = {
+  id: string;
+  points: Array<{ x: number; y: number }>;
+  delayMs: number;
+  durationMs: number;
+};
+
+function startupGraphClampX(value: number) {
+  return Math.max(7, Math.min(93, value));
+}
+
+function startupGraphClampY(value: number) {
+  return Math.max(9, Math.min(78, value));
+}
+
+function startupGraphDistance(a: StartupGraphNode, b: StartupGraphNode) {
+  return Math.hypot(a.x - b.x, a.y - b.y);
+}
+
+function createStartupGraph(rootDelayMs = 0) {
+  const nodes: Array<StartupGraphNode> = [{ id: 0, x: 50, y: 50, delayMs: rootDelayMs }];
+  const lines: Array<StartupGraphLine> = [];
+  const queue = [0];
+  let id = 1;
+
+  while (queue.length && id < 24) {
+    const parentId = queue.shift();
+    const parent = nodes.find((node) => node.id === parentId) || nodes[0];
+    const branchCount = parent.id === 0 ? 4 : 1 + Math.floor(Math.random() * 2);
+
+    for (let i = 0; i < branchCount && id < 24; i += 1) {
+      const distance = 13 + Math.random() * 14;
+      const angle =
+        parent.id === 0 ? (Math.PI * 2 * i) / branchCount + Math.random() * 0.45 : Math.random() * Math.PI * 2;
+      const lineDelayMs = parent.delayMs + 360 + i * 220;
+      const child = {
+        id,
+        x: startupGraphClampX(parent.x + Math.cos(angle) * distance),
+        y: startupGraphClampY(parent.y + Math.sin(angle) * distance),
+        delayMs: lineDelayMs + 1450,
+      };
+
+      nodes.push(child);
+      lines.push({
+        id: `${parent.id}-${child.id}`,
+        fromId: parent.id,
+        toId: child.id,
+        x1: parent.x,
+        y1: parent.y,
+        x2: child.x,
+        y2: child.y,
+        delayMs: lineDelayMs,
+      });
+
+      if (child.id < 13) queue.push(child.id);
+      id += 1;
+    }
+  }
+
+  const linkedNodePairs = new Set(lines.map((line) => [line.fromId, line.toId].sort((a, b) => a - b).join('-')));
+
+  nodes.slice(2).forEach((node) => {
+    const nearestVisibleNeighbor = nodes
+      .slice(1, node.id)
+      .filter((candidate) => !linkedNodePairs.has([node.id, candidate.id].sort((a, b) => a - b).join('-')))
+      .sort((a, b) => startupGraphDistance(node, a) - startupGraphDistance(node, b))[0];
+
+    if (!nearestVisibleNeighbor) return;
+    const pairId = [node.id, nearestVisibleNeighbor.id].sort((a, b) => a - b).join('-');
+    linkedNodePairs.add(pairId);
+    lines.push({
+      id: `mesh-near-${pairId}`,
+      fromId: node.id,
+      toId: nearestVisibleNeighbor.id,
+      x1: node.x,
+      y1: node.y,
+      x2: nearestVisibleNeighbor.x,
+      y2: nearestVisibleNeighbor.y,
+      delayMs: Math.max(node.delayMs, nearestVisibleNeighbor.delayMs) + 420 + (node.id % 3) * 180,
+      mesh: true,
+    });
+  });
+
+  for (let i = 0; i < 10; i += 1) {
+    const a = nodes[1 + Math.floor(Math.random() * Math.max(1, nodes.length - 1))];
+    const b = nodes[1 + Math.floor(Math.random() * Math.max(1, nodes.length - 1))];
+    if (!a || !b || a.id === b.id) continue;
+    const pairId = [a.id, b.id].sort((left, right) => left - right).join('-');
+    if (linkedNodePairs.has(pairId)) continue;
+    linkedNodePairs.add(pairId);
+    lines.push({
+      id: `mesh-${i}-${pairId}`,
+      fromId: a.id,
+      toId: b.id,
+      x1: a.x,
+      y1: a.y,
+      x2: b.x,
+      y2: b.y,
+      delayMs: Math.max(a.delayMs, b.delayMs) + 520 + Math.floor(Math.random() * 420),
+      mesh: true,
+    });
+  }
+
+  const adjacency = new Map<number, Array<{ nodeId: number; line: StartupGraphLine; distance: number }>>();
+  nodes.forEach((node) => adjacency.set(node.id, []));
+  lines.forEach((line) => {
+    const a = nodes[line.fromId];
+    const b = nodes[line.toId];
+    if (!a || !b) return;
+    const distance = startupGraphDistance(a, b);
+    adjacency.get(line.fromId)?.push({ nodeId: line.toId, line, distance });
+    adjacency.get(line.toId)?.push({ nodeId: line.fromId, line, distance });
+  });
+
+  const shortestDistance = new Map<number, number>(nodes.map((node) => [node.id, Number.POSITIVE_INFINITY]));
+  const shortestPrevious = new Map<number, { nodeId: number; line: StartupGraphLine }>();
+  shortestDistance.set(0, 0);
+  const unsettled = new Set(nodes.map((node) => node.id));
+
+  while (unsettled.size) {
+    let currentId = -1;
+    let currentDistance = Number.POSITIVE_INFINITY;
+    unsettled.forEach((nodeId) => {
+      const distance = shortestDistance.get(nodeId) ?? Number.POSITIVE_INFINITY;
+      if (distance < currentDistance) {
+        currentDistance = distance;
+        currentId = nodeId;
+      }
+    });
+    if (currentId === -1) break;
+    unsettled.delete(currentId);
+
+    adjacency.get(currentId)?.forEach(({ nodeId, line, distance }) => {
+      const nextDistance = currentDistance + distance;
+      if (nextDistance < (shortestDistance.get(nodeId) ?? Number.POSITIVE_INFINITY)) {
+        shortestDistance.set(nodeId, nextDistance);
+        shortestPrevious.set(nodeId, { nodeId: currentId, line });
+      }
+    });
+  }
+
+  const packets: Array<StartupGraphPacket> = nodes.slice(1).flatMap((node) => {
+    const points = [{ x: node.x, y: node.y }];
+    const pathLines: Array<StartupGraphLine> = [];
+    let currentId = node.id;
+
+    while (currentId !== 0 && points.length < 7) {
+      const previous = shortestPrevious.get(currentId);
+      if (!previous) break;
+      const previousNode = nodes[previous.nodeId];
+      if (!previousNode) break;
+      pathLines.push(previous.line);
+      points.push({ x: previousNode.x, y: previousNode.y });
+      currentId = previous.nodeId;
+    }
+
+    if (currentId !== 0 || points.length < 2) return [];
+
+    const pathReadyAt = Math.max(node.delayMs, ...pathLines.map((line) => line.delayMs + 1450));
+    return [
+      {
+        id: `packet-path-${node.id}`,
+        points,
+        delayMs: pathReadyAt + 500 + Math.floor(Math.random() * 300),
+        durationMs: 420 * (points.length - 1) + Math.floor(Math.random() * 500),
+      },
+    ];
+  });
+
+  return { nodes, lines, packets };
+}
+
+function HyperbeamStartupNetworkMirror() {
+  const graph = React.useMemo(() => createStartupGraph(0), []);
+  const [elapsedMs, setElapsedMs] = React.useState(0);
+
+  React.useEffect(() => {
+    const startedAt = performance.now();
+    setElapsedMs(0);
+    const interval = window.setInterval(() => {
+      setElapsedMs(performance.now() - startedAt);
+    }, 90);
+
+    return () => window.clearInterval(interval);
+  }, []);
+
+  const visibleLines = graph.lines.filter((line) => elapsedMs >= line.delayMs);
+  const visibleNodes = graph.nodes.filter((node) => elapsedMs >= node.delayMs);
+  const visiblePackets = graph.packets.filter((packet) => elapsedMs >= packet.delayMs);
+  const lineBuildDurationMs = 1450;
+
+  return (
+    <div className="odysee-hyperbeam-startup" aria-hidden="true">
+      <svg className="odysee-hyperbeam-startup__graph" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {visibleLines.map((line) => {
+          const progress = Math.min(1, Math.max(0, (elapsedMs - line.delayMs) / lineBuildDurationMs));
+          const x2 = line.x1 + (line.x2 - line.x1) * progress;
+          const y2 = line.y1 + (line.y2 - line.y1) * progress;
+
+          return (
+            <line
+              key={line.id}
+              className={
+                line.mesh
+                  ? 'odysee-hyperbeam-startup__line odysee-hyperbeam-startup__line--mesh'
+                  : 'odysee-hyperbeam-startup__line'
+              }
+              x1={line.x1}
+              y1={line.y1}
+              x2={x2}
+              y2={y2}
+              pathLength={1}
+              style={{ opacity: progress > 0 ? 1 : 0 }}
+            />
+          );
+        })}
+      </svg>
+      {visibleNodes.map((node) => (
+        <span
+          key={node.id}
+          className={
+            node.id === 0
+              ? 'odysee-hyperbeam-startup__node odysee-hyperbeam-startup__node--root'
+              : 'odysee-hyperbeam-startup__node'
+          }
+          style={{
+            left: `${node.x}%`,
+            top: `${node.y}%`,
+            width: node.id === 0 ? 13 : 6,
+            height: node.id === 0 ? 13 : 6,
+          }}
+        />
+      ))}
+      {visiblePackets.map((packet) => (
+        <span
+          key={`receive-${packet.id}`}
+          className="odysee-hyperbeam-startup__root-receive"
+          style={
+            {
+              '--receive-delay': '0ms',
+              '--receive-duration': `${packet.durationMs * 2.4}ms`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+      {visiblePackets.map((packet) => (
+        <span
+          key={packet.id}
+          className={`odysee-hyperbeam-startup__packet odysee-hyperbeam-startup__packet--${Math.min(6, packet.points.length)}`}
+          style={
+            {
+              '--packet-x1': `${packet.points[0]?.x || 50}%`,
+              '--packet-y1': `${packet.points[0]?.y || 50}%`,
+              '--packet-x2': `${packet.points[1]?.x || packet.points[0]?.x || 50}%`,
+              '--packet-y2': `${packet.points[1]?.y || packet.points[0]?.y || 50}%`,
+              '--packet-x3': `${packet.points[2]?.x || packet.points[1]?.x || packet.points[0]?.x || 50}%`,
+              '--packet-y3': `${packet.points[2]?.y || packet.points[1]?.y || packet.points[0]?.y || 50}%`,
+              '--packet-x4': `${packet.points[3]?.x || packet.points[2]?.x || packet.points[1]?.x || 50}%`,
+              '--packet-y4': `${packet.points[3]?.y || packet.points[2]?.y || packet.points[1]?.y || 50}%`,
+              '--packet-x5': `${packet.points[4]?.x || packet.points[3]?.x || packet.points[2]?.x || 50}%`,
+              '--packet-y5': `${packet.points[4]?.y || packet.points[3]?.y || packet.points[2]?.y || 50}%`,
+              '--packet-x6': `${packet.points[5]?.x || packet.points[4]?.x || packet.points[3]?.x || 50}%`,
+              '--packet-y6': `${packet.points[5]?.y || packet.points[4]?.y || packet.points[3]?.y || 50}%`,
+              '--packet-duration': `${packet.durationMs * 2.4}ms`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </div>
+  );
+}
+
 function VideoRenderFloating(props: Props) {
   const { location } = props;
   const dispatch = useAppDispatch();
@@ -206,6 +501,7 @@ function VideoRenderFloating(props: Props) {
     collection: { collectionId },
   } = playingUri;
   const uri = (!playingUri.sourceId && playingUri.uri) || autoplayCountdownUri;
+  const [hyperbeamStartupMirrorActive, setHyperbeamStartupMirrorActive] = React.useState(false);
   const claim = useAppSelector((state) => uri && selectClaimForUri(state, uri));
   const isBlacklisted = useAppSelector((state) => (uri ? Boolean(selectBlackListedDataForUri(state, uri)) : false));
   const filterData = useAppSelector((state) => (uri ? selectFilteredDataForUri(state, uri) : null));
@@ -216,6 +512,45 @@ function VideoRenderFloating(props: Props) {
   const { canonical_url: channelUrl } = channelClaim || {};
   const playingFromQueue = playingUri.source === COLLECTIONS_CONSTS.QUEUE_ID;
   const isInlinePlayer = Boolean(playingUri.source) && !isFloating;
+  React.useEffect(() => {
+    if (!uri || isFloating) {
+      setHyperbeamStartupMirrorActive(false);
+      return;
+    }
+
+    let mirrorDelay: number | undefined;
+    const activateMirror = () => {
+      window.clearTimeout(mirrorDelay);
+      mirrorDelay = window.setTimeout(() => setHyperbeamStartupMirrorActive(true), 640);
+    };
+
+    if (
+      (window as any)[HYPERBEAM_PENDING_STARTUP_URI_KEY] === uri ||
+      document.body.classList.contains('hyperbeam-startup-active')
+    ) {
+      activateMirror();
+    }
+
+    const handleStartupBegin = (event: Event) => {
+      const detail = (event as CustomEvent<{ uri?: string }>).detail;
+      if (detail?.uri !== uri) return;
+      activateMirror();
+    };
+    const handleStartupReady = (event: Event) => {
+      const detail = (event as CustomEvent<{ uri?: string }>).detail;
+      if (detail?.uri && detail.uri !== uri) return;
+      window.clearTimeout(mirrorDelay);
+      setHyperbeamStartupMirrorActive(false);
+    };
+    window.addEventListener(HYPERBEAM_STARTUP_BEGIN_EVENT, handleStartupBegin);
+    window.addEventListener(HYPERBEAM_STARTUP_READY_EVENT, handleStartupReady);
+
+    return () => {
+      window.clearTimeout(mirrorDelay);
+      window.removeEventListener(HYPERBEAM_STARTUP_BEGIN_EVENT, handleStartupBegin);
+      window.removeEventListener(HYPERBEAM_STARTUP_READY_EVENT, handleStartupReady);
+    };
+  }, [isFloating, uri]);
   const shortsPlaylist = useAppSelector(selectShortsPlaylist);
   const autoPlayNextShort = useAppSelector((state) => selectClientSetting(state, SETTINGS.AUTOPLAY_NEXT_SHORTS));
   const primaryUri = useAppSelector(selectPrimaryUri);
@@ -935,6 +1270,12 @@ function VideoRenderFloating(props: Props) {
               isFloatingContext={isFloating}
               forceRenderStream={isFloating}
             />
+          )}
+
+          {hyperbeamStartupMirrorActive && !isFloating && (
+            <div className="content__hyperbeam-startup-layer content__hyperbeam-startup-layer--active content__hyperbeam-startup-layer--player-mirror">
+              <HyperbeamStartupNetworkMirror />
+            </div>
           )}
 
           {isFloating && isMobile && !isShortsFloating && navigateUrl && (

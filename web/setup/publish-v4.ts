@@ -5,6 +5,7 @@ import {
   startRemoteUrl,
   startTus,
   createClaim,
+  getTusUpstreamUrl,
   checkPublishStatus,
   yieldThread,
   resolveFileToUpload,
@@ -137,7 +138,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
     } else if (remote_url) {
       // Start remote URL upload
       dispatch(add(remote_url, params, DUMMY_REQUEST, 'v4'));
-      const sdkFilePath = await startRemoteUrl(uploadToken, remote_url);
+      const sdkFilePath = await startRemoteUrl(token, uploadToken, remote_url);
       // Create claim
       publishId = await createClaim(token, sdkFilePath, sdkParams, {
         onSuccess: (publishId) =>
@@ -185,7 +186,7 @@ export async function makeV4UploadRequest(token: string, params: FileUploadSdkPa
           ),
       });
       // Create claim
-      publishId = await createClaim(token, tusSession.url, sdkParams, {
+      publishId = await createClaim(token, getTusUpstreamUrl(tusSession.url), sdkParams, {
         onSuccess: (publishId) =>
           dispatch(
             progress({

@@ -2,11 +2,13 @@ import * as ACTIONS from 'constants/action_types';
 import { getAuthToken } from 'util/saved-passwords';
 import { doNotificationList } from 'redux/actions/notifications';
 import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
+import { doCommentList } from 'redux/actions/comments';
 import { selectLivestreamInfoAlreadyFetchedForCreatorId } from 'redux/selectors/livestream';
 import { selectClaimForId, selectChannelClaimIdForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
-import { SOCKETY_SERVER_API } from 'config';
+import { ODYSEE_HYPERBEAM_NODE_API, SOCKETY_SERVER_API } from 'config';
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
 const COMMENT_WS_URL = `${SOCKETY_SERVER_API}/commentron?id=`;
+const POLL_INTERVAL_MS = 15000;
 const COMMENT_WS_SUBCATEGORIES = {
   COMMENTER: 'commenter',
   VIEWER: 'viewer',
@@ -14,6 +16,24 @@ const COMMENT_WS_SUBCATEGORIES = {
 let sockets = {};
 let closingSockets = {};
 let retryCount = 0;
+let pollingIntervals = {};
+
+function hyperbeamNodeConfigured() {
+  return Boolean(String(ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, ''));
+}
+
+function startPolling(key: string, poll: () => void, intervalMs = POLL_INTERVAL_MS) {
+  stopPolling(key);
+  poll();
+  pollingIntervals[key] = setInterval(poll, intervalMs);
+}
+
+function stopPolling(key: string) {
+  if (pollingIntervals[key]) {
+    clearInterval(pollingIntervals[key]);
+    pollingIntervals[key] = null;
+  }
+}
 
 const getCommentSocketUrl = (claimId, channelName) => {
   return `${COMMENT_WS_URL}${claimId}&category=${channelName}&sub_category=viewer`;
@@ -89,6 +109,15 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
     return;
   }
 
+  if (hyperbeamNodeConfigured()) {
+    startPolling('notification', () => {
+      if (enableNotifications) {
+        dispatch(doNotificationList());
+      }
+    });
+    return;
+  }
+
   const url = `${NOTIFICATION_WS_URL}${authToken}`;
   doSocketConnect(
     url,
@@ -127,6 +156,22 @@ export const doCommentSocketConnect =
       subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
         ? getCommentSocketUrlForCommenter(claimIdForSocketUrl, channelName)
         : getCommentSocketUrl(claimIdForSocketUrl, channelName);
+
+    if (hyperbeamNodeConfigured()) {
+      const pollKey = `comment:${claimId}:${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER}`;
+      startPolling(pollKey, () => {
+        dispatch(doCommentList(uri, undefined, 1, 75, undefined, true));
+        dispatch(doFetchChannelIsLiveForId(creatorId));
+      });
+
+      if (isLiveFetchPending) {
+        dispatch(doFetchChannelIsLiveForId(creatorId));
+      }
+
+      dispatch(doSetSocketConnection(true, claimId, subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER));
+      return;
+    }
+
     doSocketConnect(
       url,
       (response) => {
@@ -214,6 +259,7 @@ export const doCommentSocketDisconnect = (claimId, channelName, subCategory) => 
     subCategory === COMMENT_WS_SUBCATEGORIES.COMMENTER
       ? getCommentSocketUrlForCommenter(claimIdForSocketUrl, channelName)
       : getCommentSocketUrl(claimIdForSocketUrl, channelName);
+  stopPolling(`comment:${claimId}:${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER}`);
   dispatch(doSocketDisconnect(url));
   dispatch(doSetSocketConnection(false, claimId, subCategory));
 };

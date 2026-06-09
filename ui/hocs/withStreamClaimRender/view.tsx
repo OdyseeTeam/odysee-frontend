@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { isCastSessionActive } from 'component/viewers/videoViewer/internal/hooks/useChromecast';
 import analytics from 'analytics';
@@ -49,6 +50,8 @@ import { doMembershipMine, doMembershipList } from 'redux/actions/memberships';
 // Bounded set to prevent repeated 'isHome' updateClaim calls (avoids loops on homepage)
 const HOME_INIT_FLAGS_MAX_SIZE = 100;
 const homeInitFlags: Set<string> = new Set();
+const HYPERBEAM_STARTUP_READY_EVENT = 'odysee-hyperbeam-startup-ready';
+
 type Props = {
   uri: string;
   children?: any;
@@ -73,6 +76,7 @@ type Props = {
  */
 const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) => {
   const StreamClaimWrapper = (props: Props) => {
+    const streamComponentOwnsStartupLayer = Boolean(StreamClaimComponent.rendersHyperbeamStartupLayer);
     const {
       uri,
       children,
@@ -139,6 +143,8 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     const floatingPlayerEnabledRef = React.useRef(floatingPlayerEnabled);
     const [currentStreamingUri, setCurrentStreamingUri] = React.useState<string | undefined>();
     const [clickProps, setClickProps] = React.useState<{ href?: string; onClick?: () => void } | undefined>();
+    const [hyperbeamStartupActive, setHyperbeamStartupActive] = React.useState(false);
+    const [hyperbeamStartupReady, setHyperbeamStartupReady] = React.useState(false);
     const currentLocation = location || {
       pathname: typeof window !== 'undefined' ? window.location.pathname : '',
       search: typeof window !== 'undefined' ? window.location.search : '',
@@ -218,11 +224,51 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     }
 
     function handleClick() {
+      setHyperbeamStartupActive(true);
+      setHyperbeamStartupReady(false);
       streamClaim();
 
       // In case of inline player where play button is reachable -> set is expanded
       expandInlinePlayerContainer();
     }
+
+    const startHyperbeamStartup = React.useCallback(() => {
+      setHyperbeamStartupActive(true);
+      setHyperbeamStartupReady(false);
+    }, []);
+
+    const handleAnimatedHyperbeamClick = React.useCallback(() => {
+      handleClick();
+    }, [handleClick]);
+
+    React.useEffect(() => {
+      if (!hyperbeamStartupActive) return;
+      const markStartupReady = (event: Event) => {
+        const detail = (event as CustomEvent<{ uri?: string }>).detail;
+        if (detail?.uri !== uri) return;
+        setHyperbeamStartupReady(true);
+      };
+      window.addEventListener(HYPERBEAM_STARTUP_READY_EVENT, markStartupReady);
+
+      return () => window.removeEventListener(HYPERBEAM_STARTUP_READY_EVENT, markStartupReady);
+    }, [hyperbeamStartupActive, uri]);
+
+    React.useEffect(() => {
+      if (!hyperbeamStartupActive || !hyperbeamStartupReady || !sourceLoaded) return;
+      let frameOne = 0;
+      let frameTwo = 0;
+      frameOne = window.requestAnimationFrame(() => {
+        frameTwo = window.requestAnimationFrame(() => {
+          setHyperbeamStartupActive(false);
+          setHyperbeamStartupReady(false);
+        });
+      });
+
+      return () => {
+        window.cancelAnimationFrame(frameOne);
+        window.cancelAnimationFrame(frameTwo);
+      };
+    }, [hyperbeamStartupActive, hyperbeamStartupReady, sourceLoaded]);
 
     React.useEffect(() => {
       if (channelClaimId && channelName) {
@@ -421,14 +467,73 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       );
     }
 
+    const shouldShowPreplayCover =
+      !hyperbeamStartupActive &&
+      ((!playingUri && !streamStarted) ||
+        !hasStreamSource ||
+        embeddedLivestreamPendingStart ||
+        livestreamUnplayable ||
+        (isPlayable && !currentUriPlaying && !forceRenderStream && !(autoplayVideo && !isFloatingContext)));
+
+    const renderStartupLayer = () => (
+      <div
+        className={classnames('content__hyperbeam-startup-layer', {
+          'content__hyperbeam-startup-layer--active': hyperbeamStartupActive,
+        })}
+      >
+        <Button
+          onPointerDown={startHyperbeamStartup}
+          onMouseDown={startHyperbeamStartup}
+          onTouchStart={startHyperbeamStartup}
+          onClick={handleAnimatedHyperbeamClick}
+          iconSize={30}
+          title={__('Play')}
+          className={`button--icon button--play${hyperbeamStartupActive ? ' button--play-morphing' : ''}`}
+        />
+        <HyperbeamStartupNetwork />
+      </div>
+    );
+
+    const renderStartupCover = () => (
+      <ClaimCoverRender
+        onSwipeNext={onSwipeNext}
+        onSwipePrevious={onSwipePrevious}
+        enableSwipe={enableSwipe}
+        uri={uri}
+        onClick={handleAnimatedHyperbeamClick}
+        isShortsContext={isShortsContext}
+        isFloatingContext={isFloatingContext}
+        hidePreview={hyperbeamStartupActive}
+      >
+        {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
+      </ClaimCoverRender>
+    );
+
+    const renderStartupShell = (baseLayer: React.ReactNode) => (
+      <div
+        className={classnames('content__hyperbeam-startup-shell', {
+          'content__hyperbeam-startup-shell--active': hyperbeamStartupActive,
+        })}
+      >
+        {baseLayer}
+        {renderStartupLayer()}
+      </div>
+    );
+
+    const renderComponentStartupCover = () => (
+      <StreamClaimComponent
+        {...props}
+        uri={uri}
+        streamClaim={handleClick}
+        hyperbeamStartupActive={hyperbeamStartupActive}
+        startHyperbeamStartup={startHyperbeamStartup}
+      >
+        {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
+      </StreamClaimComponent>
+    );
+
     // -- Loading State -- return before component render
-    if (
-      (!playingUri && !streamStarted) ||
-      !hasStreamSource ||
-      embeddedLivestreamPendingStart ||
-      livestreamUnplayable ||
-      (isPlayable && !currentUriPlaying && !forceRenderStream && !(autoplayVideo && !isFloatingContext))
-    ) {
+    if (shouldShowPreplayCover) {
       if (channelLiveFetched && livestreamUnplayable) {
         // -- Nothing to show, render cover --
         return (
@@ -439,28 +544,17 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
             </ClaimCoverRender>
           </>
         );
-      } else if (isPlayable && !autoplayVideo) {
-        return (
-          <ClaimCoverRender
-            onSwipeNext={onSwipeNext}
-            onSwipePrevious={onSwipePrevious}
-            enableSwipe={enableSwipe}
-            uri={uri}
-            onClick={handleClick}
-            isShortsContext={isShortsContext}
-            isFloatingContext={isFloatingContext}
-          >
-            {embedded && <FileViewerEmbeddedTitle uri={uri} uriAccessKey={uriAccessKey} />}
-            <Button onClick={handleClick} iconSize={30} title={__('Play')} className="button--icon button--play" />
-          </ClaimCoverRender>
-        );
+      } else if (isPlayable) {
+        return streamComponentOwnsStartupLayer
+          ? renderComponentStartupCover()
+          : renderStartupShell(renderStartupCover());
       } else if (renderMode === 'md') {
         return <LoadingScreen />;
       }
     }
 
     // -- Main Component Render -- return when already has the claim's contents
-    return (
+    const renderedStream = (
       <>
         {currentUriPlaying && claimLinkId && !sourceLoaded && !embedded && !forceRenderStream ? (
           <LoadingScreen />
@@ -468,7 +562,9 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
           <StreamClaimComponent
             {...props}
             uri={uri}
-            streamClaim={streamClaim}
+            streamClaim={handleClick}
+            hyperbeamStartupActive={hyperbeamStartupActive}
+            startHyperbeamStartup={startHyperbeamStartup}
             channelName={channelName}
             channelClaimId={channelClaimId}
             claimId={claimId}
@@ -500,10 +596,103 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         )}
       </>
     );
+
+    const shouldShowStartupLayer = isPlayable && !sourceLoaded;
+
+    if (streamComponentOwnsStartupLayer) return renderedStream;
+    if (!hyperbeamStartupActive && !shouldShowStartupLayer) return renderedStream;
+
+    return renderStartupShell(renderedStream);
   };
 
   StreamClaimWrapper.displayName = `withStreamClaimRender(${StreamClaimComponent.displayName || StreamClaimComponent.name || 'Component'})`;
   return StreamClaimWrapper;
 };
+
+function HyperbeamStartupNetwork() {
+  const nodes = React.useMemo(
+    () =>
+      [
+        [50, 50],
+        [37, 37],
+        [63, 36],
+        [34, 58],
+        [66, 59],
+        [47, 24],
+        [54, 72],
+        [24, 43],
+        [76, 44],
+        [25, 67],
+        [74, 70],
+        [42, 82],
+        [59, 19],
+      ].map(([x, y], index) => ({ id: index, x, y, delay: index * 42 })),
+    []
+  );
+  const lines = React.useMemo(
+    () => [
+      [0, 1],
+      [0, 2],
+      [0, 3],
+      [0, 4],
+      [1, 5],
+      [1, 7],
+      [2, 5],
+      [2, 8],
+      [3, 7],
+      [3, 9],
+      [4, 8],
+      [4, 10],
+      [3, 6],
+      [4, 6],
+      [6, 11],
+      [2, 12],
+      [5, 12],
+      [9, 11],
+      [10, 11],
+    ],
+    []
+  );
+
+  return (
+    <div className="content__hyperbeam-startup-network" aria-hidden="true">
+      <svg className="content__hyperbeam-startup-network__graph" viewBox="0 0 100 100" preserveAspectRatio="none">
+        {lines.map(([from, to], index) => {
+          const fromNode = nodes[from];
+          const toNode = nodes[to];
+          return (
+            <line
+              key={`${from}-${to}`}
+              className="content__hyperbeam-startup-network__line"
+              x1={fromNode.x}
+              y1={fromNode.y}
+              x2={toNode.x}
+              y2={toNode.y}
+              pathLength={1}
+              style={{ animationDelay: `${index * 24}ms` }}
+            />
+          );
+        })}
+      </svg>
+      {nodes.map((node) => (
+        <span
+          key={node.id}
+          className={
+            node.id === 0
+              ? 'content__hyperbeam-startup-network__node content__hyperbeam-startup-network__node--root'
+              : 'content__hyperbeam-startup-network__node'
+          }
+          style={{
+            left: `${node.x}%`,
+            top: `${node.y}%`,
+            width: node.id === 0 ? 13 : 7,
+            height: node.id === 0 ? 13 : 7,
+            animationDelay: `${node.delay}ms`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export default withStreamClaimRender;
