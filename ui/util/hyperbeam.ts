@@ -1,8 +1,13 @@
-import { HYPERBEAM_BASE_URL } from 'config';
+import { HYPERBEAM_BASE_URL, LBRY_API_URL } from 'config';
 
 const HYPERBEAM_TIMEOUT_MS = 5000;
+const CLAIM_DEVICE = '~odysee-claim@1.0';
 const COMMENT_DEVICE = '~odysee-comment@1.0';
-const CHANNEL_DEVICE = '~lbry-channel@1.0';
+const REACTION_DEVICE = '~odysee-reaction@1.0';
+const FILE_DEVICE = '~odysee-file@1.0';
+const FILE_REACTION_DEVICE = '~odysee-file-reaction@1.0';
+const SUBSCRIPTION_DEVICE = '~odysee-subscription@1.0';
+const CHANNEL_DEVICE = '~odysee-channel@1.0';
 
 type HyperbeamChannel = {
   claim_id?: string;
@@ -49,6 +54,71 @@ export async function fetchHyperbeamCommentById(params: CommentByIdParams): Prom
   };
 }
 
+export async function fetchHyperbeamReactionList(params: ReactionListParams): Promise<ReactionListResponse | null> {
+  const response = await fetchDeviceJson(`${REACTION_DEVICE}/list`, params);
+  const result = responsePayload(response);
+  const myReactions = value(result, 'my_reactions', 'my-reactions');
+  const othersReactions = value(result, 'others_reactions', 'others-reactions');
+
+  return isObject(myReactions) && isObject(othersReactions)
+    ? { my_reactions: myReactions, others_reactions: othersReactions }
+    : null;
+}
+
+export async function fetchHyperbeamFileReactionList(params: { claim_ids: string }): Promise<any | null> {
+  const response = await fetchDeviceJson(`${FILE_REACTION_DEVICE}/list`, params);
+  const result = responsePayload(response);
+  const myReactions = value(result, 'my_reactions', 'my-reactions');
+  const othersReactions = value(result, 'others_reactions', 'others-reactions');
+
+  return isObject(myReactions) && isObject(othersReactions)
+    ? { my_reactions: myReactions, others_reactions: othersReactions }
+    : null;
+}
+
+export async function fetchHyperbeamViewCount(claimIdCsv: string): Promise<Array<number> | null> {
+  const response = await fetchDeviceJson(`${FILE_DEVICE}/view-count`, {
+    claim_id: claimIdCsv,
+    odysee_api_url: LBRY_API_URL,
+  });
+  const result = responsePayload(response);
+  const counts = Array.isArray(result) ? result : value(result, 'counts', 'view-counts');
+
+  return Array.isArray(counts) ? counts : null;
+}
+
+export async function fetchHyperbeamSubCount(claimIdCsv: string): Promise<Array<number> | null> {
+  const response = await fetchDeviceJson(
+    `${SUBSCRIPTION_DEVICE}/sub-count`,
+    compactParams({
+      claim_id: claimIdCsv,
+      odysee_api_url: LBRY_API_URL,
+    })
+  );
+  const result = responsePayload(response);
+  const counts = Array.isArray(result) ? result : value(result, 'counts', 'sub-counts');
+
+  return Array.isArray(counts) ? counts : null;
+}
+
+export async function fetchHyperbeamClaimSearch(params: ClaimSearchOptions): Promise<ClaimSearchResponse | null> {
+  const response = await fetchDeviceJson(`${CLAIM_DEVICE}/search`, params);
+  const result = responsePayload(response);
+  const items = result && result.items;
+
+  return Array.isArray(items) ? result : null;
+}
+
+export async function fetchHyperbeamVerifyClaimSignature(
+  params: VerifyClaimSignatureParams
+): Promise<VerifyClaimSignatureResponse | null> {
+  const response = await fetchDeviceJson(`${COMMENT_DEVICE}/verify-claim-signature`, params);
+  const result = responsePayload(response);
+  const isValid = value(result, 'is-valid', 'is_valid');
+
+  return typeof isValid === 'boolean' ? { is_valid: isValid } : null;
+}
+
 export async function fetchHyperbeamChannel(claim: Claim | null | undefined): Promise<HyperbeamChannel | null> {
   if (!claim) return null;
 
@@ -79,7 +149,9 @@ function buildDeviceUrl(path: string): string {
 }
 
 function compactParams(params: Record<string, any>): Record<string, any> {
-  return Object.fromEntries(Object.entries(params).filter(([, value]) => value !== undefined && value !== null));
+  return Object.fromEntries(
+    Object.entries(params).filter(([key, value]) => key !== 'no_auth' && value !== undefined && value !== null)
+  );
 }
 
 function commentFromHyperbeam(comment: any): any {
@@ -139,6 +211,10 @@ function value(source: any, ...keys: string[]): any {
   for (const key of keys) {
     if (source && source[key] !== undefined && source[key] !== null) return source[key];
   }
+}
+
+function isObject(source: any): boolean {
+  return Boolean(source) && typeof source === 'object' && !Array.isArray(source);
 }
 
 function toNumber(value: any, fallback: number): number {

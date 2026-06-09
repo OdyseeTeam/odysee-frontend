@@ -1,7 +1,7 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { VISIBILITY_TAGS } from 'constants/tags';
-import { getChannelIdFromClaim, getClaimTags } from 'util/claim';
+import { getChannelFromClaim, getChannelIdFromClaim, getClaimTags } from 'util/claim';
 /**
  * Checks is there are any visibility restrictions for the given claim.
  *
@@ -49,8 +49,14 @@ export default function useIsVisibilityRestricted(
 
         if (tags && tags.includes(VISIBILITY_TAGS.UNLISTED)) {
           if (accessKey) {
+            const channel = getChannelFromClaim(claim);
+            const channelValue = channel && (channel.value as any);
+
             return verifyClaimSignature({
               channel_id: getChannelIdFromClaim(claim) || claim.claim_id,
+              channel_name: channel && channel.name,
+              channel_url: channel && (channel.permanent_url || channel.canonical_url || channel.short_url),
+              public_key: channelValue && channelValue.public_key,
               claim_id: claim.claim_id,
               signature: accessKey.signature,
               signing_ts: accessKey.signature_ts,
