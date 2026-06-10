@@ -8,6 +8,17 @@ const FILE_DEVICE = '~odysee-file@1.0';
 const FILE_REACTION_DEVICE = '~odysee-file-reaction@1.0';
 const SUBSCRIPTION_DEVICE = '~odysee-subscription@1.0';
 const CHANNEL_DEVICE = '~odysee-channel@1.0';
+const PRIVATE_PARAM_KEYS = new Set([
+  'accesstoken',
+  'authorization',
+  'authtoken',
+  'includeismyoutput',
+  'includepurchasereceipt',
+  'ismyinput',
+  'ismyoutput',
+  'purchasereceipt',
+  'refreshtoken',
+]);
 
 type HyperbeamChannel = {
   claim_id?: string;
@@ -130,10 +141,13 @@ async function fetchDeviceJson(path: string, body: Record<string, any>): Promise
   if (!HYPERBEAM_BASE_URL) return null;
 
   try {
+    const params = compactParams(body);
+    if (hasPrivateParams(params)) return null;
+
     const response = await fetch(buildDeviceUrl(path), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(compactParams(body)),
+      body: JSON.stringify(params),
       signal: timeoutSignal(HYPERBEAM_TIMEOUT_MS),
     });
 
@@ -152,6 +166,17 @@ function compactParams(params: Record<string, any>): Record<string, any> {
   return Object.fromEntries(
     Object.entries(params).filter(([key, value]) => key !== 'no_auth' && value !== undefined && value !== null)
   );
+}
+
+function hasPrivateParams(source: any): boolean {
+  if (!source || typeof source !== 'object') return false;
+
+  if (Array.isArray(source)) return source.some(hasPrivateParams);
+
+  return Object.entries(source).some(([key, value]) => {
+    const normalizedKey = key.replace(/[-_]/g, '').toLowerCase();
+    return PRIVATE_PARAM_KEYS.has(normalizedKey) || hasPrivateParams(value);
+  });
 }
 
 function commentFromHyperbeam(comment: any): any {
