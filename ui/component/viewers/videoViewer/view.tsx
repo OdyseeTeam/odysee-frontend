@@ -46,6 +46,7 @@ type Props = {
   position?: number;
   claim?: any;
   hyperbeamChannel?: any;
+  hyperbeamStreamVerification?: any;
   muted: boolean;
   volume: number;
   autoplayNext?: boolean;

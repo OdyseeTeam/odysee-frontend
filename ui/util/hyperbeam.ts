@@ -8,6 +8,7 @@ const FILE_DEVICE = '~odysee-file@1.0';
 const FILE_REACTION_DEVICE = '~odysee-file-reaction@1.0';
 const SUBSCRIPTION_DEVICE = '~odysee-subscription@1.0';
 const CHANNEL_DEVICE = '~odysee-channel@1.0';
+const STREAM_DEVICE = '~odysee-stream@1.0';
 const PRIVATE_PARAM_KEYS = new Set([
   'accesstoken',
   'authorization',
@@ -137,12 +138,19 @@ export async function fetchHyperbeamChannel(claim: Claim | null | undefined): Pr
   return result ? channelFromHyperbeam(result) : null;
 }
 
+export async function fetchHyperbeamStreamVerification(
+  claim: Claim | null | undefined,
+  uri: string
+): Promise<any | null> {
+  const result = await fetchDeviceJson(`${STREAM_DEVICE}/verified-stream`, compactParams({ claim, url: uri }));
+  return responsePayload(result);
+}
+
 async function fetchDeviceJson(path: string, body: Record<string, any>): Promise<any | null> {
   if (!HYPERBEAM_BASE_URL) return null;
 
   try {
-    const params = compactParams(body);
-    if (hasPrivateParams(params)) return null;
+    const params = stripPrivateParams(compactParams(body));
 
     const response = await fetch(buildDeviceUrl(path), {
       method: 'POST',
@@ -168,15 +176,16 @@ function compactParams(params: Record<string, any>): Record<string, any> {
   );
 }
 
-function hasPrivateParams(source: any): boolean {
-  if (!source || typeof source !== 'object') return false;
+function stripPrivateParams(source: any): any {
+  if (!source || typeof source !== 'object') return source;
 
-  if (Array.isArray(source)) return source.some(hasPrivateParams);
+  if (Array.isArray(source)) return source.map(stripPrivateParams);
 
-  return Object.entries(source).some(([key, value]) => {
-    const normalizedKey = key.replace(/[-_]/g, '').toLowerCase();
-    return PRIVATE_PARAM_KEYS.has(normalizedKey) || hasPrivateParams(value);
-  });
+  return Object.fromEntries(
+    Object.entries(source)
+      .filter(([key]) => !PRIVATE_PARAM_KEYS.has(key.replace(/[-_]/g, '').toLowerCase()))
+      .map(([key, value]) => [key, stripPrivateParams(value)])
+  );
 }
 
 function commentFromHyperbeam(comment: any): any {
