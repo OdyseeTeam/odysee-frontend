@@ -1,6 +1,6 @@
 import { COPYRIGHT_ISSUES, OTHER_LEGAL_ISSUES } from 'constants/report_content';
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
-import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { HYPERBEAM_DEVICE, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
 
 function getCategoryUrl(category: string) {
   switch (category) {
@@ -18,10 +18,11 @@ function getCategoryUrl(category: string) {
 export async function sendContentReport(category: string, params: string) {
   const node = String(ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, '');
   if (node) {
-    const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.productEvents, 'report_content', {
-      params64: base64Url(JSON.stringify({ category: hyperbeamNodeCategory(category), params })),
+    const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.productEvents, 'report_content', {
+      category: hyperbeamNodeCategory(category),
+      params,
     });
-    return fetch(url, { method: 'GET', headers: { accept: 'application/json' } });
+    if (request) return request;
   }
 
   return fetch(`${getCategoryUrl(category)}?${params}`, {
@@ -41,14 +42,4 @@ function hyperbeamNodeCategory(category: string) {
     default:
       return 'common';
   }
-}
-
-function base64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }

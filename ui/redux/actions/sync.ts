@@ -1,5 +1,6 @@
 import * as ACTIONS from 'constants/action_types';
 import * as SETTINGS from 'constants/settings';
+import { Lbryio } from 'lbryinc';
 import Lbry from 'lbry';
 import { doWalletEncrypt, doWalletDecrypt } from 'redux/actions/wallet';
 import {
@@ -16,7 +17,7 @@ import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
-import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { HYPERBEAM_DEVICE, hyperbeamDevicePostJson } from 'util/hyperbeamDevices';
 let syncTimer = null;
 const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
@@ -91,11 +92,16 @@ export function doSetSync(oldHash: string, newHash: string, data: any) {
     dispatch({
       type: ACTIONS.SET_SYNC_STARTED,
     });
-    return Lbry.sync_set({
-      old_hash: oldHash,
-      new_hash: newHash,
-      data,
-    })
+    return Lbryio.call(
+      'sync',
+      'set',
+      {
+        old_hash: oldHash,
+        new_hash: newHash,
+        data,
+      },
+      'post'
+    )
       .then((response) => {
         if (!response.hash) {
           throw Error('No hash returned for sync/set.');
@@ -258,9 +264,14 @@ export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: 
 
         const syncHash = hash as string;
         data.lastSyncHash = syncHash;
-        return Lbry.sync_get({
-          hash: syncHash,
-        });
+        return Lbryio.call(
+          'sync',
+          'get',
+          {
+            hash: syncHash,
+          },
+          'post'
+        );
       })
       .then((response: any) => {
         if (response === SYNC_DEFERRED_MARKER) {
@@ -450,9 +461,14 @@ export function doCheckSync() {
       type: ACTIONS.GET_SYNC_STARTED,
     });
     Lbry.sync_hash().then((hash) => {
-      Lbry.sync_get({
-        hash,
-      })
+      Lbryio.call(
+        'sync',
+        'get',
+        {
+          hash,
+        },
+        'post'
+      )
         .then((response) => {
           const data = {
             hasSyncedWallet: true,
@@ -494,9 +510,14 @@ export function doSyncEncryptAndDecrypt(oldPassword: string, newPassword: string
     const data: { oldHash?: string } = {};
     return Lbry.sync_hash()
       .then((hash) =>
-        Lbry.sync_get({
-          hash,
-        })
+        Lbryio.call(
+          'sync',
+          'get',
+          {
+            hash,
+          },
+          'post'
+        )
       )
       .then((syncGetResponse) => {
         data.oldHash = syncGetResponse.hash;
@@ -626,15 +647,7 @@ function followingToSubscriptions(following: any) {
 function debugHyperbeamSharedState(data: any) {
   try {
     const encoded = base64UrlEncode(JSON.stringify(data || {}));
-    const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.internalApis, 'debug', { params64: encoded });
-    if (!url) return;
-
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-      },
-    }).catch(() => {});
+    hyperbeamDevicePostJson(HYPERBEAM_DEVICE.internalApis, 'debug', { params64: encoded })?.catch(() => {});
   } catch (e) {}
 }
 
@@ -927,11 +940,6 @@ export function doPreferenceSet(
           await syncSharedPreferenceWrite(dispatch, getState, previousSyncHash, syncHash);
         } catch (syncError) {
           console.error('Failed to sync shared preferences after preference_set', syncError); // eslint-disable-line no-console
-
-          dispatch({
-            type: ACTIONS.SYNC_FATAL_ERROR,
-            error: syncError,
-          });
         }
       }
 
@@ -941,10 +949,17 @@ export function doPreferenceSet(
 
       return preference;
     } catch (err) {
-      dispatch({
-        type: ACTIONS.SYNC_FATAL_ERROR,
-        error: err,
-      });
+      if (key === 'local') {
+        dispatch({ type: ACTIONS.SET_PREFS_READY, data: true });
+
+        if (fail) {
+          fail();
+        }
+
+        return null;
+      }
+
+      dispatch({ type: ACTIONS.SET_PREFS_READY, data: true });
 
       if (fail) {
         fail();
@@ -971,11 +986,6 @@ export function doPreferenceGet(
         return success(null);
       })
       .catch((err) => {
-        dispatch({
-          type: ACTIONS.SYNC_FATAL_ERROR,
-          error: err,
-        });
-
         if (fail) {
           fail(err);
         }

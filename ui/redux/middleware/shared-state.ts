@@ -12,11 +12,6 @@ let preSyncQueue: Promise<void> = Promise.resolve();
 
 function reportPreSyncError(dispatch, error) {
   console.error('Shared-state pre-sync failed', error); // eslint-disable-line no-console
-
-  dispatch({
-    type: ACTIONS.SYNC_FATAL_ERROR,
-    error,
-  });
 }
 
 function getPreferenceMetadata(state) {

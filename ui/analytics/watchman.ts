@@ -1,5 +1,5 @@
-import { ODYSEE_HYPERBEAM_NODE_API, SDK_API_PATH } from 'config';
-import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { SDK_API_PATH } from 'config';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
 const isProduction = process.env.NODE_ENV === 'production';
 const WATCHMAN_BACKEND_ENDPOINT = 'https://watchman.na-backend.odysee.com/reports/playback';
 const SEND_DATA_TO_WATCHMAN_INTERVAL = 10; // in seconds
@@ -15,32 +15,8 @@ function hyperbeamNodeBase() {
   return hyperbeamDeviceBase(HYPERBEAM_DEVICE.productEvents);
 }
 
-function base64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
 function hyperbeamNodePostJson(key: string, body: any) {
-  const node = hyperbeamNodeBase();
-  if (!node) return null;
-
-  const params64 = base64Url(JSON.stringify(body || {}));
-  const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.productEvents, key, { params64 });
-  const usePost = url.length > 1800;
-
-  return fetch(usePost ? `${node}/${key}` : url, {
-    method: usePost ? 'POST' : 'GET',
-    headers: {
-      Accept: 'application/json',
-      ...(usePost ? { 'Content-Type': 'application/json' } : {}),
-    },
-    ...(usePost ? { body: JSON.stringify({ params64 }) } : {}),
-  });
+  return hyperbeamNodeBase() ? hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.productEvents, key, body || {}) : null;
 }
 
 // calculate data for backend, send them, and reset buffer data for next interval

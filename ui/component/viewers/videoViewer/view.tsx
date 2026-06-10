@@ -29,13 +29,18 @@ const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
 const PLAYLIST_FULLSCREEN_KEY = 'playlist-preserve-fullscreen';
 
 function hyperbeamNodeMediaUrl(uri?: string) {
-  if (!uri || !ODYSEE_HYPERBEAM_NODE_API) return '';
+  if (!uri) return '';
   return hyperbeamNodePath('media', uri);
 }
 
 function hyperbeamNodeResolveUrl(uri?: string) {
-  if (!uri || !ODYSEE_HYPERBEAM_NODE_API) return '';
+  if (!uri) return '';
   return hyperbeamNodePath('resolve', uri);
+}
+
+function hyperbeamNodeDescriptorUrl(sdHash?: string) {
+  if (!sdHash) return '';
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.streamDescriptor, 'descriptor', { sd_hash: sdHash });
 }
 
 function hyperbeamNodePath(key: 'resolve' | 'media', uri: string) {
@@ -164,6 +169,7 @@ function hyperbeamNodeMediaHeaders(response: Response) {
   return {
     status: response.status,
     ok: response.ok,
+    sourceLayer: response.headers.get('x-odysee-source-layer'),
     contentType: response.headers.get('content-type'),
     contentLength: response.headers.get('content-length'),
     contentRange: response.headers.get('content-range'),
@@ -171,6 +177,63 @@ function hyperbeamNodeMediaHeaders(response: Response) {
     mediaMs: response.headers.get('x-odysee-media-ms'),
     mediaBlobs: response.headers.get('x-odysee-media-blobs'),
     mediaRange: response.headers.get('x-odysee-media-range'),
+  };
+}
+
+function hyperbeamClaimSdHash(claim: any): string | undefined {
+  return (
+    claim?.value?.source?.sd_hash ||
+    claim?.value?.stream?.source?.sd_hash ||
+    claim?.stream_source?.sd_hash ||
+    claim?.source?.sd_hash
+  );
+}
+
+function hyperbeamVerificationStatus(body: any): string | undefined {
+  return (
+    body?.verification?.status ||
+    body?.['source-layer']?.verification?.status ||
+    body?.sourceLayer?.verification?.status ||
+    body?.source_layer?.verification?.status
+  );
+}
+
+function hyperbeamDescriptorFields(body: any): any {
+  return body?.fields || body?.result?.fields || body?.response?.fields;
+}
+
+function hyperbeamDescriptorVerification(body: any, expectedSdHash?: string) {
+  const fields = hyperbeamDescriptorFields(body);
+  const actualSdHash = fields?.sd_hash || body?.verification?.sd_hash;
+  const status = hyperbeamVerificationStatus(body);
+  const checks = {
+    expectedSdHash,
+    descriptorSdHash: actualSdHash,
+    descriptorHashMatchesClaim: Boolean(expectedSdHash && actualSdHash && expectedSdHash === actualSdHash),
+    descriptorStatus: status || 'missing',
+    descriptorVerified: status === 'verified',
+    blobCount: Array.isArray(fields?.blobs) ? Math.max(0, fields.blobs.length - 1) : null,
+  };
+
+  return {
+    ...checks,
+    verified: checks.descriptorHashMatchesClaim && checks.descriptorVerified,
+  };
+}
+
+function hyperbeamMediaRangeVerification(result: any, expectedSdHash?: string) {
+  const sourceLayer = result?.sourceLayer;
+  const mediaBlobs = Number(result?.mediaBlobs);
+  return {
+    expectedSdHash,
+    status: result?.status,
+    byteLength: result?.byteLength,
+    sourceLayer,
+    mediaRange: result?.mediaRange,
+    mediaBlobs: result?.mediaBlobs,
+    rangeStatusOk: result?.status === 206,
+    nativeVerifiedRange: sourceLayer === 'native' && Number.isFinite(mediaBlobs) && mediaBlobs > 0,
+    verified: result?.status === 206 && sourceLayer === 'native' && Number.isFinite(mediaBlobs) && mediaBlobs > 0,
   };
 }
 
@@ -757,62 +820,124 @@ function VideoViewer(props: Props) {
       'info'
     );
 
-    fetch(resolveUrl)
-      .then(async (response) => ({
-        status: response.status,
-        ok: response.ok,
-        contentType: response.headers.get('content-type'),
-        body: await response.json().catch(() => null),
-      }))
-      .then((result) => {
-        if (cancelled) return;
-        pushHyperbeamNodeDebugEvent('resolve', result, result.ok ? 'ok' : 'error');
-        if (!result.ok) {
-          setHyperbeamNodeDebugSnapshot({ status: `resolve failed (${result.status})`, level: 'error' });
-        }
-      })
-      .catch((error) => {
-        if (cancelled) return;
-        pushHyperbeamNodeDebugEvent('resolve error', String(error?.message || error), 'error');
-        setHyperbeamNodeDebugSnapshot({ status: 'resolve request failed', level: 'error' });
-      });
+    const verifyReadPath = async () => {
+      let expectedSdHash;
 
-    fetch(playerSource, { method: 'HEAD' })
-      .then((response) => {
+      try {
+        const resolveResponse = await fetch(resolveUrl);
+        const resolveResult = {
+          status: resolveResponse.status,
+          ok: resolveResponse.ok,
+          contentType: resolveResponse.headers.get('content-type'),
+          body: await resolveResponse.json().catch(() => null),
+        };
         if (cancelled) return;
-        pushHyperbeamNodeDebugEvent('media HEAD', hyperbeamNodeMediaHeaders(response), response.ok ? 'ok' : 'error');
-        if (!response.ok) {
-          setHyperbeamNodeDebugSnapshot({ status: `media HEAD failed (${response.status})`, level: 'error' });
+
+        expectedSdHash = hyperbeamClaimSdHash(resolveResult.body);
+        pushHyperbeamNodeDebugEvent(
+          'claim source hash',
+          {
+            status: resolveResult.status,
+            ok: resolveResult.ok,
+            sdHash: expectedSdHash || null,
+            claimId: resolveResult.body?.claim_id || null,
+            permanentUrl: resolveResult.body?.permanent_url || null,
+          },
+          resolveResult.ok && expectedSdHash ? 'ok' : 'error'
+        );
+
+        if (!resolveResult.ok || !expectedSdHash) {
+          setHyperbeamNodeDebugSnapshot({
+            status: !resolveResult.ok ? `resolve failed (${resolveResult.status})` : 'claim missing sd_hash',
+            level: 'error',
+          });
+          return;
         }
-      })
-      .catch((error) => {
+      } catch (error) {
+        if (cancelled) return;
+        pushHyperbeamNodeDebugEvent('claim source hash error', String(error?.message || error), 'error');
+        setHyperbeamNodeDebugSnapshot({ status: 'resolve request failed', level: 'error' });
+        return;
+      }
+
+      try {
+        const descriptorUrl = hyperbeamNodeDescriptorUrl(expectedSdHash);
+        const descriptorResponse = await fetch(descriptorUrl);
+        const descriptorBody = await descriptorResponse.json().catch(() => null);
+        const descriptor = hyperbeamDescriptorVerification(descriptorBody, expectedSdHash);
+        if (cancelled) return;
+
+        pushHyperbeamNodeDebugEvent(
+          'descriptor verification',
+          {
+            status: descriptorResponse.status,
+            ok: descriptorResponse.ok,
+            descriptorUrl,
+            ...descriptor,
+          },
+          descriptorResponse.ok && descriptor.verified ? 'ok' : 'error'
+        );
+
+        if (!descriptorResponse.ok || !descriptor.verified) {
+          setHyperbeamNodeDebugSnapshot({
+            status: descriptorResponse.ok
+              ? 'descriptor verification failed'
+              : `descriptor failed (${descriptorResponse.status})`,
+            level: 'error',
+          });
+          return;
+        }
+      } catch (error) {
+        if (cancelled) return;
+        pushHyperbeamNodeDebugEvent('descriptor verification error', String(error?.message || error), 'error');
+        setHyperbeamNodeDebugSnapshot({ status: 'descriptor verification request failed', level: 'error' });
+        return;
+      }
+
+      try {
+        const head = await hyperbeamNodeMediaProbe(playerSource);
+        if (cancelled) return;
+        pushHyperbeamNodeDebugEvent('media HEAD', head, head.ok ? 'ok' : 'error');
+        if (!head.ok) {
+          setHyperbeamNodeDebugSnapshot({ status: `media HEAD failed (${head.status})`, level: 'error' });
+          return;
+        }
+      } catch (error) {
         if (cancelled) return;
         pushHyperbeamNodeDebugEvent('media HEAD error', String(error?.message || error), 'error');
         setHyperbeamNodeDebugSnapshot({ status: 'media HEAD request failed', level: 'error' });
-      });
+        return;
+      }
 
-    fetch(playerSource, { headers: { Range: 'bytes=0-1023' } })
-      .then(async (response) => {
+      try {
+        const response = await fetch(playerSource, { headers: { Range: 'bytes=0-1023' } });
         const bytes = await response.arrayBuffer().catch(() => new ArrayBuffer(0));
-        return {
+        const rangeResult = {
           ...hyperbeamNodeMediaHeaders(response),
           byteLength: bytes.byteLength,
         };
-      })
-      .then((result) => {
+        const rangeVerification = hyperbeamMediaRangeVerification(rangeResult, expectedSdHash);
         if (cancelled) return;
-        const ok = result.status === 206 && result.byteLength > 0;
-        pushHyperbeamNodeDebugEvent('media range bytes=0-1023', result, ok ? 'ok' : 'error');
+
+        pushHyperbeamNodeDebugEvent(
+          'media range verification',
+          rangeVerification,
+          rangeVerification.verified ? 'ok' : 'error'
+        );
         setHyperbeamNodeDebugSnapshot({
-          status: ok ? 'HyperBEAM media reachable' : `range check failed (${result.status})`,
-          level: ok ? 'ok' : 'error',
+          status: rangeVerification.verified
+            ? 'HyperBEAM read path verified'
+            : `range verification failed (${rangeResult.status})`,
+          level: rangeVerification.verified ? 'ok' : 'error',
         });
-      })
-      .catch((error) => {
+      } catch (error) {
         if (cancelled) return;
-        pushHyperbeamNodeDebugEvent('media range error', String(error?.message || error), 'error');
-        setHyperbeamNodeDebugSnapshot({ status: 'media range request failed', level: 'error' });
-      });
+        pushHyperbeamNodeDebugEvent('media range verification error', String(error?.message || error), 'error');
+        setHyperbeamNodeDebugSnapshot({ status: 'media range verification request failed', level: 'error' });
+      }
+    };
+
+    verifyReadPath();
 
     return () => {
       cancelled = true;

@@ -578,7 +578,7 @@ export function doGetAndPopulatePreferences(syncId?: number) {
     let preferenceKey;
     // TODO: the logic should match `runPreferences`, but since this function is
     // only hit as a successful sync callback, it doesn't matter for now.
-    preferenceKey = 'shared';
+    preferenceKey = syncEnabled && hasVerifiedEmail ? 'shared' : 'local';
 
     function successCb(savedPreferences) {
       const successState = getState();
@@ -596,17 +596,8 @@ export function doGetAndPopulatePreferences(syncId?: number) {
     }
 
     function failCb(er) {
-      dispatch(
-        doToast({
-          isError: true,
-          message: __('Unable to load your saved preferences.'),
-        })
-      );
-      dispatch({
-        type: ACTIONS.SYNC_FATAL_ERROR,
-        error: er,
-      });
-      return false;
+      dispatch(doSetPrefsReady());
+      return true;
     }
 
     return dispatch(doPreferenceGet(preferenceKey, successCb, failCb));
@@ -615,11 +606,13 @@ export function doGetAndPopulatePreferences(syncId?: number) {
 export function doHandleSyncComplete(error: any, hasNewData: any, syncId: any) {
   return (dispatch: Dispatch, getState: GetState) => {
     if (!error) {
-      if (syncInvalidated(getState, syncId)) {
-        return;
-      }
+      if (hasNewData) {
+        if (syncInvalidated(getState, syncId)) {
+          return;
+        }
 
-      dispatch(doGetAndPopulatePreferences(syncId));
+        dispatch(doGetAndPopulatePreferences(syncId));
+      }
     } else {
       // eslint-disable-next-line no-console
       console.error('Error in doHandleSyncComplete', error);

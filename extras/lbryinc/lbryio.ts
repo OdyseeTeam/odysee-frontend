@@ -5,6 +5,7 @@ import analytics from 'analytics';
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { getAuthToken as getSavedAuthToken } from 'util/saved-passwords';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { isHyperbeamHybridMode } from 'util/hyperbeamMode';
 const Lbryio: {
   enabled: boolean;
   authenticationPromise: Promise<any> | null;
@@ -87,6 +88,28 @@ function hyperbeamNodeFetchJson(key: string, params: any = {}, authToken: string
 
 function hyperbeamProductMethod(resource: string, action: string) {
   return `${resource}_${action}`.replace(/[^a-zA-Z0-9_]+/g, '_');
+}
+
+function signedOutHybridFallback(resource: string, action: string, params: any) {
+  if (resource === 'membership_v2' && action === 'list') return [];
+  if (resource === 'membership_v2' && action === 'check') return {};
+  if (resource === 'user' && action === 'has_premium') return {};
+  if (resource === 'account' && action === 'check') return {};
+  if (resource === 'reaction' && action === 'list') return {};
+  if (resource === 'file' && action === 'last_positions') return {};
+  if (resource === 'file' && action === 'view_count') {
+    const claimIds = String(params?.claim_id || params?.claim_ids || '')
+      .split(',')
+      .filter(Boolean);
+    return Object.fromEntries(claimIds.map((claimId) => [claimId, 0]));
+  }
+  if (resource === 'subscription' && action === 'sub_count') {
+    const claimIds = String(params?.claim_id || params?.claim_ids || '')
+      .split(',')
+      .filter(Boolean);
+    return Object.fromEntries(claimIds.map((claimId) => [claimId, 0]));
+  }
+  return undefined;
 }
 
 function hyperbeamNodeProductApiCall(
@@ -199,6 +222,10 @@ Lbryio.call = (resource, action, params = {}, method = 'post', noAuth = false) =
           return response.data;
         })
         .catch((error) => {
+          const fallback = isHyperbeamHybridMode() ? signedOutHybridFallback(resource, action, params) : undefined;
+          if ((error?.response?.status === 401 || error?.response?.status === 403) && fallback !== undefined) {
+            return fallback;
+          }
           sendFailedCallAnalytics(resource, action, params, error);
           throw error;
         });

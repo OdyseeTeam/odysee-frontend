@@ -19,7 +19,6 @@ import { selectUser } from 'redux/selectors/user';
 import { selectClientSetting } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 import analytics from 'analytics';
-import { ODYSEE_HYPERBEAM_NODE_API } from '../../../config';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 
 const previewViewedUris = new Set<string>();
@@ -46,7 +45,7 @@ const FALLBACK = MISSING_THUMB_DEFAULT
   : undefined;
 
 function hyperbeamNodeMediaUrl(uri?: string) {
-  if (!uri || !ODYSEE_HYPERBEAM_NODE_API) return '';
+  if (!uri) return '';
   return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.stream, 'media', { uri64: base64Url(uri) });
 }
 

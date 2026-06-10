@@ -1,4 +1,5 @@
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { getHyperbeamMode, HYPERBEAM_MODES } from 'util/hyperbeamMode';
 
 export type HyperbeamDebugLevel = 'info' | 'ok' | 'warn' | 'error';
 
@@ -55,35 +56,40 @@ export function installHyperbeamFetchDebug() {
   if (installed || typeof window === 'undefined' || typeof fetch !== 'function') return;
 
   const nodeBase = String(ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, '');
-  if (!nodeBase) return;
 
   installed = true;
   const nativeFetch = window.fetch.bind(window);
 
   window.fetch = async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = requestUrl(input);
+    const mode = getHyperbeamMode();
     const isHyperbeam = Boolean(url && url.startsWith(nodeBase));
+    const shouldLog =
+      isHyperbeam ||
+      ((mode === HYPERBEAM_MODES.original || mode === HYPERBEAM_MODES.hybrid) && isOriginalModeFetch(url));
     const startedAt = performance.now();
 
-    if (isHyperbeam) {
-      pushHyperbeamDebug('request', requestSummary(url, input, init), 'info');
+    if (shouldLog) {
+      pushHyperbeamDebug('request', requestSummary(url, input, init, isHyperbeam ? undefined : 'original'), 'info');
     }
 
     try {
       const response = await nativeFetch(input, init);
-      if (!isHyperbeam) return response;
+      if (!shouldLog) return response;
 
       const elapsedMs = Math.round(performance.now() - startedAt);
-      const summary = await responseSummary(url, response, elapsedMs);
+      const summary = await responseSummary(url, response, elapsedMs, isHyperbeam ? undefined : 'original');
       pushHyperbeamDebug('response', summary, response.ok ? 'ok' : 'error');
       return response;
     } catch (error: any) {
-      if (isHyperbeam) {
+      if (shouldLog) {
         pushHyperbeamDebug(
           'request failed',
           {
-            url,
+            url: sanitizeUrl(url),
             method: requestMethod(input, init),
+            devicePath: devicePath(url),
+            sourceLayer: isHyperbeam ? undefined : 'original',
             error: String(error?.message || error),
             elapsedMs: Math.round(performance.now() - startedAt),
           },
@@ -96,6 +102,19 @@ export function installHyperbeamFetchDebug() {
   };
 }
 
+function isOriginalModeFetch(url: string) {
+  if (!url) return false;
+
+  try {
+    const parsed = new URL(url, window.location.origin);
+    const path = parsed.pathname;
+    if (path.startsWith('/public/') || path.startsWith('/static/') || path === '/favicon.ico') return false;
+    return true;
+  } catch {
+    return true;
+  }
+}
+
 function requestUrl(input: RequestInfo | URL) {
   if (typeof input === 'string') return input;
   if (input instanceof URL) return input.toString();
@@ -106,16 +125,17 @@ function requestMethod(input: RequestInfo | URL, init?: RequestInit) {
   return String(init?.method || (typeof input !== 'string' && !(input instanceof URL) ? input.method : 'GET') || 'GET');
 }
 
-function requestSummary(url: string, input: RequestInfo | URL, init?: RequestInit) {
+function requestSummary(url: string, input: RequestInfo | URL, init?: RequestInit, fallbackSourceLayer?: string) {
   return {
     method: requestMethod(input, init),
     devicePath: devicePath(url),
-    url,
+    url: sanitizeUrl(url),
+    sourceLayer: fallbackSourceLayer,
     bodyBytes: typeof init?.body === 'string' ? init.body.length : undefined,
   };
 }
 
-async function responseSummary(url: string, response: Response, elapsedMs: number) {
+async function responseSummary(url: string, response: Response, elapsedMs: number, fallbackSourceLayer?: string) {
   const summary: Record<string, any> = {
     status: response.status,
     ok: response.ok,
@@ -127,8 +147,8 @@ async function responseSummary(url: string, response: Response, elapsedMs: numbe
     acceptRanges: response.headers.get('accept-ranges'),
     mediaMs: response.headers.get('x-odysee-media-ms'),
     mediaBlobs: response.headers.get('x-odysee-media-blobs'),
-    sourceLayer: response.headers.get('x-odysee-source-layer') || undefined,
-    sourceReason: response.headers.get('x-odysee-source-reason') || undefined,
+    sourceLayer: response.headers.get('x-odysee-source-layer') || fallbackSourceLayer,
+    sourceReason: redactSensitive(response.headers.get('x-odysee-source-reason') || undefined),
   };
 
   if (!response.ok || (response.headers.get('content-type') || '').includes('application/json')) {
@@ -136,6 +156,7 @@ async function responseSummary(url: string, response: Response, elapsedMs: numbe
       .clone()
       .text()
       .then((text) => previewBody(text))
+      .then((body) => redactSensitive(body))
       .catch(() => null);
     summary.sourceLayer = summary.sourceLayer || sourceLayer(summary.body);
   }
@@ -180,10 +201,96 @@ function previewBody(text: string) {
 }
 
 function devicePath(url: string) {
+  return sanitizePath(url);
+}
+
+export function sanitizeHyperbeamDebugValue(value: any): any {
+  return redactSensitive(value);
+}
+
+export function sanitizeHyperbeamDebugUrl(url: string): string {
+  return sanitizeUrl(url);
+}
+
+function sanitizeUrl(url: string) {
   try {
     const parsed = new URL(url);
-    return `${parsed.pathname}${parsed.search ? parsed.search.slice(0, 180) : ''}`;
+    return `${parsed.origin}${sanitizeParsedPath(parsed)}`;
   } catch {
-    return url;
+    return sanitizeUrlLikeString(String(url || ''));
   }
+}
+
+function sanitizePath(url: string) {
+  try {
+    const parsed = new URL(url);
+    return sanitizeParsedPath(parsed);
+  } catch {
+    return sanitizeUrlLikeString(String(url || ''));
+  }
+}
+
+function sanitizeParsedPath(parsed: URL) {
+  if (!parsed.search) return parsed.pathname;
+
+  const params = Array.from(parsed.searchParams.entries()).map(([name, value]) => {
+    if (isSensitiveQueryName(name)) return `${name}=...`;
+    return `${name}=${redactQueryValue(name, value)}`;
+  });
+  return `${parsed.pathname}?${params.join('&')}`;
+}
+
+function sanitizeUrlLikeString(value: string) {
+  return value.replace(/([?&](?:params64|urls64|auth_token|token|signature|uri64)=)[^&\s]+/gi, '$1...');
+}
+
+function isSensitiveQueryName(name: string) {
+  const key = name.toLowerCase();
+  return (
+    key === 'params64' ||
+    key === 'urls64' ||
+    key === 'uri64' ||
+    key.includes('auth') ||
+    key.includes('token') ||
+    key.includes('signature')
+  );
+}
+
+function redactQueryValue(name: string, value: string) {
+  return isSensitiveQueryName(name) ? '...' : encodeURIComponent(value);
+}
+
+function redactSensitive(value: any): any {
+  if (value === undefined || value === null) return value;
+  if (typeof value === 'string') return redactSensitiveString(value);
+  if (Array.isArray(value)) return value.map((item) => redactSensitive(item));
+  if (typeof value !== 'object') return value;
+
+  const redacted: Record<string, any> = {};
+  Object.entries(value).forEach(([key, child]) => {
+    redacted[key] = isSensitiveFieldName(key) ? '[redacted]' : redactSensitive(child);
+  });
+  return redacted;
+}
+
+function isSensitiveFieldName(name: string) {
+  const key = name.toLowerCase().replace(/[-_]/g, '');
+  return (
+    key === 'authorization' ||
+    key === 'auth' ||
+    key === 'authtoken' ||
+    key === 'xlbryauthtoken' ||
+    key.includes('auth') ||
+    key.includes('token') ||
+    key.includes('signature') ||
+    key.includes('password')
+  );
+}
+
+function redactSensitiveString(value: string) {
+  return value
+    .replace(/(auth[_-]?token["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, '$1[redacted]')
+    .replace(/(authorization["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, '$1[redacted]')
+    .replace(/(x[-_]?lbry[-_]?auth[-_]?token["']?\s*[:=]\s*["']?)[^"',\s}]+/gi, '$1[redacted]')
+    .replace(/([?&](?:params64|urls64|auth_token|token|signature|uri64)=)[^&\s]+/gi, '$1...');
 }

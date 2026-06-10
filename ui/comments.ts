@@ -1,9 +1,10 @@
-import { COMMENT_SERVER_API, ODYSEE_HYPERBEAM_NODE_API } from 'config';
-import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { COMMENT_SERVER_API } from 'config';
+import { HYPERBEAM_DEVICE, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
+import { isHyperbeamDeviceEnabled } from 'util/hyperbeamMode';
 // prettier-ignore
 const Comments = {
   url: COMMENT_SERVER_API,
-  enabled: Boolean(ODYSEE_HYPERBEAM_NODE_API || COMMENT_SERVER_API),
+  enabled: Boolean(isHyperbeamDeviceEnabled(HYPERBEAM_DEVICE.comment) || COMMENT_SERVER_API),
   moderation_block: (params: ModerationBlockParams) => fetchCommentsApi('moderation.Block', params),
   moderation_unblock: (params: ModerationBlockParams) => fetchCommentsApi('moderation.UnBlock', params),
   moderation_block_list: (params: BlockedListArgs) => fetchCommentsApi('moderation.BlockedList', params),
@@ -39,11 +40,9 @@ function fetchHyperbeamNodeCommentRead(
     | 'setting_list',
   params: {}
 ) {
-  const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.comment, endpoint, {
-    params64: base64Url(JSON.stringify(params || {})),
-  });
-  if (!url) return Promise.reject(new Error('Odysee HyperBEAM Commentron device is not configured.'));
-  return fetch(url, { method: 'GET', headers: { accept: 'application/json' } })
+  const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.comment, endpoint, params || {});
+  if (!request) return fetchCommentsApi(commentReadMethod(endpoint), params || {});
+  return request
     .then((res) => {
       if (!res.ok) throw new Error(`comment device ${res.status}`);
       return res.json();
@@ -54,16 +53,33 @@ function fetchHyperbeamNodeCommentRead(
     });
 }
 
+function commentReadMethod(endpoint: string) {
+  switch (endpoint) {
+    case 'comment_list':
+      return 'comment.List';
+    case 'comment_by_id':
+      return 'comment.ByID';
+    case 'comment_get_channel_from_comment_id':
+      return 'comment.GetChannelFromCommentID';
+    case 'reaction_list':
+      return 'reaction.List';
+    case 'setting_get':
+      return 'setting.Get';
+    case 'setting_list':
+      return 'setting.List';
+    default:
+      return endpoint;
+  }
+}
+
 function fetchCommentsApi(method: string, params: {}) {
   if (!Comments.enabled) {
     return Promise.reject('Comments are not currently enabled.'); // eslint-disable-line
   }
 
-  const nodeUrl = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.comment, 'commentron', {
-    params64: base64Url(JSON.stringify({ method, params })),
-  });
-  if (nodeUrl) {
-    return fetch(nodeUrl, { method: 'GET', headers: { accept: 'application/json' } })
+  const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.comment, 'commentron', { method, params });
+  if (request) {
+    return request
       .then((res) => {
         if (!res.ok) throw new Error(`comment device ${res.status}`);
         return res.json();
@@ -96,16 +112,6 @@ function fetchCommentsApi(method: string, params: {}) {
 
       return res.result;
     });
-}
-
-function base64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
 export default Comments;

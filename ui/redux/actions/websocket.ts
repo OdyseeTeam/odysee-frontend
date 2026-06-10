@@ -6,6 +6,7 @@ import { doCommentList } from 'redux/actions/comments';
 import { selectLivestreamInfoAlreadyFetchedForCreatorId } from 'redux/selectors/livestream';
 import { selectClaimForId, selectChannelClaimIdForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
 import { ODYSEE_HYPERBEAM_NODE_API, SOCKETY_SERVER_API } from 'config';
+import { isHyperbeamEnabled } from 'util/hyperbeamMode';
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
 const COMMENT_WS_URL = `${SOCKETY_SERVER_API}/commentron?id=`;
 const POLL_INTERVAL_MS = 15000;
@@ -19,7 +20,7 @@ let retryCount = 0;
 let pollingIntervals = {};
 
 function hyperbeamNodeConfigured() {
-  return Boolean(String(ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, ''));
+  return Boolean(String(ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, '')) && isHyperbeamEnabled();
 }
 
 function startPolling(key: string, poll: () => void, intervalMs = POLL_INTERVAL_MS) {

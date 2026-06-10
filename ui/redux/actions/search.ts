@@ -18,12 +18,12 @@ import { selectUser } from 'redux/selectors/user';
 import handleFetchResponse from 'util/handle-fetch';
 import { getSearchQueryString } from 'util/query-params';
 import { getRecommendationSearchOptions, getShortsRecommendationSearchOptions } from 'util/search';
-import { ODYSEE_HYPERBEAM_NODE_API, SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
+import { SEARCH_SERVER_API, SEARCH_SERVER_API_ALT, RECSYS_FYP_ENDPOINT } from 'config';
 import { SEARCH_OPTIONS } from 'constants/search';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { getAuthToken } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
-import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
 const isDev = process.env.NODE_ENV !== 'production';
 
 function hyperbeamNodeBase() {
@@ -34,29 +34,16 @@ function hyperbeamNodeConfigured() {
   return Boolean(hyperbeamNodeBase());
 }
 
-function base64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
 function hyperbeamNodeFetchJson(key: string, params: any, authToken?: string | null) {
   const headers: Record<string, string> = { accept: 'application/json' };
   if (authToken) {
     headers[X_LBRY_AUTH_TOKEN] = authToken;
   }
 
-  return fetch(
-    hyperbeamDeviceUrl(HYPERBEAM_DEVICE.search, key, { params64: base64Url(JSON.stringify(params || {})) }),
-    {
-      method: 'GET',
-      headers,
-    }
-  ).then((response) => {
+  const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.search, key, params || {}, headers);
+  if (!request) return Promise.reject(new Error('Odysee HyperBEAM search device is not configured.'));
+
+  return request.then((response) => {
     if (!response.ok) {
       throw new Error(`HyperBEAM device ${key} failed with ${response.status}`);
     }

@@ -46,6 +46,7 @@ import {
 import { doUserSetReferrerForUri } from 'redux/actions/user';
 import { doSetLastViewedAnnouncement } from 'redux/actions/content';
 import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
+import { isHyperbeamEnabled } from 'util/hyperbeamMode';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import {
   selectLanguage,
@@ -375,7 +376,7 @@ function App() {
       }
     }
 
-    if (user === null && !embedPath) {
+    if (user === null && !embedPath && !isHyperbeamEnabled()) {
       return <NagNoUser />;
     }
 
@@ -385,7 +386,7 @@ function App() {
       }
     }
 
-    if (syncFatalError) {
+    if (syncFatalError && isAuthenticated) {
       if (!retryingSync) {
         return (
           <Nag

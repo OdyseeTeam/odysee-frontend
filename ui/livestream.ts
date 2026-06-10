@@ -1,8 +1,9 @@
-import { LIVESTREAM_SERVER_API, ODYSEE_HYPERBEAM_NODE_API } from 'config';
-import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { LIVESTREAM_SERVER_API } from 'config';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
+import { isHyperbeamDeviceEnabled } from 'util/hyperbeamMode';
 const Livestream = {
   url: LIVESTREAM_SERVER_API,
-  enabled: Boolean(ODYSEE_HYPERBEAM_NODE_API || LIVESTREAM_SERVER_API),
+  enabled: Boolean(isHyperbeamDeviceEnabled(HYPERBEAM_DEVICE.livestream) || LIVESTREAM_SERVER_API),
 } as {
   url: any;
   enabled: boolean;
@@ -39,16 +40,6 @@ function hyperbeamNodeBase() {
   return hyperbeamDeviceBase(HYPERBEAM_DEVICE.livestream);
 }
 
-function base64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-}
-
 function unwrapHyperbeamNodeJson(json) {
   if (json?.error) {
     throw new Error(json.error.message || json.error);
@@ -74,10 +65,9 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
       params,
       method,
     };
-    const url = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.livestream, 'livestream', {
-      params64: base64Url(JSON.stringify(payload)),
-    });
-    return fetch(url, { method: 'GET', headers: { accept: 'application/json' } })
+    const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.livestream, 'livestream', payload);
+    if (!request) return Promise.reject(new Error('HyperBEAM livestream device is not configured.'));
+    return request
       .then((res) => {
         if (!res.ok) throw new Error(`livestream device ${res.status}`);
         return res.json();

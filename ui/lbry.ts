@@ -2,9 +2,10 @@ import analytics from 'analytics';
 import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from 'constants/errors';
 import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
-import { ODYSEE_HYPERBEAM_NODE_API, PROXY_URL_NO_CF } from 'config';
+import { PROXY_URL_NO_CF } from 'config';
 import { getAuthToken } from 'util/saved-passwords';
-import { hyperbeamDeviceUrl, hyperbeamMethodDevice } from 'util/hyperbeamDevices';
+import { hyperbeamDeviceBase, hyperbeamDevicePostJson, hyperbeamMethodDevice } from 'util/hyperbeamDevices';
+import { shouldSendHyperbeamAuthHeaders } from 'util/hyperbeamMode';
 
 import 'proxy-polyfill';
 
@@ -413,18 +414,10 @@ function hyperbeamNodeSdkCall(method: string, params: any): Promise<any> | null 
 }
 
 export function debugHyperbeamNode(data: any) {
-  const url = hyperbeamDeviceUrl('~odysee-internal-apis@1.0', 'debug', {
-    params64: base64Url(JSON.stringify(data || {})),
-  });
-  if (!url) return;
-
   try {
-    fetch(url, {
-      method: 'GET',
-      headers: {
-        accept: 'application/json',
-      },
-    }).catch(() => {});
+    hyperbeamDevicePostJson('~odysee-internal-apis@1.0', 'debug', {
+      params64: base64Url(JSON.stringify(data || {})),
+    })?.catch(() => {});
   } catch (e) {}
 }
 
@@ -437,21 +430,17 @@ function stripHyperbeamNodeOnlyParams(params: Record<string, any>) {
 function hyperbeamNodeFetchJson(key: string, paramName: string, value: any): Promise<any> | null {
   const encoded = base64Url(JSON.stringify(value));
   const device = hyperbeamMethodDevice(key);
-  const url = hyperbeamDeviceUrl(device, key, { [paramName]: encoded });
-  if (!url) return null;
+  const base = hyperbeamDeviceBase(device);
+  if (!base) return null;
 
-  const base = url.slice(0, url.indexOf(`/${key}?`));
-  const request =
-    url.length > 1800
-      ? fetch(`${base}/${key}`, {
-          method: 'POST',
-          headers: {
-            ...hyperbeamNodeRequestHeaders(),
-            'content-type': 'application/json',
-          },
-          body: JSON.stringify({ [paramName]: encoded }),
-        })
-      : fetch(url, { method: 'GET', headers: hyperbeamNodeRequestHeaders() });
+  const request = fetch(`${base}/${key}`, {
+    method: 'POST',
+    headers: {
+      ...hyperbeamNodeRequestHeaders(),
+      'content-type': 'application/json',
+    },
+    body: JSON.stringify({ [paramName]: encoded }),
+  });
 
   return fetchWithTimeout(60000, request).then((response: Response | string) => {
     if (typeof response !== 'object') {
@@ -464,6 +453,8 @@ function hyperbeamNodeFetchJson(key: string, paramName: string, value: any): Pro
 
 function hyperbeamNodeRequestHeaders() {
   const headers: Record<string, string> = { accept: 'application/json' };
+  if (!shouldSendHyperbeamAuthHeaders()) return headers;
+
   const savedAuthToken = getAuthToken();
   if (savedAuthToken) headers[X_LBRY_AUTH_TOKEN] = savedAuthToken;
 

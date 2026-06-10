@@ -1,9 +1,11 @@
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from '../../ui/util/hyperbeamDevices';
+import { isHyperbeamDeviceEnabled } from '../../ui/util/hyperbeamMode';
 import { useEffect } from 'react';
 import { getAuthToken } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
+import Lbry from 'lbry';
 const STATUS_GENERAL_STATE = {
   // internal/status/status.go#L44
   OK: 'ok',
@@ -53,9 +55,14 @@ export function useDegradedPerformance(onDegradedPerformanceCallback, user, doSe
   const hasUser = user !== undefined && user !== null;
   useEffect(() => {
     if (hasUser) {
-      const STATUS_ENDPOINT = hyperbeamDeviceUrl(HYPERBEAM_DEVICE.internalApis, 'status', { params64: 'e30' });
-      fetchWithTimeout(STATUS_TIMEOUT_LIMIT, fetch(STATUS_ENDPOINT, getParams(user)))
-        .then((response: any) => response.json())
+      const statusPromise = isHyperbeamDeviceEnabled(HYPERBEAM_DEVICE.internalApis)
+        ? fetchWithTimeout(
+            STATUS_TIMEOUT_LIMIT,
+            fetch(hyperbeamDeviceUrl(HYPERBEAM_DEVICE.internalApis, 'status', { params64: 'e30' }), getParams(user))
+          ).then((response: any) => response.json())
+        : fetchWithTimeout(STATUS_TIMEOUT_LIMIT, Lbry.status());
+
+      statusPromise
         .then((status) => {
           const nodeStatus = status?.result || status;
           const generalState = getGeneralState(status);

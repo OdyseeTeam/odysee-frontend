@@ -3,9 +3,12 @@ import {
   addHyperbeamDebugListener,
   hyperbeamDebugColor,
   installHyperbeamFetchDebug,
+  sanitizeHyperbeamDebugValue,
+  sanitizeHyperbeamDebugUrl,
   type HyperbeamDebugEvent,
 } from 'util/hyperbeamDebug';
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { getHyperbeamMode, HYPERBEAM_MODES, setHyperbeamMode, type HyperbeamMode } from 'util/hyperbeamMode';
 
 const MAX_EVENTS = 220;
 const MAX_RELEVANT_EVENTS = 24;
@@ -22,6 +25,7 @@ type FilterKey = (typeof FILTERS)[number]['key'];
 
 export default function HyperbeamDebugConsole() {
   const [open, setOpen] = React.useState(true);
+  const [mode, setMode] = React.useState<HyperbeamMode>(() => getHyperbeamMode());
   const [events, setEvents] = React.useState<Array<HyperbeamDebugEvent>>([]);
   const [filterCounts, setFilterCounts] = React.useState<Record<FilterKey, number>>(() => emptyFilterCounts());
   const [expanded, setExpanded] = React.useState<Record<number, boolean>>({});
@@ -99,10 +103,11 @@ export default function HyperbeamDebugConsole() {
     event.stopPropagation();
     const text = JSON.stringify(
       {
-        type: 'hyperbeam_relevant_events',
-        node: String(ODYSEE_HYPERBEAM_NODE_API).replace(/\/+$/, ''),
+        type: 'odysee_request_events',
+        node: mode === HYPERBEAM_MODES.original ? undefined : String(ODYSEE_HYPERBEAM_NODE_API).replace(/\/+$/, ''),
+        mode,
         generatedAt: new Date().toISOString(),
-        events: relevantEvents(events),
+        events: relevantEvents(events, mode),
       },
       null,
       2
@@ -114,6 +119,14 @@ export default function HyperbeamDebugConsole() {
         window.setTimeout(() => setCopiedRelevant(false), 1200);
       })
       .catch(() => setCopiedRelevant(false));
+  };
+  const onModeChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const nextMode = event.currentTarget.value as HyperbeamMode;
+    setMode(nextMode);
+    setHyperbeamMode(nextMode);
+    setEvents([]);
+    setFilterCounts(emptyFilterCounts());
+    window.location.reload();
   };
 
   return (
@@ -164,9 +177,30 @@ export default function HyperbeamDebugConsole() {
             font: 'inherit',
           }}
         >
-          Odysee HyperBEAM devices {open ? 'hide' : 'show'}
+          Odysee request log {open ? 'hide' : 'show'}
           {!open && last ? ` · ${last.label} · ${last.level}` : ''}
         </button>
+        <select
+          value={mode}
+          onClick={(event) => event.stopPropagation()}
+          onChange={onModeChange}
+          title="Select request wiring mode"
+          style={{
+            width: 88,
+            height: 18,
+            border: '1px solid rgba(255,255,255,0.28)',
+            borderRadius: 4,
+            padding: '0 2px',
+            background: 'rgba(12,10,12,0.96)',
+            color: '#f9fafb',
+            fontSize: 10,
+            lineHeight: 1,
+          }}
+        >
+          <option value={HYPERBEAM_MODES.original}>Original</option>
+          <option value={HYPERBEAM_MODES.hybrid}>Hybrid</option>
+          <option value={HYPERBEAM_MODES.hyperbeam}>HyperBEAM</option>
+        </select>
         <button
           type="button"
           onClick={copyEvents}
@@ -211,7 +245,7 @@ export default function HyperbeamDebugConsole() {
         <>
           <div style={{ padding: '9px 9px 0' }}>
             <div style={{ overflowWrap: 'anywhere', marginBottom: 8, color: 'rgba(255,255,255,0.72)' }}>
-              {String(ODYSEE_HYPERBEAM_NODE_API).replace(/\/+$/, '')}
+              {modeEndpointLabel(mode)}
             </div>
             <div
               style={{
@@ -223,20 +257,35 @@ export default function HyperbeamDebugConsole() {
             >
               {FILTERS.map((filter) => {
                 const active = activeFilters.has(filter.key);
+                const disabled = filterDisabledInMode(filter.key, mode);
                 return (
                   <button
                     key={filter.key}
                     type="button"
-                    onClick={() => toggleFilter(filter.key)}
-                    title={active ? `Remove ${filter.label} filter` : `Filter ${filter.label}`}
+                    disabled={disabled}
+                    onClick={() => !disabled && toggleFilter(filter.key)}
+                    title={
+                      disabled
+                        ? `${filter.label} disabled in ${modeLabel(mode)}`
+                        : active
+                          ? `Remove ${filter.label} filter`
+                          : `Filter ${filter.label}`
+                    }
                     style={{
-                      border: `1px solid ${active ? filter.color : 'rgba(255,255,255,0.22)'}`,
+                      border: `1px solid ${
+                        disabled ? 'rgba(255,255,255,0.12)' : active ? filter.color : 'rgba(255,255,255,0.22)'
+                      }`,
                       borderRadius: 4,
                       padding: '1px 6px',
-                      background: active ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.05)',
-                      color: filter.color,
-                      cursor: 'pointer',
+                      background: disabled
+                        ? 'rgba(255,255,255,0.025)'
+                        : active
+                          ? 'rgba(255,255,255,0.12)'
+                          : 'rgba(255,255,255,0.05)',
+                      color: disabled ? 'rgba(255,255,255,0.28)' : filter.color,
+                      cursor: disabled ? 'default' : 'pointer',
                       font: 'inherit',
+                      textDecoration: disabled ? 'line-through' : 'none',
                     }}
                   >
                     {filter.label} {filterCounts[filter.key] || 0}
@@ -246,7 +295,9 @@ export default function HyperbeamDebugConsole() {
             </div>
           </div>
           <div ref={logRef} style={{ padding: '0 9px 9px', minHeight: 0, overflow: 'auto' }}>
-            {events.length === 0 && <div style={{ color: 'rgba(255,255,255,0.62)' }}>waiting for HyperBEAM calls</div>}
+            {events.length === 0 && (
+              <div style={{ color: 'rgba(255,255,255,0.62)' }}>waiting for {modeWaitLabel(mode)} calls</div>
+            )}
             {events.length !== 0 && visibleEvents.length === 0 && (
               <div style={{ color: 'rgba(255,255,255,0.62)' }}>no calls match the active filters</div>
             )}
@@ -278,7 +329,7 @@ export default function HyperbeamDebugConsole() {
                     <strong style={{ color: hyperbeamDebugColor(event.level, event.data?.sourceLayer) }}>
                       {event.time}
                     </strong>{' '}
-                    {event.label} {eventSummary(event)}
+                    {event.label} {eventSummary(event, mode)}
                   </button>
                   {isExpanded && event.data !== undefined && (
                     <pre style={{ margin: '3px 0 0', whiteSpace: 'pre-wrap', color: 'rgba(255,255,255,0.78)' }}>
@@ -295,9 +346,10 @@ export default function HyperbeamDebugConsole() {
   );
 }
 
-function eventSummary(event: HyperbeamDebugEvent) {
+function eventSummary(event: HyperbeamDebugEvent, mode: HyperbeamMode) {
   const data = event.data || {};
   const bits = [
+    mode,
     data.repeatCount ? `x${data.repeatCount}` : undefined,
     data.method,
     data.status ? String(data.status) : undefined,
@@ -306,6 +358,44 @@ function eventSummary(event: HyperbeamDebugEvent) {
     data.devicePath,
   ].filter(Boolean);
   return bits.length ? `- ${bits.join(' ')}` : '';
+}
+
+function modeLabel(mode: HyperbeamMode) {
+  switch (mode) {
+    case HYPERBEAM_MODES.original:
+      return 'Original wiring';
+    case HYPERBEAM_MODES.hybrid:
+      return 'Hybrid read path';
+    case HYPERBEAM_MODES.hyperbeam:
+      return 'HyperBEAM wiring';
+    default:
+      return mode;
+  }
+}
+
+function modeEndpointLabel(mode: HyperbeamMode) {
+  if (mode === HYPERBEAM_MODES.original) return `${modeLabel(mode)} · normal Odysee/API calls`;
+  return `${modeLabel(mode)} · ${String(ODYSEE_HYPERBEAM_NODE_API).replace(/\/+$/, '')}`;
+}
+
+function modeWaitLabel(mode: HyperbeamMode) {
+  return mode === HYPERBEAM_MODES.original ? 'Original' : 'HyperBEAM';
+}
+
+function filterDisabledInMode(filter: FilterKey, mode: HyperbeamMode) {
+  if (mode === HYPERBEAM_MODES.original) {
+    return filter !== 'get' && filter !== 'failed';
+  }
+
+  if (mode === HYPERBEAM_MODES.hybrid) {
+    if (filter === 'native:sdk-proxy') return false;
+    if (filter === 'native:unverified') return false;
+    if (filter === 'native:verified') return false;
+    if (filter === 'fallback') return true;
+    return false;
+  }
+
+  return false;
 }
 
 function emptyFilterCounts(): Record<FilterKey, number> {
@@ -369,7 +459,7 @@ function eventKey(event: HyperbeamDebugEvent) {
   });
 }
 
-function relevantEvents(events: Array<HyperbeamDebugEvent>) {
+function relevantEvents(events: Array<HyperbeamDebugEvent>, mode: HyperbeamMode) {
   const relevantIndexes = new Set<number>();
 
   events.forEach((event, index) => {
@@ -383,7 +473,7 @@ function relevantEvents(events: Array<HyperbeamDebugEvent>) {
   return events
     .filter((_event, index) => relevantIndexes.has(index))
     .slice(-MAX_RELEVANT_EVENTS)
-    .map(compactEvent);
+    .map((event) => compactEvent(event, mode));
 }
 
 function isRelevant(event: HyperbeamDebugEvent) {
@@ -402,10 +492,11 @@ function isRelevant(event: HyperbeamDebugEvent) {
   );
 }
 
-function compactEvent(event: HyperbeamDebugEvent) {
+function compactEvent(event: HyperbeamDebugEvent, mode: HyperbeamMode) {
   const data = event.data || {};
   const body = data.body;
   return pruneEmpty({
+    mode,
     time: event.time,
     firstSeen: data.firstSeen,
     lastSeen: data.lastSeen,
@@ -419,7 +510,7 @@ function compactEvent(event: HyperbeamDebugEvent) {
     sourceReason: data.sourceReason,
     elapsedMs: data.elapsedMs,
     devicePath: compactPath(data.devicePath),
-    url: limitString(String(data.url || ''), 360),
+    url: data.url ? limitString(sanitizeHyperbeamDebugUrl(String(data.url)), 360) : undefined,
     bodyBytes: data.bodyBytes,
     contentType: data.contentType,
     response: compactBody(body),
@@ -427,6 +518,7 @@ function compactEvent(event: HyperbeamDebugEvent) {
 }
 
 function compactBody(body: any) {
+  body = sanitizeHyperbeamDebugValue(body);
   if (body === undefined || body === null) return undefined;
   if (typeof body !== 'object') return limitString(String(body), 1200);
 
@@ -450,13 +542,14 @@ function compactBody(body: any) {
 
 function compactPath(value: any) {
   const path = String(value || '');
-  const marker = '?params64=';
-  const markerIndex = path.indexOf(marker);
-  if (markerIndex !== -1) return `${path.slice(0, markerIndex + marker.length)}...`;
-  return limitString(path, 260);
+  return limitString(
+    path.replace(/([?&](?:params64|urls64|uri64|auth_token|token|signature)=)[^&\s]+/gi, '$1...'),
+    260
+  );
 }
 
 function compactKey(value: any) {
+  value = sanitizeHyperbeamDebugValue(value);
   if (value === undefined || value === null) return undefined;
   if (typeof value !== 'string') return value;
 

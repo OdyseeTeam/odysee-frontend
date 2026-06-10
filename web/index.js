@@ -38,6 +38,64 @@ app.use(redirectMiddleware);
 app.use(iframeDestroyerMiddleware);
 app.use(appStringsMiddleWare);
 
+const ORIGINAL_API_PROXY_PREFIX = '/odysee-api';
+const ORIGINAL_LIGHTHOUSE_PROXY_PREFIX = '/odysee-lighthouse';
+const ORIGINAL_RECSYS_PROXY_PREFIX = '/odysee-recsys';
+
+async function readRawBody(req) {
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks);
+}
+
+async function proxyOriginalRequest(ctx, upstreamBase, prefix) {
+  const upstreamPath = ctx.path.slice(prefix.length);
+  const upstreamUrl = `${upstreamBase}${upstreamPath}${ctx.search || ''}`;
+  const headers = {};
+
+  ['accept', 'content-type', 'user-agent'].forEach((key) => {
+    const value = ctx.get(key);
+    if (value) headers[key] = value;
+  });
+
+  const hasBody = !['GET', 'HEAD'].includes(ctx.method);
+  const response = await fetch(upstreamUrl, {
+    method: ctx.method,
+    headers,
+    redirect: 'manual',
+    body: hasBody ? await readRawBody(ctx.req) : undefined,
+  });
+  const body = Buffer.from(await response.arrayBuffer());
+
+  ctx.status = response.status;
+  ['content-type', 'cache-control'].forEach((key) => {
+    const value = response.headers.get(key);
+    if (value) ctx.set(key, value);
+  });
+  ctx.body = body;
+}
+
+app.use(async (ctx, next) => {
+  if (ctx.path === ORIGINAL_API_PROXY_PREFIX || ctx.path.startsWith(`${ORIGINAL_API_PROXY_PREFIX}/`)) {
+    await proxyOriginalRequest(ctx, 'https://api.odysee.com', ORIGINAL_API_PROXY_PREFIX);
+    return;
+  }
+
+  if (ctx.path === ORIGINAL_LIGHTHOUSE_PROXY_PREFIX || ctx.path.startsWith(`${ORIGINAL_LIGHTHOUSE_PROXY_PREFIX}/`)) {
+    await proxyOriginalRequest(ctx, 'https://lighthouse.odysee.tv', ORIGINAL_LIGHTHOUSE_PROXY_PREFIX);
+    return;
+  }
+
+  if (ctx.path === ORIGINAL_RECSYS_PROXY_PREFIX || ctx.path.startsWith(`${ORIGINAL_RECSYS_PROXY_PREFIX}/`)) {
+    await proxyOriginalRequest(ctx, 'https://recsys.odysee.tv', ORIGINAL_RECSYS_PROXY_PREFIX);
+    return;
+  }
+
+  await next();
+});
+
 // /public/* files are served from dist/ (maps to dist/public/*)
 const staticMaxAge = (process.env.NODE_ENV || 'development') === 'development' ? 0 : 3600000;
 const staticServe = serve(DIST_ROOT, { maxage: staticMaxAge, index: false });

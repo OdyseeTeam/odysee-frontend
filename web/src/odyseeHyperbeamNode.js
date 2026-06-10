@@ -1,13 +1,14 @@
 const { ODYSEE_HYPERBEAM_NODE_API } = require('../../config.cjs');
 
 const HYPERBEAM_NODE_TIMEOUT_MS = 15000;
+const HYPERBEAM_MODE_STORAGE_KEY = 'odysee-hyperbeam-mode';
 
 function hyperbeamNodeBase() {
   return (ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, '');
 }
 
 function hyperbeamNodeConfigured() {
-  return Boolean(hyperbeamNodeBase());
+  return Boolean(hyperbeamNodeBase()) && hyperbeamMode() !== 'original';
 }
 
 function hyperbeamNodePath(key, uri) {
@@ -19,7 +20,7 @@ function hyperbeamNodePath(key, uri) {
 
 function deviceBase(device) {
   const base = hyperbeamNodeBase();
-  return base ? `${base}/${device}` : '';
+  return base && isHyperbeamDeviceEnabled(device) ? `${base}/${device}` : '';
 }
 
 function methodDevice(method) {
@@ -78,7 +79,7 @@ function hyperbeamNodeJsonPath(key, paramName, value) {
   return {
     body: { [paramName]: encoded },
     postUrl: `${base}/${key}`,
-    url: `${base}/${key}?${paramName}=${encodeURIComponent(encoded)}`,
+    url: `${base}/${key}`,
   };
 }
 
@@ -95,6 +96,8 @@ function base64Url(value) {
 
 function hyperbeamNodeRequestHeaders(extraHeaders) {
   const headers = { accept: 'application/json' };
+  if (hyperbeamMode() !== 'hyperbeam') return headers;
+
   ['X-Lbry-Auth-Token', 'X-Odysee-User-Id', 'Authorization'].forEach((key) => {
     const value = extraHeaders && extraHeaders[key];
     if (value) headers[key] = value;
@@ -103,7 +106,7 @@ function hyperbeamNodeRequestHeaders(extraHeaders) {
 }
 
 async function resolveHyperbeamNodeUri(uri, extraHeaders) {
-  if (!ODYSEE_HYPERBEAM_NODE_API) return null;
+  if (!hyperbeamNodeConfigured()) return null;
 
   const url = hyperbeamNodePath('resolve', uri);
   const controller = new AbortController();
@@ -128,7 +131,7 @@ async function resolveHyperbeamNodeUri(uri, extraHeaders) {
 }
 
 async function hyperbeamNodeResolve(params, extraHeaders) {
-  if (!ODYSEE_HYPERBEAM_NODE_API) return null;
+  if (!hyperbeamNodeConfigured()) return null;
 
   const urls = Array.isArray(params?.urls) ? params.urls : params?.urls ? [params.urls] : [];
   if (!urls.length) return null;
@@ -137,21 +140,22 @@ async function hyperbeamNodeResolve(params, extraHeaders) {
 }
 
 async function hyperbeamNodeClaimSearch(params, extraHeaders) {
-  if (!ODYSEE_HYPERBEAM_NODE_API) return null;
+  if (!hyperbeamNodeConfigured()) return null;
 
   return hyperbeamNodeFetchJson(hyperbeamNodeJsonPath('claim_search', 'params64', params || {}), extraHeaders);
 }
 
 async function hyperbeamNodeSdkCall(method, params, extraHeaders) {
-  if (!ODYSEE_HYPERBEAM_NODE_API) return null;
+  if (!hyperbeamNodeConfigured()) return null;
 
   const base = deviceBase(methodDevice(method));
+  if (!base) return null;
   const encoded = base64Url(JSON.stringify(params || {}));
   return hyperbeamNodeFetchJson(
     {
       body: { params64: encoded },
       postUrl: `${base}/${method}`,
-      url: `${base}/${method}?params64=${encodeURIComponent(encoded)}`,
+      url: `${base}/${method}`,
     },
     extraHeaders
   );
@@ -161,8 +165,8 @@ async function hyperbeamNodeFetchJson(request, extraHeaders) {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), HYPERBEAM_NODE_TIMEOUT_MS);
   const url = typeof request === 'string' ? request : request.url;
-  const usePost = typeof request === 'object' && url.length > 1800;
-  const fetchUrl = usePost ? request.postUrl || url.split('?')[0] : url;
+  const usePost = typeof request === 'object';
+  const fetchUrl = usePost ? request.postUrl || url : url;
 
   try {
     const response = await fetch(fetchUrl, {
@@ -194,8 +198,27 @@ function unwrapJsonRpcResult(json) {
 }
 
 function hyperbeamNodeMediaUrl(uri) {
-  if (!ODYSEE_HYPERBEAM_NODE_API) return '';
+  if (!hyperbeamNodeConfigured()) return '';
   return hyperbeamNodePath('media', uri);
+}
+
+function hyperbeamMode() {
+  if (!ODYSEE_HYPERBEAM_NODE_API) return 'original';
+  if (typeof window === 'undefined') return 'hyperbeam';
+  const value = window.localStorage && window.localStorage.getItem(HYPERBEAM_MODE_STORAGE_KEY);
+  return value === 'original' || value === 'hybrid' || value === 'hyperbeam' ? value : 'hyperbeam';
+}
+
+function isHyperbeamDeviceEnabled(device) {
+  const mode = hyperbeamMode();
+  if (mode === 'original') return false;
+  if (mode === 'hyperbeam') return true;
+  return (
+    device === '~lbry-claim@1.0' ||
+    device === '~lbry-stream@1.0' ||
+    device === '~lbry-stream-descriptor@1.0' ||
+    device === '~odysee-comment@1.0'
+  );
 }
 
 module.exports = {
