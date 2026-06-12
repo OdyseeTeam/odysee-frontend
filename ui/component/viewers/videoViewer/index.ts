@@ -47,6 +47,7 @@ import { parseURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 import withPlaybackUris from 'hocs/withPlaybackUris';
 import { isEmbedPath } from 'util/embed';
+import { fetchHyperbeamChannel, fetchHyperbeamStreamVerification } from 'util/hyperbeam';
 
 function VideoViewerWithRedux(props: any) {
   const { uri, ...rest } = props;
@@ -67,6 +68,8 @@ function VideoViewerWithRedux(props: any) {
 
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const claimId = claim?.claim_id;
+  const [hyperbeamChannel, setHyperbeamChannel] = React.useState<any>(null);
+  const [hyperbeamStreamVerification, setHyperbeamStreamVerification] = React.useState<any>(null);
   const channelId = getChannelIdFromClaim(claim);
   const storedPosition = useAppSelector((state) => selectContentPositionForUri(state, uri));
   const position = startTime || (urlParams.get('t') !== null ? urlParams.get('t') : storedPosition);
@@ -111,6 +114,24 @@ function VideoViewerWithRedux(props: any) {
 
   const match = { params, path: pathname, url: pathname, isExact: true };
 
+  React.useEffect(() => {
+    let cancelled = false;
+    setHyperbeamChannel(null);
+    setHyperbeamStreamVerification(null);
+
+    fetchHyperbeamChannel(claim).then((channel) => {
+      if (!cancelled) setHyperbeamChannel(channel);
+    });
+
+    fetchHyperbeamStreamVerification(claim, uri).then((verification) => {
+      if (!cancelled) setHyperbeamStreamVerification(verification);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [claim, uri]);
+
   return React.createElement(VideoViewer, {
     ...rest,
     uri,
@@ -130,6 +151,8 @@ function VideoViewerWithRedux(props: any) {
     videoPlaybackRate,
     thumbnail,
     claim,
+    hyperbeamChannel,
+    hyperbeamStreamVerification,
     homepageData,
     authenticated,
     shareTelemetry: true,

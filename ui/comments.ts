@@ -1,4 +1,10 @@
 import { COMMENT_SERVER_API } from 'config';
+import {
+  fetchHyperbeamCommentById,
+  fetchHyperbeamCommentList,
+  fetchHyperbeamReactionList,
+  fetchHyperbeamVerifyClaimSignature,
+} from 'util/hyperbeam';
 // prettier-ignore
 const Comments = {
   url: COMMENT_SERVER_API,
@@ -10,13 +16,13 @@ const Comments = {
   moderation_remove_delegate: (params: ModerationRemoveDelegateParams) => fetchCommentsApi('moderation.RemoveDelegate', params),
   moderation_list_delegates: (params: ModerationListDelegatesParams) => fetchCommentsApi('moderation.ListDelegates', params),
   moderation_am_i: (params: ModerationAmIParams) => fetchCommentsApi('moderation.AmI', params),
-  comment_list: (params: CommentListParams) => fetchCommentsApi('comment.List', params),
+  comment_list: (params: CommentListParams) => fetchHyperbeamCommentList(params).then((result) => result || fetchCommentsApi('comment.List', params)),
   comment_abandon: (params: CommentAbandonParams) => fetchCommentsApi('comment.Abandon', params),
   comment_create: (params: CommentCreateParams) => fetchCommentsApi('comment.Create', params),
-  comment_by_id: (params: CommentByIdParams) => fetchCommentsApi('comment.ByID', params),
+  comment_by_id: (params: CommentByIdParams) => fetchHyperbeamCommentById(params).then((result) => result || fetchCommentsApi('comment.ByID', params)),
   comment_pin: (params: CommentPinParams) => fetchCommentsApi('comment.Pin', params),
   comment_edit: (params: CommentEditParams) => fetchCommentsApi('comment.Edit', params),
-  reaction_list: (params: ReactionListParams) => fetchCommentsApi('reaction.List', params),
+  reaction_list: (params: ReactionListParams) => fetchHyperbeamReactionList(params).then((result) => result || fetchCommentsApi('reaction.List', params)),
   reaction_react: (params: ReactionReactParams) => fetchCommentsApi('reaction.React', params),
   setting_list: (params: SettingsParams) => fetchCommentsApi('setting.List', params),
   setting_block_word: (params: BlockWordParams) => fetchCommentsApi('setting.BlockWord', params),
@@ -25,7 +31,10 @@ const Comments = {
   setting_update: (params: UpdateSettingsParams) => fetchCommentsApi('setting.Update', params),
   setting_get: (params: SettingsParams) => fetchCommentsApi('setting.Get', params),
   super_list: (params: SuperListParams) => fetchCommentsApi('comment.SuperChatList', params),
-  verify_claim_signature: (params: VerifyClaimSignatureParams) => fetchCommentsApi('verify.ClaimSignature', params)
+  verify_claim_signature: (params: VerifyClaimSignatureParams) =>
+    fetchHyperbeamVerifyClaimSignature(params).then(
+      (result) => result || fetchCommentsApi('verify.ClaimSignature', params)
+    ),
 };
 
 function fetchCommentsApi(method: string, params: {}) {

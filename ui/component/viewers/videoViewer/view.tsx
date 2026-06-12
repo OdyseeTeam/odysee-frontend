@@ -45,6 +45,8 @@ type Props = {
   thumbnail?: string;
   position?: number;
   claim?: any;
+  hyperbeamChannel?: any;
+  hyperbeamStreamVerification?: any;
   muted: boolean;
   volume: number;
   autoplayNext?: boolean;
@@ -101,6 +103,7 @@ function VideoViewer(props: Props) {
     thumbnail,
     position,
     claim,
+    hyperbeamChannel,
     muted,
     volume,
     autoplayNext,
@@ -155,9 +158,13 @@ function VideoViewer(props: Props) {
   const canPlayPrevious = Boolean(playPreviousUri);
 
   const claimId = claim && claim.claim_id;
-  const channelClaimId = claim && claim.signing_channel && claim.signing_channel.claim_id;
+  const channelClaimId =
+    (hyperbeamChannel && hyperbeamChannel.claim_id) ||
+    (claim && claim.signing_channel && claim.signing_channel.claim_id);
   const channelTitle =
-    (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
+    (hyperbeamChannel && hyperbeamChannel.value && hyperbeamChannel.value.title) ||
+    (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) ||
+    '';
   const isAudio = Boolean(contentType?.includes('audio'));
   const forcePlayer = Boolean(contentType && FORCE_CONTENT_TYPE_PLAYER.includes(contentType));
 
@@ -438,7 +445,7 @@ function VideoViewer(props: Props) {
           doAnalyticsBuffer={doAnalyticsBuffer}
           claimRewards={claimRewards}
           uri={uri}
-          userClaimId={claim && claim.signing_channel && claim.signing_channel.claim_id}
+          userClaimId={channelClaimId}
           isLivestreamClaim={isLivestreamClaim}
           activeLivestreamForChannel={activeLivestreamForChannel}
           defaultQuality={defaultQuality}
