@@ -2,7 +2,12 @@ import { useState, useEffect, useRef } from 'react';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
-import { isHlsPlaybackUrl, isHyperbeamPlaybackUrl, isSignedOdycdnPlaybackUrl } from 'util/playback-url';
+import {
+  isDirectOdycdnPlaybackUrl,
+  isHlsPlaybackUrl,
+  isHyperbeamPlaybackUrl,
+  isSignedOdycdnPlaybackUrl,
+} from 'util/playback-url';
 
 const stripeEnvironment = getStripeEnvironment();
 const HLS_FILETYPE = 'application/x-mpegURL';
@@ -83,8 +88,14 @@ export default function useResolvedSource(
       }
 
       const signedOdycdnSource = isSignedOdycdnPlaybackUrl(source);
+      const directOdycdnSource = isDirectOdycdnPlaybackUrl(source);
       const hyperbeamSource = isHyperbeamPlaybackUrl(source);
-      if (hyperbeamSource || signedOdycdnSource || (isProtectedContent && source && isHlsPlaybackUrl(source))) {
+      if (
+        hyperbeamSource ||
+        signedOdycdnSource ||
+        directOdycdnSource ||
+        (isProtectedContent && source && isHlsPlaybackUrl(source))
+      ) {
         const isHls = isHlsPlaybackUrl(source);
         setResolved({
           src: source,

@@ -38,7 +38,7 @@ async function fetchHyperbeamStreamUrl(uri) {
     const response = await fetch(requestUrl, { signal: timeoutSignal(HYPERBEAM_TIMEOUT_MS) });
     if (response.ok) {
       const body = await response.json().catch(() => null);
-      return (body && (body.streaming_url || body['streaming-url'])) || '';
+      return (body && (body.download_url || body['download-url'] || body.streaming_url || body['streaming-url'])) || '';
     }
   } catch (error) {
     return '';

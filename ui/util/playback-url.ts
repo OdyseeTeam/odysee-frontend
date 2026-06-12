@@ -15,15 +15,29 @@ export function isSignedOdycdnPlaybackUrl(src: string | null | undefined): boole
   }
 }
 
+export function isDirectOdycdnPlaybackUrl(src: string | null | undefined): boolean {
+  if (!src) return false;
+
+  try {
+    const baseUrl = typeof window !== 'undefined' ? window.location.href : undefined;
+    const url = new URL(src, baseUrl);
+    const host = url.hostname.toLowerCase();
+
+    return host === 'player.odycdn.com' && url.pathname.startsWith('/v6/streams/');
+  } catch {
+    return false;
+  }
+}
+
 export function isHyperbeamPlaybackUrl(src: string | null | undefined): boolean {
   if (!src) return false;
 
   try {
     const baseUrl = typeof window !== 'undefined' ? window.location.href : undefined;
     const url = new URL(src, baseUrl);
-    return url.pathname.includes('/~lbry-stream@1.0/media');
+    return url.pathname.includes('/~lbry-stream@1.0/media') || url.pathname.includes('/~odysee-stream@1.0/media');
   } catch {
-    return src.includes('~lbry-stream@1.0/media');
+    return src.includes('~lbry-stream@1.0/media') || src.includes('~odysee-stream@1.0/media');
   }
 }
 
