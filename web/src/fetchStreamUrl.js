@@ -55,6 +55,9 @@ function buildHyperbeamPlaybackUrl(uri) {
   try {
     const url = new URL(HYPERBEAM_PLAYBACK_URL);
     url.searchParams.set('url', uri);
+    if (!url.searchParams.has('media-base-url')) {
+      url.searchParams.set('media-base-url', url.origin);
+    }
     return url.toString();
   } catch (error) {
     return '';

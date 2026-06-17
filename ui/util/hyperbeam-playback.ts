@@ -8,6 +8,9 @@ export function buildHyperbeamPlaybackUrl(uri: string): string {
   try {
     const url = new URL(HYPERBEAM_PLAYBACK_URL);
     url.searchParams.set('url', uri);
+    if (!url.searchParams.has('media-base-url')) {
+      url.searchParams.set('media-base-url', url.origin);
+    }
     return url.toString();
   } catch {
     return '';
