@@ -1,5 +1,5 @@
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
-import { getHyperbeamMode, HYPERBEAM_MODES } from 'util/hyperbeamMode';
+import { getHyperbeamMode, HYPERBEAM_MODES, shouldAllowOriginalNetworkFallback } from 'util/hyperbeamMode';
 
 export type HyperbeamDebugLevel = 'info' | 'ok' | 'warn' | 'error';
 
@@ -11,11 +11,15 @@ export type HyperbeamDebugEvent = {
 };
 
 const EVENT_NAME = 'odysee-hyperbeam-debug';
+const MAX_BUFFERED_EVENTS = 320;
 let installed = false;
+const bufferedEvents: Array<HyperbeamDebugEvent> = [];
 
 export function hyperbeamDebugColor(level: HyperbeamDebugLevel, sourceLayer?: string) {
   const source = String(sourceLayer || '');
-  if (level === 'error') return '#ff4d7d';
+  if (source === 'native-device') return '#0ea5e9';
+  if (level === 'error' || source === 'native-failed' || source === 'native-missing') return '#ff4d7d';
+  if (source === 'original') return '#94a3b8';
   if (source === 'native:sdk-proxy') return '#a78bfa';
   if (source === 'native:unverified') return '#38bdf8';
   if (source === 'native:verified') return '#22c55e';
@@ -34,14 +38,20 @@ export function hyperbeamDebugColor(level: HyperbeamDebugLevel, sourceLayer?: st
 export function pushHyperbeamDebug(label: string, data?: any, level: HyperbeamDebugLevel = 'info') {
   if (typeof window === 'undefined') return;
 
+  const event = {
+    time: new Date().toLocaleTimeString(),
+    label,
+    level,
+    data,
+  };
+  bufferedEvents.push(event);
+  if (bufferedEvents.length > MAX_BUFFERED_EVENTS) {
+    bufferedEvents.splice(0, bufferedEvents.length - MAX_BUFFERED_EVENTS);
+  }
+
   window.dispatchEvent(
     new CustomEvent(EVENT_NAME, {
-      detail: {
-        time: new Date().toLocaleTimeString(),
-        label,
-        level,
-        data,
-      },
+      detail: event,
     })
   );
 }
@@ -49,6 +59,7 @@ export function pushHyperbeamDebug(label: string, data?: any, level: HyperbeamDe
 export function addHyperbeamDebugListener(listener: (event: HyperbeamDebugEvent) => void) {
   const wrapped = (event: Event) => listener((event as CustomEvent<HyperbeamDebugEvent>).detail);
   window.addEventListener(EVENT_NAME, wrapped);
+  bufferedEvents.forEach(listener);
   return () => window.removeEventListener(EVENT_NAME, wrapped);
 }
 
@@ -64,9 +75,7 @@ export function installHyperbeamFetchDebug() {
     const url = requestUrl(input);
     const mode = getHyperbeamMode();
     const isHyperbeam = Boolean(url && url.startsWith(nodeBase));
-    const shouldLog =
-      isHyperbeam ||
-      ((mode === HYPERBEAM_MODES.original || mode === HYPERBEAM_MODES.hybrid) && isOriginalModeFetch(url));
+    const shouldLog = isHyperbeam || (shouldAllowOriginalNetworkFallback() && isOriginalModeFetch(url));
     const startedAt = performance.now();
 
     if (shouldLog) {
@@ -78,7 +87,12 @@ export function installHyperbeamFetchDebug() {
       if (!shouldLog) return response;
 
       const elapsedMs = Math.round(performance.now() - startedAt);
-      const summary = await responseSummary(url, response, elapsedMs, isHyperbeam ? undefined : 'original');
+      const summary = await responseSummary(
+        url,
+        response,
+        elapsedMs,
+        isHyperbeam ? hyperbeamFallbackLayer(url) : 'original'
+      );
       pushHyperbeamDebug('response', summary, response.ok ? 'ok' : 'error');
       return response;
     } catch (error: any) {
@@ -89,7 +103,9 @@ export function installHyperbeamFetchDebug() {
             url: sanitizeUrl(url),
             method: requestMethod(input, init),
             devicePath: devicePath(url),
-            sourceLayer: isHyperbeam ? undefined : 'original',
+            device: hyperbeamDevice(url),
+            deviceLayer: hyperbeamDeviceLayer(url),
+            sourceLayer: isHyperbeam ? hyperbeamFallbackLayer(url) : 'original',
             error: String(error?.message || error),
             elapsedMs: Math.round(performance.now() - startedAt),
           },
@@ -100,6 +116,14 @@ export function installHyperbeamFetchDebug() {
       throw error;
     }
   };
+}
+
+function hyperbeamFallbackLayer(url: string) {
+  try {
+    const parsed = new URL(url);
+    if (parsed.pathname === '/~odysee@1.0/sdk') return 'fallback:sdk_proxy';
+  } catch {}
+  return undefined;
 }
 
 function isOriginalModeFetch(url: string) {
@@ -129,6 +153,8 @@ function requestSummary(url: string, input: RequestInfo | URL, init?: RequestIni
   return {
     method: requestMethod(input, init),
     devicePath: devicePath(url),
+    device: hyperbeamDevice(url),
+    deviceLayer: hyperbeamDeviceLayer(url),
     url: sanitizeUrl(url),
     sourceLayer: fallbackSourceLayer,
     bodyBytes: typeof init?.body === 'string' ? init.body.length : undefined,
@@ -141,6 +167,8 @@ async function responseSummary(url: string, response: Response, elapsedMs: numbe
     ok: response.ok,
     elapsedMs,
     devicePath: devicePath(url),
+    device: hyperbeamDevice(url),
+    deviceLayer: hyperbeamDeviceLayer(url),
     contentType: response.headers.get('content-type'),
     contentLength: response.headers.get('content-length'),
     contentRange: response.headers.get('content-range'),
@@ -170,10 +198,13 @@ function sourceLayer(body: any) {
   const layer =
     body?.['source-layer'] ||
     body?.['source_layer'] ||
+    body?.sourceLayer ||
     body?.result?.['source-layer'] ||
     body?.result?.['source_layer'] ||
+    body?.result?.sourceLayer ||
     body?.body?.['source-layer'] ||
-    body?.body?.['source_layer'];
+    body?.body?.['source_layer'] ||
+    body?.body?.sourceLayer;
 
   if (!layer) return undefined;
   if (layer.native === true) {
@@ -183,6 +214,7 @@ function sourceLayer(body: any) {
     return layer.verification?.status === 'verified' ? 'native:verified' : 'native:unverified';
   }
   if (layer.native === false) {
+    if (layer.fallback === false && layer.source) return 'native-failed';
     const fallback = String(layer.fallback || layer.materialized_from || 'unknown');
     if (fallback.startsWith('sdk_proxy')) return 'native:sdk-proxy';
     return `fallback:${fallback}`;
@@ -203,6 +235,24 @@ function previewBody(text: string) {
 function devicePath(url: string) {
   return sanitizePath(url);
 }
+
+function hyperbeamDevice(url: string) {
+  try {
+    const firstPathPart = new URL(url).pathname.split('/').find(Boolean);
+    return firstPathPart?.startsWith('~') ? firstPathPart : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function hyperbeamDeviceLayer(url: string) {
+  const device = hyperbeamDevice(url);
+  if (!device) return undefined;
+  if (NATIVE_DEVICE_NAMES.has(device)) return 'native-device';
+  return 'compat-device';
+}
+
+const NATIVE_DEVICE_NAMES = new Set(['~odysee@1.0']);
 
 export function sanitizeHyperbeamDebugValue(value: any): any {
   return redactSensitive(value);

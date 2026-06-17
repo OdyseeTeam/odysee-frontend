@@ -1,6 +1,6 @@
 import { COMMENT_SERVER_API } from 'config';
 import { HYPERBEAM_DEVICE, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
-import { isHyperbeamDeviceEnabled } from 'util/hyperbeamMode';
+import { isHyperbeamDeviceEnabled, shouldAllowOriginalNetworkFallback } from 'util/hyperbeamMode';
 // prettier-ignore
 const Comments = {
   url: COMMENT_SERVER_API,
@@ -41,7 +41,12 @@ function fetchHyperbeamNodeCommentRead(
   params: {}
 ) {
   const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.comment, endpoint, params || {});
-  if (!request) return fetchCommentsApi(commentReadMethod(endpoint), params || {});
+  if (!request) {
+    if (!shouldAllowOriginalNetworkFallback()) {
+      return Promise.resolve(emptyHyperbeamCommentResult(endpoint));
+    }
+    return fetchCommentsApi(commentReadMethod(endpoint), params || {});
+  }
   return request
     .then((res) => {
       if (!res.ok) throw new Error(`comment device ${res.status}`);
@@ -90,6 +95,10 @@ function fetchCommentsApi(method: string, params: {}) {
       });
   }
 
+  if (!shouldAllowOriginalNetworkFallback()) {
+    return Promise.resolve(emptyHyperbeamCommentApiResult(method));
+  }
+
   const url = `${Comments.url}?m=${method}`;
   const options = {
     method: 'POST',
@@ -112,6 +121,38 @@ function fetchCommentsApi(method: string, params: {}) {
 
       return res.result;
     });
+}
+
+function emptyHyperbeamCommentResult(endpoint: string) {
+  switch (endpoint) {
+    case 'setting_get':
+      return {};
+    case 'setting_list':
+      return [];
+    case 'comment_list':
+      return { items: [], page: 1, page_size: 0, total_items: 0, total_pages: 0 };
+    case 'comment_by_id':
+    case 'comment_get_channel_from_comment_id':
+      return null;
+    case 'reaction_list':
+      return {};
+    default:
+      return {};
+  }
+}
+
+function emptyHyperbeamCommentApiResult(method: string) {
+  switch (method) {
+    case 'setting.ListBlockedWords':
+      return [];
+    case 'moderation.BlockedList':
+    case 'moderation.ListDelegates':
+      return [];
+    case 'moderation.AmI':
+      return {};
+    default:
+      return {};
+  }
 }
 
 export default Comments;

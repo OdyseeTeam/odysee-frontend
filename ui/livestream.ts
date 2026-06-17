@@ -1,6 +1,6 @@
 import { LIVESTREAM_SERVER_API } from 'config';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
-import { isHyperbeamDeviceEnabled } from 'util/hyperbeamMode';
+import { isHyperbeamDeviceEnabled, shouldAllowOriginalNetworkFallback } from 'util/hyperbeamMode';
 const Livestream = {
   url: LIVESTREAM_SERVER_API,
   enabled: Boolean(isHyperbeamDeviceEnabled(HYPERBEAM_DEVICE.livestream) || LIVESTREAM_SERVER_API),
@@ -73,6 +73,10 @@ Livestream.call = (resource, action, params = {}, method = 'post') => {
         return res.json();
       })
       .then(unwrapHyperbeamNodeJson);
+  }
+
+  if (!shouldAllowOriginalNetworkFallback()) {
+    return Promise.reject(new Error('HyperBEAM livestream device is not configured.'));
   }
 
   Object.keys(params).forEach((key) => {

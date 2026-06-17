@@ -246,6 +246,11 @@ function apiCall(method, params, resolve, reject) {
 function hyperbeamNodeSdkCall(method, params) {
   if (!hyperbeamNodeConfigured()) return null;
 
+  const localFullModeResult = hyperbeamFullModeLocalSdkResult(method, params);
+  if (localFullModeResult) {
+    return localFullModeResult;
+  }
+
   switch (method) {
     case 'resolve':
       return hyperbeamNodeResolve(params, Lbry.apiRequestHeaders);
@@ -292,6 +297,70 @@ function hyperbeamNodeSdkCall(method, params) {
     default:
       return null;
   }
+}
+
+function hyperbeamFullModeLocalSdkResult(method, params) {
+  if (hyperbeamMode() !== 'hyperbeam') return null;
+
+  switch (method) {
+    case 'channel_sign':
+      return Promise.reject(new Error('channel_sign requires authentication'));
+    case 'preference_get':
+    case 'preference_set':
+    case 'settings_get':
+    case 'settings_set':
+    case 'settings_clear':
+    case 'sync_get':
+    case 'sync_set':
+    case 'sync_apply':
+      return Promise.resolve({});
+    case 'sync_hash':
+      return Promise.resolve(null);
+    case 'wallet_balance':
+      return Promise.resolve({});
+    case 'wallet_status':
+      return Promise.resolve({ is_encrypted: false, is_locked: false });
+    case 'wallet_list':
+    case 'account_list':
+    case 'channel_list':
+    case 'collection_list':
+    case 'purchase_list':
+    case 'file_list':
+    case 'stream_list':
+    case 'blob_list':
+    case 'address_list':
+    case 'transaction_list':
+    case 'txo_list':
+      return Promise.resolve(emptyHyperbeamListResult(params));
+    case 'address_is_mine':
+      return Promise.resolve(false);
+    case 'address_unused':
+      return Promise.resolve('');
+    case 'wallet_unlock':
+    case 'wallet_lock':
+    case 'wallet_encrypt':
+    case 'wallet_decrypt':
+    case 'ffmpeg_find':
+      return Promise.reject(new Error(`${method} requires authentication`));
+    default:
+      return null;
+  }
+}
+
+function emptyHyperbeamListResult(params) {
+  return {
+    items: [],
+    page: Number((params && params.page) || 1),
+    page_size: Number((params && params.page_size) || 20),
+    total_items: 0,
+    total_pages: 0,
+  };
+}
+
+function hyperbeamMode() {
+  if (typeof window === 'undefined') return 'hyperbeam';
+  const value = window.localStorage && window.localStorage.getItem('odysee-hyperbeam-mode');
+  return value === 'original' || value === 'hybrid' || value === 'hyperbeam' ? value : 'hyperbeam';
 }
 
 function daemonCallWithResult(name, params = {}) {

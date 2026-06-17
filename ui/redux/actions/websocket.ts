@@ -5,8 +5,9 @@ import { doFetchChannelIsLiveForId } from 'redux/actions/livestream';
 import { doCommentList } from 'redux/actions/comments';
 import { selectLivestreamInfoAlreadyFetchedForCreatorId } from 'redux/selectors/livestream';
 import { selectClaimForId, selectChannelClaimIdForUri, selectProtectedContentTagForUri } from 'redux/selectors/claims';
-import { ODYSEE_HYPERBEAM_NODE_API, SOCKETY_SERVER_API } from 'config';
-import { isHyperbeamEnabled } from 'util/hyperbeamMode';
+import { SOCKETY_SERVER_API } from 'config';
+import { HYPERBEAM_DEVICE } from 'util/hyperbeamDevices';
+import { isHyperbeamDeviceEnabled, isHyperbeamFullMode } from 'util/hyperbeamMode';
 const NOTIFICATION_WS_URL = `${SOCKETY_SERVER_API}/internal?id=`;
 const COMMENT_WS_URL = `${SOCKETY_SERVER_API}/commentron?id=`;
 const POLL_INTERVAL_MS = 15000;
@@ -19,8 +20,12 @@ let closingSockets = {};
 let retryCount = 0;
 let pollingIntervals = {};
 
-function hyperbeamNodeConfigured() {
-  return Boolean(String(ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, '')) && isHyperbeamEnabled();
+function hyperbeamNotificationPollingEnabled() {
+  return isHyperbeamFullMode();
+}
+
+function hyperbeamCommentPollingEnabled() {
+  return isHyperbeamDeviceEnabled(HYPERBEAM_DEVICE.comment);
 }
 
 function startPolling(key: string, poll: () => void, intervalMs = POLL_INTERVAL_MS) {
@@ -110,7 +115,7 @@ export const doNotificationSocketConnect = (enableNotifications) => (dispatch) =
     return;
   }
 
-  if (hyperbeamNodeConfigured()) {
+  if (hyperbeamNotificationPollingEnabled()) {
     startPolling('notification', () => {
       if (enableNotifications) {
         dispatch(doNotificationList());
@@ -158,7 +163,7 @@ export const doCommentSocketConnect =
         ? getCommentSocketUrlForCommenter(claimIdForSocketUrl, channelName)
         : getCommentSocketUrl(claimIdForSocketUrl, channelName);
 
-    if (hyperbeamNodeConfigured()) {
+    if (hyperbeamCommentPollingEnabled()) {
       const pollKey = `comment:${claimId}:${subCategory || COMMENT_WS_SUBCATEGORIES.VIEWER}`;
       startPolling(pollKey, () => {
         dispatch(doCommentList(uri, undefined, 1, 75, undefined, true));

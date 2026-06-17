@@ -1,9 +1,10 @@
 import * as ACTIONS from 'constants/action_types';
-import { GEO_BLOCK_API, ODYSEE_HYPERBEAM_NODE_API } from 'config';
+import { GEO_BLOCK_API } from 'config';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { doAlertWaitingForSync } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceBase } from 'util/hyperbeamDevices';
+import { shouldAllowOriginalNetworkFallback } from 'util/hyperbeamMode';
 
 function hyperbeamNodeBase() {
   return hyperbeamDeviceBase(HYPERBEAM_DEVICE.internalApis);
@@ -11,7 +12,11 @@ function hyperbeamNodeBase() {
 
 function hyperbeamNodeFetchJson(key: string) {
   const node = hyperbeamNodeBase();
-  if (!node) return null;
+  if (!node) {
+    return shouldAllowOriginalNetworkFallback()
+      ? null
+      : Promise.reject(new Error(`HyperBEAM ${key} device is not configured.`));
+  }
 
   return fetch(`${node}/${key}`, {
     method: 'GET',
@@ -58,7 +63,8 @@ export function doFetchGeoBlockedList() {
     dispatch({
       type: ACTIONS.FETCH_GBL_STARTED,
     });
-    (hyperbeamNodeFetchJson('geo_block') || fetch(GEO_BLOCK_API))
+    const request = hyperbeamNodeFetchJson('geo_block');
+    (request || fetch(GEO_BLOCK_API))
       .then(async (res) => {
         let json = {};
 

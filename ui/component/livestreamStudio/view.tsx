@@ -73,6 +73,10 @@ type MediaTrackConstraintsWithResizeMode = MediaTrackConstraints & {
 
 const STUDIO_DEBUG = process.env.NODE_ENV === 'development';
 
+function isEphemeralSourceId(id: string) {
+  return id.startsWith('__screen_') || id.startsWith('__videofile_') || id.startsWith('__image_');
+}
+
 function isAbortError(e: unknown): boolean {
   return e instanceof DOMException && e.name === 'AbortError';
 }
@@ -906,11 +910,9 @@ export default function LivestreamStudio(props: Props) {
 
   React.useEffect(() => {
     if (!draftRestoredRef.current) return;
-    const isEphemeralId = (id: string) =>
-      id.startsWith('__screen_') || id.startsWith('__videofile_') || id.startsWith('__image_');
     try {
       const layerMeta = compositorLayersRef.current
-        .filter((l) => !isEphemeralId(l.id))
+        .filter((l) => !isEphemeralSourceId(l.id))
         .map((l) => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { stream, crop, aspectRatio, ...rest } = l;
@@ -919,12 +921,13 @@ export default function LivestreamStudio(props: Props) {
       const draft = {
         layers: layerMeta,
         videoSources: Array.from(activeVideoIds)
-          .filter((vid) => !isEphemeralId(vid))
+          .filter((vid) => !isEphemeralSourceId(vid))
           .map((vid) => activatedVideoSourcesRef.current.get(vid))
           .filter((s): s is VideoSource => Boolean(s)),
         audioSources: Array.from(activeAudioIds)
           .filter(
-            (aid) => !isEphemeralId(aid) && !aid.startsWith('__screen_audio_') && !aid.startsWith('__videofile_audio_')
+            (aid) =>
+              !isEphemeralSourceId(aid) && !aid.startsWith('__screen_audio_') && !aid.startsWith('__videofile_audio_')
           )
           .map((aid) => activatedAudioSourcesRef.current.get(aid))
           .filter((s): s is AudioSource => Boolean(s)),
@@ -982,18 +985,16 @@ export default function LivestreamStudio(props: Props) {
         if (draft.audioVolumes) setAudioVolumes(draft.audioVolumes);
         if (typeof draft.masterVolume === 'number') setMasterVolume(draft.masterVolume);
         if (Array.isArray(draft.mutedAudios)) setMutedAudios(new Set(draft.mutedAudios));
-        const isEphemeralId = (id: string) =>
-          id.startsWith('__screen_') || id.startsWith('__videofile_') || id.startsWith('__image_');
         await handleLoadSaved({
           id: 'draft',
           name: 'Draft',
           thumbnail: '',
-          layers: (draft.layers || []).filter((l: any) => l.id && !isEphemeralId(l.id)),
-          videoSources: (draft.videoSources || []).filter((s: any) => s.deviceId && !isEphemeralId(s.deviceId)),
+          layers: (draft.layers || []).filter((l: any) => l.id && !isEphemeralSourceId(l.id)),
+          videoSources: (draft.videoSources || []).filter((s: any) => s.deviceId && !isEphemeralSourceId(s.deviceId)),
           audioSources: (draft.audioSources || []).filter(
             (s: any) =>
               s.deviceId &&
-              !isEphemeralId(s.deviceId) &&
+              !isEphemeralSourceId(s.deviceId) &&
               !s.deviceId.startsWith('__screen_audio_') &&
               !s.deviceId.startsWith('__videofile_audio_')
           ),

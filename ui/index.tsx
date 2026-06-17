@@ -90,6 +90,7 @@ import {
 import { useAppDispatch } from 'redux/hooks';
 import { doSendPastRecsysEntries } from 'redux/actions/content';
 import { reloadOnceForDynamicImportError } from 'util/importFailure';
+import { installHyperbeamFetchDebug } from 'util/hyperbeamDebug';
 // Import 3rd-party styles before ours for the current way we are code-splitting.
 import 'scss/third-party.scss';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -97,6 +98,8 @@ import 'react-datepicker/dist/react-datepicker.css';
 // If a style is not necessary for the initial page load, it should be removed from `all.scss`
 // and loaded dynamically in the component that consumes it
 import 'scss/all.scss';
+
+installHyperbeamFetchDebug();
 
 type CancelScheduledWork = () => void;
 

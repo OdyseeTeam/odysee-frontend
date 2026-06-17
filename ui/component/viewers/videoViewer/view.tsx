@@ -19,16 +19,20 @@ import { isEmbedPath } from 'util/embed';
 import { fullscreenElement as getFullscreenElement, requestFullscreen } from 'util/full-screen';
 import { ODYSEE_HYPERBEAM_NODE_API } from '../../../../config';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
+import { verifySecp256k1Signature } from 'util/hyperbeamSecp256k1';
+import { pushHyperbeamDebug } from 'util/hyperbeamDebug';
 
 const PLAY_POSITION_SAVE_INTERVAL_MS = 15000;
 const POSITION_SYNC_INTERVAL_MS = 30000;
 const HYPERBEAM_STARTUP_MAX_VISIBLE_MS = 3400;
 const HYPERBEAM_STARTUP_READY_EVENT = 'odysee-hyperbeam-startup-ready';
+const HYPERBEAM_BROWSER_BLOB_VERIFY_STORAGE_KEY = 'odysee-hyperbeam-browser-blob-verify';
 const IS_IOS = platform.isIOS();
 const DQ_SETTING_PROMOTED_KEY = 'initial-quality-change';
 const PLAYLIST_FULLSCREEN_KEY = 'playlist-preserve-fullscreen';
 
-function hyperbeamNodeMediaUrl(uri?: string) {
+function hyperbeamNodeMediaUrl(uri?: string, sdHash?: string) {
+  if (sdHash) return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'media', { sd_hash: sdHash });
   if (!uri) return '';
   return hyperbeamNodePath('media', uri);
 }
@@ -40,27 +44,26 @@ function hyperbeamNodeResolveUrl(uri?: string) {
 
 function hyperbeamNodeDescriptorUrl(sdHash?: string) {
   if (!sdHash) return '';
-  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.streamDescriptor, 'descriptor', { sd_hash: sdHash });
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'descriptor', { sd_hash: sdHash });
+}
+
+function hyperbeamNodeVerifiedStreamUrl(uri?: string, claimId?: string) {
+  if (claimId) return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'verified-stream', { claim_id: claimId });
+  if (!uri) return '';
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'verified-stream', { target: uri });
+}
+
+function hyperbeamNodeBlobUrl(hash?: string) {
+  if (!hash) return '';
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'blob', { hash });
 }
 
 function hyperbeamNodePath(key: 'resolve' | 'media', uri: string) {
-  return hyperbeamDeviceUrl(key === 'media' ? HYPERBEAM_DEVICE.stream : HYPERBEAM_DEVICE.claim, key, {
-    uri64: base64Url(uri),
-  });
-}
-
-function base64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, key, { target: uri });
 }
 
 function isHyperbeamNodeMediaUrl(value?: string) {
-  return Boolean(value && value.includes('/media?uri64='));
+  return Boolean(value && value.includes(`${HYPERBEAM_DEVICE.odysee}/media?`));
 }
 
 type HyperbeamNodeDebugLevel = 'info' | 'ok' | 'warn' | 'error';
@@ -177,6 +180,7 @@ function hyperbeamNodeMediaHeaders(response: Response) {
     mediaMs: response.headers.get('x-odysee-media-ms'),
     mediaBlobs: response.headers.get('x-odysee-media-blobs'),
     mediaRange: response.headers.get('x-odysee-media-range'),
+    sdHash: response.headers.get('sd-hash'),
   };
 }
 
@@ -198,42 +202,431 @@ function hyperbeamVerificationStatus(body: any): string | undefined {
   );
 }
 
+function hyperbeamSourceLayerLabel(layer: any): string | undefined {
+  if (!layer) return undefined;
+  if (typeof layer === 'string') return layer;
+  if (layer.native === true) {
+    if (layer.verification?.status === 'verified') return 'native:verified';
+    if (layer.source === 'backend_api_proxy' || String(layer.source?.source || '').startsWith('backend_api_proxy')) {
+      return 'native:sdk-proxy';
+    }
+    return 'native:unverified';
+  }
+  if (layer.native === false) {
+    const fallback = String(layer.fallback || layer.materialized_from || 'unknown');
+    if (fallback.startsWith('sdk_proxy')) return 'native:sdk-proxy';
+    return `fallback:${fallback}`;
+  }
+  return undefined;
+}
+
+function hyperbeamResponseSourceLayer(response: Response, body?: any): string | undefined {
+  return (
+    response.headers.get('x-odysee-source-layer') ||
+    hyperbeamSourceLayerLabel(body?.sourceLayer || body?.['source-layer'] || body?.source_layer)
+  );
+}
+
+function pushHyperbeamConsoleResponse(
+  label: string,
+  response: Response,
+  url: string,
+  body?: any,
+  extra: Record<string, any> = {}
+) {
+  pushHyperbeamDebug(
+    label,
+    {
+      method: 'GET',
+      status: response.status,
+      ok: response.ok,
+      devicePath: new URL(url).pathname,
+      url,
+      contentType: response.headers.get('content-type'),
+      sourceLayer: hyperbeamResponseSourceLayer(response, body),
+      sourceReason: response.headers.get('x-odysee-source-reason') || undefined,
+      ...extra,
+    },
+    response.ok ? 'ok' : 'error'
+  );
+}
+
 function hyperbeamDescriptorFields(body: any): any {
   return body?.fields || body?.result?.fields || body?.response?.fields;
 }
 
 function hyperbeamDescriptorVerification(body: any, expectedSdHash?: string) {
   const fields = hyperbeamDescriptorFields(body);
-  const actualSdHash = fields?.sd_hash || body?.verification?.sd_hash;
+  const actualSdHash =
+    fields?.sd_hash || body?.['sd-hash'] || body?.['computed-sd-hash'] || body?.verification?.sd_hash;
   const status = hyperbeamVerificationStatus(body);
+  const descriptorVerified = status === 'verified' || body?.device === 'lbry-stream-descriptor@1.0';
   const checks = {
     expectedSdHash,
     descriptorSdHash: actualSdHash,
     descriptorHashMatchesClaim: Boolean(expectedSdHash && actualSdHash && expectedSdHash === actualSdHash),
     descriptorStatus: status || 'missing',
-    descriptorVerified: status === 'verified',
+    descriptorVerified,
     blobCount: Array.isArray(fields?.blobs) ? Math.max(0, fields.blobs.length - 1) : null,
   };
 
   return {
     ...checks,
-    verified: checks.descriptorHashMatchesClaim && checks.descriptorVerified,
+    verified: checks.descriptorHashMatchesClaim && descriptorVerified,
+  };
+}
+
+async function hyperbeamDescriptorResponseBody(response: Response) {
+  const contentType = response.headers.get('content-type') || '';
+  if (contentType.includes('application/json')) {
+    return response.json().catch(() => null);
+  }
+
+  const text = await response.text().catch(() => '');
+  if (!contentType.includes('multipart/form-data')) return null;
+
+  const rawMatch = text.match(/name="raw"(?:\r?\n[^\r\n]*)?\r?\n\r?\n([\s\S]*?)(?:\r?\n--)/);
+  const raw = rawMatch ? rawMatch[1].trim() : '';
+  let fields;
+  try {
+    fields = raw ? JSON.parse(raw) : undefined;
+  } catch (_error) {
+    fields = undefined;
+  }
+
+  return {
+    raw,
+    fields,
+    device: response.headers.get('device'),
+    'sd-hash': response.headers.get('sd-hash'),
+    'computed-sd-hash': response.headers.get('computed-sd-hash'),
+    'data-blob-count': response.headers.get('data-blob-count'),
   };
 }
 
 function hyperbeamMediaRangeVerification(result: any, expectedSdHash?: string) {
   const sourceLayer = result?.sourceLayer;
   const mediaBlobs = Number(result?.mediaBlobs);
+  const verifiedSourceLayer = sourceLayer === 'native' || sourceLayer === 'native:verified';
+  const sdHashMatches = Boolean(expectedSdHash && result?.sdHash === expectedSdHash);
   return {
     expectedSdHash,
+    sdHash: result?.sdHash,
     status: result?.status,
     byteLength: result?.byteLength,
     sourceLayer,
     mediaRange: result?.mediaRange,
     mediaBlobs: result?.mediaBlobs,
     rangeStatusOk: result?.status === 206,
-    nativeVerifiedRange: sourceLayer === 'native' && Number.isFinite(mediaBlobs) && mediaBlobs > 0,
-    verified: result?.status === 206 && sourceLayer === 'native' && Number.isFinite(mediaBlobs) && mediaBlobs > 0,
+    nativeVerifiedRange: verifiedSourceLayer && Number.isFinite(mediaBlobs) && mediaBlobs > 0,
+    sdHashMatches,
+    verified:
+      result?.status === 206 &&
+      (sdHashMatches || (verifiedSourceLayer && Number.isFinite(mediaBlobs) && mediaBlobs > 0)),
+  };
+}
+
+function hex(bytes: ArrayBuffer) {
+  return Array.from(new Uint8Array(bytes))
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+async function sha384Hex(bytes: ArrayBuffer) {
+  return hex(await crypto.subtle.digest('SHA-384', bytes));
+}
+
+function hexBytes(hexString?: string | null) {
+  if (!hexString || hexString.length % 2 !== 0 || /[^0-9a-f]/i.test(hexString)) {
+    throw new Error('invalid hex bytes');
+  }
+
+  const bytes = new Uint8Array(hexString.length / 2);
+  for (let i = 0; i < bytes.length; i += 1) {
+    bytes[i] = parseInt(hexString.slice(i * 2, i * 2 + 2), 16);
+  }
+  return bytes;
+}
+
+function reverseBytes(bytes: Uint8Array) {
+  return Uint8Array.from(bytes).reverse();
+}
+
+function concatBytes(left: Uint8Array, right: Uint8Array) {
+  const out = new Uint8Array(left.length + right.length);
+  out.set(left, 0);
+  out.set(right, left.length);
+  return out;
+}
+
+async function sha256Bytes(bytes: Uint8Array) {
+  const input = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  return new Uint8Array(await crypto.subtle.digest('SHA-256', input));
+}
+
+async function doubleSha256Bytes(bytes: Uint8Array) {
+  return sha256Bytes(await sha256Bytes(bytes));
+}
+
+async function sha256Hex(bytes: Uint8Array) {
+  return hexFromBytes(await sha256Bytes(bytes));
+}
+
+function hexFromBytes(bytes: Uint8Array) {
+  return Array.from(bytes)
+    .map((byte) => byte.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+function base64Bytes(base64Value?: string | null) {
+  if (!base64Value) throw new Error('missing base64 bytes');
+  const binary = atob(base64Value);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i += 1) {
+    bytes[i] = binary.charCodeAt(i);
+  }
+  return bytes;
+}
+
+function hyperbeamDescriptorRawBytes(descriptor: any) {
+  const sourceBytes = descriptor?.['source-bytes']?.bytes;
+  if (sourceBytes) return base64Bytes(sourceBytes);
+
+  const raw = descriptor?.raw;
+  if (typeof raw === 'string' && raw.length > 0) {
+    if (/^[0-9a-f]+$/i.test(raw) && raw.length % 2 === 0) return hexBytes(raw);
+
+    return new TextEncoder().encode(raw);
+  }
+
+  if (raw?.bytes) return base64Bytes(raw.bytes);
+
+  throw new Error('missing descriptor raw bytes');
+}
+
+async function verifyHyperbeamGraphDescriptor(graph: any, expectedSdHash?: string) {
+  const descriptor = graph?.descriptor;
+  const bytes = hyperbeamDescriptorRawBytes(descriptor);
+  const actualSdHash = await sha384Hex(bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength));
+  const descriptorCommitment = descriptor?.commitment?.value;
+  const descriptorValidation = descriptor?.validation;
+  const descriptorFields = descriptor?.fields;
+  const verified =
+    Boolean(expectedSdHash) &&
+    actualSdHash === expectedSdHash &&
+    (!descriptorCommitment || descriptorCommitment === actualSdHash);
+
+  return {
+    status: verified ? 'verified' : 'failed',
+    byteLength: bytes.byteLength,
+    expectedSdHash,
+    descriptorSdHash: actualSdHash,
+    descriptorCommitment,
+    descriptorHashMatchesClaim: Boolean(expectedSdHash && actualSdHash === expectedSdHash),
+    descriptorCommitmentMatchesBytes: !descriptorCommitment || descriptorCommitment === actualSdHash,
+    descriptorValidation,
+    blobCount: Array.isArray(descriptorFields?.blobs) ? Math.max(0, descriptorFields.blobs.length - 1) : null,
+    verified,
+  };
+}
+
+async function verifyHyperbeamChainInclusion(graph: any) {
+  const chain = graph?.['chain-inclusion'];
+  const proof = chain?.proof;
+  const merkle = proof?.merkle;
+  const headerHex = proof?.header;
+  const branch = merkle?.merkle || [];
+  const txid = chain?.txid || graph?.txid;
+  const height = chain?.height || graph?.height;
+  const position = Number(merkle?.pos ?? merkle?.tx_pos ?? 0);
+
+  if (chain?.status === 'unavailable' || !proof || !merkle || !headerHex) {
+    return {
+      status: 'unavailable',
+      reason: chain?.detail || chain?.verification?.reason || 'missing chain proof material',
+      txid,
+      height,
+    };
+  }
+
+  if (!Array.isArray(branch) || !Number.isInteger(position) || position < 0) {
+    throw new Error('invalid merkle branch metadata');
+  }
+
+  const header = hexBytes(headerHex);
+  if (header.length < 68) {
+    throw new Error('invalid block header');
+  }
+
+  let hash = reverseBytes(hexBytes(txid));
+  let pos = position;
+
+  for (const siblingHex of branch) {
+    const sibling = reverseBytes(hexBytes(siblingHex));
+    hash = await doubleSha256Bytes(pos % 2 === 0 ? concatBytes(hash, sibling) : concatBytes(sibling, hash));
+    pos = Math.floor(pos / 2);
+  }
+
+  const headerMerkleRoot = header.slice(36, 68);
+  const verified = hexFromBytes(hash) === hexFromBytes(headerMerkleRoot);
+  if (!verified) {
+    throw new Error('transaction merkle root does not match block header');
+  }
+
+  return {
+    status: 'verified',
+    txid,
+    height,
+    position,
+    branchLength: branch.length,
+    merkleRoot: hexFromBytes(reverseBytes(hash)),
+  };
+}
+
+async function verifyHyperbeamClaimSignatureDigest(graph: any) {
+  const context = graph?.['claim-signature-context'];
+  const digestInput = context?.['digest-input'];
+  const expectedDigest = context?.digest || graph?.attestation?.digest;
+  const signaturePieceHex = digestInput?.['signature-digest-piece'];
+  const signingChannelHashHex = digestInput?.['signing-channel-hash'];
+  const messageHex = digestInput?.message;
+  const signatureHex = context?.['claim-signature'];
+  const publicKeyHex = context?.['public-key'];
+
+  if (!context || !digestInput || !expectedDigest || !signaturePieceHex || !signingChannelHashHex || !messageHex) {
+    return {
+      status: 'unavailable',
+      reason: 'missing claim signature digest material',
+      claimSignatureStatus: context?.status || null,
+    };
+  }
+
+  const digest = hexFromBytes(
+    await sha256Bytes(
+      concatBytes(concatBytes(hexBytes(signaturePieceHex), hexBytes(signingChannelHashHex)), hexBytes(messageHex))
+    )
+  );
+  const digestMatches = digest === expectedDigest;
+  const browserSignature =
+    digestMatches && signatureHex && publicKeyHex
+      ? verifySecp256k1Signature(signatureHex, digest, publicKeyHex)
+      : {
+          status: 'unavailable',
+          reason: 'missing claim signature or public key',
+          verified: false,
+        };
+  const verified = digestMatches && browserSignature.verified;
+
+  return {
+    status: verified ? 'verified' : digestMatches ? 'signature_failed' : 'failed',
+    digest,
+    expectedDigest,
+    digestMatches,
+    browserSignature,
+    claimSignatureStatus: context.status || null,
+    signatureValid: context?.['signature-valid'] ?? null,
+    channelHashValid: context?.['channel-hash-valid'] ?? null,
+  };
+}
+
+function hyperbeamBlobCommitments(graph: any) {
+  const commitments = graph?.commitments?.['encrypted-blobs'];
+  if (Array.isArray(commitments)) {
+    return commitments.filter((commitment) => commitment?.hash && commitment?.hash_algorithm === 'sha384');
+  }
+
+  const blobs = graph?.descriptor?.fields?.blobs;
+  if (!Array.isArray(blobs)) return [];
+
+  return blobs
+    .filter((blob) => blob?.blob_hash && Number(blob?.length) > 0)
+    .map((blob) => ({
+      hash: blob.blob_hash,
+      hash_algorithm: 'sha384',
+      length: blob.length,
+    }));
+}
+
+function hyperbeamDescriptorBlobMap(graph: any) {
+  const blobs = graph?.descriptor?.fields?.blobs;
+  if (!Array.isArray(blobs)) return new Map<string, any>();
+  return new Map(blobs.filter((blob) => blob?.blob_hash && blob?.length > 0).map((blob) => [blob.blob_hash, blob]));
+}
+
+async function decryptHyperbeamBlob(encrypted: ArrayBuffer, key: CryptoKey, ivHex?: string | null) {
+  const iv = hexBytes(ivHex);
+  return new Uint8Array(await crypto.subtle.decrypt({ name: 'AES-CBC', iv }, key, encrypted));
+}
+
+async function verifyHyperbeamBlobCommitments(
+  graph: any,
+  commitments: Array<any>,
+  onProgress: (progress: { verified: number; total: number; bytes: number; currentHash?: string }) => void
+) {
+  let verified = 0;
+  let bytes = 0;
+  let plainBytes = 0;
+  const plainParts: Array<Uint8Array> = [];
+  const blobHeaders: Array<any> = [];
+  const descriptorKeyHex = graph?.descriptor?.fields?.key;
+  const descriptorBlobMap = hyperbeamDescriptorBlobMap(graph);
+  const decryptKey = descriptorKeyHex
+    ? await crypto.subtle.importKey('raw', hexBytes(descriptorKeyHex), { name: 'AES-CBC' }, false, ['decrypt'])
+    : null;
+
+  for (const commitment of commitments) {
+    const expectedHash = commitment.hash;
+    const response = await fetch(hyperbeamNodeBlobUrl(expectedHash));
+    if (!response.ok) {
+      throw new Error(`blob ${expectedHash} failed with ${response.status}`);
+    }
+
+    const body = await response.arrayBuffer();
+    const actualHash = await sha384Hex(body);
+    bytes += body.byteLength;
+    if (actualHash !== expectedHash) {
+      throw new Error(`blob hash mismatch: expected ${expectedHash}, got ${actualHash}`);
+    }
+
+    const nodeVerification = response.headers.get('x-odysee-blob-verification');
+    const nodeStore = response.headers.get('x-odysee-store');
+    blobHeaders.push({
+      hash: expectedHash,
+      sourceLayer: response.headers.get('x-odysee-source-layer'),
+      algorithm: response.headers.get('x-odysee-blob-algorithm'),
+      bytes: response.headers.get('x-odysee-blob-bytes'),
+      verification: nodeVerification ? JSON.parse(nodeVerification) : null,
+      store: nodeStore ? JSON.parse(nodeStore) : null,
+    });
+
+    verified += 1;
+    if (decryptKey) {
+      const descriptorBlob = descriptorBlobMap.get(expectedHash);
+      if (!descriptorBlob) {
+        throw new Error(`descriptor blob metadata missing for ${expectedHash}`);
+      }
+      const plain = await decryptHyperbeamBlob(body, decryptKey, descriptorBlob.iv);
+      plainParts.push(plain);
+      plainBytes += plain.byteLength;
+    }
+    onProgress({ verified, total: commitments.length, bytes, currentHash: expectedHash });
+  }
+
+  const reconstructed = new Uint8Array(plainBytes);
+  let offset = 0;
+  for (const part of plainParts) {
+    reconstructed.set(part, offset);
+    offset += part.byteLength;
+  }
+
+  return {
+    verified,
+    total: commitments.length,
+    bytes,
+    decryptedBlobs: plainParts.length,
+    plainBytes,
+    nodeBlobVerifications: blobHeaders,
+    mediaSha256: plainParts.length ? await sha256Hex(reconstructed) : null,
   };
 }
 
@@ -670,8 +1063,10 @@ function VideoViewer(props: Props) {
     (claim && claim.signing_channel && claim.signing_channel.value && claim.signing_channel.value.title) || '';
   const isAudio = Boolean(contentType?.includes('audio'));
   const forcePlayer = Boolean(contentType && FORCE_CONTENT_TYPE_PLAYER.includes(contentType));
-  const playerSource = !isLivestreamClaim && !isProtectedContent && !isAudio ? hyperbeamNodeMediaUrl(uri) : source;
-  const enableInlineHyperbeamNodeDebug = false;
+  const claimSdHash = hyperbeamClaimSdHash(claim);
+  const playerSource =
+    !isLivestreamClaim && !isProtectedContent && !isAudio ? hyperbeamNodeMediaUrl(uri, claimSdHash) : source;
+  const enableInlineHyperbeamNodeDebug = isHyperbeamNodeMediaUrl(playerSource);
 
   const { search } = useLocation();
 
@@ -687,7 +1082,7 @@ function VideoViewer(props: Props) {
     size: 78,
   });
   const [hyperbeamNodeStartupShowPlayMorph, setHyperbeamNodeStartupShowPlayMorph] = useState(false);
-  const [hyperbeamNodeDebugOpen, setHyperbeamNodeDebugOpen] = useState(true);
+  const [hyperbeamNodeDebugOpen, setHyperbeamNodeDebugOpen] = useState(false);
   const [hyperbeamNodeDebugEvents, setHyperbeamNodeDebugEvents] = useState<Array<HyperbeamNodeDebugEvent>>([]);
   const [hyperbeamNodeDebugSnapshot, setHyperbeamNodeDebugSnapshot] = useState<HyperbeamNodeDebugSnapshot>({
     status: 'waiting for HyperBEAM media',
@@ -806,6 +1201,7 @@ function VideoViewer(props: Props) {
 
     let cancelled = false;
     const resolveUrl = hyperbeamNodeResolveUrl(uri);
+    const verifiedStreamUrl = hyperbeamNodeVerifiedStreamUrl(uri, claim?.claim_id);
 
     setHyperbeamNodeDebugSnapshot({ status: 'checking HyperBEAM node', level: 'info' });
     pushHyperbeamNodeDebugEvent(
@@ -815,58 +1211,177 @@ function VideoViewer(props: Props) {
         node: ODYSEE_HYPERBEAM_NODE_API,
         sourceProp: source,
         playerSource,
+        claimSdHash: claimSdHash || null,
         resolveUrl,
+        verifiedStreamUrl,
       },
       'info'
     );
 
     const verifyReadPath = async () => {
-      let expectedSdHash;
+      let expectedSdHash = claimSdHash;
+      let verifiedGraph;
+      let chainVerification;
+      let claimSignatureDigestVerification;
+      let graphDescriptorVerification;
+      let blobVerification;
+      let rangeVerification;
 
       try {
-        const resolveResponse = await fetch(resolveUrl);
-        const resolveResult = {
-          status: resolveResponse.status,
-          ok: resolveResponse.ok,
-          contentType: resolveResponse.headers.get('content-type'),
-          body: await resolveResponse.json().catch(() => null),
-        };
+        const graphResponse = await fetch(verifiedStreamUrl);
+        verifiedGraph = await graphResponse.json().catch(() => null);
         if (cancelled) return;
 
-        expectedSdHash = hyperbeamClaimSdHash(resolveResult.body);
+        expectedSdHash = verifiedGraph?.['sd-hash'] || hyperbeamClaimSdHash(verifiedGraph?.claim) || expectedSdHash;
+        pushHyperbeamConsoleResponse('verified stream graph', graphResponse, verifiedStreamUrl, verifiedGraph, {
+          sdHash: expectedSdHash || null,
+          claimId: verifiedGraph?.['claim-id'] || verifiedGraph?.claim?.claim_id || null,
+          blobCommitments: hyperbeamBlobCommitments(verifiedGraph).length,
+        });
         pushHyperbeamNodeDebugEvent(
-          'claim source hash',
+          'verified stream graph',
           {
-            status: resolveResult.status,
-            ok: resolveResult.ok,
+            status: graphResponse.status,
+            ok: graphResponse.ok,
             sdHash: expectedSdHash || null,
-            claimId: resolveResult.body?.claim_id || null,
-            permanentUrl: resolveResult.body?.permanent_url || null,
+            claimId: verifiedGraph?.['claim-id'] || verifiedGraph?.claim?.claim_id || null,
+            sourceLayer: verifiedGraph?.sourceLayer || null,
+            chainInclusion: verifiedGraph?.['chain-inclusion']?.status || null,
+            claimSignature: verifiedGraph?.['claim-signature-context'] || null,
+            attestation: verifiedGraph?.attestation || null,
+            browserVerification: verifiedGraph?.['client-verification'] || null,
+            blobCommitments: hyperbeamBlobCommitments(verifiedGraph).length,
           },
-          resolveResult.ok && expectedSdHash ? 'ok' : 'error'
+          graphResponse.ok && expectedSdHash ? 'ok' : 'error'
         );
 
-        if (!resolveResult.ok || !expectedSdHash) {
+        if (!graphResponse.ok || !verifiedGraph) {
+          verifiedGraph = null;
+        }
+
+        if (!expectedSdHash) {
           setHyperbeamNodeDebugSnapshot({
-            status: !resolveResult.ok ? `resolve failed (${resolveResult.status})` : 'claim missing sd_hash',
+            status: 'proof graph and claim missing sd_hash',
             level: 'error',
           });
           return;
         }
       } catch (error) {
         if (cancelled) return;
-        pushHyperbeamNodeDebugEvent('claim source hash error', String(error?.message || error), 'error');
-        setHyperbeamNodeDebugSnapshot({ status: 'resolve request failed', level: 'error' });
-        return;
+        pushHyperbeamNodeDebugEvent('verified stream graph error', String(error?.message || error), 'error');
+        if (!expectedSdHash) {
+          setHyperbeamNodeDebugSnapshot({ status: 'verified stream request failed', level: 'error' });
+          return;
+        }
+      }
+
+      if (verifiedGraph) {
+        try {
+          chainVerification = await verifyHyperbeamChainInclusion(verifiedGraph);
+          if (cancelled) return;
+          pushHyperbeamNodeDebugEvent(
+            'browser chain inclusion verification',
+            chainVerification,
+            chainVerification.status === 'verified' ? 'ok' : 'warn'
+          );
+        } catch (error) {
+          if (cancelled) return;
+          pushHyperbeamNodeDebugEvent(
+            'browser chain inclusion verification error',
+            String(error?.message || error),
+            'error'
+          );
+          setHyperbeamNodeDebugSnapshot({ status: 'browser chain inclusion verification failed', level: 'error' });
+          return;
+        }
+      } else {
+        chainVerification = { status: 'unavailable', reason: 'verified stream graph unavailable' };
+        pushHyperbeamNodeDebugEvent('browser chain inclusion verification skipped', chainVerification, 'warn');
+      }
+
+      if (verifiedGraph) {
+        try {
+          claimSignatureDigestVerification = await verifyHyperbeamClaimSignatureDigest(verifiedGraph);
+          if (cancelled) return;
+          const claimSignatureDigestVerified = claimSignatureDigestVerification.status === 'verified';
+          const claimSignatureDigestUnavailable = claimSignatureDigestVerification.status === 'unavailable';
+          pushHyperbeamNodeDebugEvent(
+            'browser claim signature digest verification',
+            claimSignatureDigestVerification,
+            claimSignatureDigestVerified ? 'ok' : claimSignatureDigestUnavailable ? 'warn' : 'error'
+          );
+          if (!claimSignatureDigestVerified && !claimSignatureDigestUnavailable) {
+            setHyperbeamNodeDebugSnapshot({
+              status: 'browser claim signature digest verification failed',
+              level: 'error',
+            });
+            return;
+          }
+        } catch (error) {
+          if (cancelled) return;
+          pushHyperbeamNodeDebugEvent(
+            'browser claim signature digest verification error',
+            String(error?.message || error),
+            'error'
+          );
+          setHyperbeamNodeDebugSnapshot({
+            status: 'browser claim signature digest verification failed',
+            level: 'error',
+          });
+          return;
+        }
+      } else {
+        claimSignatureDigestVerification = { status: 'unavailable', reason: 'verified stream graph unavailable' };
+        pushHyperbeamNodeDebugEvent(
+          'browser claim signature digest verification skipped',
+          claimSignatureDigestVerification,
+          'warn'
+        );
+      }
+
+      if (verifiedGraph) {
+        try {
+          graphDescriptorVerification = await verifyHyperbeamGraphDescriptor(verifiedGraph, expectedSdHash);
+          if (cancelled) return;
+          pushHyperbeamNodeDebugEvent(
+            'browser graph descriptor verification',
+            graphDescriptorVerification,
+            graphDescriptorVerification.verified ? 'ok' : 'error'
+          );
+          if (!graphDescriptorVerification.verified) {
+            setHyperbeamNodeDebugSnapshot({ status: 'browser graph descriptor verification failed', level: 'error' });
+            return;
+          }
+        } catch (error) {
+          if (cancelled) return;
+          pushHyperbeamNodeDebugEvent(
+            'browser graph descriptor verification error',
+            String(error?.message || error),
+            'error'
+          );
+          setHyperbeamNodeDebugSnapshot({ status: 'browser graph descriptor verification failed', level: 'error' });
+          return;
+        }
+      } else {
+        graphDescriptorVerification = { status: 'unavailable', reason: 'verified stream graph unavailable' };
+        pushHyperbeamNodeDebugEvent(
+          'browser graph descriptor verification skipped',
+          graphDescriptorVerification,
+          'warn'
+        );
       }
 
       try {
         const descriptorUrl = hyperbeamNodeDescriptorUrl(expectedSdHash);
         const descriptorResponse = await fetch(descriptorUrl);
-        const descriptorBody = await descriptorResponse.json().catch(() => null);
+        const descriptorBody = await hyperbeamDescriptorResponseBody(descriptorResponse);
         const descriptor = hyperbeamDescriptorVerification(descriptorBody, expectedSdHash);
         if (cancelled) return;
 
+        pushHyperbeamConsoleResponse('descriptor verification', descriptorResponse, descriptorUrl, descriptorBody, {
+          sdHash: expectedSdHash,
+          verified: descriptor.verified,
+        });
         pushHyperbeamNodeDebugEvent(
           'descriptor verification',
           {
@@ -897,6 +1412,11 @@ function VideoViewer(props: Props) {
       try {
         const head = await hyperbeamNodeMediaProbe(playerSource);
         if (cancelled) return;
+        pushHyperbeamDebug(
+          'media HEAD',
+          { method: 'HEAD', url: playerSource, devicePath: new URL(playerSource).pathname, ...head },
+          head.ok ? 'ok' : 'error'
+        );
         pushHyperbeamNodeDebugEvent('media HEAD', head, head.ok ? 'ok' : 'error');
         if (!head.ok) {
           setHyperbeamNodeDebugSnapshot({ status: `media HEAD failed (${head.status})`, level: 'error' });
@@ -910,15 +1430,58 @@ function VideoViewer(props: Props) {
       }
 
       try {
+        const browserBlobVerifyEnabled = LocalStorage.getItem(HYPERBEAM_BROWSER_BLOB_VERIFY_STORAGE_KEY) !== 'false';
+        const blobCommitments = hyperbeamBlobCommitments(verifiedGraph);
+        if (!blobCommitments.length) {
+          pushHyperbeamNodeDebugEvent('browser blob verification skipped', { reason: 'no blob commitments' }, 'warn');
+        } else if (!browserBlobVerifyEnabled) {
+          pushHyperbeamNodeDebugEvent(
+            'browser blob verification skipped',
+            { reason: `${HYPERBEAM_BROWSER_BLOB_VERIFY_STORAGE_KEY}=false`, blobCommitments: blobCommitments.length },
+            'warn'
+          );
+        } else {
+          setHyperbeamNodeDebugSnapshot({
+            status: `verifying encrypted blobs 0/${blobCommitments.length}`,
+            level: 'info',
+          });
+          const result = await verifyHyperbeamBlobCommitments(verifiedGraph, blobCommitments, (progress) => {
+            if (cancelled) return;
+            setHyperbeamNodeDebugSnapshot({
+              status: `verifying encrypted blobs ${progress.verified}/${progress.total}`,
+              level: 'info',
+            });
+          });
+          blobVerification = result;
+          if (cancelled) return;
+          pushHyperbeamNodeDebugEvent('browser blob verification', result, 'ok');
+          setHyperbeamNodeDebugSnapshot({
+            status: `browser verified ${result.verified}/${result.total} encrypted blobs`,
+            level: 'ok',
+          });
+        }
+      } catch (error) {
+        if (cancelled) return;
+        pushHyperbeamNodeDebugEvent('browser blob verification error', String(error?.message || error), 'error');
+        setHyperbeamNodeDebugSnapshot({ status: 'browser blob verification failed', level: 'error' });
+        return;
+      }
+
+      try {
         const response = await fetch(playerSource, { headers: { Range: 'bytes=0-1023' } });
         const bytes = await response.arrayBuffer().catch(() => new ArrayBuffer(0));
         const rangeResult = {
           ...hyperbeamNodeMediaHeaders(response),
           byteLength: bytes.byteLength,
         };
-        const rangeVerification = hyperbeamMediaRangeVerification(rangeResult, expectedSdHash);
+        rangeVerification = hyperbeamMediaRangeVerification(rangeResult, expectedSdHash);
         if (cancelled) return;
 
+        pushHyperbeamConsoleResponse('media range verification', response, playerSource, null, {
+          byteLength: bytes.byteLength,
+          verified: rangeVerification.verified,
+          mediaRange: rangeVerification.mediaRange,
+        });
         pushHyperbeamNodeDebugEvent(
           'media range verification',
           rangeVerification,
@@ -930,6 +1493,30 @@ function VideoViewer(props: Props) {
             : `range verification failed (${rangeResult.status})`,
           level: rangeVerification.verified ? 'ok' : 'error',
         });
+        if (rangeVerification.verified) {
+          const proofSummary = {
+            status: 'verified',
+            claimId: verifiedGraph?.['claim-id'] || verifiedGraph?.claim?.claim_id || null,
+            sdHash: expectedSdHash,
+            sourceLayer: verifiedGraph?.sourceLayer || null,
+            claimSignature: verifiedGraph?.['claim-signature-context']?.status || 'unknown',
+            claimSignatureValid: verifiedGraph?.['claim-signature-context']?.['signature-valid'] ?? null,
+            channelHashValid: verifiedGraph?.['claim-signature-context']?.['channel-hash-valid'] ?? null,
+            attestationDigest: verifiedGraph?.['claim-signature-context']?.digest || null,
+            browserAttestationDigest: claimSignatureDigestVerification?.status || 'unknown',
+            browserClaimSignature: claimSignatureDigestVerification?.browserSignature?.status || 'unknown',
+            chain: chainVerification?.status || 'unknown',
+            chainSource: verifiedGraph?.['chain-inclusion']?.store || null,
+            descriptor: graphDescriptorVerification?.status || 'unknown',
+            encryptedBlobs: blobVerification ? `${blobVerification.verified}/${blobVerification.total}` : 'not-run',
+            decryptedBlobs: blobVerification?.decryptedBlobs || 0,
+            plainBytes: blobVerification?.plainBytes || 0,
+            mediaSha256: blobVerification?.mediaSha256 || null,
+            mediaRange: rangeVerification.mediaRange,
+          };
+          pushHyperbeamNodeDebugEvent('browser proof summary', proofSummary, 'ok');
+          setHyperbeamNodeDebugSnapshot({ status: 'browser proof verified', level: 'ok' });
+        }
       } catch (error) {
         if (cancelled) return;
         pushHyperbeamNodeDebugEvent('media range verification error', String(error?.message || error), 'error');
@@ -942,7 +1529,7 @@ function VideoViewer(props: Props) {
     return () => {
       cancelled = true;
     };
-  }, [playerSource, pushHyperbeamNodeDebugEvent, source, uri]);
+  }, [claim?.claim_id, playerSource, pushHyperbeamNodeDebugEvent, source, uri]);
 
   React.useEffect(() => {
     if (!enableInlineHyperbeamNodeDebug || !videoNode || !isHyperbeamNodeMediaUrl(playerSource)) return;

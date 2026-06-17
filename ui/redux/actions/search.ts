@@ -24,6 +24,7 @@ import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { getAuthToken } from 'util/saved-passwords';
 import { LocalStorage, LS } from 'util/storage';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
+import { shouldAllowOriginalNetworkFallback } from 'util/hyperbeamMode';
 const isDev = process.env.NODE_ENV !== 'production';
 
 function hyperbeamNodeBase() {
@@ -32,6 +33,11 @@ function hyperbeamNodeBase() {
 
 function hyperbeamNodeConfigured() {
   return Boolean(hyperbeamNodeBase());
+}
+
+function missingHyperbeamSearchResult(label: string, detail: Record<string, any> = {}) {
+  console.log(`HyperBEAM search device missing: ${label}`, detail); // eslint-disable-line no-console
+  return {};
 }
 
 function hyperbeamNodeFetchJson(key: string, params: any, authToken?: string | null) {
@@ -79,6 +85,9 @@ const recsysFyp = {
       });
     }
 
+    if (!shouldAllowOriginalNetworkFallback())
+      return Promise.resolve(missingHyperbeamSearchResult('fyp fetch', { userId }));
+
     return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp`, {
       headers: {
         [X_LBRY_AUTH_TOKEN]: getAuthToken(),
@@ -107,6 +116,9 @@ const recsysFyp = {
         return {};
       });
     }
+
+    if (!shouldAllowOriginalNetworkFallback())
+      return Promise.resolve(missingHyperbeamSearchResult('fyp mark', { userId, gid }));
 
     return fetch(`${RECSYS_FYP_ENDPOINT}/${userId}/fyp/${gid}/mark`, {
       method: 'POST',
@@ -151,6 +163,10 @@ const recsysFyp = {
       endpoint += '?entire_channel=1';
     }
 
+    if (!shouldAllowOriginalNetworkFallback()) {
+      return Promise.resolve(missingHyperbeamSearchResult('fyp ignore', { userId, gid, claimId }));
+    }
+
     return fetch(endpoint, {
       method: 'POST',
       headers: {
@@ -192,6 +208,8 @@ let lighthouse = {
       return hyperbeamNodeSearch('primary', queryString, lighthouse.uid);
     }
 
+    if (!shouldAllowOriginalNetworkFallback()) return Promise.resolve({});
+
     if (lighthouse.uid) {
       return fetch(`${lighthouse.CONNECTION_STRING}?${queryString}${lighthouse.uid}`).then(handleFetchResponse);
     } else {
@@ -202,6 +220,8 @@ let lighthouse = {
     if (hyperbeamNodeConfigured()) {
       return hyperbeamNodeSearch('recommendations', queryString, `${lighthouse.user_id}${lighthouse.uid}`);
     }
+
+    if (!shouldAllowOriginalNetworkFallback()) return Promise.resolve({});
 
     if (lighthouse.user_id) {
       return fetch(`${SEARCH_SERVER_API_ALT}?${queryString}${lighthouse.user_id}${lighthouse.uid}`).then(

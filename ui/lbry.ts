@@ -4,8 +4,14 @@ import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
 import { PROXY_URL_NO_CF } from 'config';
 import { getAuthToken } from 'util/saved-passwords';
-import { hyperbeamDeviceBase, hyperbeamDevicePostJson, hyperbeamMethodDevice } from 'util/hyperbeamDevices';
-import { shouldSendHyperbeamAuthHeaders } from 'util/hyperbeamMode';
+import {
+  HYPERBEAM_DEVICE,
+  hyperbeamDeviceBase,
+  hyperbeamMethodDevice,
+  hyperbeamNodeBase,
+  isHyperbeamMethodEnabled,
+} from 'util/hyperbeamDevices';
+import { isHyperbeamFullMode, shouldSendHyperbeamAuthHeaders } from 'util/hyperbeamMode';
 
 import 'proxy-polyfill';
 
@@ -349,6 +355,11 @@ export function apiCall(
 }
 
 function hyperbeamNodeSdkCall(method: string, params: any): Promise<any> | null {
+  const localFullModeResult = hyperbeamFullModeLocalSdkResult(method, params);
+  if (localFullModeResult) {
+    return localFullModeResult;
+  }
+
   switch (method) {
     case 'resolve': {
       const urls = Array.isArray(params?.urls)
@@ -414,10 +425,16 @@ function hyperbeamNodeSdkCall(method: string, params: any): Promise<any> | null 
 }
 
 export function debugHyperbeamNode(data: any) {
+  if (isHyperbeamFullMode()) return;
+
   try {
-    hyperbeamDevicePostJson('~odysee-internal-apis@1.0', 'debug', {
-      params64: base64Url(JSON.stringify(data || {})),
-    })?.catch(() => {});
+    fetch(
+      `${hyperbeamNodeBase()}/${HYPERBEAM_DEVICE.odysee}/sdk?method=debug&params64=${base64Url(JSON.stringify(data || {}))}`,
+      {
+        method: 'POST',
+        headers: { accept: 'application/json' },
+      }
+    ).catch(() => {});
   } catch (e) {}
 }
 
@@ -429,6 +446,31 @@ function stripHyperbeamNodeOnlyParams(params: Record<string, any>) {
 
 function hyperbeamNodeFetchJson(key: string, paramName: string, value: any): Promise<any> | null {
   const encoded = base64Url(JSON.stringify(value));
+  if (isHyperbeamFullMode()) {
+    const base = hyperbeamNodeBase();
+    if (!base) return null;
+    const sdkParams = hyperbeamSdkParams(paramName, value);
+    const sdkEncoded = base64Url(JSON.stringify(sdkParams));
+
+    const request = fetch(
+      `${base}/${HYPERBEAM_DEVICE.odysee}/sdk?method=${encodeURIComponent(key)}&params64=${sdkEncoded}`,
+      {
+        method: 'POST',
+        headers: hyperbeamNodeRequestHeaders(),
+      }
+    );
+
+    return fetchWithTimeout(60000, request).then((response: Response | string) => {
+      if (typeof response !== 'object') {
+        throw new Error(`${key}: HyperBEAM SDK fallback fetch failed`);
+      }
+
+      return checkAndParse(response, key).then(unwrapJsonRpcResult);
+    });
+  }
+
+  if (!isHyperbeamMethodEnabled(key)) return null;
+
   const device = hyperbeamMethodDevice(key);
   const base = hyperbeamDeviceBase(device);
   if (!base) return null;
@@ -451,6 +493,11 @@ function hyperbeamNodeFetchJson(key: string, paramName: string, value: any): Pro
   });
 }
 
+function hyperbeamSdkParams(paramName: string, value: any) {
+  if (paramName === 'urls64') return { urls: value };
+  return value || {};
+}
+
 function hyperbeamNodeRequestHeaders() {
   const headers: Record<string, string> = { accept: 'application/json' };
   if (!shouldSendHyperbeamAuthHeaders()) return headers;
@@ -463,6 +510,68 @@ function hyperbeamNodeRequestHeaders() {
     if (value) headers[key] = value;
   });
   return headers;
+}
+
+function hasHyperbeamAuthToken() {
+  return Boolean(getAuthToken() || Lbry.apiRequestHeaders[X_LBRY_AUTH_TOKEN]);
+}
+
+function hyperbeamFullModeLocalSdkResult(method: string, params: any): Promise<any> | null {
+  if (!isHyperbeamFullMode()) return null;
+
+  switch (method) {
+    case 'channel_sign':
+      return Promise.reject(new Error('channel_sign requires authentication'));
+    case 'preference_get':
+    case 'preference_set':
+    case 'settings_get':
+    case 'settings_set':
+    case 'settings_clear':
+    case 'sync_get':
+    case 'sync_set':
+    case 'sync_apply':
+      return Promise.resolve({});
+    case 'sync_hash':
+      return Promise.resolve(null);
+    case 'wallet_balance':
+      return Promise.resolve({});
+    case 'wallet_status':
+      return Promise.resolve({ is_encrypted: false, is_locked: false });
+    case 'wallet_list':
+    case 'account_list':
+    case 'channel_list':
+    case 'collection_list':
+    case 'purchase_list':
+    case 'file_list':
+    case 'stream_list':
+    case 'blob_list':
+    case 'address_list':
+    case 'transaction_list':
+    case 'txo_list':
+      return Promise.resolve(emptyHyperbeamListResult(params));
+    case 'address_is_mine':
+      return Promise.resolve(false);
+    case 'address_unused':
+      return Promise.resolve('');
+    case 'wallet_unlock':
+    case 'wallet_lock':
+    case 'wallet_encrypt':
+    case 'wallet_decrypt':
+    case 'ffmpeg_find':
+      return Promise.reject(new Error(`${method} requires authentication`));
+    default:
+      return null;
+  }
+}
+
+function emptyHyperbeamListResult(params: any) {
+  return {
+    items: [],
+    page: Number(params?.page || 1),
+    page_size: Number(params?.page_size || 20),
+    total_items: 0,
+    total_pages: 0,
+  };
 }
 
 function unwrapJsonRpcResult(json: any) {

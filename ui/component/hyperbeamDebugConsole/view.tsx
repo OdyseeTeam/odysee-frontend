@@ -15,10 +15,10 @@ const MAX_RELEVANT_EVENTS = 24;
 const FILTERS = [
   { key: 'get', label: 'get', color: 'rgba(255,255,255,0.76)' },
   { key: 'failed', label: 'failed', color: '#ff4d7d' },
-  { key: 'fallback', label: 'fallback', color: '#ffb020' },
+  { key: 'original', label: 'original', color: '#94a3b8' },
+  { key: 'native-device', label: 'native-device', color: '#0ea5e9' },
   { key: 'native:sdk-proxy', label: 'native:sdk-proxy', color: '#a78bfa' },
-  { key: 'native:unverified', label: 'native:unverified', color: '#38bdf8' },
-  { key: 'native:verified', label: 'native:verified', color: '#22c55e' },
+  { key: 'fallback', label: 'fallback', color: '#ffb020' },
 ] as const;
 
 type FilterKey = (typeof FILTERS)[number]['key'];
@@ -323,10 +323,18 @@ export default function HyperbeamDebugConsole() {
                       whiteSpace: 'nowrap',
                     }}
                   >
-                    <strong style={{ color: hyperbeamDebugColor(event.level, event.data?.sourceLayer) }}>
+                    <strong
+                      style={{
+                        color: eventColor(event),
+                      }}
+                    >
                       {isExpanded ? '-' : '+'}
                     </strong>{' '}
-                    <strong style={{ color: hyperbeamDebugColor(event.level, event.data?.sourceLayer) }}>
+                    <strong
+                      style={{
+                        color: eventColor(event),
+                      }}
+                    >
                       {event.time}
                     </strong>{' '}
                     {event.label} {eventSummary(event, mode)}
@@ -346,6 +354,11 @@ export default function HyperbeamDebugConsole() {
   );
 }
 
+function eventColor(event: HyperbeamDebugEvent) {
+  if (event.label === 'request') return hyperbeamDebugColor('info');
+  return hyperbeamDebugColor(event.level, event.data?.sourceLayer || event.data?.deviceLayer);
+}
+
 function eventSummary(event: HyperbeamDebugEvent, mode: HyperbeamMode) {
   const data = event.data || {};
   const bits = [
@@ -353,6 +366,7 @@ function eventSummary(event: HyperbeamDebugEvent, mode: HyperbeamMode) {
     data.repeatCount ? `x${data.repeatCount}` : undefined,
     data.method,
     data.status ? String(data.status) : undefined,
+    data.deviceLayer,
     data.sourceLayer,
     data.elapsedMs !== undefined ? `${data.elapsedMs}ms` : undefined,
     data.devicePath,
@@ -375,22 +389,31 @@ function modeLabel(mode: HyperbeamMode) {
 
 function modeEndpointLabel(mode: HyperbeamMode) {
   if (mode === HYPERBEAM_MODES.original) return `${modeLabel(mode)} · normal Odysee/API calls`;
-  return `${modeLabel(mode)} · ${String(ODYSEE_HYPERBEAM_NODE_API).replace(/\/+$/, '')}`;
+  if (mode === HYPERBEAM_MODES.hybrid) {
+    return `${modeLabel(mode)} · public reads through ${String(ODYSEE_HYPERBEAM_NODE_API).replace(
+      /\/+$/,
+      ''
+    )}; private/internal calls stay original`;
+  }
+  return `${modeLabel(mode)} · canonical reads through ${String(ODYSEE_HYPERBEAM_NODE_API).replace(
+    /\/+$/,
+    ''
+  )}; original fallback disabled`;
 }
 
 function modeWaitLabel(mode: HyperbeamMode) {
-  return mode === HYPERBEAM_MODES.original ? 'Original' : 'HyperBEAM';
+  return mode === HYPERBEAM_MODES.original ? 'Original' : mode === HYPERBEAM_MODES.hybrid ? 'Hybrid' : 'HyperBEAM';
 }
 
 function filterDisabledInMode(filter: FilterKey, mode: HyperbeamMode) {
   if (mode === HYPERBEAM_MODES.original) {
-    return filter !== 'get' && filter !== 'failed';
+    return filter !== 'get' && filter !== 'failed' && filter !== 'original';
   }
 
   if (mode === HYPERBEAM_MODES.hybrid) {
+    if (filter === 'original') return false;
+    if (filter === 'native-device') return false;
     if (filter === 'native:sdk-proxy') return false;
-    if (filter === 'native:unverified') return false;
-    if (filter === 'native:verified') return false;
     if (filter === 'fallback') return true;
     return false;
   }
@@ -419,23 +442,32 @@ function incrementFilterCounts(
 function eventMatchesFilter(event: HyperbeamDebugEvent, filter: FilterKey) {
   const data = event.data || {};
   const sourceLayer = String(data.sourceLayer || '');
+  const deviceLayer = String(data.deviceLayer || '');
+  const isPlainRequest = event.label === 'request';
 
   switch (filter) {
     case 'failed':
-      return event.level === 'error' || data.ok === false || Number(data.status) >= 400;
+      return (
+        event.level === 'error' ||
+        data.ok === false ||
+        Number(data.status) >= 400 ||
+        sourceLayer === 'native-missing' ||
+        sourceLayer === 'native-failed'
+      );
     case 'get':
       return String(data.method || '').toUpperCase() === 'GET';
+    case 'original':
+      if (isPlainRequest) return false;
+      return sourceLayer === 'original';
+    case 'native-device':
+      if (isPlainRequest) return false;
+      return deviceLayer === 'native-device';
     case 'fallback':
-      return (
-        (sourceLayer.startsWith('fallback') && !sourceLayer.startsWith('fallback:sdk_proxy')) ||
-        sourceLayer === 'device:fallback'
-      );
+      if (isPlainRequest) return false;
+      return sourceLayer.startsWith('fallback') || sourceLayer === 'device:fallback';
     case 'native:sdk-proxy':
-      return sourceLayer === 'native:sdk-proxy' || sourceLayer.startsWith('fallback:sdk_proxy');
-    case 'native:unverified':
-      return sourceLayer === 'native:unverified';
-    case 'native:verified':
-      return sourceLayer === 'native:verified';
+      if (isPlainRequest) return false;
+      return sourceLayer === 'native:sdk-proxy';
     default:
       return false;
   }
@@ -451,6 +483,8 @@ function eventKey(event: HyperbeamDebugEvent) {
     status: data.status,
     ok: data.ok,
     devicePath: data.devicePath,
+    device: data.device,
+    deviceLayer: data.deviceLayer,
     sourceLayer: data.sourceLayer,
     sourceReason: data.sourceReason,
     reason: body.reason,
@@ -480,13 +514,18 @@ function isRelevant(event: HyperbeamDebugEvent) {
   const data = event.data || {};
   const status = Number(data.status);
   const sourceLayer = String(data.sourceLayer || '');
+  const deviceLayer = String(data.deviceLayer || '');
   return (
     event.level === 'error' ||
     data.ok === false ||
     status >= 400 ||
     sourceLayer === 'native:sdk-proxy' ||
+    sourceLayer === 'native:verified' ||
+    sourceLayer === 'native:unverified' ||
+    deviceLayer === 'native-device' ||
     sourceLayer.startsWith('fallback') ||
     sourceLayer === 'native-missing' ||
+    sourceLayer === 'native-failed' ||
     sourceLayer === 'unknown' ||
     data.sourceReason === 'native_source_required'
   );
@@ -506,6 +545,8 @@ function compactEvent(event: HyperbeamDebugEvent, mode: HyperbeamMode) {
     method: data.method,
     status: data.status,
     ok: data.ok,
+    device: data.device,
+    deviceLayer: data.deviceLayer,
     sourceLayer: data.sourceLayer,
     sourceReason: data.sourceReason,
     elapsedMs: data.elapsedMs,
@@ -532,7 +573,12 @@ function compactBody(body: any) {
     missing_record_path: body.missing_record_path,
     body: typeof body.body === 'string' ? limitString(body.body, 1200) : undefined,
     sourceLayer:
-      body['source-layer'] || body.source_layer || body.result?.['source-layer'] || body.result?.source_layer,
+      body['source-layer'] ||
+      body.source_layer ||
+      body.sourceLayer ||
+      body.result?.['source-layer'] ||
+      body.result?.source_layer ||
+      body.result?.sourceLayer,
     resultStatus: body.result?.status,
     resultReason: body.result?.reason,
     resultKind: body.result?.kind,

@@ -10,6 +10,8 @@ export const HYPERBEAM_MODES = {
 
 export type HyperbeamMode = (typeof HYPERBEAM_MODES)[keyof typeof HYPERBEAM_MODES];
 
+const CANONICAL_NATIVE_DEVICES = new Set(['~odysee@1.0']);
+
 export function getHyperbeamMode(): HyperbeamMode {
   if (!ODYSEE_HYPERBEAM_NODE_API) return HYPERBEAM_MODES.original;
   if (typeof window === 'undefined') return HYPERBEAM_MODES.hyperbeam;
@@ -41,20 +43,18 @@ export function isHyperbeamHybridMode() {
 }
 
 export function isHyperbeamPublicReadDevice(device: string) {
-  return (
-    device === '~lbry-claim@1.0' ||
-    device === '~lbry-stream@1.0' ||
-    device === '~lbry-stream-descriptor@1.0' ||
-    device === '~odysee-comment@1.0'
-  );
+  return CANONICAL_NATIVE_DEVICES.has(device);
 }
 
 export function isHyperbeamDeviceEnabled(device: string) {
   if (!isHyperbeamEnabled()) return false;
-  if (isHyperbeamFullMode()) return true;
   return isHyperbeamPublicReadDevice(device);
 }
 
 export function shouldSendHyperbeamAuthHeaders() {
   return isHyperbeamFullMode();
+}
+
+export function shouldAllowOriginalNetworkFallback() {
+  return !isHyperbeamFullMode();
 }

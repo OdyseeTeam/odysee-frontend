@@ -2,6 +2,7 @@ const { ODYSEE_HYPERBEAM_NODE_API } = require('../../config.cjs');
 
 const HYPERBEAM_NODE_TIMEOUT_MS = 15000;
 const HYPERBEAM_MODE_STORAGE_KEY = 'odysee-hyperbeam-mode';
+const HYPERBEAM_DEVICE_ODYSEE = '~odysee@1.0';
 
 function hyperbeamNodeBase() {
   return (ODYSEE_HYPERBEAM_NODE_API || '').replace(/\/+$/, '');
@@ -12,7 +13,7 @@ function hyperbeamNodeConfigured() {
 }
 
 function hyperbeamNodePath(key, uri) {
-  const base = deviceBase(key === 'media' ? '~lbry-stream@1.0' : '~lbry-claim@1.0');
+  const base = deviceBase(HYPERBEAM_DEVICE_ODYSEE);
   if (!base) return '';
 
   return `${base}/${key}?uri64=${encodeURIComponent(base64Url(uri))}`;
@@ -72,6 +73,19 @@ function methodDevice(method) {
 }
 
 function hyperbeamNodeJsonPath(key, paramName, value) {
+  if (hyperbeamMode() === 'hyperbeam') {
+    const base = deviceBase(HYPERBEAM_DEVICE_ODYSEE);
+    if (!base) return '';
+
+    const sdkParams = sdkParamsFor(paramName, value);
+    const encoded = base64Url(JSON.stringify(sdkParams));
+    return {
+      body: {},
+      postUrl: `${base}/sdk?method=${encodeURIComponent(key)}&params64=${encoded}`,
+      url: `${base}/sdk?method=${encodeURIComponent(key)}&params64=${encoded}`,
+    };
+  }
+
   const base = deviceBase(methodDevice(key));
   if (!base) return '';
 
@@ -148,9 +162,20 @@ async function hyperbeamNodeClaimSearch(params, extraHeaders) {
 async function hyperbeamNodeSdkCall(method, params, extraHeaders) {
   if (!hyperbeamNodeConfigured()) return null;
 
-  const base = deviceBase(methodDevice(method));
+  const base = deviceBase(hyperbeamMode() === 'hyperbeam' ? HYPERBEAM_DEVICE_ODYSEE : methodDevice(method));
   if (!base) return null;
   const encoded = base64Url(JSON.stringify(params || {}));
+  if (hyperbeamMode() === 'hyperbeam') {
+    return hyperbeamNodeFetchJson(
+      {
+        body: {},
+        postUrl: `${base}/sdk?method=${encodeURIComponent(method)}&params64=${encoded}`,
+        url: `${base}/sdk?method=${encodeURIComponent(method)}&params64=${encoded}`,
+      },
+      extraHeaders
+    );
+  }
+
   return hyperbeamNodeFetchJson(
     {
       body: { params64: encoded },
@@ -197,6 +222,11 @@ function unwrapJsonRpcResult(json) {
   return json && Object.prototype.hasOwnProperty.call(json, 'result') ? json.result : json;
 }
 
+function sdkParamsFor(paramName, value) {
+  if (paramName === 'urls64') return { urls: value };
+  return value || {};
+}
+
 function hyperbeamNodeMediaUrl(uri) {
   if (!hyperbeamNodeConfigured()) return '';
   return hyperbeamNodePath('media', uri);
@@ -212,13 +242,7 @@ function hyperbeamMode() {
 function isHyperbeamDeviceEnabled(device) {
   const mode = hyperbeamMode();
   if (mode === 'original') return false;
-  if (mode === 'hyperbeam') return true;
-  return (
-    device === '~lbry-claim@1.0' ||
-    device === '~lbry-stream@1.0' ||
-    device === '~lbry-stream-descriptor@1.0' ||
-    device === '~odysee-comment@1.0'
-  );
+  return device === HYPERBEAM_DEVICE_ODYSEE;
 }
 
 module.exports = {

@@ -12,6 +12,10 @@ type Props = {
   onUpdate: (updates: Partial<CompositorLayer>) => void;
 };
 
+function hexByte(n: number) {
+  return n.toString(16).padStart(2, '0');
+}
+
 const MiniPickerInner = (props: any) => {
   const hex = (props.hex || '').replace(/^#/, '').toUpperCase();
   return (
@@ -165,8 +169,7 @@ function getPrimaryHex() {
   if (!dyn) return '#de0050';
   const [r, g, b] = dyn.split(',').map((n) => parseInt(n.trim(), 10));
   if ([r, g, b].some((n) => Number.isNaN(n))) return '#de0050';
-  const hex = (n: number) => n.toString(16).padStart(2, '0');
-  return `#${hex(r)}${hex(g)}${hex(b)}`;
+  return `#${hexByte(r)}${hexByte(g)}${hexByte(b)}`;
 }
 
 export default function LivestreamSourceSettings(props: Props) {

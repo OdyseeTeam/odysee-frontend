@@ -9,6 +9,19 @@ import './style.scss';
 const OdyseePlay = customIcons[ICONS.PLAY];
 const OdyseeRepeat = customIcons[ICONS.REPEAT];
 
+function cleanDeviceLabel(raw: string) {
+  return raw.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*/gi, '').trim();
+}
+
+function formatMediaTime(s: number) {
+  if (!isFinite(s) || s < 0) return '0:00';
+  const m = Math.floor(s / 60);
+  const ss = Math.floor(s % 60)
+    .toString()
+    .padStart(2, '0');
+  return `${m}:${ss}`;
+}
+
 function TruncatedLabel({ label }: { label: string }) {
   const match = label.match(/^(.*?)(\s*\(\d+\))$/);
   const base = match ? match[1] : label;
@@ -145,10 +158,8 @@ export default function LivestreamSourceSelector(props: Props) {
       const videoInputs = dedupeByGroup(devices.filter((d) => d.kind === 'videoinput'));
       const audioInputs = dedupeByGroup(devices.filter((d) => d.kind === 'audioinput'));
 
-      const cleanLabel = (raw: string) => raw.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*/gi, '').trim();
-
       const cameraLabel = (d: MediaDeviceInfo, i: number) =>
-        cleanLabel(d.label || __('Camera %number%', { number: i + 1 }));
+        cleanDeviceLabel(d.label || __('Camera %number%', { number: i + 1 }));
 
       const cameras: VideoSource[] = videoInputs.map((d, i) => ({
         deviceId: d.deviceId,
@@ -201,7 +212,7 @@ export default function LivestreamSourceSelector(props: Props) {
         const camLabel = cameraLabel(cam, i);
         mics.push({
           deviceId: match.deviceId,
-          label: cleanLabel(match.label) || `${camLabel} – ${__('Microphone')}`,
+          label: cleanDeviceLabel(match.label) || `${camLabel} – ${__('Microphone')}`,
           groupId,
         });
         if (match.deviceId) usedAudioDeviceIds.add(match.deviceId);
@@ -213,7 +224,7 @@ export default function LivestreamSourceSelector(props: Props) {
         .forEach((d, i) => {
           mics.push({
             deviceId: d.deviceId,
-            label: cleanLabel(d.label) || __('Microphone %number%', { number: i + 1 }),
+            label: cleanDeviceLabel(d.label) || __('Microphone %number%', { number: i + 1 }),
             groupId: d.groupId || undefined,
           });
         });
@@ -898,15 +909,6 @@ function MediaPlayerControls({ element }: { element: HTMLMediaElement }) {
     return () => cancelAnimationFrame(raf);
   }, [element]);
 
-  const formatTime = (s: number) => {
-    if (!isFinite(s) || s < 0) return '0:00';
-    const m = Math.floor(s / 60);
-    const ss = Math.floor(s % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${m}:${ss}`;
-  };
-
   return (
     <div className="livestream-sources__player">
       <div className="livestream-sources__player-row">
@@ -954,7 +956,7 @@ function MediaPlayerControls({ element }: { element: HTMLMediaElement }) {
           </button>
         </div>
         <span className="livestream-sources__player-time">
-          {formatTime(progress)} / {formatTime(duration)}
+          {formatMediaTime(progress)} / {formatMediaTime(duration)}
         </span>
       </div>
       <PlayerProgress

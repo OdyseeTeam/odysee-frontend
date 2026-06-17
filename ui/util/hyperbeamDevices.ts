@@ -1,7 +1,8 @@
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
-import { isHyperbeamDeviceEnabled } from 'util/hyperbeamMode';
+import { isHyperbeamDeviceEnabled, isHyperbeamFullMode, isHyperbeamHybridMode } from 'util/hyperbeamMode';
 
 export const HYPERBEAM_DEVICE = {
+  odysee: '~odysee@1.0',
   claim: '~lbry-claim@1.0',
   channel: '~lbry-channel@1.0',
   comment: '~odysee-comment@1.0',
@@ -70,6 +71,29 @@ export function hyperbeamDevicePostParams64(
   paramName = 'params64'
 ) {
   return hyperbeamDevicePostJson(device, key, { [paramName]: base64Url(JSON.stringify(value || {})) }, headers);
+}
+
+const HYBRID_PUBLIC_READ_METHODS = new Set([
+  'resolve',
+  'claim_search',
+  'get',
+  'stream_list',
+  'blob_list',
+  'comment_list',
+  'comment_by_id',
+  'comment_get_channel_from_comment_id',
+  'reaction_list',
+  'setting_get',
+  'setting_list',
+  'commentron',
+]);
+
+export function isHyperbeamMethodEnabled(method: string) {
+  const device = hyperbeamMethodDevice(method);
+  if (!isHyperbeamDeviceEnabled(device)) return false;
+  if (isHyperbeamFullMode()) return true;
+  if (isHyperbeamHybridMode()) return HYBRID_PUBLIC_READ_METHODS.has(method);
+  return false;
 }
 
 export function hyperbeamMethodDevice(method: string) {

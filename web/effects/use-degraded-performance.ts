@@ -1,6 +1,6 @@
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from '../../ui/util/hyperbeamDevices';
-import { isHyperbeamDeviceEnabled } from '../../ui/util/hyperbeamMode';
+import { isHyperbeamDeviceEnabled, isHyperbeamFullMode } from '../../ui/util/hyperbeamMode';
 import { useEffect } from 'react';
 import { getAuthToken } from 'util/saved-passwords';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
@@ -54,6 +54,10 @@ const getParams = (user) => {
 export function useDegradedPerformance(onDegradedPerformanceCallback, user, doSetAssignedLbrynetServer) {
   const hasUser = user !== undefined && user !== null;
   useEffect(() => {
+    if (isHyperbeamFullMode()) {
+      return;
+    }
+
     if (hasUser) {
       const statusPromise = isHyperbeamDeviceEnabled(HYPERBEAM_DEVICE.internalApis)
         ? fetchWithTimeout(

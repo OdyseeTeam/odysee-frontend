@@ -16,8 +16,8 @@ import { doHandleSyncComplete } from 'redux/actions/app';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { selectSubscriptionIds } from 'redux/selectors/subscriptions';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
-import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { HYPERBEAM_DEVICE, hyperbeamDevicePostJson } from 'util/hyperbeamDevices';
+import { isHyperbeamFullMode } from 'util/hyperbeamMode';
 let syncTimer = null;
 const SYNC_INTERVAL = 1000 * 60 * 5; // 5 minutes
 
@@ -157,6 +157,10 @@ export const doGetSyncDesktop =
  */
 export function doSyncLoop(noInterval?: boolean, syncId?: number) {
   return (dispatch: Dispatch, getState: GetState) => {
+    if (isHyperbeamFullMode()) {
+      return;
+    }
+
     if (!noInterval && syncTimer) clearInterval(syncTimer);
     const state = getState();
     const hasVerifiedEmail = selectUserVerifiedEmail(state);
@@ -189,6 +193,12 @@ export function doSyncUnsubscribe() {
   };
 }
 export function doGetSync(passedPassword?: string, callback?: (arg0: any, arg1: boolean | null | undefined) => void) {
+  if (isHyperbeamFullMode()) {
+    return () => {
+      if (callback) callback(null, false);
+    };
+  }
+
   const password = passedPassword === null || passedPassword === undefined ? '' : passedPassword;
 
   function handleCallback(error: any, hasNewData?: boolean | null) {

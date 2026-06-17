@@ -2,7 +2,6 @@
 
 import { getLivestreamTurnServer } from 'constants/livestream';
 import type { WebrtcPublishVideoCodecPreference } from 'constants/webrtcPublish';
-import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { HYPERBEAM_DEVICE, hyperbeamDeviceBase, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 
 const DEFAULT_ICE_GATHER_TIMEOUT_MS = 4000;

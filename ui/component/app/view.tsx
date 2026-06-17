@@ -46,7 +46,7 @@ import {
 import { doUserSetReferrerForUri } from 'redux/actions/user';
 import { doSetLastViewedAnnouncement } from 'redux/actions/content';
 import { selectUser, selectUserLocale, selectUserVerifiedEmail } from 'redux/selectors/user';
-import { isHyperbeamEnabled } from 'util/hyperbeamMode';
+import { isHyperbeamFullMode } from 'util/hyperbeamMode';
 import { selectMyChannelClaimIds } from 'redux/selectors/claims';
 import {
   selectLanguage,
@@ -376,7 +376,7 @@ function App() {
       }
     }
 
-    if (user === null && !embedPath && !isHyperbeamEnabled()) {
+    if (user === null && !embedPath && !isHyperbeamFullMode()) {
       return <NagNoUser />;
     }
 
@@ -696,6 +696,7 @@ function App() {
   // ready for sync syncs, however after signin when hasVerifiedEmail, that syncs too.
   useEffect(() => {
     if (embedPath) return;
+    if (isHyperbeamFullMode()) return;
     const syncLoopWithoutInterval = () => dispatch(doSyncLoop(true));
 
     if (hasSignedIn && hasVerifiedEmail) {

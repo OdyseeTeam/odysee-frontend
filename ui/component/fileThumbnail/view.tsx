@@ -46,17 +46,7 @@ const FALLBACK = MISSING_THUMB_DEFAULT
 
 function hyperbeamNodeMediaUrl(uri?: string) {
   if (!uri) return '';
-  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.stream, 'media', { uri64: base64Url(uri) });
-}
-
-function base64Url(value: string) {
-  const bytes = new TextEncoder().encode(value);
-  let binary = '';
-  bytes.forEach((byte) => {
-    binary += String.fromCharCode(byte);
-  });
-
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  return hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'media', { target: uri });
 }
 
 function isMissingThumbLike(url: string | null | undefined) {

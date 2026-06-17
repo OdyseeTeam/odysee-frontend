@@ -16,6 +16,11 @@ export type CropRegion = {
   sh: number;
 };
 
+function hexToRgb(hex: string) {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+}
+
 export type CompositorLayer = {
   id: string;
   label: string;
@@ -163,10 +168,6 @@ export function ChatWidgetEditPreview({ layer, scale }: { layer: CompositorLayer
       ? `-${borderWidth}px -${borderWidth}px 0 ${borderColor}, ${borderWidth}px -${borderWidth}px 0 ${borderColor}, -${borderWidth}px ${borderWidth}px 0 ${borderColor}, ${borderWidth}px ${borderWidth}px 0 ${borderColor}`
       : 'none';
   const hyperColor = hyperchatColorHex;
-  const hexToRgb = (hex: string) => {
-    const h = hex.replace('#', '');
-    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-  };
   return (
     <div
       className={classnames('livestream-compositor__chat-edit-preview', {
