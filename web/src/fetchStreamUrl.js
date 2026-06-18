@@ -1,15 +1,35 @@
 const Mime = require('mime-types');
 
-const { PLAYER_SERVER } = require('../../config.cjs');
+const { PLAYER_SERVER, URL: SITE_URL } = require('../../config.cjs');
 
 const { lbryProxy: Lbry } = require('../lbry');
 
 const { buildURI } = require('./lbryURI');
 
+const EXTRA_PATH_SEGMENT_CHARS = /['()]/g;
+const FALLBACK_SOURCE_FILENAME = 'stream';
+const SOURCE_HASH_FILENAME_LENGTH = 6;
+
+function encodePathSegmentCharacter(character) {
+  return `%${character.charCodeAt(0).toString(16).toUpperCase()}`;
+}
+
+function encodePathSegment(value) {
+  return encodeURIComponent(String(value ?? '')).replace(EXTRA_PATH_SEGMENT_CHARS, encodePathSegmentCharacter);
+}
+
+function getSourceFilename(claim) {
+  const source = claim?.value?.source;
+  const filename = source?.sd_hash ? source.sd_hash.slice(0, SOURCE_HASH_FILENAME_LENGTH) : FALLBACK_SOURCE_FILENAME;
+  const extension = source?.media_type ? Mime.extension(source.media_type) : null;
+
+  return extension ? `${filename}.${extension}` : filename;
+}
+
 async function fetchStreamUrl(claimName, claimId) {
   const uri = buildURI({
-    claimName,
-    claimId,
+    streamName: claimName,
+    streamClaimId: claimId,
   });
   return await Lbry.get({
     uri,
@@ -56,8 +76,16 @@ function generateDownloadUrl(claim) {
   return `${PLAYER_SERVER}/v6/streams/${claim.claim_id}`;
 }
 
+function generateRssContentUrl(claim) {
+  const siteURL = String(SITE_URL || '').replace(/\/$/, '');
+  return `${siteURL}/$/rss/media/${encodePathSegment(claim.name)}/${encodePathSegment(
+    claim.claim_id
+  )}/${encodePathSegment(getSourceFilename(claim))}`;
+}
+
 module.exports = {
   fetchStreamUrl,
   generateContentUrl,
   generateDownloadUrl,
+  generateRssContentUrl,
 };

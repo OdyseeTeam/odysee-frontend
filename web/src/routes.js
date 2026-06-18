@@ -2,6 +2,8 @@ const { fetchStreamUrl } = require('./fetchStreamUrl');
 
 const config = require('../../config.cjs');
 
+const crypto = require('node:crypto');
+
 const { getHomepage } = require('./homepageApi');
 
 const { getHtml } = require('./html');
@@ -27,10 +29,129 @@ const Router = require('@koa/router');
 // So any code from 'lbry-redux'/'lbryinc' that uses `fetch` can be run on the server
 global.fetch = globalThis.fetch;
 const router = new Router();
+const RSS_MEDIA_AUTH_DEFAULT_TTL_SECONDS = 600;
+const RSS_MEDIA_AUTH_MAX_TTL_SECONDS = 600;
 
 async function getStreamUrl(ctx) {
   const { claimName, claimId } = ctx.params;
   return await fetchStreamUrl(claimName, claimId);
+}
+
+function buildRssMediaRedirectUrl(streamUrl, now = Date.now()) {
+  let redirectUrl;
+
+  try {
+    redirectUrl = new URL(streamUrl);
+  } catch {
+    return null;
+  }
+
+  if (!isAllowedRssMediaRedirectUrl(redirectUrl)) {
+    return null;
+  }
+
+  redirectUrl.searchParams.set('download', 'true');
+  redirectUrl.searchParams.set('magic', String(Math.round(now / 1000)));
+  if (!addRssMediaAuthParams(redirectUrl, now)) {
+    return null;
+  }
+  return redirectUrl.toString();
+}
+
+function addRssMediaAuthParams(redirectUrl, now) {
+  const secret = config.RSS_MEDIA_AUTH_SECRET;
+  if (!secret) {
+    return true;
+  }
+
+  const parts = getRssMediaStreamParts(redirectUrl);
+  if (!parts) {
+    return false;
+  }
+
+  const ttlSeconds = getRssMediaAuthTTLSeconds();
+  if (!ttlSeconds) {
+    return false;
+  }
+
+  const expiration = Math.round(now / 1000) + ttlSeconds;
+  const signature = signRssMediaAuth(secret, parts.claimId, parts.sdHash, expiration);
+  redirectUrl.searchParams.set('rss_claim', parts.claimId);
+  redirectUrl.searchParams.set('rss_sd', parts.sdHash);
+  redirectUrl.searchParams.set('rss_exp', String(expiration));
+  redirectUrl.searchParams.set('rss_sig', signature);
+  return true;
+}
+
+function getRssMediaStreamParts(url) {
+  const parts = url.pathname.split('/').filter(Boolean);
+  const streamsIndex = parts.indexOf('streams');
+  const version = parts[streamsIndex - 1];
+  const claimId = parts[streamsIndex + 1];
+  const sdHash = normalizeRssMediaAuthSD(parts[streamsIndex + 2]);
+
+  if (streamsIndex < 0 || version !== 'v6' || !claimId || !sdHash || !/^[0-9a-f]{40}$/i.test(claimId)) {
+    return null;
+  }
+  return {
+    claimId: claimId.toLowerCase(),
+    sdHash,
+  };
+}
+
+function normalizeRssMediaAuthSD(value) {
+  if (!value) {
+    return null;
+  }
+  let decoded;
+  try {
+    decoded = decodeURIComponent(value).toLowerCase();
+  } catch {
+    return null;
+  }
+  const withoutExtension = decoded.replace(/\.[^.]*$/, '');
+  if (!/^[0-9a-f]{6,96}$/.test(withoutExtension)) {
+    return null;
+  }
+  return withoutExtension;
+}
+
+function getRssMediaAuthTTLSeconds() {
+  const rawTTL = config.RSS_MEDIA_AUTH_TTL_SECONDS || String(RSS_MEDIA_AUTH_DEFAULT_TTL_SECONDS);
+  if (!/^\d+$/.test(rawTTL)) {
+    return 0;
+  }
+  const ttlSeconds = Number.parseInt(rawTTL, 10);
+  if (!Number.isFinite(ttlSeconds) || ttlSeconds <= 0 || ttlSeconds > RSS_MEDIA_AUTH_MAX_TTL_SECONDS) {
+    return 0;
+  }
+  return ttlSeconds;
+}
+
+function signRssMediaAuth(secret, claimId, sdHash, expiration) {
+  return crypto
+    .createHmac('sha256', secret)
+    .update(`rss-v1\n${claimId.toLowerCase()}\n${sdHash.toLowerCase()}\n${expiration}`)
+    .digest('base64url');
+}
+
+function getHostname(value) {
+  try {
+    return new URL(value).hostname.toLowerCase();
+  } catch {
+    return null;
+  }
+}
+
+function isAllowedRssMediaRedirectUrl(url) {
+  if (url.protocol !== 'http:' && url.protocol !== 'https:') {
+    return false;
+  }
+
+  const hostname = url.hostname.toLowerCase();
+  const playerHostname = getHostname(config.PLAYER_SERVER);
+
+  return hostname === playerHostname || hostname === 'odycdn.com' || hostname.endsWith('.odycdn.com');
 }
 
 const rssMiddleware = async (ctx) => {
@@ -51,6 +172,26 @@ const oEmbedMiddleware = async (ctx) => {
 const tempfileMiddleware = async (ctx) => {
   const temp = await getTempFile(ctx);
   ctx.body = temp;
+};
+
+const rssMediaMiddleware = async (ctx) => {
+  const streamUrl = await getStreamUrl(ctx);
+
+  if (!streamUrl) {
+    ctx.status = 404;
+    ctx.body = '';
+    return;
+  }
+
+  const redirectUrl = buildRssMediaRedirectUrl(streamUrl);
+  if (!redirectUrl) {
+    ctx.status = 502;
+    ctx.body = 'Invalid stream URL';
+    return;
+  }
+
+  ctx.set('Cache-Control', 'no-store');
+  ctx.redirect(redirectUrl);
 };
 
 const fcManifestMiddleware = async (ctx) => {
@@ -159,6 +300,7 @@ router.get(`/$/activate`, async (ctx) => {
 // to add a path for a temp file on the server, customize this path
 router.get('/.well-known/farcaster.json', fcManifestMiddleware);
 router.get('/.well-known/:filename', tempfileMiddleware);
+router.get(`/$/rss/media/:claimName/:claimId/:filename`, rssMediaMiddleware);
 router.get(`/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/rss/:claimName::claimId`, rssMiddleware);
 router.get(`/rss/:channelRef`, rssMiddleware);
