@@ -7,7 +7,7 @@ const Rss = require('rss');
 
 const dayjs = require('dayjs');
 
-const { generateDownloadUrl } = require('./fetchStreamUrl');
+const { generateRssContentUrl } = require('./fetchStreamUrl');
 
 Lbry.setDaemonConnectionString(PROXY_URL);
 const NUM_ENTRIES = 500;
@@ -91,14 +91,10 @@ function encodeWithSpecialCharEncode(string) {
 }
 
 /**
- * Returns an array of stream-url promise results corresponding to the same
- * order as the given 'claims' array, or null if there is an error.
- *
- * Clients must check the promise 'status' for each entry, as some could be a
- * failed fetch (i.e. 'rejected').
+ * Returns RSS enclosure URLs corresponding to the same order as the given claims.
  *
  * @param claims Array of freaking claims.
- * @returns {Array<{status, value}> | null}
+ * @returns {Array<string>}
  */
 function fetchStreamUrls(claims) {
   try {
@@ -108,7 +104,7 @@ function fetchStreamUrls(claims) {
       return [];
     }
 
-    const results = claims.map((c) => generateDownloadUrl(c));
+    const results = claims.map((c) => generateRssContentUrl(c));
     return results;
   } catch (error) {
     console.error(error); // eslint-disable-line no-console

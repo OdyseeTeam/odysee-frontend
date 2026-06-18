@@ -2,10 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import Lbry from 'lbry';
 import { Lbryio } from 'lbryinc';
 import { getStripeEnvironment } from 'util/stripe';
-import { isHlsPlaybackUrl, isSignedOdycdnPlaybackUrl } from 'util/playback-url';
+import { HLS_FILETYPE, resolveNonLivestreamSource } from 'util/playback-url';
 
 const stripeEnvironment = getStripeEnvironment();
-const HLS_FILETYPE = 'application/x-mpegURL';
 
 function logLivestreamSource(label, payload) {
   console.log(`[Livestream Viewer] ${label}`, payload); // eslint-disable-line no-console
@@ -82,108 +81,27 @@ export default function useResolvedSource(
         return;
       }
 
-      const signedOdycdnSource = isSignedOdycdnPlaybackUrl(source);
-      if (signedOdycdnSource || (isProtectedContent && source && isHlsPlaybackUrl(source))) {
-        const isHls = isHlsPlaybackUrl(source);
-        setResolved({
-          src: source,
-          type: isHls ? HLS_FILETYPE : sourceType,
-          isHls,
-          originalSrc: isHls ? null : { type: sourceType, src: source },
-          hlsSrc: isHls ? { src: source, type: HLS_FILETYPE } : null,
-          thumbnailBasePath: isHls ? source.substring(0, source.lastIndexOf('/')) : null,
-        });
-        doSetVideoSourceLoaded(uri);
-        return;
+      const resolvedSource = await resolveNonLivestreamSource({
+        source,
+        sourceType,
+        isProtectedContent,
+        userId,
+        isCancelled: () => cancelled,
+      });
+      if (resolvedSource.cancelled) return;
+      playerServerRef.current = resolvedSource.playerServer;
+      if (resolvedSource.resolved) {
+        setResolved(resolvedSource.resolved);
       }
-
-      let response;
-      const MAX_RETRIES = 5;
-      const RETRY_DELAYS = [2000, 3000, 5000, 8000, 12000];
-      for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-        const headers = userId !== undefined && userId !== null ? { 'X-Odysee-User-Id': String(userId) } : undefined;
-        try {
-          response = await fetch(source, {
-            method: 'HEAD',
-            cache: 'no-store',
-            ...(headers ? { headers } : {}),
-            signal: controller.signal,
-          });
-        } catch (e) {
-          clearTimeout(timeout);
-          if (cancelled) return;
-          if (source) {
-            setResolved({
-              src: source,
-              type: sourceType,
-              isHls: false,
-              originalSrc: { type: sourceType, src: source },
-              hlsSrc: null,
-              thumbnailBasePath: null,
-            });
-          }
-          doSetVideoSourceLoaded(uri);
-          return;
-        } finally {
-          clearTimeout(timeout);
-        }
-        if (cancelled) return;
-        if (response.status < 400 || attempt === MAX_RETRIES) break;
-        await new Promise((r) => setTimeout(r, RETRY_DELAYS[attempt] || 5000));
-        if (cancelled) return;
-      }
-      if (cancelled) return;
-
-      playerServerRef.current = response.headers.get('x-powered-by');
-      const originalSrc = { type: sourceType, src: source };
-
-      const trimmedUrl = new URL(response.url);
-      trimmedUrl.hash = '';
-      trimmedUrl.search = '';
-      const trimmedUrlString = trimmedUrl.toString();
-
-      if (
-        response &&
-        response.redirected &&
-        response.url &&
-        trimmedUrlString.endsWith('m3u8') &&
-        response.status < 400
-      ) {
-        const hlsSrc = { type: HLS_FILETYPE, src: response.url };
-        const trimmedPath = response.url.substring(0, response.url.lastIndexOf('/'));
-        setResolved({
-          src: response.url,
-          type: HLS_FILETYPE,
-          isHls: true,
-          originalSrc,
-          hlsSrc,
-          thumbnailBasePath: trimmedPath,
-        });
-      } else {
-        if (source) {
-          setResolved({
-            src: source,
-            type: sourceType,
-            isHls: false,
-            originalSrc,
-            hlsSrc: null,
-            thumbnailBasePath: null,
-          });
-        }
-      }
-
-      if (response.status >= 400) {
+      if (resolvedSource.errorEvent) {
         Lbryio.call('event', 'desktop_error', {
           error_message: `PlayerSourceLoadError: Url: ${
-            response.url
-          } | Redirected: ${String(response.redirected)} | Status: ${
-            response.status
+            resolvedSource.errorEvent.url
+          } | Redirected: ${String(resolvedSource.errorEvent.redirected)} | Status: ${
+            resolvedSource.errorEvent.status
           } | X-Powered-By: ${playerServerRef.current || 'header missing'}`,
         });
       }
-
       doSetVideoSourceLoaded(uri);
     }
 
