@@ -282,7 +282,12 @@ router.get(`/$/download/:claimName/:claimId`, async (ctx) => {
   const streamUrl = await getStreamUrl(ctx);
 
   if (streamUrl) {
-    const downloadUrl = `${streamUrl}?download=true&magic=${Number(Math.round(Date.now() / 1000))}`;
+    const downloadUrl = buildRssMediaRedirectUrl(streamUrl);
+    if (!downloadUrl) {
+      ctx.status = 502;
+      ctx.body = 'Invalid stream URL';
+      return;
+    }
     ctx.append('odysee-download', 'true');
     ctx.redirect(downloadUrl);
   }
