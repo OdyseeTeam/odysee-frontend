@@ -44,6 +44,7 @@ const P2P_LIVE_MAX_LATENCY_DURATION = 16; // max seconds behind before seeking f
 const P2P_ACTIVITY_WINDOW_MS = 10000; // show P2P status as "active" for 10s after last transfer
 const P2P_RATE_WINDOW_MS = 8000; // average throughput over 8s (covers ~2 segment cycles)
 const P2P_FORCE_SEGMENT_MODE = true; // use full segments (not LL-HLS parts) for better P2P sharing
+const TAP_TO_UNMUTE_HINT_TIMEOUT_MS = 3000;
 
 function parseVttTime(str: string): number | null {
   const parts = str.split(':');
@@ -250,6 +251,7 @@ function VideoJsInner(props: Props) {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const [tapToUnmuteVisible, setTapToUnmuteVisible] = useState(false);
   const shouldShowTapToUnmuteRef = useRef(false);
+  const tapToUnmuteTimeoutRef = useRef<number | null>(null);
   const [tapToRetryVisible, setTapToRetryVisible] = useState(false);
   const [p2pUiState, setP2PUiState] = useState({
     enabled: false,
@@ -361,10 +363,40 @@ function VideoJsInner(props: Props) {
     return resolvedSource;
   }, [resolvedSource, sourceMode]);
 
+  const clearTapToUnmuteTimeout = useCallback(() => {
+    if (tapToUnmuteTimeoutRef.current !== null) {
+      window.clearTimeout(tapToUnmuteTimeoutRef.current);
+      tapToUnmuteTimeoutRef.current = null;
+    }
+  }, []);
+
+  const hideTapToUnmuteHint = useCallback(() => {
+    clearTapToUnmuteTimeout();
+    shouldShowTapToUnmuteRef.current = false;
+    setTapToUnmuteVisible(false);
+  }, [clearTapToUnmuteTimeout]);
+
+  const showTapToUnmuteHintBriefly = useCallback(() => {
+    clearTapToUnmuteTimeout();
+
+    if (isAudio) {
+      setTapToUnmuteVisible(false);
+      return;
+    }
+
+    setTapToUnmuteVisible(true);
+    tapToUnmuteTimeoutRef.current = window.setTimeout(() => {
+      shouldShowTapToUnmuteRef.current = false;
+      setTapToUnmuteVisible(false);
+      tapToUnmuteTimeoutRef.current = null;
+    }, TAP_TO_UNMUTE_HINT_TIMEOUT_MS);
+  }, [clearTapToUnmuteTimeout, isAudio]);
+
   useEffect(() => {
+    clearTapToUnmuteTimeout();
     shouldShowTapToUnmuteRef.current = Boolean(showUnmuteHintWhenMuted);
     setTapToUnmuteVisible(false);
-  }, [playbackSource?.src, showUnmuteHintWhenMuted]);
+  }, [clearTapToUnmuteTimeout, playbackSource?.src, showUnmuteHintWhenMuted]);
 
   useEffect(() => {
     setSourceMode('adaptive');
@@ -897,7 +929,7 @@ function VideoJsInner(props: Props) {
               shouldShowTapToUnmuteRef.current = true;
               const mutedPromise = media.play();
               if (mutedPromise !== undefined) {
-                mutedPromise.then(() => setTapToUnmuteVisible(true)).catch(() => {});
+                mutedPromise.then(showTapToUnmuteHintBriefly).catch(() => {});
               }
             }
           });
@@ -921,6 +953,7 @@ function VideoJsInner(props: Props) {
 
   useEffect(() => {
     if (!media) {
+      clearTapToUnmuteTimeout();
       setTapToUnmuteVisible(false);
       return;
     }
@@ -928,14 +961,20 @@ function VideoJsInner(props: Props) {
     const updateTapToUnmuteVisibility = () => {
       const isAudible = !media.muted && media.volume > 0;
       if (isAudible) {
-        shouldShowTapToUnmuteRef.current = false;
-        setTapToUnmuteVisible(false);
+        hideTapToUnmuteHint();
         return;
       }
 
-      setTapToUnmuteVisible(
-        Boolean(shouldShowTapToUnmuteRef.current && !isAudio && !isCasting && !media.paused && !media.ended)
+      const shouldShowHint = Boolean(
+        shouldShowTapToUnmuteRef.current && !isAudio && !isCasting && !media.paused && !media.ended
       );
+
+      if (shouldShowHint) {
+        showTapToUnmuteHintBriefly();
+      } else {
+        clearTapToUnmuteTimeout();
+        setTapToUnmuteVisible(false);
+      }
     };
 
     updateTapToUnmuteVisibility();
@@ -951,8 +990,9 @@ function VideoJsInner(props: Props) {
       media.removeEventListener('pause', updateTapToUnmuteVisibility);
       media.removeEventListener('ended', updateTapToUnmuteVisibility);
       media.removeEventListener('volumechange', updateTapToUnmuteVisibility);
+      clearTapToUnmuteTimeout();
     };
-  }, [media, isAudio, isCasting]);
+  }, [media, isAudio, isCasting, clearTapToUnmuteTimeout, hideTapToUnmuteHint, showTapToUnmuteHintBriefly]);
 
   // Inject generated VTT sprite for non-HLS videos
   const generatedTrackRef = useRef<HTMLTrackElement | null>(null);
@@ -1118,9 +1158,8 @@ function VideoJsInner(props: Props) {
       media.muted = false;
       if (media.volume === 0) media.volume = 1.0;
     }
-    shouldShowTapToUnmuteRef.current = false;
-    setTapToUnmuteVisible(false);
-  }, [media]);
+    hideTapToUnmuteHint();
+  }, [hideTapToUnmuteHint, media]);
 
   const retryVideoAfterFailure = useCallback(() => {
     setReload(Date.now());
