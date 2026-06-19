@@ -10,6 +10,7 @@ import FileTitleSection from 'component/fileTitleSection';
 import VideoClaimInitiator from 'component/videoClaimInitiator';
 import ClaimCoverRender from 'component/claimCoverRender';
 import RecommendedContent from 'component/recommendedContent';
+import HyperbeamPlaybackDebug from 'component/hyperbeamPlaybackDebug';
 import Empty from 'component/common/empty';
 import MobileTabView from 'component/mobileTabView';
 import { useIsMobile, useIsMobileLandscape, useIsSmallScreen } from 'effects/use-screensize';
@@ -181,6 +182,8 @@ export default function VideoPlayersPage(props: Props) {
             <VideoClaimInitiator uri={uri} />
           </div>
 
+          <HyperbeamPlaybackDebug uri={uri} claim={claim} accessStatus={accessStatus} />
+
           <MobileTabView
             infoContent={infoContent}
             chaptersContent={chaptersContent}
@@ -200,6 +203,8 @@ export default function VideoPlayersPage(props: Props) {
         <div className={PRIMARY_PLAYER_WRAPPER_CLASS}>
           <VideoClaimInitiator uri={uri} />
         </div>
+
+        <HyperbeamPlaybackDebug uri={uri} claim={claim} accessStatus={accessStatus} />
 
         <div className="file-page__secondary-content">
           <section className="file-page__media-actions">

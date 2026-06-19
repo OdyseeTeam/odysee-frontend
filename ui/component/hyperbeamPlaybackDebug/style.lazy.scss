@@ -1,0 +1,234 @@
+.hyperbeam-debug {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 100000;
+  display: flex;
+  flex-direction: column;
+  width: 720px;
+  max-width: calc(100vw - 24px);
+  max-height: 62vh;
+  overflow: hidden;
+  border: 1px solid rgba(222, 0, 80, 0.62);
+  border-radius: 6px;
+  background: rgba(12, 10, 12, 0.96);
+  box-shadow:
+    0 12px 34px rgba(0, 0, 0, 0.46),
+    0 0 28px rgba(222, 0, 80, 0.2);
+  color: #f9fafb;
+  font-family: monospace;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+.hyperbeam-debug--closed {
+  width: auto;
+}
+
+.hyperbeam-debug__topbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(90deg, rgba(222, 0, 80, 0.42), rgba(222, 0, 80, 0.12));
+}
+
+.hyperbeam-debug__toggle {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 0;
+  background: transparent;
+  color: #f9fafb;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+
+  span,
+  small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span {
+    font-weight: 700;
+  }
+
+  small {
+    margin-top: 1px;
+    color: rgba(255, 255, 255, 0.68);
+  }
+}
+
+.hyperbeam-debug__copy {
+  flex: 0 0 auto;
+  margin-right: 8px;
+  padding: 1px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #f9fafb;
+  cursor: pointer;
+  font: inherit;
+}
+
+.hyperbeam-debug__body {
+  min-height: 0;
+  overflow: auto;
+  padding: 9px;
+}
+
+.hyperbeam-debug__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--spacing-m);
+  margin-bottom: var(--spacing-s);
+
+  h2 {
+    margin: 0;
+    color: #f9fafb;
+    font-size: 14px;
+  }
+
+  code {
+    flex: 0 0 auto;
+    padding: 0.25rem 0.5rem;
+    border-radius: 9999px;
+    color: #f9fafb;
+    background: rgba(222, 0, 80, 0.86);
+    font-size: 10px;
+  }
+}
+
+.hyperbeam-debug__eyebrow {
+  margin-bottom: 0.2rem;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.hyperbeam-debug__steps {
+  display: grid;
+  gap: var(--spacing-xs);
+}
+
+.hyperbeam-debug__step {
+  padding: var(--spacing-s);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-left-width: 4px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.045);
+
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-s);
+    cursor: pointer;
+    font-weight: 600;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::before {
+    content: '>';
+    margin-right: var(--spacing-xs);
+    color: rgba(255, 255, 255, 0.62);
+  }
+
+  &[open] summary::before {
+    content: 'v';
+  }
+
+  strong {
+    flex: 0 0 auto;
+    padding: 0.15rem 0.45rem;
+    border-radius: 9999px;
+    font-size: var(--font-xsmall);
+    font-weight: 700;
+  }
+
+  p {
+    margin: var(--spacing-xs) 0 0;
+    color: rgba(255, 255, 255, 0.62);
+    overflow-wrap: anywhere;
+  }
+
+  dl {
+    display: grid;
+    grid-template-columns: minmax(7rem, 0.28fr) 1fr;
+    gap: 0.35rem var(--spacing-s);
+    margin: var(--spacing-s) 0 0;
+    font-size: 11px;
+  }
+
+  dt {
+    color: rgba(255, 255, 255, 0.56);
+  }
+
+  dd {
+    margin: 0;
+    color: rgba(255, 255, 255, 0.78);
+    overflow-wrap: anywhere;
+  }
+}
+
+.hyperbeam-debug__step--ok {
+  border-left-color: #26b45b;
+
+  strong {
+    color: #2ee66f;
+    background: rgba(38, 180, 91, 0.18);
+  }
+}
+
+.hyperbeam-debug__step--pending {
+  border-left-color: #4b8cff;
+
+  strong {
+    color: #74a8ff;
+    background: rgba(75, 140, 255, 0.18);
+  }
+}
+
+.hyperbeam-debug__step--warn {
+  border-left-color: #d99a16;
+
+  strong {
+    color: #f0b537;
+    background: rgba(217, 154, 22, 0.18);
+  }
+}
+
+.hyperbeam-debug__step--error {
+  border-left-color: #df4d4d;
+
+  strong {
+    color: #ff7b7b;
+    background: rgba(223, 77, 77, 0.18);
+  }
+}
+
+@media (max-width: 600px) {
+  .hyperbeam-debug {
+    right: 8px;
+    bottom: 8px;
+    max-width: calc(100vw - 16px);
+    max-height: 70vh;
+  }
+
+  .hyperbeam-debug__header,
+  .hyperbeam-debug__step summary {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hyperbeam-debug__step dl {
+    grid-template-columns: 1fr;
+  }
+}
