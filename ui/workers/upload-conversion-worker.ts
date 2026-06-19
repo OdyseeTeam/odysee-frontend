@@ -181,6 +181,45 @@ function assembleOutputBlob(writes: OutputWrite[]) {
   return new Blob(blobParts, { type: 'video/mp4' });
 }
 
+async function validateAudioPreserved(inputAudioTrackCount: number, outputFile: File) {
+  if (inputAudioTrackCount === 0) return;
+
+  let outputInput;
+
+  try {
+    outputInput = new Input({
+      formats: ALL_FORMATS,
+      source: new BlobSource(outputFile),
+    });
+
+    const outputAudioTrack = await outputInput.getPrimaryAudioTrack();
+    if (!outputAudioTrack) {
+      throw new Error('Audio track was lost during video conversion.');
+    }
+  } finally {
+    if (outputInput) {
+      outputInput.dispose();
+    }
+  }
+}
+
+async function getOptimizationAudioOptions(track: any, audioBitrate: number) {
+  const codec = track.codec;
+
+  if (codec === 'aac') {
+    return { forceTranscode: false };
+  }
+
+  if (await track.canDecode()) {
+    return {
+      codec: 'aac',
+      bitrate: audioBitrate,
+    };
+  }
+
+  throw new Error(`Audio track codec ${codec || 'unknown'} cannot be decoded for AAC optimization.`);
+}
+
 async function runManualPacketCopy(input: Input, output: Output, tracks: any[], _fileSize: number) {
   const startTimestamp = Math.max(await input.getFirstTimestamp(), 0);
   const trackProgress = new Map<number, number>();
@@ -496,14 +535,12 @@ self.addEventListener('message', async (e: MessageEvent) => {
         bitrate: options?.videoBitrate || 5_000_000,
         keyFrameInterval: 2,
       };
-      conversionOptions.audio = {
-        codec: 'aac',
-        bitrate: options?.audioBitrate || 128_000,
-      };
+      conversionOptions.audio = (track: any) => getOptimizationAudioOptions(track, options?.audioBitrate || 128_000);
     }
 
     const tracks = await input.getTracks();
     const avTracks = tracks.filter((track) => track.isVideoTrack() || track.isAudioTrack());
+    const inputAudioTrackCount = avTracks.filter((track) => track.isAudioTrack()).length;
 
     const canUseManualPacketCopy = type === 'convert' && avTracks.length > 0;
 
@@ -523,6 +560,7 @@ self.addEventListener('message', async (e: MessageEvent) => {
 
     const blob = assembleOutputBlob(writes);
     const outputFile = new File([blob], file.name.replace(/\.[^.]+$/, '.mp4'), { type: 'video/mp4' });
+    await validateAudioPreserved(inputAudioTrackCount, outputFile);
 
     self.postMessage({ type: 'done', file: outputFile }); // eslint-disable-line unicorn/require-post-message-target-origin
   } catch (err: any) {
