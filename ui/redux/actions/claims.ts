@@ -27,6 +27,8 @@ import { selectSupportsByOutpoint } from 'redux/selectors/wallet';
 import { creditsToString } from 'util/format-credits';
 import { createNormalizedClaimSearchKey, getChannelIdFromClaim, isClaimProtected } from 'util/claim';
 import { hasFiatTags } from 'util/tags';
+import { pushHyperbeamDebug } from 'util/hyperbeamDebug';
+import { HYPERBEAM_DEVICE, hyperbeamDeviceUrl } from 'util/hyperbeamDevices';
 import { PAGE_SIZE } from 'constants/claim';
 import { doUserHasPremium } from './user';
 let onChannelConfirmCallback;
@@ -39,6 +41,92 @@ type CostInfo = {
   feeCurrency?: string;
   usdCost?: number;
 };
+
+function pushResolvedClaimsDebug(source: string, claims: Array<any>, pageContext = claimDebugPageContext()) {
+  if (typeof window === 'undefined') return;
+
+  const items = claims.filter(isTraceableClaim).map((claim) => ({
+    claim_id: claim.claim_id,
+    name: claim.name,
+    txid: claim.txid,
+    nout: claim.nout,
+    value_type: claim.value_type,
+    canonical_url: claim.canonical_url,
+    permanent_url: claim.permanent_url,
+    short_url: claim.short_url,
+    value: {
+      title: claim.value?.title,
+      source: {
+        sd_hash: claim.value?.source?.sd_hash,
+      },
+    },
+    signing_channel: claim.signing_channel
+      ? {
+          claim_id: claim.signing_channel.claim_id,
+          name: claim.signing_channel.name,
+          canonical_url: claim.signing_channel.canonical_url,
+          permanent_url: claim.signing_channel.permanent_url,
+          value: {
+            title: claim.signing_channel.value?.title,
+          },
+        }
+      : undefined,
+  }));
+
+  if (items.length === 0) return;
+
+  pushHyperbeamDebug(
+    'resolved claims',
+    {
+      pageUrl: window.location.href,
+      ...pageContext,
+      devicePath: source,
+      sourceLayer: 'app-state',
+      body: { items },
+    },
+    'ok'
+  );
+}
+
+function isTraceableClaim(claim: any) {
+  return claim && (claim.value_type === 'stream' || claim.value_type === 'channel') && (claim.claim_id || claim.txid);
+}
+
+const materializedHyperbeamEvidence = new Set<string>();
+
+async function materializeHyperbeamClaimEvidence(claims: Array<any>) {
+  if (typeof window === 'undefined') return;
+
+  const requests: Array<Promise<Response | null>> = [];
+  const enqueue = (key: string, url: string) => {
+    if (!url || materializedHyperbeamEvidence.has(key)) return;
+    materializedHyperbeamEvidence.add(key);
+    requests.push(fetch(url, { headers: { accept: 'application/json' } }).catch(() => null));
+  };
+
+  claims.filter(isTraceableClaim).forEach((claim) => {
+    const txid = claim.txid;
+    const sdHash = claim.value?.source?.sd_hash;
+
+    if (txid) {
+      enqueue(`tx:${txid}`, hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'transaction', { txid }));
+    }
+
+    if (claim.value_type === 'stream' && sdHash) {
+      enqueue(`descriptor:${sdHash}`, hyperbeamDeviceUrl(HYPERBEAM_DEVICE.odysee, 'descriptor', { 'sd-hash': sdHash }));
+    }
+  });
+
+  await Promise.allSettled(requests);
+}
+
+function claimDebugPageContext() {
+  if (typeof window === 'undefined') return {};
+  return {
+    pageUrl: window.location.href,
+    pagePath: `${window.location.pathname}${window.location.search}${window.location.hash}`,
+  };
+}
 
 async function getCostInfoForFee(claimId: string, fee: Fee | undefined): Promise<CostInfo> {
   if (fee === undefined) {
@@ -81,6 +169,7 @@ export function doResolveUris(
   additionalOptions: any = {}
 ) {
   return (dispatch: Dispatch, getState: GetState) => {
+    const debugPageContext = claimDebugPageContext();
     const normalizedUris = uris.reduce((acc: string[], uri) => {
       try {
         acc.push(normalizeURI(uri));
@@ -210,6 +299,13 @@ export function doResolveUris(
             resolveInfo[uri] = resultResponse as (typeof resolveInfo)[string];
           }
         }
+
+        const resolvedClaims = Object.values(resolveInfo).flatMap((info: any) =>
+          [info?.stream, info?.channel, info?.collection].filter(Boolean)
+        );
+
+        await materializeHyperbeamClaimEvidence(resolvedClaims);
+        pushResolvedClaimsDebug('resolve', resolvedClaims, debugPageContext);
 
         // Batch synchronous actions into a single commit
         const batchedActions: Array<any> = [{ type: ACTIONS.RESOLVE_URIS_SUCCESS, data: { resolveInfo } }];
@@ -848,6 +944,7 @@ export function doClaimSearch(
   const options = csOptions;
   const query = createNormalizedClaimSearchKey(options);
   return async (dispatch: Dispatch, getState: GetState) => {
+    const debugPageContext = claimDebugPageContext();
     const state = getState();
     const alreadyFetching = selectIsFetchingClaimSearchForQuery(state, query);
     debugHyperbeamNode({
@@ -871,6 +968,9 @@ export function doClaimSearch(
     });
 
     const success = async (data: ClaimSearchResponse) => {
+      await materializeHyperbeamClaimEvidence(data.items || []);
+      pushResolvedClaimsDebug('claim_search', data.items || [], debugPageContext);
+
       const resolveInfo = {};
       const urls = [];
       const claimIds: Array<ClaimId> = [];

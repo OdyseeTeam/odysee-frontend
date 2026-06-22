@@ -9,8 +9,9 @@ import {
 } from 'util/hyperbeamDebug';
 import { ODYSEE_HYPERBEAM_NODE_API } from 'config';
 import { getHyperbeamMode, HYPERBEAM_MODES, setHyperbeamMode, type HyperbeamMode } from 'util/hyperbeamMode';
+import ClaimTrace from './claimTrace';
 
-const MAX_EVENTS = 220;
+const MAX_EVENTS = 1200;
 const MAX_RELEVANT_EVENTS = 24;
 const FILTERS = [
   { key: 'get', label: 'get', color: 'rgba(255,255,255,0.76)' },
@@ -22,10 +23,13 @@ const FILTERS = [
 ] as const;
 
 type FilterKey = (typeof FILTERS)[number]['key'];
+type ConsoleTab = 'trace' | 'requests';
 
 export default function HyperbeamDebugConsole() {
   const [open, setOpen] = React.useState(true);
+  const [maximized, setMaximized] = React.useState(false);
   const [mode, setMode] = React.useState<HyperbeamMode>(() => getHyperbeamMode());
+  const [activeTab, setActiveTab] = React.useState<ConsoleTab>('trace');
   const [events, setEvents] = React.useState<Array<HyperbeamDebugEvent>>([]);
   const [filterCounts, setFilterCounts] = React.useState<Record<FilterKey, number>>(() => emptyFilterCounts());
   const [expanded, setExpanded] = React.useState<Record<number, boolean>>({});
@@ -131,20 +135,26 @@ export default function HyperbeamDebugConsole() {
 
   return (
     <div
+      data-hyperbeam-debug-console
       style={{
         position: 'fixed',
-        right: 12,
-        bottom: 12,
+        right: maximized ? 8 : 12,
+        bottom: maximized ? 8 : 12,
+        top: maximized ? 8 : undefined,
+        left: maximized ? 8 : undefined,
         zIndex: 100000,
-        width: open ? 720 : 'auto',
+        width: maximized ? 'auto' : open ? 720 : 'auto',
         maxWidth: 'calc(100vw - 24px)',
-        maxHeight: '58vh',
+        maxHeight: maximized ? 'calc(100vh - 16px)' : '58vh',
+        height: maximized ? 'calc(100vh - 16px)' : undefined,
         display: 'flex',
         flexDirection: 'column',
         overflow: 'hidden',
         borderRadius: 6,
         border: '1px solid rgba(222, 0, 80, 0.62)',
         background: 'rgba(12, 10, 12, 0.95)',
+        backdropFilter: 'blur(14px)',
+        WebkitBackdropFilter: 'blur(14px)',
         color: '#f9fafb',
         fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
         fontSize: 11,
@@ -158,7 +168,8 @@ export default function HyperbeamDebugConsole() {
           display: 'flex',
           alignItems: 'center',
           gap: 8,
-          padding: 0,
+          boxSizing: 'border-box',
+          padding: '0 8px 0 0',
           background: 'linear-gradient(90deg, rgba(222,0,80,0.42), rgba(222,0,80,0.12))',
         }}
       >
@@ -166,7 +177,7 @@ export default function HyperbeamDebugConsole() {
           type="button"
           onClick={() => setOpen((value) => !value)}
           style={{
-            flex: 1,
+            flex: '1 1 auto',
             minWidth: 0,
             border: 0,
             padding: '8px 10px',
@@ -180,6 +191,16 @@ export default function HyperbeamDebugConsole() {
           Odysee request log {open ? 'hide' : 'show'}
           {!open && last ? ` · ${last.label} · ${last.level}` : ''}
         </button>
+        {open && (
+          <div style={{ display: 'flex', gap: 4, flex: '0 0 auto' }}>
+            <TabButton active={activeTab === 'trace'} onClick={() => setActiveTab('trace')}>
+              Trace
+            </TabButton>
+            <TabButton active={activeTab === 'requests'} onClick={() => setActiveTab('requests')}>
+              Requests {events.length}
+            </TabButton>
+          </div>
+        )}
         <select
           value={mode}
           onClick={(event) => event.stopPropagation()}
@@ -203,154 +224,208 @@ export default function HyperbeamDebugConsole() {
         </select>
         <button
           type="button"
-          onClick={copyEvents}
-          disabled={events.length === 0}
-          title="Copy HyperBEAM log"
-          style={{
-            float: 'right',
-            border: '1px solid rgba(255,255,255,0.28)',
-            borderRadius: 4,
-            padding: '1px 6px',
-            background: copied ? '#de0050' : 'rgba(255,255,255,0.08)',
-            color: '#f9fafb',
-            cursor: events.length === 0 ? 'default' : 'pointer',
-            font: 'inherit',
-            opacity: events.length === 0 ? 0.55 : 1,
+          onClick={(event) => {
+            event.stopPropagation();
+            setOpen(true);
+            setMaximized((value) => !value);
           }}
+          title={maximized ? 'Restore console' : 'Maximize console'}
+          style={headerIconButtonStyle}
         >
-          {copied ? 'copied' : 'copy'}
+          {maximized ? 'restore' : 'maximize'}
         </button>
         <button
           type="button"
-          onClick={copyRelevantEvents}
-          disabled={events.length === 0}
-          title="Copy only the entries needed for debugging"
-          style={{
-            float: 'right',
-            border: '1px solid rgba(255,255,255,0.28)',
-            borderRadius: 4,
-            padding: '1px 6px',
-            background: copiedRelevant ? '#de0050' : 'rgba(255,255,255,0.08)',
-            color: '#f9fafb',
-            cursor: events.length === 0 ? 'default' : 'pointer',
-            font: 'inherit',
-            opacity: events.length === 0 ? 0.55 : 1,
-            marginRight: 8,
+          onClick={(event) => {
+            event.stopPropagation();
+            setOpen(false);
+            setMaximized(false);
           }}
+          title="Minimize console"
+          style={headerIconButtonStyle}
         >
-          {copiedRelevant ? 'copied' : 'copy fix'}
+          minimize
         </button>
       </div>
       {open && (
         <>
-          <div style={{ padding: '9px 9px 0' }}>
+          <div style={{ padding: '8px 9px 0' }}>
             <div style={{ overflowWrap: 'anywhere', marginBottom: 8, color: 'rgba(255,255,255,0.72)' }}>
               {modeEndpointLabel(mode)}
             </div>
-            <div
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: 6,
-                marginBottom: 8,
-              }}
-            >
-              {FILTERS.map((filter) => {
-                const active = activeFilters.has(filter.key);
-                const disabled = filterDisabledInMode(filter.key, mode);
-                return (
-                  <button
-                    key={filter.key}
-                    type="button"
-                    disabled={disabled}
-                    onClick={() => !disabled && toggleFilter(filter.key)}
-                    title={
-                      disabled
-                        ? `${filter.label} disabled in ${modeLabel(mode)}`
-                        : active
-                          ? `Remove ${filter.label} filter`
-                          : `Filter ${filter.label}`
-                    }
-                    style={{
-                      border: `1px solid ${
-                        disabled ? 'rgba(255,255,255,0.12)' : active ? filter.color : 'rgba(255,255,255,0.22)'
-                      }`,
-                      borderRadius: 4,
-                      padding: '1px 6px',
-                      background: disabled
-                        ? 'rgba(255,255,255,0.025)'
-                        : active
-                          ? 'rgba(255,255,255,0.12)'
-                          : 'rgba(255,255,255,0.05)',
-                      color: disabled ? 'rgba(255,255,255,0.28)' : filter.color,
-                      cursor: disabled ? 'default' : 'pointer',
-                      font: 'inherit',
-                      textDecoration: disabled ? 'line-through' : 'none',
-                    }}
-                  >
-                    {filter.label} {filterCounts[filter.key] || 0}
-                  </button>
-                );
-              })}
-            </div>
           </div>
-          <div ref={logRef} style={{ padding: '0 9px 9px', minHeight: 0, overflow: 'auto' }}>
-            {events.length === 0 && (
-              <div style={{ color: 'rgba(255,255,255,0.62)' }}>waiting for {modeWaitLabel(mode)} calls</div>
-            )}
-            {events.length !== 0 && visibleEvents.length === 0 && (
-              <div style={{ color: 'rgba(255,255,255,0.62)' }}>no calls match the active filters</div>
-            )}
-            {visibleEvents.map((event) => {
-              const index = events.indexOf(event);
-              const isExpanded = expanded[index];
-              return (
-                <div key={`${event.time}-${event.label}-${index}`} style={{ marginTop: 4 }}>
-                  <button
-                    type="button"
-                    onClick={() => setExpanded((current) => ({ ...current, [index]: !current[index] }))}
-                    style={{
-                      width: '100%',
-                      border: 0,
-                      padding: '2px 0',
-                      background: 'transparent',
-                      color: 'rgba(255,255,255,0.84)',
-                      cursor: 'pointer',
-                      font: 'inherit',
-                      textAlign: 'left',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                    }}
-                  >
-                    <strong
+          {activeTab === 'trace' && <ClaimTrace events={events} />}
+          {activeTab === 'requests' && (
+            <>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, padding: '0 9px 8px' }}>
+                {FILTERS.map((filter) => {
+                  const active = activeFilters.has(filter.key);
+                  const disabled = filterDisabledInMode(filter.key, mode);
+                  return (
+                    <button
+                      key={filter.key}
+                      type="button"
+                      disabled={disabled}
+                      onClick={() => !disabled && toggleFilter(filter.key)}
+                      title={
+                        disabled
+                          ? `${filter.label} disabled in ${modeLabel(mode)}`
+                          : active
+                            ? `Remove ${filter.label} filter`
+                            : `Filter ${filter.label}`
+                      }
                       style={{
-                        color: eventColor(event),
+                        border: `1px solid ${
+                          disabled ? 'rgba(255,255,255,0.12)' : active ? filter.color : 'rgba(255,255,255,0.22)'
+                        }`,
+                        borderRadius: 4,
+                        padding: '1px 6px',
+                        background: disabled
+                          ? 'rgba(255,255,255,0.025)'
+                          : active
+                            ? 'rgba(255,255,255,0.12)'
+                            : 'rgba(255,255,255,0.05)',
+                        color: disabled ? 'rgba(255,255,255,0.28)' : filter.color,
+                        cursor: disabled ? 'default' : 'pointer',
+                        font: 'inherit',
+                        textDecoration: disabled ? 'line-through' : 'none',
                       }}
                     >
-                      {isExpanded ? '-' : '+'}
-                    </strong>{' '}
-                    <strong
-                      style={{
-                        color: eventColor(event),
-                      }}
-                    >
-                      {event.time}
-                    </strong>{' '}
-                    {event.label} {eventSummary(event, mode)}
-                  </button>
-                  {isExpanded && event.data !== undefined && (
-                    <pre style={{ margin: '3px 0 0', whiteSpace: 'pre-wrap', color: 'rgba(255,255,255,0.78)' }}>
-                      {JSON.stringify(event.data, null, 2)}
-                    </pre>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                      {filter.label} {filterCounts[filter.key] || 0}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={copyEvents}
+                  disabled={events.length === 0}
+                  title="Copy HyperBEAM log"
+                  style={{
+                    marginLeft: 'auto',
+                    border: '1px solid rgba(255,255,255,0.28)',
+                    borderRadius: 4,
+                    padding: '1px 6px',
+                    background: copied ? '#de0050' : 'rgba(255,255,255,0.08)',
+                    color: '#f9fafb',
+                    cursor: events.length === 0 ? 'default' : 'pointer',
+                    font: 'inherit',
+                    opacity: events.length === 0 ? 0.55 : 1,
+                  }}
+                >
+                  {copied ? 'copied' : 'copy'}
+                </button>
+                <button
+                  type="button"
+                  onClick={copyRelevantEvents}
+                  disabled={events.length === 0}
+                  title="Copy only the entries needed for debugging"
+                  style={{
+                    border: '1px solid rgba(255,255,255,0.28)',
+                    borderRadius: 4,
+                    padding: '1px 6px',
+                    background: copiedRelevant ? '#de0050' : 'rgba(255,255,255,0.08)',
+                    color: '#f9fafb',
+                    cursor: events.length === 0 ? 'default' : 'pointer',
+                    font: 'inherit',
+                    opacity: events.length === 0 ? 0.55 : 1,
+                  }}
+                >
+                  {copiedRelevant ? 'copied' : 'copy fix'}
+                </button>
+              </div>
+              <div ref={logRef} style={{ padding: '0 9px 9px', minHeight: 0, overflow: 'auto' }}>
+                {events.length === 0 && (
+                  <div style={{ color: 'rgba(255,255,255,0.62)' }}>waiting for {modeWaitLabel(mode)} calls</div>
+                )}
+                {events.length !== 0 && visibleEvents.length === 0 && (
+                  <div style={{ color: 'rgba(255,255,255,0.62)' }}>no calls match the active filters</div>
+                )}
+                {visibleEvents.map((event) => {
+                  const index = events.indexOf(event);
+                  const isExpanded = expanded[index];
+                  return (
+                    <div key={`${event.time}-${event.label}-${index}`} style={{ marginTop: 4 }}>
+                      <button
+                        type="button"
+                        onClick={() => setExpanded((current) => ({ ...current, [index]: !current[index] }))}
+                        style={{
+                          width: '100%',
+                          border: 0,
+                          padding: '2px 0',
+                          background: 'transparent',
+                          color: 'rgba(255,255,255,0.84)',
+                          cursor: 'pointer',
+                          font: 'inherit',
+                          textAlign: 'left',
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        <strong
+                          style={{
+                            color: eventColor(event),
+                          }}
+                        >
+                          {isExpanded ? '-' : '+'}
+                        </strong>{' '}
+                        <strong
+                          style={{
+                            color: eventColor(event),
+                          }}
+                        >
+                          {event.time}
+                        </strong>{' '}
+                        {event.label} {eventSummary(event, mode)}
+                      </button>
+                      {isExpanded && event.data !== undefined && (
+                        <pre style={{ margin: '3px 0 0', whiteSpace: 'pre-wrap', color: 'rgba(255,255,255,0.78)' }}>
+                          {JSON.stringify(event.data, null, 2)}
+                        </pre>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>
+  );
+}
+
+const headerIconButtonStyle = {
+  flex: '0 0 auto',
+  height: 18,
+  border: '1px solid rgba(255,255,255,0.28)',
+  borderRadius: 4,
+  padding: '0 6px',
+  background: 'rgba(255,255,255,0.08)',
+  color: '#f9fafb',
+  cursor: 'pointer',
+  font: 'inherit',
+  fontSize: 10,
+  lineHeight: 1,
+} as const;
+
+function TabButton({ active, children, onClick }: { active: boolean; children: React.ReactNode; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      style={{
+        border: `1px solid ${active ? 'rgba(14,165,233,0.68)' : 'rgba(255,255,255,0.18)'}`,
+        borderRadius: 4,
+        padding: '2px 8px',
+        background: active ? 'rgba(14,165,233,0.2)' : 'rgba(255,255,255,0.045)',
+        color: active ? '#e0f2fe' : 'rgba(255,255,255,0.72)',
+        cursor: 'pointer',
+        font: 'inherit',
+      }}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -482,6 +557,7 @@ function eventKey(event: HyperbeamDebugEvent) {
     method: data.method,
     status: data.status,
     ok: data.ok,
+    pagePath: data.pagePath,
     devicePath: data.devicePath,
     device: data.device,
     deviceLayer: data.deviceLayer,
@@ -520,8 +596,7 @@ function isRelevant(event: HyperbeamDebugEvent) {
     data.ok === false ||
     status >= 400 ||
     sourceLayer === 'native:sdk-proxy' ||
-    sourceLayer === 'native:verified' ||
-    sourceLayer === 'native:unverified' ||
+    sourceLayer === 'native-device' ||
     deviceLayer === 'native-device' ||
     sourceLayer.startsWith('fallback') ||
     sourceLayer === 'native-missing' ||

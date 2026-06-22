@@ -48,8 +48,26 @@ function FeaturedSection(props: Props) {
     if (target.closest('a, button, [role="button"]') && !target.closest('.claim-preview-featured')) return;
     navigate(navigateUrl);
   };
+  const hyperbeamClaimDebugAttrs =
+    claim && claim.claim_id
+      ? {
+          'data-hyperbeam-claim-id': claim.claim_id,
+          'data-hyperbeam-claim-title': claim.value?.title || claim.name || '',
+          'data-hyperbeam-claim-uri': claim.canonical_url || claim.permanent_url || uri || '',
+          'data-hyperbeam-claim-txid': claim.txid || '',
+          'data-hyperbeam-claim-nout': claim.nout ?? '',
+          'data-hyperbeam-claim-type': claim.value_type || '',
+          'data-hyperbeam-claim-sd-hash': claim.value?.source?.sd_hash || '',
+          'data-hyperbeam-signing-channel-id': claim.signing_channel?.claim_id || '',
+        }
+      : {};
   return claim ? (
-    <div className="claim-preview claim-preview-featured" onClick={handleClick} style={{ cursor: 'pointer' }}>
+    <div
+      {...hyperbeamClaimDebugAttrs}
+      className="claim-preview claim-preview-featured"
+      onClick={handleClick}
+      style={{ cursor: 'pointer' }}
+    >
       <FileThumbnail uri={uri} thumbnail={claim.value.thumbnail?.url} forceReload>
         {showCollectionContext && (
           <div className="claim-preview__hover-actions-grid">

@@ -21,8 +21,6 @@ export function hyperbeamDebugColor(level: HyperbeamDebugLevel, sourceLayer?: st
   if (level === 'error' || source === 'native-failed' || source === 'native-missing') return '#ff4d7d';
   if (source === 'original') return '#94a3b8';
   if (source === 'native:sdk-proxy') return '#a78bfa';
-  if (source === 'native:unverified') return '#38bdf8';
-  if (source === 'native:verified') return '#22c55e';
   if (
     level === 'warn' ||
     source.startsWith('fallback') ||
@@ -77,9 +75,14 @@ export function installHyperbeamFetchDebug() {
     const isHyperbeam = Boolean(url && url.startsWith(nodeBase));
     const shouldLog = isHyperbeam || (shouldAllowOriginalNetworkFallback() && isOriginalModeFetch(url));
     const startedAt = performance.now();
+    const pageContext = pageContextSummary();
 
     if (shouldLog) {
-      pushHyperbeamDebug('request', requestSummary(url, input, init, isHyperbeam ? undefined : 'original'), 'info');
+      pushHyperbeamDebug(
+        'request',
+        requestSummary(url, input, init, isHyperbeam ? undefined : 'original', pageContext),
+        'info'
+      );
     }
 
     try {
@@ -91,7 +94,8 @@ export function installHyperbeamFetchDebug() {
         url,
         response,
         elapsedMs,
-        isHyperbeam ? hyperbeamFallbackLayer(url) : 'original'
+        isHyperbeam ? hyperbeamFallbackLayer(url) : 'original',
+        pageContext
       );
       pushHyperbeamDebug('response', summary, response.ok ? 'ok' : 'error');
       return response;
@@ -100,6 +104,7 @@ export function installHyperbeamFetchDebug() {
         pushHyperbeamDebug(
           'request failed',
           {
+            ...pageContext,
             url: sanitizeUrl(url),
             method: requestMethod(input, init),
             devicePath: devicePath(url),
@@ -149,8 +154,15 @@ function requestMethod(input: RequestInfo | URL, init?: RequestInit) {
   return String(init?.method || (typeof input !== 'string' && !(input instanceof URL) ? input.method : 'GET') || 'GET');
 }
 
-function requestSummary(url: string, input: RequestInfo | URL, init?: RequestInit, fallbackSourceLayer?: string) {
+function requestSummary(
+  url: string,
+  input: RequestInfo | URL,
+  init?: RequestInit,
+  fallbackSourceLayer?: string,
+  pageContext: Record<string, any> = pageContextSummary()
+) {
   return {
+    ...pageContext,
     method: requestMethod(input, init),
     devicePath: devicePath(url),
     device: hyperbeamDevice(url),
@@ -161,8 +173,15 @@ function requestSummary(url: string, input: RequestInfo | URL, init?: RequestIni
   };
 }
 
-async function responseSummary(url: string, response: Response, elapsedMs: number, fallbackSourceLayer?: string) {
+async function responseSummary(
+  url: string,
+  response: Response,
+  elapsedMs: number,
+  fallbackSourceLayer?: string,
+  pageContext: Record<string, any> = pageContextSummary()
+) {
   const summary: Record<string, any> = {
+    ...pageContext,
     status: response.status,
     ok: response.ok,
     elapsedMs,
@@ -175,9 +194,16 @@ async function responseSummary(url: string, response: Response, elapsedMs: numbe
     acceptRanges: response.headers.get('accept-ranges'),
     mediaMs: response.headers.get('x-odysee-media-ms'),
     mediaBlobs: response.headers.get('x-odysee-media-blobs'),
+    responseDevice: response.headers.get('device'),
     sourceLayer: response.headers.get('x-odysee-source-layer') || fallbackSourceLayer,
     sourceReason: redactSensitive(response.headers.get('x-odysee-source-reason') || undefined),
   };
+  const signatureInput = response.headers.get('signature-input') || '';
+  summary.sourceAlg = nativeResponseDevice(response.headers.get('device'));
+  if (signatureInput) {
+    summary.signatureInput = redactSensitiveString(signatureInput.slice(0, 900));
+    summary.sourceAlg = sourceCommitmentAlg(signatureInput) || nativeResponseDevice(response.headers.get('device'));
+  }
 
   if (!response.ok || (response.headers.get('content-type') || '').includes('application/json')) {
     summary.body = await response
@@ -190,6 +216,15 @@ async function responseSummary(url: string, response: Response, elapsedMs: numbe
   }
 
   return summary;
+}
+
+function pageContextSummary() {
+  if (typeof window === 'undefined') return {};
+
+  return {
+    pageUrl: sanitizeUrl(window.location.href),
+    pagePath: `${window.location.pathname}${window.location.search}${window.location.hash}`,
+  };
 }
 
 function sourceLayer(body: any) {
@@ -211,7 +246,7 @@ function sourceLayer(body: any) {
     if (layer.source === 'backend_api_proxy' || String(layer.source?.source || '').startsWith('backend_api_proxy')) {
       return 'native:sdk-proxy';
     }
-    return layer.verification?.status === 'verified' ? 'native:verified' : 'native:unverified';
+    return 'native-device';
   }
   if (layer.native === false) {
     if (layer.fallback === false && layer.source) return 'native-failed';
@@ -220,6 +255,15 @@ function sourceLayer(body: any) {
     return `fallback:${fallback}`;
   }
   return layer;
+}
+
+function sourceCommitmentAlg(signatureInput: string) {
+  const match = signatureInput.match(/alg="(lbry-[^"]+)"/);
+  return match?.[1];
+}
+
+function nativeResponseDevice(device: string | null) {
+  return device?.startsWith('lbry-') ? device : undefined;
 }
 
 function previewBody(text: string) {

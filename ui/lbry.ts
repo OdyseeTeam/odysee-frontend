@@ -6,9 +6,8 @@ import { PROXY_URL_NO_CF } from 'config';
 import { getAuthToken } from 'util/saved-passwords';
 import {
   HYPERBEAM_DEVICE,
-  hyperbeamDeviceBase,
-  hyperbeamMethodDevice,
   hyperbeamNodeBase,
+  hyperbeamSdkPostParams64,
   isHyperbeamMethodEnabled,
 } from 'util/hyperbeamDevices';
 import { isHyperbeamFullMode, shouldSendHyperbeamAuthHeaders } from 'util/hyperbeamMode';
@@ -445,20 +444,9 @@ function stripHyperbeamNodeOnlyParams(params: Record<string, any>) {
 }
 
 function hyperbeamNodeFetchJson(key: string, paramName: string, value: any): Promise<any> | null {
-  const encoded = base64Url(JSON.stringify(value));
   if (isHyperbeamFullMode()) {
-    const base = hyperbeamNodeBase();
-    if (!base) return null;
-    const sdkParams = hyperbeamSdkParams(paramName, value);
-    const sdkEncoded = base64Url(JSON.stringify(sdkParams));
-
-    const request = fetch(
-      `${base}/${HYPERBEAM_DEVICE.odysee}/sdk?method=${encodeURIComponent(key)}&params64=${sdkEncoded}`,
-      {
-        method: 'POST',
-        headers: hyperbeamNodeRequestHeaders(),
-      }
-    );
+    const request = hyperbeamSdkPostParams64(key, value, hyperbeamNodeRequestHeaders(), paramName);
+    if (!request) return null;
 
     return fetchWithTimeout(60000, request).then((response: Response | string) => {
       if (typeof response !== 'object') {
@@ -471,31 +459,16 @@ function hyperbeamNodeFetchJson(key: string, paramName: string, value: any): Pro
 
   if (!isHyperbeamMethodEnabled(key)) return null;
 
-  const device = hyperbeamMethodDevice(key);
-  const base = hyperbeamDeviceBase(device);
-  if (!base) return null;
-
-  const request = fetch(`${base}/${key}`, {
-    method: 'POST',
-    headers: {
-      ...hyperbeamNodeRequestHeaders(),
-      'content-type': 'application/json',
-    },
-    body: JSON.stringify({ [paramName]: encoded }),
-  });
+  const request = hyperbeamSdkPostParams64(key, value, hyperbeamNodeRequestHeaders(), paramName);
+  if (!request) return null;
 
   return fetchWithTimeout(60000, request).then((response: Response | string) => {
     if (typeof response !== 'object') {
-      throw new Error(`${key}: HyperBEAM device fetch failed`);
+      throw new Error(`${key}: HyperBEAM SDK fallback fetch failed`);
     }
 
     return checkAndParse(response, key).then(unwrapJsonRpcResult);
   });
-}
-
-function hyperbeamSdkParams(paramName: string, value: any) {
-  if (paramName === 'urls64') return { urls: value };
-  return value || {};
 }
 
 function hyperbeamNodeRequestHeaders() {

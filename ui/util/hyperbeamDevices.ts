@@ -73,6 +73,27 @@ export function hyperbeamDevicePostParams64(
   return hyperbeamDevicePostJson(device, key, { [paramName]: base64Url(JSON.stringify(value || {})) }, headers);
 }
 
+export function hyperbeamSdkPostParams64(
+  method: string,
+  value: any,
+  headers: Record<string, string> = {},
+  paramName = 'params64'
+) {
+  const base = hyperbeamDeviceBase(HYPERBEAM_DEVICE.odysee);
+  if (!base) return null;
+
+  const params = paramName === 'urls64' ? { urls: value } : value || {};
+  const params64 = base64Url(JSON.stringify(params));
+
+  return fetch(`${base}/sdk?method=${encodeURIComponent(method)}&params64=${params64}`, {
+    method: 'POST',
+    headers: {
+      accept: 'application/json',
+      ...headers,
+    },
+  });
+}
+
 const HYBRID_PUBLIC_READ_METHODS = new Set([
   'resolve',
   'claim_search',
@@ -89,75 +110,12 @@ const HYBRID_PUBLIC_READ_METHODS = new Set([
 ]);
 
 export function isHyperbeamMethodEnabled(method: string) {
-  const device = hyperbeamMethodDevice(method);
-  if (!isHyperbeamDeviceEnabled(device)) return false;
   if (isHyperbeamFullMode()) return true;
   if (isHyperbeamHybridMode()) return HYBRID_PUBLIC_READ_METHODS.has(method);
   return false;
 }
 
 export function hyperbeamMethodDevice(method: string) {
-  if (
-    [
-      'resolve',
-      'claim_search',
-      'get',
-      'collection_resolve',
-      'collection_list',
-      'claim_list',
-      'support_list',
-      'transaction_show',
-      'file_list',
-      'purchase_list',
-      'txo_list',
-    ].includes(method)
-  ) {
-    return HYPERBEAM_DEVICE.claim;
-  }
-
-  if (['channel_list', 'channel_sign'].includes(method)) {
-    return HYPERBEAM_DEVICE.channel;
-  }
-
-  if (['stream_list', 'blob_list'].includes(method)) {
-    return HYPERBEAM_DEVICE.stream;
-  }
-
-  if (
-    [
-      'comment_list',
-      'comment_by_id',
-      'comment_get_channel_from_comment_id',
-      'reaction_list',
-      'setting_get',
-      'setting_list',
-      'commentron',
-    ].includes(method)
-  ) {
-    return HYPERBEAM_DEVICE.comment;
-  }
-
-  if (['livestream', 'livestream_whip'].includes(method)) {
-    return HYPERBEAM_DEVICE.livestream;
-  }
-
-  if (['search', 'recsys_fyp', 'recsys_entry'].includes(method)) {
-    return HYPERBEAM_DEVICE.search;
-  }
-
-  if (
-    [
-      'short_url',
-      'watchman_playback',
-      'metric_ui',
-      'report_content',
-      'publish_v4',
-      'publish_v4_tus',
-      'thumbnail_upload',
-    ].includes(method)
-  ) {
-    return HYPERBEAM_DEVICE.productEvents;
-  }
-
-  return HYPERBEAM_DEVICE.internalApis;
+  void method;
+  return HYPERBEAM_DEVICE.odysee;
 }

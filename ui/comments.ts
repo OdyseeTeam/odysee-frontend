@@ -1,5 +1,5 @@
 import { COMMENT_SERVER_API } from 'config';
-import { HYPERBEAM_DEVICE, hyperbeamDevicePostParams64 } from 'util/hyperbeamDevices';
+import { HYPERBEAM_DEVICE, hyperbeamSdkPostParams64 } from 'util/hyperbeamDevices';
 import { isHyperbeamDeviceEnabled, shouldAllowOriginalNetworkFallback } from 'util/hyperbeamMode';
 // prettier-ignore
 const Comments = {
@@ -40,7 +40,7 @@ function fetchHyperbeamNodeCommentRead(
     | 'setting_list',
   params: {}
 ) {
-  const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.comment, endpoint, params || {});
+  const request = hyperbeamSdkPostParams64(endpoint, params || {});
   if (!request) {
     if (!shouldAllowOriginalNetworkFallback()) {
       return Promise.resolve(emptyHyperbeamCommentResult(endpoint));
@@ -55,6 +55,10 @@ function fetchHyperbeamNodeCommentRead(
     .then((res) => {
       if (res.error) throw new Error(res.error.message || res.error);
       return Object.prototype.hasOwnProperty.call(res, 'result') ? res.result : res;
+    })
+    .catch((_error) => {
+      if (!shouldAllowOriginalNetworkFallback()) return emptyHyperbeamCommentResult(endpoint);
+      return fetchCommentsApi(commentReadMethod(endpoint), params || {});
     });
 }
 
@@ -82,7 +86,7 @@ function fetchCommentsApi(method: string, params: {}) {
     return Promise.reject('Comments are not currently enabled.'); // eslint-disable-line
   }
 
-  const request = hyperbeamDevicePostParams64(HYPERBEAM_DEVICE.comment, 'commentron', { method, params });
+  const request = hyperbeamSdkPostParams64('commentron', { method, params });
   if (request) {
     return request
       .then((res) => {
@@ -92,6 +96,10 @@ function fetchCommentsApi(method: string, params: {}) {
       .then((res) => {
         if (res.error) throw new Error(res.error.message || res.error);
         return Object.prototype.hasOwnProperty.call(res, 'result') ? res.result : res;
+      })
+      .catch((_error) => {
+        if (!shouldAllowOriginalNetworkFallback()) return emptyHyperbeamCommentApiResult(method);
+        return fetchCommentsApiOriginal(method, params);
       });
   }
 
@@ -99,6 +107,10 @@ function fetchCommentsApi(method: string, params: {}) {
     return Promise.resolve(emptyHyperbeamCommentApiResult(method));
   }
 
+  return fetchCommentsApiOriginal(method, params);
+}
+
+function fetchCommentsApiOriginal(method: string, params: {}) {
   const url = `${Comments.url}?m=${method}`;
   const options = {
     method: 'POST',

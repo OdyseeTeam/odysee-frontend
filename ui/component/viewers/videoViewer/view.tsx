@@ -206,11 +206,10 @@ function hyperbeamSourceLayerLabel(layer: any): string | undefined {
   if (!layer) return undefined;
   if (typeof layer === 'string') return layer;
   if (layer.native === true) {
-    if (layer.verification?.status === 'verified') return 'native:verified';
     if (layer.source === 'backend_api_proxy' || String(layer.source?.source || '').startsWith('backend_api_proxy')) {
       return 'native:sdk-proxy';
     }
-    return 'native:unverified';
+    return 'native-device';
   }
   if (layer.native === false) {
     const fallback = String(layer.fallback || layer.materialized_from || 'unknown');
@@ -307,7 +306,7 @@ async function hyperbeamDescriptorResponseBody(response: Response) {
 function hyperbeamMediaRangeVerification(result: any, expectedSdHash?: string) {
   const sourceLayer = result?.sourceLayer;
   const mediaBlobs = Number(result?.mediaBlobs);
-  const verifiedSourceLayer = sourceLayer === 'native' || sourceLayer === 'native:verified';
+  const verifiedSourceLayer = sourceLayer === 'native' || sourceLayer === 'native-device';
   const sdHashMatches = Boolean(expectedSdHash && result?.sdHash === expectedSdHash);
   return {
     expectedSdHash,

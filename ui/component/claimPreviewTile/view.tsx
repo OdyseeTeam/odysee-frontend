@@ -234,8 +234,23 @@ function ClaimPreviewTile(props: Props) {
     );
   }
 
+  const hyperbeamClaimDebugAttrs =
+    claim && claim.claim_id
+      ? {
+          'data-hyperbeam-claim-id': claim.claim_id,
+          'data-hyperbeam-claim-title': title || claim.name || '',
+          'data-hyperbeam-claim-uri': (claim.canonical_url || claim.permanent_url || uri || '') as string,
+          'data-hyperbeam-claim-txid': claim.txid || '',
+          'data-hyperbeam-claim-nout': claim.nout ?? '',
+          'data-hyperbeam-claim-type': claim.value_type || '',
+          'data-hyperbeam-claim-sd-hash': claim.value?.source?.sd_hash || '',
+          'data-hyperbeam-signing-channel-id': claim.signing_channel?.claim_id || '',
+        }
+      : {};
+
   return (
     <li
+      {...hyperbeamClaimDebugAttrs}
       onClick={handleClick}
       onMouseEnter={() => setTileHover(true)}
       onMouseLeave={() => setTileHover(false)}
