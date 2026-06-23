@@ -37,11 +37,45 @@ const ClaimCollectionAdd = (props: Props) => {
   const normalizedSearchText = searchText.trim().toLowerCase();
   const getCollectionLabel = React.useCallback((collection) => getTitleForCollection(collection) || '', []);
 
-  const matchCollection = (collection) =>
-    !normalizedSearchText || String(getCollectionLabel(collection)).toLowerCase().includes(normalizedSearchText);
+  const matchCollection = React.useCallback(
+    (collection) =>
+      !normalizedSearchText || String(getCollectionLabel(collection)).toLowerCase().includes(normalizedSearchText),
+    [getCollectionLabel, normalizedSearchText]
+  );
 
-  const unpublishedCollections = Object.values(unpublished) as any as Array<Collection>;
-  const publishedCollections = published ? (Object.values(published) as any as Array<Collection>) : [];
+  const unpublishedCollections = React.useMemo(
+    () => Object.values(unpublished) as any as Array<Collection>,
+    [unpublished]
+  );
+  const publishedCollections = React.useMemo(
+    () => (published ? (Object.values(published) as any as Array<Collection>) : []),
+    [published]
+  );
+  const playlistRows = React.useMemo(() => {
+    const usedIds = new Set<string>();
+    const sortCollections = (collections: Array<Collection>) =>
+      collections
+        .filter((collection) => collection && matchCollection(collection))
+        .sort((a, b) => getCollectionLabel(a).localeCompare(getCollectionLabel(b), undefined, { sensitivity: 'base' }));
+    const addRow = (rows: Array<{ id: string; icon: string }>, id: string, icon: string) => {
+      if (usedIds.has(id)) return rows;
+      usedIds.add(id);
+      return rows.concat({ id, icon });
+    };
+    let rows = COLS.BUILTIN_PLAYLISTS.reduce(
+      (allRows, id) => addRow(allRows, id, COLS.PLAYLIST_ICONS[id]),
+      [] as Array<{ id: string; icon: string }>
+    );
+
+    sortCollections(unpublishedCollections).forEach(({ id }) => {
+      rows = addRow(rows, id, ICONS.LOCK);
+    });
+    sortCollections(publishedCollections).forEach(({ id }) => {
+      rows = addRow(rows, id, ICONS.PLAYLIST);
+    });
+
+    return rows;
+  }, [getCollectionLabel, matchCollection, publishedCollections, unpublishedCollections]);
 
   if (fetchingMine) {
     return (
@@ -77,25 +111,9 @@ const ClaimCollectionAdd = (props: Props) => {
               />
             </Form>
           </li>
-          {COLS.BUILTIN_PLAYLISTS.map((id) => (
-            <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={COLS.PLAYLIST_ICONS[id]} />
+          {playlistRows.map(({ id, icon }) => (
+            <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={icon} />
           ))}
-          {unpublishedCollections
-            .filter((collection) => matchCollection(collection))
-            .sort((a, b) =>
-              getCollectionLabel(a).localeCompare(getCollectionLabel(b), undefined, { sensitivity: 'base' })
-            )
-            .map(({ id }) => (
-              <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.LOCK} />
-            ))}
-          {publishedCollections
-            .filter((collection) => matchCollection(collection))
-            .sort((a, b) =>
-              getCollectionLabel(a).localeCompare(getCollectionLabel(b), undefined, { sensitivity: 'base' })
-            )
-            .map(({ id }) => (
-              <CollectionSelectItem collectionId={id} uri={uri} key={id} icon={ICONS.PLAYLIST} />
-            ))}
         </ul>
       }
       actions={

@@ -42,10 +42,14 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
     const collectionItemCount = typeof rawCollectionItemCount === 'number' ? rawCollectionItemCount : 0;
 
     const collectionItems = useIds ? collectionIds : collectionUrls;
-    const shouldFetchCollectionItems = collectionItems === undefined || !collectionHasItemsResolved;
+    const hasResolvedCollectionItems =
+      Array.isArray(collectionItems) && (collectionItems.length > 0 || collectionItemCount === 0);
+    const effectiveCollectionHasItemsResolved = collectionHasItemsResolved || hasResolvedCollectionItems;
+    const shouldFetchCollectionItems = collectionItems === undefined || !effectiveCollectionHasItemsResolved;
     const hasNoResolvedItems = Array.isArray(collectionItems) && collectionItems.length === 0;
     const shouldKeepLoading =
-      collectionItems === undefined || (!collectionHasItemsResolved && collectionItemCount > 0 && hasNoResolvedItems);
+      collectionItems === undefined ||
+      (!effectiveCollectionHasItemsResolved && collectionItemCount > 0 && hasNoResolvedItems);
 
     React.useEffect(() => {
       if (!isPrivate) {
@@ -73,7 +77,7 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
         isPrivate={isPrivate}
         collectionUrls={collectionUrls}
         collectionIds={collectionIds}
-        collectionHasItemsResolved={collectionHasItemsResolved}
+        collectionHasItemsResolved={effectiveCollectionHasItemsResolved}
       />
     );
   };
