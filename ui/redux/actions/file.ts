@@ -21,6 +21,7 @@ import { makeSelectFileInfoForUri, selectOutpointFetchingForUri } from 'redux/se
 import { getStripeEnvironment } from 'util/stripe';
 import { getChannelIdFromClaim, isClaimUnlisted } from 'util/claim';
 import { toHex } from 'util/hex';
+import { fetchHyperbeamPlaybackUrl } from 'util/hyperbeam-playback';
 const stripeEnvironment = getStripeEnvironment();
 
 async function getOwnedClaimAccessKey(
@@ -186,7 +187,7 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
       environment: stripeEnvironment,
       ...accessKey,
     })
-      .then((streamInfo: GetResponse & { error?: string; purchase_receipt?: any; content_fee?: any }) => {
+      .then(async (streamInfo: GetResponse & { error?: string; purchase_receipt?: any; content_fee?: any }) => {
         const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
 
         if (timeout) {
@@ -203,12 +204,17 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
             })
           );
         } else {
-          if (streamInfo.purchase_receipt || streamInfo.content_fee) {
+          const hyperbeamPlaybackUrl = !accessKey ? await fetchHyperbeamPlaybackUrl(uri) : '';
+          const resolvedStreamInfo = hyperbeamPlaybackUrl
+            ? { ...streamInfo, streaming_url: hyperbeamPlaybackUrl }
+            : streamInfo;
+
+          if (resolvedStreamInfo.purchase_receipt || resolvedStreamInfo.content_fee) {
             dispatch({
               type: ACTIONS.PURCHASE_URI_COMPLETED,
               data: {
                 uri,
-                purchaseReceipt: streamInfo.purchase_receipt || streamInfo.content_fee,
+                purchaseReceipt: resolvedStreamInfo.purchase_receipt || resolvedStreamInfo.content_fee,
               },
             });
           }
@@ -229,13 +235,13 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
           dispatch({
             type: ACTIONS.FETCH_FILE_INFO_COMPLETED,
             data: {
-              fileInfo: streamInfo,
+              fileInfo: resolvedStreamInfo,
               outpoint: outpoint,
             },
           });
 
           if (onSuccess) {
-            onSuccess(streamInfo);
+            onSuccess(resolvedStreamInfo);
           }
         }
       })

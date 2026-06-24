@@ -3,18 +3,17 @@ import * as ACTIONS from 'constants/action_types';
 import * as REACTION_TYPES from 'constants/reactions';
 import { selectMyReactionForUri } from 'redux/selectors/reactions';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
+import { fetchHyperbeamFileReactionList } from 'util/hyperbeam';
 export const doFetchReactions = (claimId: string) => (dispatch: Dispatch) => {
   dispatch({
     type: ACTIONS.REACTIONS_LIST_STARTED,
   });
-  return Lbryio.call(
-    'reaction',
-    'list',
-    {
-      claim_ids: claimId,
-    },
-    'post'
-  )
+  const params = {
+    claim_ids: claimId,
+  };
+  return Lbryio.getAuthToken()
+    .then((authToken) => (authToken ? null : fetchHyperbeamFileReactionList(params).then((result) => result || null)))
+    .then((result) => result || Lbryio.call('reaction', 'list', params, 'post'))
     .then((reactions: Array<number>) => {
       dispatch({
         type: ACTIONS.REACTIONS_LIST_COMPLETED,

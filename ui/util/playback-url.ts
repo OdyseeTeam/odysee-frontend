@@ -51,6 +51,20 @@ export function isSignedOdycdnPlaybackUrl(src: string | null | undefined): boole
   }
 }
 
+export function isDirectOdycdnPlaybackUrl(src: string | null | undefined): boolean {
+  if (!src) return false;
+
+  try {
+    const baseUrl = typeof window !== 'undefined' ? window.location.href : undefined;
+    const url = new URL(src, baseUrl);
+    const host = url.hostname.toLowerCase();
+
+    return host === 'player.odycdn.com' && url.pathname.startsWith('/v6/streams/');
+  } catch {
+    return false;
+  }
+}
+
 export function isHlsManifestPlaybackUrl(src: string | null | undefined, contentType?: string | null): boolean {
   if (contentType && HLS_CONTENT_TYPES.has(contentType.toLowerCase())) return true;
   if (!src) return false;
@@ -61,6 +75,18 @@ export function isHlsManifestPlaybackUrl(src: string | null | undefined, content
     return url.pathname.toLowerCase().endsWith('.m3u8');
   } catch {
     return src.split(/[?#]/, 1)[0].toLowerCase().endsWith('.m3u8');
+  }
+}
+
+export function isHyperbeamPlaybackUrl(src: string | null | undefined): boolean {
+  if (!src) return false;
+
+  try {
+    const baseUrl = typeof window !== 'undefined' ? window.location.href : undefined;
+    const url = new URL(src, baseUrl);
+    return url.pathname.includes('/~lbry-stream@1.0/media') || url.pathname.includes('/~odysee-stream@1.0/media');
+  } catch {
+    return src.includes('~lbry-stream@1.0/media') || src.includes('~odysee-stream@1.0/media');
   }
 }
 
@@ -84,8 +110,10 @@ export function shouldSkipHeadProbeForSource(
   if (!src) return false;
 
   const signedOdycdnSource = isSignedOdycdnPlaybackUrl(src);
+  const directOdycdnSource = isDirectOdycdnPlaybackUrl(src);
+  const hyperbeamSource = isHyperbeamPlaybackUrl(src);
   const hlsManifest = isHlsManifestPlaybackUrl(src, contentType);
-  if (signedOdycdnSource) return hlsManifest;
+  if (hyperbeamSource || signedOdycdnSource || directOdycdnSource) return true;
   if (isProtectedContent && hlsManifest) return true;
 
   return Boolean(isProtectedContent && isHlsPlaybackUrl(src));
@@ -107,7 +135,7 @@ export async function resolveNonLivestreamSource(options: ResolveSourceOptions):
   }
 
   if (shouldSkipHeadProbeForSource(source, sourceType, isProtectedContent)) {
-    const isHls = isHlsManifestPlaybackUrl(source, sourceType) || (isProtectedContent && isHlsPlaybackUrl(source));
+    const isHls = isHlsManifestPlaybackUrl(source, sourceType) || isHlsPlaybackUrl(source);
     return {
       resolved: {
         src: source,

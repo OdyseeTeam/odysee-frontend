@@ -2,6 +2,7 @@ import analytics from 'analytics';
 import { FETCH_TIMEOUT, SDK_FETCH_TIMEOUT } from 'constants/errors';
 import { NO_AUTH, X_LBRY_AUTH_TOKEN } from 'constants/token';
 import fetchWithTimeout from 'util/fetch';
+import { fetchHyperbeamClaimSearch } from 'util/hyperbeam';
 import { PROXY_URL_NO_CF } from 'config';
 
 import 'proxy-polyfill';
@@ -78,7 +79,17 @@ const Lbry: LbryTypes = {
   // Claim fetching and manipulation
   resolve: (params) => daemonCallWithResult('resolve', params, handleAuthentication),
   get: (params) => daemonCallWithResult('get', params),
-  claim_search: (params) => daemonCallWithResult('claim_search', params, claimSearchParamHook),
+  claim_search: (params = {}) => {
+    const searchParams = claimSearchParamHook(params);
+
+    if (!searchParams[NO_AUTH]) {
+      return daemonCallWithResult('claim_search', searchParams);
+    }
+
+    return fetchHyperbeamClaimSearch(searchParams).then(
+      (result) => result || daemonCallWithResult('claim_search', searchParams)
+    );
+  },
   claim_list: (params) => daemonCallWithResult('claim_list', params),
   channel_create: (params) => daemonCallWithResult('channel_create', params),
   channel_update: (params) => daemonCallWithResult('channel_update', params),

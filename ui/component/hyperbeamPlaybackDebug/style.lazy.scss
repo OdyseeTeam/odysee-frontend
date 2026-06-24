@@ -1,0 +1,490 @@
+.hyperbeam-debug {
+  position: fixed;
+  right: 12px;
+  bottom: 12px;
+  z-index: 2147483647;
+  display: flex;
+  flex-direction: column;
+  width: min(820px, calc(100vw - 24px));
+  max-height: 74vh;
+  overflow: hidden;
+  border: 1px solid rgba(92, 109, 133, 0.62);
+  border-radius: 8px;
+  background: rgba(20, 24, 32, 0.98);
+  box-shadow:
+    0 18px 60px rgba(0, 0, 0, 0.58),
+    0 0 0 1px rgba(255, 255, 255, 0.04);
+  color: #e6edf7;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.hyperbeam-debug--closed {
+  width: min(440px, calc(100vw - 24px));
+  max-height: none;
+}
+
+.hyperbeam-debug__topbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: #0f131a;
+}
+
+.hyperbeam-debug__toggle {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 12px;
+  border: 0;
+  background: transparent;
+  color: #f8fafc;
+  cursor: pointer;
+  font: inherit;
+  text-align: left;
+
+  span,
+  small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span {
+    font-weight: 800;
+  }
+
+  small {
+    margin-top: 1px;
+    color: #8995a8;
+  }
+}
+
+.hyperbeam-debug__copy {
+  flex: 0 0 auto;
+  padding: 5px 10px;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 5px;
+  background: rgba(30, 41, 59, 0.72);
+  color: #e6edf7;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.hyperbeam-debug__close {
+  flex: 0 0 auto;
+  margin-right: 10px;
+  padding: 5px 9px;
+  border: 1px solid rgba(148, 163, 184, 0.36);
+  border-radius: 5px;
+  background: rgba(30, 41, 59, 0.72);
+  color: #e6edf7;
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.hyperbeam-debug__body {
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+}
+
+.hyperbeam-debug__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+
+  h2 {
+    margin: 0;
+    color: #f8fafc;
+    font-size: 22px;
+    line-height: 1.2;
+  }
+
+  p {
+    margin: 5px 0 0;
+    color: #93a0b3;
+  }
+
+  code {
+    flex: 0 0 auto;
+    padding: 4px 10px;
+    border-radius: 9999px;
+    color: #7ee787;
+    background: rgba(22, 101, 52, 0.42);
+    font-size: 12px;
+    font-weight: 800;
+  }
+}
+
+.hyperbeam-debug__eyebrow {
+  margin-bottom: 4px;
+  color: #8ea0b8;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.hyperbeam-debug__notice {
+  display: grid;
+  gap: 3px;
+  margin-bottom: 12px;
+  padding: 10px 12px;
+  border: 1px solid rgba(239, 68, 68, 0.38);
+  border-radius: 6px;
+  background: rgba(127, 29, 29, 0.28);
+  color: #fecaca;
+}
+
+.hyperbeam-debug__steps {
+  display: grid;
+  gap: 10px;
+}
+
+.hyperbeam-debug__step {
+  border: 1px solid rgba(101, 119, 145, 0.52);
+  border-left-width: 5px;
+  border-radius: 7px;
+  background: #1b2029;
+
+  summary {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: start;
+    gap: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+
+  summary::before {
+    content: '>';
+    color: #94a3b8;
+  }
+
+  &[open] summary::before {
+    content: 'v';
+  }
+
+  strong {
+    flex: 0 0 auto;
+    padding: 3px 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    font-weight: 800;
+    line-height: 1.2;
+    text-transform: lowercase;
+  }
+}
+
+.hyperbeam-debug__step-title {
+  color: #eef4ff;
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.hyperbeam-debug__step-subtitle {
+  grid-column: 2 / 3;
+  margin-top: -2px;
+  color: #8f9bad;
+  overflow-wrap: anywhere;
+}
+
+.hyperbeam-debug__step--ok {
+  border-left-color: #2ebd62;
+
+  strong {
+    color: #7ee787;
+    background: rgba(22, 101, 52, 0.42);
+  }
+}
+
+.hyperbeam-debug__step--trusted {
+  border-left-color: #d69e2e;
+
+  strong {
+    color: #f7c948;
+    background: rgba(146, 64, 14, 0.42);
+  }
+}
+
+.hyperbeam-debug__step--pending {
+  border-left-color: #64748b;
+
+  strong {
+    color: #cbd5e1;
+    background: rgba(71, 85, 105, 0.42);
+  }
+}
+
+.hyperbeam-debug__step--warn {
+  border-left-color: #d69e2e;
+
+  strong {
+    color: #f7c948;
+    background: rgba(146, 64, 14, 0.42);
+  }
+}
+
+.hyperbeam-debug__step--error {
+  border-left-color: #ef4444;
+
+  strong {
+    color: #fecaca;
+    background: rgba(127, 29, 29, 0.5);
+  }
+}
+
+.hyperbeam-debug__explain {
+  margin: 0 16px 12px;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+
+  h3 {
+    margin: 0 0 8px;
+    color: #67b7ff;
+    font-size: 16px;
+    font-style: italic;
+    font-weight: 900;
+  }
+
+  p {
+    max-width: 920px;
+    margin: 0;
+    color: #e1e7ef;
+    font-size: 14px;
+  }
+
+  p + p {
+    margin-top: 10px;
+  }
+}
+
+.hyperbeam-debug__catch {
+  color: #f2b632 !important;
+}
+
+.hyperbeam-debug__proof,
+.hyperbeam-debug__request-list {
+  margin: 0 16px 12px;
+}
+
+.hyperbeam-debug__section-label {
+  margin: 0 0 5px;
+  color: #9aa8bc;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: lowercase;
+}
+
+.hyperbeam-debug__proof dl {
+  display: grid;
+  grid-template-columns: minmax(150px, 0.22fr) 1fr;
+  gap: 7px 12px;
+  margin: 0;
+  padding: 14px;
+  border-radius: 6px;
+  background: #0d1219;
+}
+
+.hyperbeam-debug__proof dt {
+  color: #8f9bad;
+  font-weight: 800;
+}
+
+.hyperbeam-debug__proof dd {
+  min-width: 0;
+  margin: 0;
+  color: #e8edf5;
+  overflow-wrap: anywhere;
+}
+
+.hyperbeam-debug__request-list {
+  display: grid;
+  gap: 8px;
+}
+
+.hyperbeam-debug__request {
+  display: grid;
+  gap: 9px;
+  padding: 11px 12px;
+  border: 1px solid rgba(71, 85, 105, 0.78);
+  border-radius: 6px;
+  background: #0d1219;
+}
+
+.hyperbeam-debug__request--source {
+  border-color: rgba(46, 189, 98, 0.52);
+}
+
+.hyperbeam-debug__request--locator {
+  border-color: rgba(214, 158, 46, 0.5);
+}
+
+.hyperbeam-debug__request--playback,
+.hyperbeam-debug__request--media {
+  border-color: rgba(103, 183, 255, 0.42);
+}
+
+.hyperbeam-debug__request--error {
+  border-color: rgba(239, 68, 68, 0.7);
+}
+
+.hyperbeam-debug__request-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  color: #dce6f4;
+
+  code {
+    min-width: 0;
+    color: #f8fafc;
+    overflow-wrap: anywhere;
+  }
+
+  span:last-child {
+    color: #cbd5e1;
+  }
+}
+
+.hyperbeam-debug__request-kind {
+  padding: 2px 8px;
+  border-radius: 9999px;
+  background: rgba(46, 189, 98, 0.2);
+  color: #7ee787;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.hyperbeam-debug__request-note {
+  margin: 0;
+  color: #8f9bad;
+}
+
+.hyperbeam-debug__commitments {
+  display: grid;
+  gap: 8px;
+}
+
+.hyperbeam-debug__commitment {
+  display: grid;
+  gap: 5px;
+  padding: 10px 12px;
+  border: 1px solid rgba(71, 85, 105, 0.82);
+  border-left-width: 5px;
+  border-radius: 6px;
+  background: rgba(15, 23, 42, 0.78);
+
+  p {
+    margin: 0;
+    color: #9eabbc;
+    overflow-wrap: anywhere;
+  }
+}
+
+.hyperbeam-debug__commitment--source {
+  border-left-color: #2ebd62;
+  background: rgba(20, 83, 45, 0.22);
+}
+
+.hyperbeam-debug__commitment--node {
+  border-left-color: #67b7ff;
+}
+
+.hyperbeam-debug__commitment--derived {
+  border-left-color: #94a3b8;
+}
+
+.hyperbeam-debug__commitment-heading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+
+  span {
+    padding: 2px 9px;
+    border-radius: 9999px;
+    background: rgba(103, 183, 255, 0.16);
+    color: #67b7ff;
+    font-weight: 900;
+  }
+
+  strong {
+    color: #f8fafc;
+    font-size: 13px;
+  }
+}
+
+.hyperbeam-debug__raw {
+  color: #8f9bad;
+
+  summary {
+    cursor: pointer;
+  }
+
+  code {
+    display: block;
+    max-height: 120px;
+    margin-top: 7px;
+    overflow: auto;
+    padding: 10px;
+    border-radius: 6px;
+    background: #070b11;
+    color: #eef4ff;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 760px) {
+  .hyperbeam-debug {
+    right: 8px;
+    bottom: 8px;
+    width: calc(100vw - 16px);
+    max-height: 72vh;
+  }
+
+  .hyperbeam-debug--closed {
+    width: calc(100vw - 16px);
+  }
+
+  .hyperbeam-debug__body {
+    padding: 10px;
+  }
+
+  .hyperbeam-debug__header,
+  .hyperbeam-debug__request-line {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .hyperbeam-debug__step summary {
+    grid-template-columns: auto minmax(0, 1fr);
+
+    strong {
+      grid-column: 2 / 3;
+      justify-self: start;
+    }
+  }
+
+  .hyperbeam-debug__proof dl {
+    grid-template-columns: 1fr;
+  }
+}

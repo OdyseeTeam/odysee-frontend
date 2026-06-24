@@ -223,8 +223,10 @@ type ChannelCreateParam = {
 
 type VerifyClaimSignatureParams = {
   claim_id: string;
-  channel_name: string;
+  channel_name?: string;
+  channel_url?: string;
   channel_id: string;
+  public_key?: string;
   signature: string;
   signing_ts: string;
 };
