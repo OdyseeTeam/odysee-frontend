@@ -23,6 +23,8 @@ import ZoomableImage from 'component/zoomableImage';
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 const RE_STANDALONE_HTML_BREAK = /^\s*<br\s*\/?>\s*$/i;
 const RE_FENCED_CODE = /^\s*(```|~~~)/;
+const RE_BARE_HTTP_LINK = /(^|[\s([])((?:https?:\/\/|www\.)[^\s<>"]+)/gi;
+const TRAILING_LINK_PUNCTUATION = ".,;:!?'";
 
 function isEmote(title, src) {
   return (
@@ -67,6 +69,35 @@ function normalizeStandaloneHtmlBreaks(content: string) {
   });
 
   return normalizedLines.join('\n');
+}
+
+function stripTrailingLinkPunctuation(url: string) {
+  let end = url.length;
+
+  while (end > 0 && TRAILING_LINK_PUNCTUATION.includes(url.charAt(end - 1))) {
+    end--;
+  }
+
+  return {
+    link: url.slice(0, end),
+    trailing: url.slice(end),
+  };
+}
+
+function protectBareHttpLinks(content: string) {
+  return content.replace(RE_BARE_HTTP_LINK, (match, prefix, rawUrl) => {
+    if (prefix === '<') {
+      return match;
+    }
+
+    const { link, trailing } = stripTrailingLinkPunctuation(rawUrl);
+
+    if (!link) {
+      return match;
+    }
+
+    return `${prefix}<${link}>${trailing}`;
+  });
 }
 
 type SimpleTextProps = {
@@ -248,8 +279,9 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
   }
 
   const normalizedContent = typeof content === 'string' ? normalizeStandaloneHtmlBreaks(content) : content;
-  const strippedContent = normalizedContent
-    ? normalizedContent.replace(REPLACE_REGEX, (iframeHtml, iframeUrl) => {
+  const linkProtectedContent = typeof normalizedContent === 'string' ? protectBareHttpLinks(normalizedContent) : '';
+  const strippedContent = linkProtectedContent
+    ? linkProtectedContent.replace(REPLACE_REGEX, (iframeHtml, iframeUrl) => {
         if (platform.isSafari()) {
           return iframeUrl;
         }

@@ -49,7 +49,9 @@ const ClaimLink = (props: Props) => {
     return <span>{children}</span>;
   }
 
-  if (!claim) return null;
+  if (!claim) {
+    return <Button button="link" label={children} className="button--external-link" navigate={uri} />;
+  }
   const { value_type: valueType } = claim;
   const isChannel = valueType === 'channel';
 
