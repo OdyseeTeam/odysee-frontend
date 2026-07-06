@@ -75,6 +75,7 @@ const ShortsVideoPlayer = React.memo<Props>(
         <div className={`${SHORTS_PLAYER_WRAPPER_CLASS} ${primaryPlayerWrapperClass}`}>
           <VideoClaimInitiator
             uri={uri}
+            isShortsContext
             onSwipeNext={onSwipeNext}
             onSwipePrevious={onSwipePrevious}
             enableSwipe={enableSwipe}
