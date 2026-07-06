@@ -188,7 +188,7 @@ export const doStartFloatingPlayingUri =
     const canStartloatingPlayer = !isMature && isPlayable && (!isLivestreamClaim || isLive);
     const shortData = claim
       ? {
-          isShort: isClaimShort(claim),
+          isShort: typeof playingOptions.isShort === 'boolean' ? playingOptions.isShort : isClaimShort(claim),
         }
       : {};
     if (!canStartloatingPlayer) return;

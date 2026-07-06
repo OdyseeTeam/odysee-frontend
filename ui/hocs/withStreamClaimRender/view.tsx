@@ -342,6 +342,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         source: undefined,
         sourceId: claimLinkId,
         commentId: undefined,
+        isShort: isShortsContext ? true : undefined,
       };
       let check = playingOptions.uri === currentStreamingUri;
 
