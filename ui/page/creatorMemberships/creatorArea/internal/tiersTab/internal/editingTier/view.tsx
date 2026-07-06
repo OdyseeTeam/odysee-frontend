@@ -158,7 +158,6 @@ function MembershipEditTier(props: Props) {
       } else {
         // is edit
         const params: MembershipUpdateTierParams = {
-          id: membership.id,
           new_name: editTierParams.editTierName,
           new_description: editTierParams.editTierDescription,
           new_amount: price,

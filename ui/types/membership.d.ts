@@ -57,16 +57,23 @@ type MembershipCreateResponse = {
 };
 
 type MembershipUpdateTierParams = {
-  id: string;
-  name?: string;
-  description?: string;
-  price?: { amount: number; currency: string };
-  perks?: Array<string>;
+  membership_id: string;
+  new_name?: string;
+  new_description?: string;
+  new_amount?: number;
+  new_members_only_chat_enabled?: boolean;
   [key: string]: any;
 };
 
-type MembershipAddTierParams = Omit<MembershipUpdateTierParams, 'id'> & {
+type MembershipAddTierParams = {
   channel_id: string;
+  name: string;
+  description: string;
+  amount: number;
+  currency: string;
+  perks: string;
+  frequency: string;
+  payment_address?: string;
 };
 
 type MembershipBuyParams = {
