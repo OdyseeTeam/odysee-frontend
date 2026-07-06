@@ -24,7 +24,6 @@ import {
   doSetContentHistoryItem as doSetContentHistoryItemAction,
   doSetPrimaryUri as doSetPrimaryUriAction,
 } from 'redux/actions/content';
-import { doFileGetForUri as doFileGetForUriAction } from 'redux/actions/file';
 import {
   selectClaimIsNsfwForUri,
   selectClaimForUri,
@@ -36,7 +35,6 @@ import {
 } from 'redux/selectors/claims';
 import { selectBlackListedDataForUri, selectFilteredDataForUri } from 'lbryinc';
 import { makeSelectFileRenderModeForUri } from 'redux/selectors/content';
-import { makeSelectFileInfoForUri } from 'redux/selectors/file_info';
 import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { doToggleAppDrawer as doToggleAppDrawerAction } from 'redux/actions/app';
 import { selectClientSetting } from 'redux/selectors/settings';
@@ -125,25 +123,6 @@ function filteredInfo() {
   );
 }
 
-function isShortVideoMetadata(video: { duration?: number; height?: number; width?: number } | null | undefined) {
-  if (!video) return false;
-
-  const duration = Number(video.duration);
-  const width = Number(video.width);
-  const height = Number(video.height);
-
-  return (
-    Number.isFinite(duration) &&
-    duration > 0 &&
-    duration <= SETTINGS.SHORTS_DURATION_LTE &&
-    Number.isFinite(width) &&
-    width > 0 &&
-    Number.isFinite(height) &&
-    height > 0 &&
-    width / height <= SETTINGS.SHORTS_ASPECT_RATIO_LTE
-  );
-}
-
 function DeferredRecommendedContent({ uri, skipWait }: { uri: string; skipWait?: boolean }) {
   const content = (
     <React.Suspense fallback={null}>
@@ -176,7 +155,6 @@ const StreamClaimPage = (props: Props) => {
   const thumbnail = useAppSelector((state) => selectThumbnailForUri(state, uri));
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const renderMode = useAppSelector((state) => makeSelectFileRenderModeForUri(uri)(state));
-  const fileInfo = useAppSelector((state) => makeSelectFileInfoForUri(uri)(state));
   const commentsDisabledTag = useAppSelector((state) =>
     makeSelectTagInClaimOrChannelForUri(uri, TAGS.DISABLE_COMMENTS_TAG)(state)
   );
@@ -207,78 +185,7 @@ const StreamClaimPage = (props: Props) => {
   const collectionSidebarId = urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID);
   const disableShortsView = !!collectionSidebarId || disableShortsViewSetting;
   const shortsView = urlParams.get('view') === 'shorts';
-  const claimVideo = claim?.value?.video;
-  const shouldProbeShortVideo =
-    !isClaimShortValue &&
-    !disableShortsView &&
-    Boolean(claimVideo?.duration && claimVideo.duration <= SETTINGS.SHORTS_DURATION_LTE);
-  const [probedShortVideo, setProbedShortVideo] = React.useState<boolean | null>(null);
-  const isShortVideo = Boolean((isClaimShortValue || probedShortVideo) && !disableShortsView);
-
-  React.useEffect(() => {
-    setProbedShortVideo(null);
-  }, [uri]);
-
-  React.useEffect(() => {
-    if (!shouldProbeShortVideo) {
-      setProbedShortVideo(null);
-      return;
-    }
-
-    const fileInfoVideo = fileInfo?.metadata?.video;
-    if (isShortVideoMetadata(fileInfoVideo)) {
-      setProbedShortVideo(true);
-      return;
-    }
-
-    const streamingUrl = fileInfo?.streaming_url;
-    if (!streamingUrl) {
-      dispatch(doFileGetForUriAction(uri));
-      return;
-    }
-
-    let cancelled = false;
-    const video = document.createElement('video');
-
-    const cleanup = () => {
-      video.removeAttribute('src');
-      video.load();
-    };
-
-    const onLoadedMetadata = () => {
-      if (cancelled) return;
-
-      setProbedShortVideo(
-        isShortVideoMetadata({
-          duration: video.duration,
-          width: video.videoWidth,
-          height: video.videoHeight,
-        })
-      );
-      cleanup();
-    };
-
-    const onError = () => {
-      if (cancelled) return;
-      setProbedShortVideo(false);
-      cleanup();
-    };
-
-    video.preload = 'metadata';
-    video.muted = true;
-    video.playsInline = true;
-    video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
-    video.addEventListener('error', onError, { once: true });
-    video.src = streamingUrl;
-
-    return () => {
-      cancelled = true;
-      video.removeEventListener('loadedmetadata', onLoadedMetadata);
-      video.removeEventListener('error', onError);
-      cleanup();
-    };
-  }, [dispatch, fileInfo, shouldProbeShortVideo, uri]);
-
+  const isShortVideo = isClaimShortValue && !disableShortsView;
   React.useEffect(() => {
     if ((linkedCommentId || threadCommentId) && isMobile) {
       doToggleAppDrawer(DRAWERS.CHAT);
@@ -287,7 +194,7 @@ const StreamClaimPage = (props: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   React.useEffect(() => {
-    if (!isShortVideo && !shouldProbeShortVideo && shortsView) {
+    if (!isClaimShortValue && shortsView) {
       const urlParams = new URLSearchParams(search);
       urlParams.delete('view');
       const newSearch = urlParams.toString();
@@ -296,7 +203,7 @@ const StreamClaimPage = (props: Props) => {
       window.history.replaceState({}, '', newUrl);
       window.location.reload();
     }
-  }, [isShortVideo, shouldProbeShortVideo, shortsView, search]);
+  }, [isClaimShortValue, shortsView, search]);
   React.useEffect(() => {
     const urlParams = new URLSearchParams(search);
 
@@ -335,10 +242,6 @@ const StreamClaimPage = (props: Props) => {
           <LivestreamPage uri={uri} accessStatus={accessStatus} />
         </React.Suspense>
       );
-    }
-
-    if (shouldProbeShortVideo && probedShortVideo === null) {
-      return null;
     }
 
     if (isShortVideo) {
