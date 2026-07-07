@@ -4,9 +4,7 @@ import { formattedEmote } from 'util/remark-emote';
 import { formattedLinks } from 'util/remark-lbry';
 import { formattedTimestamp } from 'util/remark-timestamp';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
-import * as ICONS from 'constants/icons';
 import * as React from 'react';
-import Button from 'component/button';
 import classnames from 'classnames';
 import defaultSchema from 'hast-util-sanitize/lib/github.json';
 import MarkdownLink from 'component/markdownLink';
@@ -23,8 +21,13 @@ import ZoomableImage from 'component/zoomableImage';
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 const RE_STANDALONE_HTML_BREAK = /^\s*<br\s*\/?>\s*$/i;
 const RE_FENCED_CODE = /^\s*(```|~~~)/;
-const RE_BARE_HTTP_LINK = /(^|[\s([])((?:https?:\/\/|www\.)[^\s<>"]+)/gi;
+const RE_BARE_HTTP_LINK = /(^|[\s([])((?:https?:\/\/)[^\s<>"]+)/gi;
 const TRAILING_LINK_PUNCTUATION = ".,;:!?'";
+const TRAILING_LINK_PAIRS: Array<[string, string]> = [
+  ['(', ')'],
+  ['[', ']'],
+  ['{', '}'],
+];
 
 function isEmote(title, src) {
   return (
@@ -74,8 +77,32 @@ function normalizeStandaloneHtmlBreaks(content: string) {
 function stripTrailingLinkPunctuation(url: string) {
   let end = url.length;
 
-  while (end > 0 && TRAILING_LINK_PUNCTUATION.includes(url.charAt(end - 1))) {
-    end--;
+  while (end > 0) {
+    const last = url.charAt(end - 1);
+
+    if (TRAILING_LINK_PUNCTUATION.includes(last)) {
+      end--;
+      continue;
+    }
+
+    const pair = TRAILING_LINK_PAIRS.find(([, close]) => close === last);
+    if (pair) {
+      const slice = url.slice(0, end);
+      let opens = 0;
+      let closes = 0;
+
+      for (let i = 0; i < slice.length; i++) {
+        if (slice[i] === pair[0]) opens++;
+        else if (slice[i] === pair[1]) closes++;
+      }
+
+      if (closes > opens) {
+        end--;
+        continue;
+      }
+    }
+
+    break;
   }
 
   return {
@@ -108,12 +135,6 @@ type SimpleLinkProps = {
   title?: string;
   embed?: boolean;
   children?: React.ReactNode;
-};
-type ImageLinkProps = {
-  src: string;
-  title?: string;
-  alt?: string;
-  helpText?: string;
 };
 type MarkdownProps = {
   strip?: boolean;
@@ -209,31 +230,6 @@ const SimpleLink = (props: SimpleLinkProps) => {
 
   // Dummy link (no 'href')
   return <a title={title}>{children}</a>;
-};
-
-// ****************************************************************************
-// ****************************************************************************
-const SimpleImageLink = (props: ImageLinkProps) => {
-  const { src, title, alt, helpText } = props;
-
-  if (!src) {
-    return null;
-  }
-
-  if (isEmote(title, src)) {
-    return <OptimizedImage src={src} title={title} className="emote" loading="lazy" />;
-  }
-
-  return (
-    <Button
-      button="link"
-      iconRight={ICONS.EXTERNAL}
-      label={title || alt || src}
-      title={helpText || title || alt || src}
-      className="button--external-link"
-      href={src}
-    />
-  );
 };
 
 // ****************************************************************************
@@ -390,18 +386,11 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
               );
             }
 
-            if ((isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isEmote(title, src)) {
-              return <ZoomableImage alt={alt} title={title} src={imageCdnUrl} />;
+            if (isEmote(title, src)) {
+              return <OptimizedImage src={imageCdnUrl} title={title} className="emote" loading="lazy" />;
             }
 
-            return (
-              <SimpleImageLink
-                src={imageCdnUrl}
-                alt={alt}
-                title={title}
-                helpText={__('Odysee Premium required to enable image previews')}
-              />
-            );
+            return <ZoomableImage alt={alt} title={title} src={imageCdnUrl} />;
           },
         }}
       >
