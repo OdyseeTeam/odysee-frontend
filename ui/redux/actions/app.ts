@@ -6,7 +6,7 @@ import * as SETTINGS from 'constants/settings';
 import * as SHARED_PREFERENCES from 'constants/shared_preferences';
 import Lbry from 'lbry';
 import { doFetchChannelListMine, doCheckPendingClaims } from 'redux/actions/claims';
-import { doFetchCollectionListMine } from 'redux/actions/collections';
+import { doFetchCollectionListMine, doResumePendingAutoPublishes } from 'redux/actions/collections';
 import { doFetchPersonalRecommendations } from 'redux/actions/search';
 import { doFetchViewHistory } from 'redux/actions/content';
 import { selectClaimForUri, selectClaimIsMineForUri } from 'redux/selectors/claims';
@@ -469,7 +469,7 @@ export function doSignIn() {
     dispatch(doCheckPendingClaims(() => {}));
     dispatch(doBalanceSubscribe());
     dispatch(doFetchChannelListMine());
-    dispatch(doFetchCollectionListMine());
+    dispatch(doFetchCollectionListMine()).then(() => dispatch(doResumePendingAutoPublishes()));
     dispatch(doMembershipMine());
     dispatch(doTipAccountStatus());
     dispatch(doFetchPersonalRecommendations());

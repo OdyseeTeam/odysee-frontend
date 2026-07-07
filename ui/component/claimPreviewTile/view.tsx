@@ -125,16 +125,24 @@ function ClaimPreviewTile(props: Props) {
   const canonicalUrl = claim && claim.canonical_url;
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId || '';
+  const isClaimShortValue = Boolean(claim && isClaimShort(claim));
+  const isShortsSection = Boolean(isShortFromChannelPage || sectionTitle === 'Shorts');
+  const shouldUseShortsView = !disableShortsView && (isClaimShortValue || isShortsSection);
+  const hasListSearchParams = Boolean(listId);
+  const shortsViewParam = shouldUseShortsView ? `${hasListSearchParams ? '&' : '?'}view=shorts` : '';
+  const fypParam = fypId ? `${hasListSearchParams || shouldUseShortsView ? '&' : '?'}${FYP_ID}=${fypId}` : '';
+  const fromChannelParam =
+    isShortsSection && !disableShortsView
+      ? `${hasListSearchParams || shouldUseShortsView || fypId ? '&' : '?'}from=channel`
+      : '';
   const navigateUrl =
     isCollection && defaultCollectionAction === COLLECTIONS.DEFAULT_ACTION_VIEW
       ? `/$/${PAGES.PLAYLIST}/${listId}`
       : formatLbryUrlForWeb(canonicalUrl || uri || '/') +
         (listId ? generateListSearchUrlParams(listId) : '') +
-        (claim && isClaimShort(claim) && !disableShortsView ? '?view=shorts' : '') +
-        (fypId ? `${claim && isClaimShort(claim) ? '&' : '?'}${FYP_ID}=${fypId}` : '') +
-        (isShort && isShortFromChannelPage && !disableShortsView
-          ? `${(claim && isClaimShort(claim)) || fypId ? '&' : '?'}from=channel`
-          : '');
+        shortsViewParam +
+        fypParam +
+        fromChannelParam;
   // sigh...
   const navLinkProps = {
     to: navigateUrl,
@@ -156,7 +164,7 @@ function ClaimPreviewTile(props: Props) {
   const ariaLabelData = isChannel
     ? title
     : formatClaimPreviewTitle(title, channelTitle, date ? date.getTime() : null, mediaDuration);
-  const useShortsThumb = sectionTitle === 'Shorts' || queryParams.get('view') === 'shortsTab';
+  const useShortsThumb = isShortsSection || queryParams.get('view') === 'shortsTab';
   let shouldHide = false;
 
   if (isMature && !showMature) {
@@ -242,8 +250,8 @@ function ClaimPreviewTile(props: Props) {
       className={classnames('claim-preview__wrapper claim-preview--tile', {
         'claim-preview__wrapper--channel': isChannel,
         'claim-preview__wrapper--live': isLivestreamActive,
-        'claim-preview__wrapper--short': isShort && sectionTitle === 'Shorts',
-        'claim-preview__wrapper--short-cover': isShort && isShortFromChannelPage,
+        'claim-preview__wrapper--short': isShortsSection,
+        'claim-preview__wrapper--short-cover': isShortsSection,
       })}
     >
       {/* Use div instead of NavLink to avoid invalid <a> nesting with hover action buttons */}
@@ -282,7 +290,7 @@ function ClaimPreviewTile(props: Props) {
         style={{ cursor: isPreview ? 'default' : 'pointer' }}
       >
         <FileThumbnail
-          isShort={isShort}
+          isShort={isShort || isShortsSection}
           thumbnail={thumbnailUrl}
           allowGifs
           tileLayout

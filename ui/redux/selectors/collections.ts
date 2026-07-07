@@ -11,6 +11,7 @@ import {
   selectResolvedCollectionsById,
   selectMyCollectionClaimsById,
   selectClaimIsMineForId,
+  selectFailedToResolveIds,
 } from 'redux/selectors/claims';
 import { normalizeURI, parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
@@ -431,9 +432,32 @@ export const selectClaimIdsForCollectionId = createSelector(
     if (!items || !isPrivate) return items;
     const ids = new Set<string | null>();
     const notFetched = items.some((item) => {
-      const claimId = byUri[normalizeURI(item)];
+      // Items can be bare claim ids (e.g. stored from a published claim before
+      // its items resolved) — use them directly instead of blocking on resolve.
+      if (HEX_CLAIM_ID.test(item)) {
+        ids.add(item);
+        return false;
+      }
+
+      let claimId;
+      try {
+        claimId = byUri[normalizeURI(item)];
+      } catch (e) {
+        claimId = byUri[item];
+      }
 
       if (claimId === undefined) {
+        // Permanent urls embed the full claim id — fall back to it so an
+        // unresolved (but known) item doesn't block publishing the whole list.
+        try {
+          const { streamClaimId, channelClaimId, isChannel } = parseURI(item);
+          const embeddedId = isChannel ? channelClaimId : streamClaimId;
+
+          if (embeddedId && HEX_CLAIM_ID.test(embeddedId)) {
+            ids.add(embeddedId);
+            return false;
+          }
+        } catch (e) {}
         return true;
       }
 
@@ -464,7 +488,8 @@ export const selectUrlsForCollectionId = createCachedSelector(
   (state, collectionId, itemCount) => itemCount,
   selectItemsForCollectionId,
   selectClaimsById,
-  (collectionId, itemCount, items, claimsById) => {
+  selectFailedToResolveIds,
+  (collectionId, itemCount, items, claimsById, failedToResolveIds) => {
     if (!items) return items;
     const uris: string[] = [];
     let notFetched;
@@ -477,7 +502,10 @@ export const selectUrlsForCollectionId = createCachedSelector(
         if (claim) {
           const uri = claim.permanent_url || claim.canonical_url;
           if (uri) uris.push(uri);
-        } else if (claim === undefined) {
+        } else if (claim === undefined && !failedToResolveIds.includes(item)) {
+          // failed-to-resolve items are treated like unavailable ones instead of
+          // "still loading" — otherwise one failed claim_search left the whole
+          // collection stuck in a permanent loading state.
           notFetched = true;
         }
         // claim === null → resolved as abandoned/deleted; skip so consumers never receive a raw claim ID as a URI.
