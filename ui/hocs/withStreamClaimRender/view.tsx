@@ -197,6 +197,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       (forceAutoplayParam ||
         urlTimeParam ||
         (isLivestreamClaim ? isCurrentClaimLive : autoplay) ||
+        isShortsContext ||
         (isShortsContext && autoplayNextShort));
     const autoplayVideo =
       !claimLinkId &&
