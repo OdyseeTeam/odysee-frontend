@@ -190,6 +190,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       delete window.__shortsAutoPlayNext;
       alreadyPlaying.current = false;
     }
+    const forcedAutoplay = Boolean(forceAutoplayParam || shortsAutoPlayOverride);
 
     const autoplayEnabled =
       !forceDisableAutoplay &&
@@ -203,7 +204,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       !claimLinkId &&
       !isCastSessionActive() &&
       (autoplayEnabled || playingCollectionId) &&
-      (!alreadyPlaying.current || currentUriPlaying || (!isFloatingContext && autoplay)) &&
+      (forcedAutoplay || !alreadyPlaying.current || currentUriPlaying || (!isFloatingContext && autoplay)) &&
       isPlayable;
     const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
@@ -295,7 +296,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
           if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
-            if (autoplay || shortsAutoPlayOverride) updateClaim('a & d & !claimLinkId video');
+            if (autoplay || forcedAutoplay) updateClaim('a & d & !claimLinkId video');
           } else {
             // Non video claims
             updateClaim('a & d & !claimLinkId nonVideo');
