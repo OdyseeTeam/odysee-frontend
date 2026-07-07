@@ -396,9 +396,16 @@ const ClaimPreview = forwardRef<any, Props>((props: Props, ref: any) => {
     dispatch(doClearContentHistoryUri(uri));
   }
 
+  // Bound resolve attempts per uri: when a resolve fails, `isResolvingUri`
+  // flips back to false while `shouldFetch` stays true, which used to
+  // re-dispatch in a tight render loop (thousands of requests/sec during a
+  // backend hiccup).
+  const resolveAttemptsRef = React.useRef({});
   useEffect(() => {
     if (!isResolvingUri && shouldFetch && uri) {
-      if (isURIValid(uri, false)) {
+      const attempts = resolveAttemptsRef.current[uri] || 0;
+      if (attempts < 3 && isURIValid(uri, false)) {
+        resolveAttemptsRef.current[uri] = attempts + 1;
         dispatch(doResolveUri(uri));
       }
     }

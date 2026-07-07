@@ -211,6 +211,7 @@ function ContentTab(props: Props) {
               ? {
                   duration: `<=${SETTINGS.SHORTS_DURATION_LTE}`,
                   contentType: CS.FILE_VIDEO,
+                  contentAspectRatio: `<=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
                   sectionTitle: 'Shorts',
                 }
               : {})}
