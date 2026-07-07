@@ -612,6 +612,7 @@ export default function ShortsPage(props: Props) {
       transitionTimerRef.current = setTimeout(() => {
         const activeTransition = activeTransitionRef.current;
         if (!activeTransition) return;
+        window.__shortsAutoPlayNext = true;
         clearPosition(activeTransition.sourceUri);
         doClearPlayingUri();
         navigate(getShortsUrl(activeTransition.targetUri), { replace: true });
