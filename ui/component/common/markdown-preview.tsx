@@ -23,8 +23,13 @@ import ZoomableImage from 'component/zoomableImage';
 const RE_EMOTE = /:\+1:|:-1:|:[\w-]+:/;
 const RE_STANDALONE_HTML_BREAK = /^\s*<br\s*\/?>\s*$/i;
 const RE_FENCED_CODE = /^\s*(```|~~~)/;
-const RE_BARE_HTTP_LINK = /(^|[\s([])((?:https?:\/\/|www\.)[^\s<>"]+)/gi;
+const RE_BARE_HTTP_LINK = /(^|[\s([])((?:https?:\/\/)[^\s<>"]+)/gi;
 const TRAILING_LINK_PUNCTUATION = ".,;:!?'";
+const TRAILING_LINK_PAIRS: Array<[string, string]> = [
+  ['(', ')'],
+  ['[', ']'],
+  ['{', '}'],
+];
 
 function isEmote(title, src) {
   return (
@@ -74,8 +79,32 @@ function normalizeStandaloneHtmlBreaks(content: string) {
 function stripTrailingLinkPunctuation(url: string) {
   let end = url.length;
 
-  while (end > 0 && TRAILING_LINK_PUNCTUATION.includes(url.charAt(end - 1))) {
-    end--;
+  while (end > 0) {
+    const last = url.charAt(end - 1);
+
+    if (TRAILING_LINK_PUNCTUATION.includes(last)) {
+      end--;
+      continue;
+    }
+
+    const pair = TRAILING_LINK_PAIRS.find(([, close]) => close === last);
+    if (pair) {
+      const slice = url.slice(0, end);
+      let opens = 0;
+      let closes = 0;
+
+      for (let i = 0; i < slice.length; i++) {
+        if (slice[i] === pair[0]) opens++;
+        else if (slice[i] === pair[1]) closes++;
+      }
+
+      if (closes > opens) {
+        end--;
+        continue;
+      }
+    }
+
+    break;
   }
 
   return {
