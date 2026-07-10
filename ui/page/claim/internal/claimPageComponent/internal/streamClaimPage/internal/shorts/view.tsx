@@ -544,7 +544,8 @@ export default function ShortsPage(props: Props) {
     );
   }, [navigate, pathname, search]);
   const getShortsUrl = React.useCallback((shortUri: string) => {
-    return shortUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+    const baseUrl = shortUri.replace('lbry://', '/').replace(/#/g, ':');
+    return `${baseUrl}?view=shorts&autoplay=1`;
   }, []);
   const clearTransitionTimers = React.useCallback(() => {
     if (transitionTimerRef.current) {
@@ -612,6 +613,7 @@ export default function ShortsPage(props: Props) {
       transitionTimerRef.current = setTimeout(() => {
         const activeTransition = activeTransitionRef.current;
         if (!activeTransition) return;
+        window.__shortsAutoPlayNext = true;
         clearPosition(activeTransition.sourceUri);
         doClearPlayingUri();
         navigate(getShortsUrl(activeTransition.targetUri), { replace: true });
