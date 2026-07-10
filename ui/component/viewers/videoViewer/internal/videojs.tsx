@@ -1155,8 +1155,21 @@ function VideoJsInner(props: Props) {
 
   const unmuteAndHideHint = useCallback(() => {
     if (media) {
-      media.muted = false;
+      if (window.player?.muted) {
+        try {
+          window.player.muted(false);
+        } catch {
+          media.muted = false;
+        }
+      } else {
+        media.muted = false;
+      }
+
       if (media.volume === 0) media.volume = 1.0;
+
+      if (media.paused) {
+        media.play().catch(() => {});
+      }
     }
     hideTapToUnmuteHint();
   }, [hideTapToUnmuteHint, media]);

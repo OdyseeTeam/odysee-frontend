@@ -132,7 +132,7 @@ function ClaimPreviewTile(props: Props) {
   const shortsViewParam = shouldUseShortsView ? `${hasListSearchParams ? '&' : '?'}view=shorts` : '';
   const fypParam = fypId ? `${hasListSearchParams || shouldUseShortsView ? '&' : '?'}${FYP_ID}=${fypId}` : '';
   const fromChannelParam =
-    isShortsSection && !disableShortsView
+    isShortFromChannelPage && !disableShortsView
       ? `${hasListSearchParams || shouldUseShortsView || fypId ? '&' : '?'}from=channel`
       : '';
   const navigateUrl =
