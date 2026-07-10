@@ -4,9 +4,7 @@ import { formattedEmote } from 'util/remark-emote';
 import { formattedLinks } from 'util/remark-lbry';
 import { formattedTimestamp } from 'util/remark-timestamp';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
-import * as ICONS from 'constants/icons';
 import * as React from 'react';
-import Button from 'component/button';
 import classnames from 'classnames';
 import defaultSchema from 'hast-util-sanitize/lib/github.json';
 import MarkdownLink from 'component/markdownLink';
@@ -138,12 +136,6 @@ type SimpleLinkProps = {
   embed?: boolean;
   children?: React.ReactNode;
 };
-type ImageLinkProps = {
-  src: string;
-  title?: string;
-  alt?: string;
-  helpText?: string;
-};
 type MarkdownProps = {
   strip?: boolean;
   content: string | null | undefined;
@@ -238,31 +230,6 @@ const SimpleLink = (props: SimpleLinkProps) => {
 
   // Dummy link (no 'href')
   return <a title={title}>{children}</a>;
-};
-
-// ****************************************************************************
-// ****************************************************************************
-const SimpleImageLink = (props: ImageLinkProps) => {
-  const { src, title, alt, helpText } = props;
-
-  if (!src) {
-    return null;
-  }
-
-  if (isEmote(title, src)) {
-    return <OptimizedImage src={src} title={title} className="emote" loading="lazy" />;
-  }
-
-  return (
-    <Button
-      button="link"
-      iconRight={ICONS.EXTERNAL}
-      label={title || alt || src}
-      title={helpText || title || alt || src}
-      className="button--external-link"
-      href={src}
-    />
-  );
 };
 
 // ****************************************************************************
@@ -419,18 +386,11 @@ export default React.memo<MarkdownProps>(function MarkdownPreview(props: Markdow
               );
             }
 
-            if ((isStakeEnoughForPreview(stakedLevel) || hasMembership) && !isEmote(title, src)) {
-              return <ZoomableImage alt={alt} title={title} src={imageCdnUrl} />;
+            if (isEmote(title, src)) {
+              return <OptimizedImage src={imageCdnUrl} title={title} className="emote" loading="lazy" />;
             }
 
-            return (
-              <SimpleImageLink
-                src={imageCdnUrl}
-                alt={alt}
-                title={title}
-                helpText={__('Odysee Premium required to enable image previews')}
-              />
-            );
+            return <ZoomableImage alt={alt} title={title} src={imageCdnUrl} />;
           },
         }}
       >
