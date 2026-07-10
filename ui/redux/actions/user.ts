@@ -1,7 +1,6 @@
 import analytics from 'analytics';
 import Lbry from 'lbry';
 import { doFetchChannelListMine } from 'redux/actions/claims';
-import { batchActions } from 'util/batch-actions';
 import * as ACTIONS from 'constants/action_types';
 import { doFetchGeoBlockedList } from 'redux/actions/blocked';
 import { doClaimRewardType, doRewardList } from 'redux/actions/rewards';
@@ -990,53 +989,75 @@ export function doUserSetCountry(country) {
   };
 }
 export function doClaimYoutubeChannels() {
-  return (dispatch) => {
+  return async (dispatch) => {
     dispatch({
       type: ACTIONS.USER_YOUTUBE_IMPORT_STARTED,
     });
-    let transferResponse;
-    return Lbry.address_list({
-      page: 1,
-      page_size: 99999,
-    })
-      .then((addressList) => addressList.items[0])
-      .then((address) =>
-        Lbryio.call('yt', 'transfer', {
-          address: address.address,
-          public_key: address.pubkey,
-        }).then((response) => {
-          if (response && response.length) {
-            transferResponse = response;
-            return Promise.all(
-              response.map((channelMeta) => {
-                if (channelMeta && channelMeta.channel && channelMeta.channel.channel_certificate) {
-                  return Lbry.channel_import({
-                    channel_data: channelMeta.channel.channel_certificate,
-                  });
-                }
 
-                return null;
-              })
-            ).then(() => {
-              const actions: any[] = [
-                {
-                  type: ACTIONS.USER_YOUTUBE_IMPORT_SUCCESS,
-                  data: transferResponse,
-                },
-              ];
-              actions.push(doUserFetch());
-              actions.push(doFetchChannelListMine());
-              dispatch(batchActions(...actions));
+    try {
+      const addressList = await Lbry.address_list({ page: 1, page_size: 99999 });
+      const address = addressList.items[0];
+
+      const transferResponse = await Lbryio.call('yt', 'transfer', {
+        address: address.address,
+        public_key: address.pubkey,
+      });
+
+      if (!transferResponse || !transferResponse.length) {
+        dispatch({ type: ACTIONS.USER_YOUTUBE_IMPORT_FAILURE, data: '' });
+        return;
+      }
+
+      const imports = await Promise.allSettled(
+        transferResponse.map((channelMeta) => {
+          if (channelMeta && channelMeta.channel && channelMeta.channel.channel_certificate) {
+            return Lbry.channel_import({
+              channel_data: channelMeta.channel.channel_certificate,
             });
           }
+          return Promise.resolve(null);
         })
-      )
-      .catch((error) => {
+      );
+      const importRejected = imports.some((result) => result.status === 'rejected');
+
+      const channelList = await Lbry.channel_list({ page: 1, page_size: 99999 });
+      const hasSigningKeyById = {};
+      (channelList.items || []).forEach((claim) => {
+        hasSigningKeyById[claim.claim_id] = claim.has_signing_key === true;
+      });
+      const missingSigningKey = transferResponse.filter(
+        (channelMeta) => channelMeta.channel_claim_id && !hasSigningKeyById[channelMeta.channel_claim_id]
+      );
+
+      dispatch(doUserFetch());
+      dispatch(doFetchChannelListMine());
+
+      if (importRejected || missingSigningKey.length > 0) {
+        const names = missingSigningKey
+          .map((channelMeta) => channelMeta.lbry_channel_name)
+          .filter(Boolean)
+          .join(', ');
         dispatch({
           type: ACTIONS.USER_YOUTUBE_IMPORT_FAILURE,
-          data: String(error),
+          data: names
+            ? __('Could not import the signing key for %channels%. Please try again or contact support.', {
+                channels: names,
+              })
+            : __('Could not import your channel signing key. Please try again or contact support.'),
         });
+        return;
+      }
+
+      dispatch({
+        type: ACTIONS.USER_YOUTUBE_IMPORT_SUCCESS,
+        data: transferResponse,
       });
+    } catch (error) {
+      dispatch({
+        type: ACTIONS.USER_YOUTUBE_IMPORT_FAILURE,
+        data: String(error && error.message ? error.message : error),
+      });
+    }
   };
 }
 export function doCheckYoutubeTransfer() {

@@ -57,11 +57,36 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
       }
     }, [collectionId, dispatch, isPrivate]);
 
+    const [fetchAttempt, setFetchAttempt] = React.useState(0);
+
+    React.useEffect(() => {
+      setFetchAttempt(0);
+    }, [collectionId]);
+
     React.useEffect(() => {
       if (shouldFetchCollectionItems) {
-        dispatch(doFetchItemsInCollection({ collectionId }));
+        let cancelled = false;
+        let retryTimeout;
+
+        // A failed fetch used to leave the spinner up forever because nothing
+        // re-triggered this effect — retry a few times (with backoff) instead.
+        Promise.resolve(dispatch(doFetchItemsInCollection({ collectionId }))).finally(() => {
+          if (!cancelled) {
+            retryTimeout = setTimeout(
+              () => {
+                if (!cancelled) setFetchAttempt((attempt) => (attempt < 3 ? attempt + 1 : attempt));
+              },
+              2000 * (fetchAttempt + 1)
+            );
+          }
+        });
+
+        return () => {
+          cancelled = true;
+          if (retryTimeout) clearTimeout(retryTimeout);
+        };
       }
-    }, [collectionId, dispatch, shouldFetchCollectionItems]);
+    }, [collectionId, dispatch, shouldFetchCollectionItems, fetchAttempt]);
 
     if (shouldKeepLoading) {
       return (
