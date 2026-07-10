@@ -16,8 +16,10 @@ import {
   selectYoutubeChannels,
   selectYouTubeImportVideosComplete,
   selectYouTubeImportPending,
+  selectYouTubeImportError,
   selectUserIsPending,
 } from 'redux/selectors/user';
+import { selectMyChannelClaimsById } from 'redux/selectors/claims';
 import { doResolveUris } from 'redux/actions/claims';
 import './style.lazy.scss';
 type Props = {
@@ -34,8 +36,10 @@ export default function YoutubeTransferStatus(props: Props) {
 
   const youtubeChannels = useAppSelector(selectYoutubeChannels);
   const youtubeImportPending = useAppSelector(selectYouTubeImportPending);
+  const youtubeImportError = useAppSelector(selectYouTubeImportError);
   const userFetchPending = useAppSelector(selectUserIsPending);
   const videosImported = useAppSelector(selectYouTubeImportVideosComplete);
+  const myChannelClaimsById = useAppSelector(selectMyChannelClaimsById);
   const claimChannels = () => dispatch(doClaimYoutubeChannels());
   const updateUser = () => dispatch(doUserFetch());
   const checkYoutubeTransfer = () => dispatch(doCheckYoutubeTransfer());
@@ -73,6 +77,17 @@ export default function YoutubeTransferStatus(props: Props) {
     );
   const isNotElligible =
     hasChannels && youtubeChannels.every((channel) => channel.sync_status === YOUTUBE_STATUSES.YOUTUBE_SYNC_ABANDONDED);
+  const channelsMissingSigningKey = React.useMemo(() => {
+    if (!hasChannels || !myChannelClaimsById) return [];
+    return youtubeChannels.filter((channel) => {
+      if (channel.transfer_state !== YOUTUBE_STATUSES.YOUTUBE_SYNC_COMPLETED_TRANSFER || !channel.channel_claim_id) {
+        return false;
+      }
+      const claim = myChannelClaimsById[channel.channel_claim_id];
+      return claim && claim.has_signing_key === false;
+    });
+  }, [hasChannels, youtubeChannels, myChannelClaimsById]);
+  const hasChannelsMissingSigningKey = channelsMissingSigningKey.length > 0;
   let total;
   let complete;
 
@@ -130,7 +145,7 @@ export default function YoutubeTransferStatus(props: Props) {
     }
   }, [autoOpenSync, selfSyncLauncherUrl]);
   return (
-    (alwaysShow || (hasChannels && !isYoutubeTransferComplete)) && (
+    (alwaysShow || (hasChannels && !isYoutubeTransferComplete) || hasChannelsMissingSigningKey) && (
       <Card
         title={
           isNotElligible
@@ -152,7 +167,14 @@ export default function YoutubeTransferStatus(props: Props) {
               !isNotElligible &&
               __('Please check back later, this may take a few hours.')}
 
-            {isYoutubeTransferComplete && !isNotElligible && __('View your channel or choose a new channel to sync.')}
+            {isYoutubeTransferComplete &&
+              !isNotElligible &&
+              !hasChannelsMissingSigningKey &&
+              __('View your channel or choose a new channel to sync.')}
+            {hasChannelsMissingSigningKey &&
+              __(
+                'We could not find the signing key for your channel in this wallet, so you may not be able to post or manage it. Click below to re-import the key.'
+              )}
             {isNotElligible && (
               <I18nMessage
                 tokens={{
@@ -309,7 +331,16 @@ export default function YoutubeTransferStatus(props: Props) {
                   label={youtubeChannels.length > 1 ? __('Claim Channels') : __('Claim Channel')}
                 />
               )}
+              {isYoutubeTransferComplete && hasChannelsMissingSigningKey && (
+                <Button
+                  button="primary"
+                  disabled={youtubeImportPending}
+                  onClick={claimChannels}
+                  label={channelsMissingSigningKey.length > 1 ? __('Verify Channels') : __('Verify Channel')}
+                />
+              )}
             </div>
+            {youtubeImportError && <p className="error__text">{youtubeImportError}</p>}
             {addNewChannel && (
               <div className="section__actions section__actions--above-list">
                 <Button button="primary" label={__('Add Another Channel')} onClick={addNewChannel} />
