@@ -42,6 +42,7 @@ import {
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
   selectIsAutoplayCountdownForUri,
+  selectPlayingUri,
 } from 'redux/selectors/content';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
@@ -149,6 +150,7 @@ export default function ShortsPage(props: Props) {
   const previousThumbnail = prevShortClaimValue?.value?.thumbnail?.url || null;
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const isUriPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, uri));
+  const playingUri = useAppSelector(selectPlayingUri);
   const playingCollectionId = useAppSelector(selectPlayingCollectionId);
   const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
   const commentsDisabledTag = useAppSelector((state) =>
@@ -218,6 +220,15 @@ export default function ShortsPage(props: Props) {
   const isTransitioningRef = React.useRef(false);
   const processNextTransitionRef = React.useRef<any>(() => {});
   const finishTransitionRef = React.useRef<any>(() => {});
+
+  React.useEffect(() => {
+    const playingUrlParams = new URLSearchParams(playingUri.location?.search || '');
+    const playingFromShortsView = playingUrlParams.get('view') === 'shorts';
+
+    if (playingUri.uri && (!isUriPlaying || !playingFromShortsView)) {
+      dispatch(doClearPlayingUriAction());
+    }
+  }, [dispatch, isUriPlaying, playingUri.location?.search, playingUri.uri]);
   const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
   const isAtStart = currentIndex <= 0;
   const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
