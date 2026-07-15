@@ -43,6 +43,7 @@ import {
 } from 'redux/selectors/claims';
 import { doFileGetForUri } from 'redux/actions/file';
 import { selectViewCountForUri, selectBanStateForUri } from 'lbryinc';
+import Lbry from 'lbry';
 import { selectStreamingUrlForUri } from 'redux/selectors/file_info';
 import { selectIsActiveLivestreamForUri } from 'redux/selectors/livestream';
 import { selectShowMatureContent, selectClientSetting } from 'redux/selectors/settings';
@@ -62,6 +63,61 @@ type Props = {
   isShortFromChannelPage?: boolean;
   sectionTitle?: HomepageTitles;
 };
+
+function isShortVideoMetadata(video: { duration?: number; height?: number; width?: number } | null | undefined) {
+  if (!video) return false;
+
+  const duration = Number(video.duration);
+  const width = Number(video.width);
+  const height = Number(video.height);
+
+  return (
+    Number.isFinite(duration) &&
+    duration > 0 &&
+    duration <= SETTINGS.SHORTS_DURATION_LTE &&
+    Number.isFinite(width) &&
+    width > 0 &&
+    Number.isFinite(height) &&
+    height > 0 &&
+    width / height <= SETTINGS.SHORTS_ASPECT_RATIO_LTE
+  );
+}
+
+function probeShortVideoFromUrl(streamingUrl: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+
+    const cleanup = () => {
+      video.removeAttribute('src');
+      video.load();
+    };
+
+    const finish = (isShortVideo: boolean) => {
+      cleanup();
+      resolve(isShortVideo);
+    };
+
+    video.preload = 'metadata';
+    video.playsInline = true;
+    video.muted = true;
+    video.addEventListener(
+      'loadedmetadata',
+      () => {
+        finish(
+          isShortVideoMetadata({
+            duration: video.duration,
+            width: video.videoWidth,
+            height: video.videoHeight,
+          })
+        );
+      },
+      { once: true }
+    );
+    video.addEventListener('error', () => finish(true), { once: true });
+    video.src = streamingUrl;
+    video.load();
+  });
+}
 
 // preview image cards used in related video functionality, channel overview page and homepage
 function ClaimPreviewTile(props: Props) {
@@ -126,7 +182,15 @@ function ClaimPreviewTile(props: Props) {
   const repostedContentUri = claim && (claim.reposted_claim ? claim.reposted_claim.permanent_url : claim.permanent_url);
   const listId = collectionId || collectionClaimId || '';
   const isClaimShortValue = Boolean(claim && isClaimShort(claim));
-  const isShortsSection = Boolean(isShortFromChannelPage || sectionTitle === 'Shorts');
+  const claimVideo = claim?.value?.video;
+  const shouldProbeChannelShort =
+    Boolean(isShortFromChannelPage && isStream && !isClaimShortValue) &&
+    Boolean(claimVideo?.duration && claimVideo.duration <= SETTINGS.SHORTS_DURATION_LTE);
+  const [probedChannelShort, setProbedChannelShort] = React.useState<boolean | null>(null);
+  const isProbedChannelShort = shouldProbeChannelShort && probedChannelShort === true;
+  const isShortsSection = Boolean(
+    isProbedChannelShort || (!shouldProbeChannelShort && isShortFromChannelPage) || sectionTitle === 'Shorts'
+  );
   const shouldUseShortsView = !disableShortsView && (isClaimShortValue || isShortsSection);
   const hasListSearchParams = Boolean(listId);
   const shortsViewParam = shouldUseShortsView ? `${hasListSearchParams ? '&' : '?'}view=shorts` : '';
@@ -167,6 +231,55 @@ function ClaimPreviewTile(props: Props) {
   const useShortsThumb = isShortsSection || queryParams.get('view') === 'shortsTab';
   let shouldHide = false;
 
+  React.useEffect(() => {
+    setProbedChannelShort(null);
+  }, [uri]);
+
+  React.useEffect(() => {
+    if (!shouldProbeChannelShort || !uri) {
+      return;
+    }
+
+    let cancelled = false;
+
+    const probe = async () => {
+      if (cancelled) return;
+
+      let url = streamingUrl;
+
+      if (!url) {
+        dispatch(doFileGetForUri(uri));
+
+        try {
+          const fileInfo = await Lbry.get({ uri });
+          url = fileInfo?.streaming_url;
+        } catch {
+          setProbedChannelShort(true);
+          return;
+        }
+      }
+
+      if (cancelled) return;
+
+      if (!url) {
+        setProbedChannelShort(true);
+        return;
+      }
+
+      const isShortVideo = await probeShortVideoFromUrl(url);
+
+      if (!cancelled) {
+        setProbedChannelShort(isShortVideo);
+      }
+    };
+
+    probe();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [dispatch, shouldProbeChannelShort, streamingUrl, uri]);
+
   if (isMature && !showMature) {
     // Unfortunately needed until this is resolved
     // https://github.com/lbryio/lbry-sdk/issues/2785
@@ -183,6 +296,10 @@ function ClaimPreviewTile(props: Props) {
       banState.filtered ||
       (!showHiddenByUser && (banState.muted || banState.blocked)) ||
       (isAbandoned && !showUnresolvedClaims);
+  }
+
+  if (!shouldHide && shouldProbeChannelShort && !isProbedChannelShort) {
+    shouldHide = true;
   }
 
   // Filter empty reposts
