@@ -26,6 +26,20 @@ function isMe(claim, title) {
   return claim && title && claim.replace('#', ':') === title;
 }
 
+function getLbryUrlFromKnownAppLink(linkPathPlusHash: string, search: string = ''): string | undefined {
+  const candidate = `lbry://${linkPathPlusHash}${search}`;
+
+  if (isURIValid(candidate)) {
+    return candidate;
+  }
+
+  const legacyCandidate = `lbry://${linkPathPlusHash.replace(/:/g, '#')}${search}`;
+
+  if (legacyCandidate !== candidate && isURIValid(legacyCandidate)) {
+    return legacyCandidate;
+  }
+}
+
 function MarkdownLink(props: Props) {
   const {
     children,
@@ -86,12 +100,13 @@ function MarkdownLink(props: Props) {
       } catch (e) {}
 
       const linkPathPlusHash = linkPathname ? `${linkPathname}${linkUrlObject.hash}` : undefined;
-      const possibleLbryUrl = linkPathPlusHash ? `lbry://${linkPathPlusHash.replace(/:/g, '#')}` : undefined;
-      const lbryLinkIsValid = possibleLbryUrl && isURIValid(possibleLbryUrl);
+      const possibleLbryUrl = linkPathPlusHash
+        ? getLbryUrlFromKnownAppLink(linkPathPlusHash, linkUrlObject.search)
+        : undefined;
       const isMarkdownLinkWithLabel =
         children && Array.isArray(children) && React.Children.count(children) === 1 && children.toString() !== href;
 
-      if (lbryLinkIsValid && !isMarkdownLinkWithLabel) {
+      if (possibleLbryUrl && !isMarkdownLinkWithLabel && !isComment) {
         lbryUrlFromLink = possibleLbryUrl;
       }
     }

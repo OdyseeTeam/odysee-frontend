@@ -67,6 +67,7 @@ export default handleActions(
         uris: newUris,
         recsys,
         uuid,
+        lastCompletedFrom: from,
       };
       return {
         ...state,

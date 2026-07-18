@@ -26,7 +26,12 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import { Link } from 'react-router-dom';
 import ViewModeToggle from 'component/shortsActions/swipeNavigation/viewModeToggle';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort as isClaimShortUtil } from 'util/claim';
+import {
+  getChannelIdFromClaim,
+  createNormalizedClaimSearchKey,
+  isClaimShort as isClaimShortUtil,
+  isClaimYouTubeMirror,
+} from 'util/claim';
 import { doFileGetForUri as doFileGetForUriAction } from 'redux/actions/file';
 import {
   selectClaimIsNsfwForUri,
@@ -35,6 +40,7 @@ import {
   selectIsUriUnlisted,
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
+  selectClaimsByUri,
   selectTitleForUri,
 } from 'redux/selectors/claims';
 import {
@@ -42,6 +48,7 @@ import {
   selectPlayingCollectionId,
   selectIsUriCurrentlyPlaying,
   selectIsAutoplayCountdownForUri,
+  selectPlayingUri,
 } from 'redux/selectors/content';
 import { selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
@@ -50,7 +57,7 @@ import {
   doClearPlayingUri as doClearPlayingUriAction,
 } from 'redux/actions/content';
 import { selectIsSearching } from 'redux/selectors/search';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import { selectShortsSidePanelOpen, selectShortsPlaylist, selectShortsViewMode } from 'redux/selectors/shorts';
 import {
   doSetShortsSidePanel as doSetShortsSidePanelAction,
@@ -133,7 +140,18 @@ export default function ShortsPage(props: Props) {
   const channelId = getChannelIdFromClaim(claim);
   const claimId = claim?.claim_id;
   const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
-  const shortsRecommendedUris = useAppSelector((state) => selectShortsRecommendedContent(state, uri));
+  const rawShortsRecommendedUris = useAppSelector((state) => selectShortsRecommendedContent(state, uri));
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
+  const shortsRecommendedUris = React.useMemo(
+    () =>
+      hideYouTubeMirrors
+        ? rawShortsRecommendedUris.filter(
+            (recommendedUri: string) => recommendedUri === uri || !isClaimYouTubeMirror(claimsByUri[recommendedUri])
+          )
+        : rawShortsRecommendedUris,
+    [claimsByUri, hideYouTubeMirrors, rawShortsRecommendedUris, uri]
+  );
   const currentIndex = shortsRecommendedUris.findIndex((shortUri: string) => shortUri === uri);
   const title = claim?.value?.title;
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;
@@ -149,6 +167,7 @@ export default function ShortsPage(props: Props) {
   const previousThumbnail = prevShortClaimValue?.value?.thumbnail?.url || null;
   const isMature = useAppSelector((state) => selectClaimIsNsfwForUri(state, uri));
   const isUriPlaying = useAppSelector((state) => selectIsUriCurrentlyPlaying(state, uri));
+  const playingUri = useAppSelector(selectPlayingUri);
   const playingCollectionId = useAppSelector(selectPlayingCollectionId);
   const position = useAppSelector((state) => selectContentPositionForUri(state, uri));
   const commentsDisabledTag = useAppSelector((state) =>
@@ -218,6 +237,15 @@ export default function ShortsPage(props: Props) {
   const isTransitioningRef = React.useRef(false);
   const processNextTransitionRef = React.useRef<any>(() => {});
   const finishTransitionRef = React.useRef<any>(() => {});
+
+  React.useEffect(() => {
+    const playingUrlParams = new URLSearchParams(playingUri.location?.search || '');
+    const playingFromShortsView = playingUrlParams.get('view') === 'shorts';
+
+    if (playingUri.uri && (!isUriPlaying || !playingFromShortsView)) {
+      dispatch(doClearPlayingUriAction());
+    }
+  }, [dispatch, isUriPlaying, playingUri.location?.search, playingUri.uri]);
   const hasPlaylist = shortsRecommendedUris && shortsRecommendedUris.length > 0;
   const isAtStart = currentIndex <= 0;
   const isAtEnd = currentIndex >= (shortsRecommendedUris?.length || 1) - 1;
@@ -544,7 +572,8 @@ export default function ShortsPage(props: Props) {
     );
   }, [navigate, pathname, search]);
   const getShortsUrl = React.useCallback((shortUri: string) => {
-    return shortUri.replace('lbry://', '/').replace(/#/g, ':') + '?view=shorts';
+    const baseUrl = shortUri.replace('lbry://', '/').replace(/#/g, ':');
+    return `${baseUrl}?view=shorts&autoplay=1`;
   }, []);
   const clearTransitionTimers = React.useCallback(() => {
     if (transitionTimerRef.current) {
@@ -612,6 +641,7 @@ export default function ShortsPage(props: Props) {
       transitionTimerRef.current = setTimeout(() => {
         const activeTransition = activeTransitionRef.current;
         if (!activeTransition) return;
+        window.__shortsAutoPlayNext = true;
         clearPosition(activeTransition.sourceUri);
         doClearPlayingUri();
         navigate(getShortsUrl(activeTransition.targetUri), { replace: true });

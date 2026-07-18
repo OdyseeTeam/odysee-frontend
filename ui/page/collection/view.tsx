@@ -17,6 +17,7 @@ import {
   selectClaimForId,
   selectClaimIsPendingForId,
   selectGeoRestrictionForUri,
+  selectFailedToResolveIds,
 } from 'redux/selectors/claims';
 import {
   selectCollectionForId,
@@ -25,6 +26,7 @@ import {
   selectHasPrivateCollectionForId,
   selectIsCollectionPrivateForId,
   selectCollectionHasItemsResolvedForId,
+  selectCollectionHasUnsavedEditsForId,
 } from 'redux/selectors/collections';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 import { doResolveClaimId as doResolveClaimIdAction } from 'redux/actions/claims';
@@ -55,6 +57,9 @@ const CollectionPage = (props: Props) => {
   const collectionHasItemsResolved = useAppSelector((state) =>
     selectCollectionHasItemsResolvedForId(state, collectionId)
   );
+  const collectionHasUnsavedEdits = useAppSelector((state) =>
+    selectCollectionHasUnsavedEditsForId(state, collectionId)
+  );
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const navigate = useNavigate();
   const { search, state, pathname } = useLocation();
@@ -71,7 +76,13 @@ const CollectionPage = (props: Props) => {
   const isBuiltin = COLLECTIONS_CONSTS.BUILTIN_PLAYLISTS.includes(collectionId);
   const isOnPublicView = urlParams.get(COLLECTION_PAGE.QUERIES.VIEW) === COLLECTION_PAGE.VIEWS.PUBLIC;
   const isClaimPending = useAppSelector((state) => selectClaimIsPendingForId(state, collectionId));
-  const isResolvingCollection = hasClaim === undefined;
+  const collectionResolveFailed = useAppSelector((state) =>
+    (selectFailedToResolveIds(state) || []).includes(collectionId)
+  );
+  const [resolveAttempt, setResolveAttempt] = React.useState(0);
+  // After retries are exhausted, stop treating a failed resolve as "still
+  // resolving" — otherwise the page spinner never goes away.
+  const isResolvingCollection = hasClaim === undefined && !(collectionResolveFailed && resolveAttempt >= 3);
   const shouldPromptSignIn = IS_WEB && publishPage && !isAuthenticated;
   const collectionHasStoredItems = Boolean(collection?.items?.length);
   const shouldResolveCollectionItems = collectionHasStoredItems && !collectionHasItemsResolved;
@@ -93,6 +104,10 @@ const CollectionPage = (props: Props) => {
   }
 
   function saveChanges() {
+    if (!collectionHasUnsavedEdits && !shouldResolveCollectionItems) {
+      return;
+    }
+
     if (shouldResolveCollectionItems) {
       dispatch(doFetchItemsInCollectionAction({ collectionId }));
       return;
@@ -113,14 +128,36 @@ const CollectionPage = (props: Props) => {
   }
 
   React.useEffect(() => {
-    if (!isPrivate) {
-      dispatch(
-        doResolveClaimIdAction(collectionId, true, {
-          include_is_my_output: true,
-        })
-      );
+    if (!isPrivate && hasClaim === undefined) {
+      let cancelled = false;
+      let retryTimeout;
+
+      // A failed resolve of the collection claim used to leave the page spinner
+      // up forever (nothing re-triggered this effect) — retry a few times with
+      // backoff before giving up.
+      Promise.resolve(
+        dispatch(
+          doResolveClaimIdAction(collectionId, true, {
+            include_is_my_output: true,
+          })
+        )
+      ).finally(() => {
+        if (!cancelled) {
+          retryTimeout = setTimeout(
+            () => {
+              if (!cancelled) setResolveAttempt((attempt) => (attempt < 3 ? attempt + 1 : attempt));
+            },
+            2000 * (resolveAttempt + 1)
+          );
+        }
+      });
+
+      return () => {
+        cancelled = true;
+        if (retryTimeout) clearTimeout(retryTimeout);
+      };
     }
-  }, [collectionId, dispatch, isPrivate]);
+  }, [collectionId, dispatch, isPrivate, hasClaim, resolveAttempt]);
 
   React.useEffect(() => {
     if (shouldResolveCollectionItems) {
@@ -235,7 +272,7 @@ const CollectionPage = (props: Props) => {
                     button="primary"
                     label={shouldResolveCollectionItems ? __('Loading') : __('Save')}
                     onClick={saveChanges}
-                    disabled={shouldResolveCollectionItems}
+                    disabled={shouldResolveCollectionItems || !collectionHasUnsavedEdits}
                   />
                   <Button button="link" label={__('Cancel')} onClick={clearChanges} />
                 </div>

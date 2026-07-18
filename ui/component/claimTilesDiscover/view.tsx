@@ -23,7 +23,7 @@ import * as SETTINGS from 'constants/settings';
 import { selectClientSetting, selectHideYouTubeMirrors, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import { createNormalizedClaimSearchKey, isClaimYouTubeMirror } from 'util/claim';
+import { createNormalizedClaimSearchKey, filterYouTubeMirrors } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
 import * as CS from 'constants/claim_search';
 const SHOW_TIMEOUT_MSG = false;
@@ -109,12 +109,6 @@ function resolveHideMembersOnly(global: any, override: any) {
   return override === undefined || override === null ? global : override;
 }
 
-function filterYouTubeMirrors(uris: Array<string>, claimsByUri: Record<string, any>, hideYouTubeMirrors: boolean) {
-  if (!hideYouTubeMirrors || !uris) return uris;
-
-  return uris.filter((uri) => !uri || !isClaimYouTubeMirror(claimsByUri[uri]));
-}
-
 function resolveSearchOptions(resolveProps: any) {
   const {
     showNsfw,
@@ -122,6 +116,7 @@ function resolveSearchOptions(resolveProps: any) {
     forceShowReposts,
     hideMembersOnly,
     mutedAndBlockedChannelIds,
+    hiddenTags,
     hideShorts,
     search,
     pageSize,
@@ -148,6 +143,7 @@ function resolveSearchOptions(resolveProps: any) {
   const feeAmountParam = feeAmountInUrl || feeAmount;
   const notTagInput: NotTagInput = {
     notTags,
+    hiddenTags,
     showNsfw,
     hideMembersOnly,
   };
@@ -272,6 +268,8 @@ function ClaimTilesDiscover(props: Props) {
   const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
   const forceShowReposts = props.forceShowReposts;
   const mutedAndBlockedChannelIds = useAppSelector(selectMutedAndBlockedChannelIds);
+  const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
+  const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
   const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
   const claimsByUri = useAppSelector(selectClaimsByUri);
@@ -282,6 +280,7 @@ function ClaimTilesDiscover(props: Props) {
     hideReposts,
     forceShowReposts,
     mutedAndBlockedChannelIds,
+    hiddenTags,
     hideShorts,
     pageSize: 8,
     search: routerSearch,
@@ -338,18 +337,28 @@ function ClaimTilesDiscover(props: Props) {
     doResolveClaimIds,
     doResolveUris,
   });
+  const filteredPrefixUris = React.useMemo(
+    () => (prefixUris ? filterYouTubeMirrors(prefixUris, claimsByUri, hideYouTubeMirrors) : prefixUris),
+    [claimsByUri, hideYouTubeMirrors, prefixUris]
+  );
+  const filteredResolvedPinUris = React.useMemo(
+    () => (resolvedPinUris ? filterYouTubeMirrors(resolvedPinUris, claimsByUri, hideYouTubeMirrors) : resolvedPinUris),
+    [claimsByUri, hideYouTubeMirrors, resolvedPinUris]
+  );
   const uriBuffer = useRef([]);
   const shouldPerformSearch =
     !fetchingClaimSearch &&
     !timedOut &&
     !claimSearchLastPageReached &&
     (rawClaimSearchResultsCount === 0 || shouldFetchMoreFilteredResults);
-  const uris = (prefixUris || []).concat(claimSearchUris);
-  if (prefixUris && prefixUris.length) uris.splice(prefixUris.length * -1, prefixUris.length);
+  const uris = (filteredPrefixUris || []).concat(claimSearchUris);
+  if (filteredPrefixUris && filteredPrefixUris.length) {
+    uris.splice(filteredPrefixUris.length * -1, filteredPrefixUris.length);
+  }
 
   // Treat the embed homepage the same as the main homepage for pin injection.
   if (window.location.pathname === '/' || window.location.pathname === '/$/embed/home') {
-    injectPinUrls(uris, pins, resolvedPinUris);
+    injectPinUrls(uris, pins, filteredResolvedPinUris);
   }
   const filteredUris = filterYouTubeMirrors(uris, claimsByUri, hideYouTubeMirrors);
 
@@ -360,7 +369,8 @@ function ClaimTilesDiscover(props: Props) {
   }
 
   // Show previous results while we fetch to avoid blinkies and poor CLS.
-  const finalUris = isUnfetchedClaimSearch && prevUris.current ? prevUris.current : filteredUris;
+  const visibleUris = hideYouTubeMirrors ? filteredUris.slice(0, pageSize) : filteredUris;
+  const finalUris = isUnfetchedClaimSearch && prevUris.current ? prevUris.current : visibleUris;
   prevUris.current = finalUris;
 
   // --------------------------------------------------------------------------

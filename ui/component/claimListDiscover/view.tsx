@@ -4,7 +4,7 @@ import * as TAGS from 'constants/tags';
 import React from 'react';
 import { MATURE_TAGS } from 'constants/tags';
 import { resolveLangForClaimSearch } from 'util/default-languages';
-import { createNormalizedClaimSearchKey, isClaimYouTubeMirror } from 'util/claim';
+import { createNormalizedClaimSearchKey, filterYouTubeMirrors } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
 import Button from 'component/button';
 import dayjs from 'util/dayjs';
@@ -183,17 +183,6 @@ function filterExcludedUris(uris: any, excludeUris: any) {
   return uris;
 }
 
-function filterYouTubeMirrors(uris: any, claimsByUri: any, hideYouTubeMirrors: boolean) {
-  if (!hideYouTubeMirrors || !uris) {
-    return uris;
-  }
-
-  return uris.filter((uri: any) => {
-    const claim = claimsByUri[uri];
-    return !isClaimYouTubeMirror(claim);
-  });
-}
-
 function ClaimListDiscover(props: Props) {
   const {
     showHeader = true,
@@ -274,6 +263,8 @@ function ClaimListDiscover(props: Props) {
   );
   const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
+  const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
   const languageSetting = useAppSelector(selectLanguage);
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
@@ -323,6 +314,14 @@ function ClaimListDiscover(props: Props) {
 
     return resolvedPinUris;
   }, [claimsById, hasPins, pins]);
+  const filteredPrefixUris = React.useMemo(
+    () => (prefixUris ? filterYouTubeMirrors(prefixUris, claimsByUri, hideYouTubeMirrors) : prefixUris),
+    [claimsByUri, hideYouTubeMirrors, prefixUris]
+  );
+  const filteredResolvedPinUris = React.useMemo(
+    () => (resolvedPinUris ? filterYouTubeMirrors(resolvedPinUris, claimsByUri, hideYouTubeMirrors) : resolvedPinUris),
+    [claimsByUri, hideYouTubeMirrors, resolvedPinUris]
+  );
   const didNavigateForward = navigationType === NavigationType.Push;
   const prevUris = React.useRef();
   const [page, setPage] = React.useState(1);
@@ -393,6 +392,7 @@ function ClaimListDiscover(props: Props) {
   const dynamicPageSize = isLargeScreen ? Math.ceil((originalPageSize / 2) * 6) : Math.ceil((originalPageSize / 2) * 4);
   const notTagInput: NotTagInput = {
     notTags,
+    hiddenTags,
     showNsfw,
     hideMembersOnly,
   };
@@ -594,11 +594,20 @@ function ClaimListDiscover(props: Props) {
     }
 
     const newUris = Array.from(new Set(claimSearchResult));
-    const injected = injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
-    let newFinalUris = filterExcludedUris(injected, excludeUris);
+    const injected = injectPinUrls(newUris, orderParam, pins, filteredResolvedPinUris);
+    let newFinalUris = filterExcludedUris(injected, JSON.parse(excludeUrisStr));
     newFinalUris = filterYouTubeMirrors(newFinalUris, claimsByUri, hideYouTubeMirrors);
     return newFinalUris;
-  }, [claimSearchResult, claimsByUri, excludeUris, hasPins, hideYouTubeMirrors, orderParam, pins, resolvedPinUris]);
+  }, [
+    claimSearchResult,
+    claimsByUri,
+    excludeUrisStr,
+    filteredResolvedPinUris,
+    hasPins,
+    hideYouTubeMirrors,
+    orderParam,
+    pins,
+  ]);
   const claimSearchResultCount = claimSearchResult ? claimSearchResult.length : 0;
   const filteredClaimSearchResultCount = filteredClaimSearchResult ? filteredClaimSearchResult.length : 0;
   // uncomment to fix an item on a page
@@ -704,7 +713,7 @@ function ClaimListDiscover(props: Props) {
     if (uris) {
       // --- direct uris
       const newUris = uris && Array.from(new Set(uris));
-      injectPinUrls(newUris, orderParam, pins, resolvedPinUris);
+      injectPinUrls(newUris, orderParam, pins, filteredResolvedPinUris);
       let newFinalUris = filterExcludedUris(newUris, excludeUris);
       newFinalUris = filterYouTubeMirrors(newFinalUris, claimsByUri, hideYouTubeMirrors);
       setFinalUris(newFinalUris);
@@ -716,8 +725,8 @@ function ClaimListDiscover(props: Props) {
         setFinalUris(filteredClaimSearchResult);
         prevUris.current = filteredClaimSearchResult;
       }
-    } else if (resolvedPinUris && !channelIdsParam) {
-      setFinalUris(resolvedPinUris);
+    } else if (filteredResolvedPinUris && !channelIdsParam) {
+      setFinalUris(filteredResolvedPinUris);
     } else {
     }
   }, [
@@ -731,9 +740,12 @@ function ClaimListDiscover(props: Props) {
     isUnfetchedClaimSearch,
     orderParam,
     pins,
-    resolvedPinUris,
+    filteredResolvedPinUris,
     uris,
   ]);
+
+  const visibleFinalUris =
+    hideYouTubeMirrors && !uris && finalUris ? finalUris.slice(0, dynamicPageSize * effectivePage) : finalUris;
 
   // **************************************************************************
   // Helpers
@@ -866,8 +878,8 @@ function ClaimListDiscover(props: Props) {
           <ClaimList
             tileLayout
             loading={claimListLoading}
-            uris={finalUris}
-            prefixUris={prefixUris}
+            uris={visibleFinalUris}
+            prefixUris={filteredPrefixUris}
             onScrollBottom={handleScrollBottom}
             page={page}
             pageSize={dynamicPageSize}
@@ -907,8 +919,8 @@ function ClaimListDiscover(props: Props) {
           <ClaimList
             type={type}
             loading={claimListLoading}
-            uris={finalUris}
-            prefixUris={prefixUris}
+            uris={visibleFinalUris}
+            prefixUris={filteredPrefixUris}
             onScrollBottom={handleScrollBottom}
             page={page}
             pageSize={dynamicPageSize}

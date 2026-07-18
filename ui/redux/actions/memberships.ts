@@ -26,6 +26,23 @@ import { doChannelsHavePremium } from './user';
 const stripeEnvironment = getStripeEnvironment();
 const USD_TO_USDC = 1000000;
 const CONVERT_DOLLARS_TO_PENNIES = 100;
+function getMembershipTierError(error) {
+  const message = error?.message || error;
+
+  if (
+    typeof message === 'string' &&
+    (message.match(/membership already exists for this channel/i) ||
+      message.match(/prior \(even deleted memberships\)/i) ||
+      message.match(/Duplicate entry.*membership_v2\.idx_user_publish_name_unique/i))
+  ) {
+    return __(
+      'This tier name has already been used for this channel. Deleted tier names cannot currently be reused, so please choose a different tier name.'
+    );
+  }
+
+  return message;
+}
+
 export const doFetchChannelMembershipsForChannelIds =
   (channelId: string, channelIds: ClaimIds) => async (dispatch: Dispatch, getState: GetState) => {
     if (!channelIds || channelIds.length === 0) return;
@@ -387,7 +404,7 @@ export const doMembershipAddTier = (params: MembershipAddTierParams) => async (d
     }))
     .catch((e) => {
       return {
-        error: e?.message || e,
+        error: getMembershipTierError(e),
       };
     });
 export const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => async (dispatch: Dispatch) =>
@@ -397,7 +414,7 @@ export const doMembershipUpdateTier = (params: MembershipUpdateTierParams) => as
     }))
     .catch((e) => {
       return {
-        error: e?.message || e,
+        error: getMembershipTierError(e),
       };
     });
 export const doGetMembershipPerks = (params: MembershipListParams) => async (dispatch: Dispatch) =>

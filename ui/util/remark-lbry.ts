@@ -44,7 +44,7 @@ const BARE_LINK_DOMAINS = [
 ];
 const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
 const bareLinkRegex = new RegExp(
-  `(?:^|(?<=\\s))((?:(?:https?://|www\\.)[^\\s<>"']+|(?:https?://)?(?:${bareDomainPattern})(?:/[^\\s<>"']*)?))`,
+  `(?:^|(?<=\\s))((?:(?:https?://|www\\.)[^\\s<>"]+|(?:https?://)?(?:${bareDomainPattern})(?:/[^\\s<>"]*)?))`,
   'i'
 );
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
@@ -60,6 +60,10 @@ function createTextNode(value: string): MdastNode {
 }
 
 function handlePunctuation(value: string): string {
+  if (value.includes('?')) {
+    return stripTrailingPunctuation(value);
+  }
+
   const protocolIndex = value.indexOf(protocol) === 0 ? protocol.length - 1 : 0;
   const channelModifierIndex =
     (value.indexOf(':', protocolIndex) >= 0 && value.indexOf(':', protocolIndex)) ||
@@ -87,7 +91,7 @@ const TRAILING_PAIRS: Array<[string, string]> = [
   ['[', ']'],
   ['{', '}'],
 ];
-const TRAILING_PUNCTUATION = '.,;:!?';
+const TRAILING_PUNCTUATION = ".,;:!?'";
 
 // Strip trailing punctuation from a bare URL, but keep paired brackets balanced
 // so links like https://en.wikipedia.org/wiki/Mark_Levine_(disambiguation) survive.

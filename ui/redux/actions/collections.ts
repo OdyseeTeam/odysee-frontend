@@ -16,8 +16,6 @@ import {
   selectHasClaimForId,
   selectResolvingIds,
   selectResolvingUris,
-  selectFailedToResolveUris,
-  selectFailedToResolveIds,
   selectClaimIsPendingForId,
   selectClaimIdsByUri,
   selectClaimsById,
@@ -35,6 +33,7 @@ import {
   selectCollectionForIdClaimForUriItem,
   selectAreThumbnailClaimsFetchingForCollectionIds,
   selectCollectionAutoPublishForId,
+  selectCollectionAutoPublishMap,
   selectCollectionIsPublishingForId,
   selectCollectionHasEditsForId,
   selectCollectionHasUnsavedEditsForId,
@@ -49,7 +48,9 @@ import { normalizeURI } from 'util/lbryURI';
 import { doToast } from 'redux/actions/notifications';
 const FETCH_BATCH_SIZE = 50;
 const AUTO_PUBLISH_DEBOUNCE_MS = 15000;
+const AUTO_PUBLISH_MAX_RESOLVE_RETRIES = 3;
 const collectionAutoPublishTimers: Record<string, TimeoutID> = {};
+const collectionAutoPublishResolveRetries: Record<string, number> = {};
 export const doFetchCollectionListMine =
   (
     options: CollectionListOptions = {
@@ -126,7 +127,8 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
     const state = getState();
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
     const collection = selectCollectionForId(state, collectionId);
-    const createdAtTimestamp = collection.createdAt;
+    const publishStartedAt = Math.floor(Date.now() / 1000);
+    const createdAtTimestamp = collection.createdAt || publishStartedAt;
     const params: Record<string, any> = {
       channel_id: options.channel_id,
       bid: creditsToString(options.bid),
@@ -201,9 +203,12 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
 
       function success(response: CollectionCreateResponse & { outputs?: Array<Claim> }) {
         const collectionClaim = response.outputs ? response.outputs[0] : response;
-        const publishStartedAt = Math.floor(Date.now() / 1000);
-        if (!collectionClaim?.meta.creation_timestamp) collectionClaim.meta.creation_timestamp = createdAtTimestamp;
-        if (!collectionClaim?.timestamp) collectionClaim.timestamp = publishStartedAt;
+        const collectionClaimWithMeta = collectionClaim as any;
+        if (!collectionClaimWithMeta.meta) collectionClaimWithMeta.meta = {};
+        if (!collectionClaimWithMeta.meta.creation_timestamp) {
+          collectionClaimWithMeta.meta.creation_timestamp = createdAtTimestamp;
+        }
+        if (!collectionClaimWithMeta.timestamp) collectionClaimWithMeta.timestamp = publishStartedAt;
         const publishedCollection = {
           ...collection,
           id: collectionClaim.claim_id,
@@ -244,6 +249,12 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
               type: ACTIONS.UPDATE_PENDING_CLAIMS,
               data: {
                 claims: [collectionClaim],
+              },
+            },
+            {
+              type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
+              data: {
+                resolvedCollection: publishedCollection,
               },
             },
             {
@@ -303,10 +314,35 @@ export function doCollectionPublish(options: CollectionPublishCreateParams, coll
   };
 }
 
+const doAutoPublishCollectionScheduleRetry = (collectionId: string) => (dispatch: Dispatch) => {
+  if (collectionAutoPublishTimers[collectionId]) {
+    clearTimeout(collectionAutoPublishTimers[collectionId]);
+  }
+
+  dispatch({
+    type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
+    data: {
+      collectionId,
+      scheduledAt: Date.now() + AUTO_PUBLISH_DEBOUNCE_MS,
+    },
+  });
+  collectionAutoPublishTimers[collectionId] = setTimeout(() => {
+    delete collectionAutoPublishTimers[collectionId];
+    dispatch({
+      type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
+      data: {
+        collectionId,
+        scheduledAt: null,
+      },
+    });
+    dispatch(doAutoPublishCollectionIfNeeded(collectionId, true));
+  }, AUTO_PUBLISH_DEBOUNCE_MS);
+};
+
 const doAutoPublishCollectionIfNeeded =
   (collectionId: string, triggerNow: boolean = false) =>
-  (dispatch: Dispatch, getState: GetState): Promise<void> => {
-    const state = getState();
+  async (dispatch: Dispatch, getState: GetState): Promise<void> => {
+    let state = getState();
     const isAutoPublishEnabled = selectCollectionAutoPublishForId(state, collectionId);
     const isPrivate = selectIsCollectionPrivateForId(state, collectionId);
     const isMine = selectCollectionIsMine(state, collectionId);
@@ -326,8 +362,39 @@ const doAutoPublishCollectionIfNeeded =
       return Promise.resolve();
     }
 
-    const collectionUploadParams = selectCollectionClaimUploadParamsForId(state, collectionId);
-    const hasItems = collectionUploadParams?.claims && collectionUploadParams.claims.length > 0;
+    let collectionUploadParams = selectCollectionClaimUploadParamsForId(state, collectionId);
+
+    // claims === undefined means the collection items haven't been resolved yet
+    // (e.g. right after a page reload). Resolve them here instead of silently
+    // dropping the publish, which used to leave playlists on "Publish pending"
+    // indefinitely.
+    if (collectionUploadParams?.claims === undefined) {
+      await dispatch(doFetchItemsInCollection({ collectionId }));
+      state = getState();
+      collectionUploadParams = selectCollectionClaimUploadParamsForId(state, collectionId);
+    }
+
+    if (collectionUploadParams?.claims === undefined) {
+      const retries = (collectionAutoPublishResolveRetries[collectionId] || 0) + 1;
+      collectionAutoPublishResolveRetries[collectionId] = retries;
+
+      if (retries <= AUTO_PUBLISH_MAX_RESOLVE_RETRIES) {
+        // Try again after the debounce window rather than giving up silently.
+        dispatch(doAutoPublishCollectionScheduleRetry(collectionId));
+      } else {
+        delete collectionAutoPublishResolveRetries[collectionId];
+        dispatch(
+          doToast({
+            message: __('Failed to auto-publish playlist changes. Playlist items could not be loaded.'),
+            isError: true,
+          })
+        );
+      }
+      return Promise.resolve();
+    }
+
+    delete collectionAutoPublishResolveRetries[collectionId];
+    const hasItems = collectionUploadParams.claims.length > 0;
     if (!hasItems) return Promise.resolve();
 
     const runPublish = () =>
@@ -335,30 +402,20 @@ const doAutoPublishCollectionIfNeeded =
 
     if (triggerNow) return runPublish();
 
-    if (collectionAutoPublishTimers[collectionId]) {
-      clearTimeout(collectionAutoPublishTimers[collectionId]);
-    }
-
-    dispatch({
-      type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
-      data: {
-        collectionId,
-        scheduledAt: Date.now() + AUTO_PUBLISH_DEBOUNCE_MS,
-      },
-    });
-    collectionAutoPublishTimers[collectionId] = setTimeout(() => {
-      delete collectionAutoPublishTimers[collectionId];
-      dispatch({
-        type: ACTIONS.COLLECTION_AUTOPUBLISH_SCHEDULED,
-        data: {
-          collectionId,
-          scheduledAt: null,
-        },
-      });
-      dispatch(doAutoPublishCollectionIfNeeded(collectionId, true));
-    }, AUTO_PUBLISH_DEBOUNCE_MS);
+    dispatch(doAutoPublishCollectionScheduleRetry(collectionId));
     return Promise.resolve();
   };
+
+// Auto-publish timers only live in memory, so a page reload used to strand
+// collections with pending edits on "Publish pending" forever. Called after
+// the collection list loads on sign-in to pick those back up.
+export const doResumePendingAutoPublishes = () => (dispatch: Dispatch, getState: GetState) => {
+  const state = getState();
+  const autoPublishMap = selectCollectionAutoPublishMap(state);
+  Object.entries(autoPublishMap).forEach(([collectionId, enabled]) => {
+    if (enabled) dispatch(doAutoPublishCollectionIfNeeded(collectionId));
+  });
+};
 
 export const doSetCollectionAutoPublish = (collectionId: string, enabled: boolean) => (dispatch: Dispatch) => {
   dispatch({
@@ -531,45 +588,48 @@ const doFetchCollectionItems =
         ]);
         results.forEach((r) => r && itemsInBatches.push(r));
       }
-      const resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
-      // The resolve calls will NOT return items when they still are in a previous call's 'Processing' state.
-      let itemsWereFetching = resultItems.length !== items.length;
+      let resultItems = sortResults(mergeBatches(itemsInBatches.filter(Boolean)));
 
-      // Related to above. Collection with deleted items would never get "resolved: true" status.
-      // Which is needed to avoid issues when editing list before all items are resolved. (Not resolved items get removed.)
-      if (itemsWereFetching) {
-        // Use fresh state after async batch resolution, not the stale pre-fetch state.
-        const freshState = getState();
-        const resolvingIds = selectResolvingIds(freshState);
-        const resolvingUris = selectResolvingUris(freshState);
-        const failedToResolveUris = selectFailedToResolveUris(freshState);
-        const failedToResolveIds = selectFailedToResolveIds(freshState);
-        const failedItems = failedToResolveIds.concat(failedToResolveUris);
+      // The resolve calls skip items that another in-flight resolve already owns
+      // ('Processing' state), so those are missing from our responses. Instead of
+      // failing the whole fetch (which used to strand collections in a permanent
+      // "loading" state with no retry), wait for those resolves to settle and then
+      // read the claims from the store.
+      if (resultItems.length !== items.length) {
+        const resolvedRefs = new Set();
+        resultItems.forEach((claim) => {
+          resolvedRefs.add(claim.claim_id);
+          resolvedRefs.add(claim.permanent_url);
+          resolvedRefs.add(claim.canonical_url);
+        });
+        const missingItems = items.filter((item) => !resolvedRefs.has(item));
 
-        if (items.some((item) => failedItems.includes(item))) {
-          // itemsWereFetching stays true
-        } else if (
-          batches.every((b) => b.uris.length === 0) &&
-          batches.some((b) => b.ids.length > 0) &&
-          resolvingIds.length === 0
-        ) {
-          itemsWereFetching = false;
-        } else if (
-          batches.every((b) => b.ids.length === 0) &&
-          batches.some((b) => b.uris.length > 0) &&
-          resolvingUris.length === 0
-        ) {
-          itemsWereFetching = false;
-        } else if (resolvingUris.length === 0 && resolvingIds.length === 0) {
-          itemsWereFetching = false;
+        const someStillResolving = () => {
+          const freshState = getState();
+          const resolvingIds = selectResolvingIds(freshState);
+          const resolvingUris = selectResolvingUris(freshState);
+          return missingItems.some((item) => resolvingIds.includes(item) || resolvingUris.includes(item));
+        };
+
+        for (let waited = 0; waited < 40 && someStillResolving(); waited++) {
+          await new Promise((resolve) => setTimeout(resolve, 250));
         }
+
+        const freshState = getState();
+        const byId = selectClaimsById(freshState);
+        const idsByUri = selectClaimIdsByUri(freshState);
+        missingItems.forEach((item) => {
+          const claimId = byId[item] ? item : idsByUri[item];
+          const claim = claimId && byId[claimId];
+          if (claim) resultItems.push(claim);
+        });
+        resultItems = sortResults(resultItems);
+        // Items that still aren't in the store are unavailable (deleted, failed to
+        // resolve, ...). Return the partial result — callers preserve the raw
+        // entries so nothing is silently removed from the playlist.
       }
 
-      if (resultItems && !itemsWereFetching) {
-        return resultItems;
-      } else {
-        return null;
-      }
+      return resultItems;
     } catch (e) {
       return null;
     }
@@ -615,9 +675,12 @@ export const doFetchItemsInCollection =
       if (collection.items.length > 0) {
         promisedCollectionItemsFetch = collection.items && dispatch(doFetchCollectionItems(collection.items, pageSize));
       } else {
+        const collectionKey = selectCollectionKeyForId(state, collectionId);
         return dispatch({
-          type: ACTIONS.COLLECTION_ITEMS_RESOLVE_FAIL,
-          data: collectionId,
+          type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
+          data: {
+            resolvedCollection: { ...collection, items: [], itemCount: 0, key: collectionKey },
+          },
         });
       }
     } else {
@@ -642,7 +705,15 @@ export const doFetchItemsInCollection =
     const collectionKey = selectCollectionKeyForId(state, collectionId);
 
     if (isPrivate) {
-      const newItems = collectionItems.map((item) => item.permanent_url);
+      const resolvedByRef: Record<string, any> = {};
+      collectionItems.forEach((item: any) => {
+        resolvedByRef[item.claim_id] = item;
+        if (item.permanent_url) resolvedByRef[item.permanent_url] = item;
+        if (item.canonical_url) resolvedByRef[item.canonical_url] = item;
+      });
+      // Preserve unavailable entries as-is so a partial resolve never silently
+      // removes items from the playlist.
+      const newItems = collection.items.map((item) => resolvedByRef[item]?.permanent_url || item);
       const newPrivateCollection = { ...collection, items: newItems, key: collectionKey };
       return dispatch({
         type: ACTIONS.COLLECTION_ITEMS_RESOLVE_SUCCESS,
@@ -840,7 +911,10 @@ export const doCollectionEdit =
       hasItemsResolved = selectCollectionHasItemsResolvedForId(state, collectionId);
     }
 
-    if (shouldResolveExistingItems && !hasItemsResolved) {
+    if (shouldResolveExistingItems && !hasItemsResolved && !changesNeedExistingItems) {
+      // Only item-modifying edits truly need the resolved item list. Metadata-only
+      // edits (title/description/thumbnail) proceed below using the stored items
+      // as-is, so a resolve hiccup no longer blocks saving.
       dispatch(
         doToast({
           message: __('Failed to resolve collection items. Please try again.'),
@@ -934,11 +1008,16 @@ export const doCollectionEdit =
                   type,
                 }
               : {}),
-            ...(params.thumbnail_url
+            // like description: only touch the thumbnail when the param is passed,
+            // and clear it when passed as empty/undefined (removing a thumbnail
+            // used to silently keep the old one)
+            ...('thumbnail_url' in params
               ? {
-                  thumbnail: {
-                    url: params.thumbnail_url,
-                  },
+                  thumbnail: params.thumbnail_url
+                    ? {
+                        url: params.thumbnail_url,
+                      }
+                    : undefined,
                 }
               : {}),
           },

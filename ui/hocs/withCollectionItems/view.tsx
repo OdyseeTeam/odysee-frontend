@@ -8,6 +8,7 @@ import {
   selectUrlsForCollectionIdNonDeleted,
   selectClaimIdsForCollectionId,
   selectCollectionHasItemsResolvedForId,
+  selectCountForCollectionId,
 } from 'redux/selectors/collections';
 import { doResolveClaimId } from 'redux/actions/claims';
 import { doFetchItemsInCollection } from 'redux/actions/collections';
@@ -37,9 +38,18 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
     const collectionHasItemsResolved = useAppSelector((state) =>
       selectCollectionHasItemsResolvedForId(state, collectionId)
     );
+    const rawCollectionItemCount = useAppSelector((state) => selectCountForCollectionId(state, collectionId));
+    const collectionItemCount = typeof rawCollectionItemCount === 'number' ? rawCollectionItemCount : 0;
 
     const collectionItems = useIds ? collectionIds : collectionUrls;
-    const shouldFetchCollectionItems = collectionItems === undefined || !collectionHasItemsResolved;
+    const hasResolvedCollectionItems =
+      Array.isArray(collectionItems) && (collectionItems.length > 0 || collectionItemCount === 0);
+    const effectiveCollectionHasItemsResolved = collectionHasItemsResolved || hasResolvedCollectionItems;
+    const shouldFetchCollectionItems = collectionItems === undefined || !effectiveCollectionHasItemsResolved;
+    const hasNoResolvedItems = Array.isArray(collectionItems) && collectionItems.length === 0;
+    const shouldKeepLoading =
+      collectionItems === undefined ||
+      (!effectiveCollectionHasItemsResolved && collectionItemCount > 0 && hasNoResolvedItems);
 
     React.useEffect(() => {
       if (!isPrivate) {
@@ -47,13 +57,38 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
       }
     }, [collectionId, dispatch, isPrivate]);
 
+    const [fetchAttempt, setFetchAttempt] = React.useState(0);
+
+    React.useEffect(() => {
+      setFetchAttempt(0);
+    }, [collectionId]);
+
     React.useEffect(() => {
       if (shouldFetchCollectionItems) {
-        dispatch(doFetchItemsInCollection({ collectionId }));
-      }
-    }, [collectionId, dispatch, shouldFetchCollectionItems]);
+        let cancelled = false;
+        let retryTimeout;
 
-    if (collectionItems === undefined) {
+        // A failed fetch used to leave the spinner up forever because nothing
+        // re-triggered this effect — retry a few times (with backoff) instead.
+        Promise.resolve(dispatch(doFetchItemsInCollection({ collectionId }))).finally(() => {
+          if (!cancelled) {
+            retryTimeout = setTimeout(
+              () => {
+                if (!cancelled) setFetchAttempt((attempt) => (attempt < 3 ? attempt + 1 : attempt));
+              },
+              2000 * (fetchAttempt + 1)
+            );
+          }
+        });
+
+        return () => {
+          cancelled = true;
+          if (retryTimeout) clearTimeout(retryTimeout);
+        };
+      }
+    }, [collectionId, dispatch, shouldFetchCollectionItems, fetchAttempt]);
+
+    if (shouldKeepLoading) {
       return (
         <div className="main--empty">
           <Spinner />
@@ -67,7 +102,7 @@ const withCollectionItems = <P extends Props>(Component: React.ComponentType<P &
         isPrivate={isPrivate}
         collectionUrls={collectionUrls}
         collectionIds={collectionIds}
-        collectionHasItemsResolved={collectionHasItemsResolved}
+        collectionHasItemsResolved={effectiveCollectionHasItemsResolved}
       />
     );
   };

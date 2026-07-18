@@ -117,10 +117,11 @@ export function getRecommendationSearchOptions(
   matureEnabled: boolean,
   claimIsMature: boolean,
   claimId: string,
-  language: string | null | undefined
+  language: string | null | undefined,
+  hideYouTubeMirrors: boolean = false
 ) {
   const options = {
-    size: 20,
+    size: hideYouTubeMirrors ? 50 : 20,
     nsfw: matureEnabled,
     isBackgroundSearch: true,
   };
@@ -173,6 +174,36 @@ export function getShortsRecommendationSearchOptions(
 export function getRecommendationSearchKey(title: string, options: {}) {
   const searchQuery = getSearchQueryString(title.replace(/\//, ' '), options);
   return createNormalizedSearchKey(searchQuery);
+}
+export function shouldFetchNextFilteredSearchPage({
+  currentQuery,
+  filteredResultCount,
+  from,
+  hasReachedMaxResultsLength,
+  hideYouTubeMirrors,
+  isSearching,
+  lastCompletedSearchFrom,
+  visibleResultTarget,
+}: {
+  currentQuery: string | null;
+  filteredResultCount: number;
+  from: number;
+  hasReachedMaxResultsLength: boolean;
+  hideYouTubeMirrors: boolean;
+  isSearching: boolean;
+  lastCompletedSearchFrom: number | null | undefined;
+  visibleResultTarget: number;
+}): boolean {
+  const currentRawPageLoaded = lastCompletedSearchFrom === from;
+
+  return Boolean(
+    hideYouTubeMirrors &&
+    currentQuery &&
+    !isSearching &&
+    currentRawPageLoaded &&
+    filteredResultCount < visibleResultTarget &&
+    !hasReachedMaxResultsLength
+  );
 }
 export function tagSearchCsOptionsHook(options: Record<string, any>): Record<string, any> {
   if (options.any_tags && options.any_tags.length > 0) {

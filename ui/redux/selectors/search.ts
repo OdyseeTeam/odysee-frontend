@@ -23,6 +23,8 @@ import { createNormalizedSearchKey, getRecommendationSearchKey, getRecommendatio
 import { selectMutedChannels } from 'redux/selectors/blocked';
 import { selectHistory } from 'redux/selectors/content';
 import * as SETTINGS from 'constants/settings';
+
+const RECOMMENDATION_RESULT_COUNT = 20;
 export const selectState = (state: State): SearchState => state.search;
 export const selectSearchValue: (state: State) => string = (state) => selectState(state).searchQuery;
 export const selectSearchOptions: (state: State) => SearchOptions = (state) => selectState(state).options;
@@ -40,6 +42,13 @@ export const makeSelectSearchUrisForQuery = (query: string): ((state: State) => 
     query = query.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
     const normalizedQuery = createNormalizedSearchKey(query);
     return byQuery[normalizedQuery] && byQuery[normalizedQuery]['uris'];
+  });
+export const makeSelectLastCompletedSearchFromForQuery = (query: string) =>
+  createSelector(selectSearchResultByQuery, (byQuery) => {
+    if (!query) return;
+    query = query.replace(/^lbry:\/\//i, '').replace(/\//, ' ');
+    const normalizedQuery = createNormalizedSearchKey(query);
+    return byQuery[normalizedQuery]?.lastCompletedFrom;
   });
 export const makeSelectHasReachedMaxResultsLength = (query: string) =>
   createSelector(selectHasReachedMaxResultsLength, (hasReachedMaxResultsLength) => {
@@ -62,11 +71,18 @@ export const selectRecommendedContentRawForUri = createCachedSelector(
   selectSearchResultByQuery,
   selectLanguage,
   (state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
-  (claim, matureEnabled, isMature, searchUrisByQuery, languageSetting, searchInLanguage) => {
+  selectHideYouTubeMirrors,
+  (claim, matureEnabled, isMature, searchUrisByQuery, languageSetting, searchInLanguage, hideYouTubeMirrors) => {
     const language = searchInLanguage ? languageSetting : null;
 
     if (claim?.value?.title) {
-      const options = getRecommendationSearchOptions(matureEnabled, isMature, claim.claim_id, language);
+      const options = getRecommendationSearchOptions(
+        matureEnabled,
+        isMature,
+        claim.claim_id,
+        language,
+        hideYouTubeMirrors
+      );
       const normalizedSearchQuery = getRecommendationSearchKey(claim.value.title, options);
       return searchUrisByQuery[normalizedSearchQuery];
     }
@@ -122,26 +138,28 @@ const selectRecommendedContentFilteredForUri = createCachedSelector(
     }
 
     const currentClaimId = claim.claim_id;
-    return recommendationsRaw.uris.filter((recUri) => {
-      const recClaim = recClaimsByUri[recUri];
+    return recommendationsRaw.uris
+      .filter((recUri) => {
+        const recClaim = recClaimsByUri[recUri];
 
-      if (!recClaim) {
-        return true; // Don't filter out unresolved claims (let the placeholders show)
-      }
+        if (!recClaim) {
+          return true; // Don't filter out unresolved claims (let the placeholders show)
+        }
 
-      const recChannelUri = recClaim?.signing_channel?.canonical_url;
-      const isRecChannelBlocked = blockedChannels.some((blockedUri) => blockedUri.includes(recChannelUri));
-      let isEqualUri;
+        const recChannelUri = recClaim?.signing_channel?.canonical_url;
+        const isRecChannelBlocked = blockedChannels.some((blockedUri) => blockedUri.includes(recChannelUri));
+        let isEqualUri;
 
-      try {
-        const { claimId: recClaimId } = parseURI(recUri);
-        isEqualUri = recClaimId === currentClaimId;
-      } catch (e) {}
+        try {
+          const { claimId: recClaimId } = parseURI(recUri);
+          isEqualUri = recClaimId === currentClaimId;
+        } catch (e) {}
 
-      const isPending = recClaim?.claim_id?.startsWith('pending-') || recClaim?.confirmations === 0;
-      const isYouTubeMirror = hideYouTubeMirrors && isClaimYouTubeMirror(recClaim);
-      return !isEqualUri && !isRecChannelBlocked && !isPending && !isYouTubeMirror;
-    });
+        const isPending = recClaim?.claim_id?.startsWith('pending-') || recClaim?.confirmations === 0;
+        const isYouTubeMirror = hideYouTubeMirrors && isClaimYouTubeMirror(recClaim);
+        return !isEqualUri && !isRecChannelBlocked && !isPending && !isYouTubeMirror;
+      })
+      .slice(0, RECOMMENDATION_RESULT_COUNT);
   }
 )((state, uri) => String(uri));
 
@@ -204,12 +222,19 @@ export const selectRecommendedMetaForClaimId = createCachedSelector(
   selectSearchResultByQuery,
   selectLanguage,
   (state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE),
-  (claim, matureEnabled, searchUrisByQuery, languageSetting, searchInLanguage) => {
+  selectHideYouTubeMirrors,
+  (claim, matureEnabled, searchUrisByQuery, languageSetting, searchInLanguage, hideYouTubeMirrors) => {
     if (claim && claim?.value?.title && claim.claim_id) {
       const isMature = isClaimNsfw(claim);
       const title = claim.value.title;
       const language = searchInLanguage ? languageSetting : null;
-      const options = getRecommendationSearchOptions(matureEnabled, isMature, claim.claim_id, language);
+      const options = getRecommendationSearchOptions(
+        matureEnabled,
+        isMature,
+        claim.claim_id,
+        language,
+        hideYouTubeMirrors
+      );
       const normalizedSearchQuery = getRecommendationSearchKey(title, options);
       const searchResult = searchUrisByQuery[normalizedSearchQuery];
 

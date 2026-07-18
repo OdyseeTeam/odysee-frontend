@@ -406,7 +406,7 @@ function FileThumbnail(props: Props) {
         isLiveRefreshing={isLiveRefreshing}
         hoverHandlers={hoverHandlers}
       >
-        {canPreviewOnHover && (
+        {isHovering && canPreviewOnHover && (
           <div
             className={classnames('media__thumb-video-wrap', {
               'media__thumb-video-wrap--active': hlsPreviewActive,

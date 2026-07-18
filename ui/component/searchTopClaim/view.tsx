@@ -16,6 +16,8 @@ import { doResolveUris } from 'redux/actions/claims';
 import { doOpenModal } from 'redux/actions/app';
 import { selectPendingIds, selectClaimForUri } from 'redux/selectors/claims';
 import { makeSelectWinningUriForQuery, selectIsResolvingWinningUri } from 'redux/selectors/search';
+import { selectHideYouTubeMirrors } from 'redux/selectors/settings';
+import { isClaimYouTubeMirror } from 'util/claim';
 
 type Props = {
   query: string;
@@ -31,6 +33,9 @@ export default function SearchTopClaim(props: Props) {
   const winningUriSelector = React.useMemo(() => makeSelectWinningUriForQuery(query), [query]);
   const winningUri = useAppSelector(winningUriSelector);
   const winningClaim = useAppSelector((state) => (winningUri ? selectClaimForUri(state, winningUri) : undefined));
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
+  const visibleWinningUri =
+    winningUri && (!hideYouTubeMirrors || !isClaimYouTubeMirror(winningClaim)) ? winningUri : undefined;
   const isResolvingWinningUri = useAppSelector((state) => (query ? selectIsResolvingWinningUri(state, query) : false));
 
   const uriFromQuery = `lbry://${query}`;
@@ -76,7 +81,7 @@ export default function SearchTopClaim(props: Props) {
   }, [dispatch, uriFromQuery, channelUriFromQuery]);
   return (
     <div className="search__header">
-      {winningUri && (
+      {visibleWinningUri && (
         <div className="claim-preview__actions--header">
           <a
             className="media__uri"
@@ -91,16 +96,16 @@ export default function SearchTopClaim(props: Props) {
           </a>
         </div>
       )}
-      {winningUri && winningClaim && (
+      {visibleWinningUri && winningClaim && (
         <div className="card">
           <ClaimPreview
             hideRepostLabel
             showNullPlaceholder
-            uri={winningUri}
+            uri={visibleWinningUri}
             properties={(claim) => (
               <span className="claim-preview__custom-properties">
-                <ClaimRepostAuthor short uri={winningUri} />
-                <ClaimEffectiveAmount uri={winningUri} />
+                <ClaimRepostAuthor short uri={visibleWinningUri} />
+                <ClaimEffectiveAmount uri={visibleWinningUri} />
               </span>
             )}
           />
@@ -129,7 +134,7 @@ export default function SearchTopClaim(props: Props) {
           </I18nMessage>
         </div>
       )}
-      {!hideLink && winningUri && (
+      {!hideLink && visibleWinningUri && (
         <div className="section__actions--between section__actions--no-margin">
           <span />
           <Button

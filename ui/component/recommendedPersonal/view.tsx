@@ -12,7 +12,10 @@ import { recsysFyp } from 'redux/actions/search';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doFetchPersonalRecommendations } from 'redux/actions/search';
 import { selectPersonalRecommendations } from 'redux/selectors/search';
+import { selectClaimsByUri } from 'redux/selectors/claims';
+import { selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import { selectUser } from 'redux/selectors/user';
+import { filterYouTubeMirrors } from 'util/claim';
 // ****************************************************************************
 // RecommendedPersonal
 // ****************************************************************************
@@ -37,12 +40,18 @@ export default function RecommendedPersonal(props: Props) {
   const user = useAppSelector(selectUser);
   const userId = user && user.id;
   const personalRecommendations = useAppSelector(selectPersonalRecommendations);
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
+  const recommendationUris = React.useMemo(
+    () => filterYouTubeMirrors(personalRecommendations.uris, claimsByUri, hideYouTubeMirrors),
+    [claimsByUri, hideYouTubeMirrors, personalRecommendations.uris]
+  );
   const ref = React.useRef<HTMLDivElement>(null);
   const [markedGid, setMarkedGid] = React.useState('');
   const [view, setView] = React.useState(VIEW.ALL_VISIBLE);
   const isLargeScreen = useIsLargeScreen();
   const isSmallScreen = useIsSmallScreen();
-  const count = personalRecommendations.uris.length;
+  const count = recommendationUris.length;
   const countCollapsed = getSuitablePageSizeForScreen(12, isLargeScreen, isSmallScreen);
   const finalCount = view === VIEW.ALL_VISIBLE ? count : view === VIEW.COLLAPSED ? countCollapsed : 36;
   const [hiddenArray, setHiddenArray] = useState([]);
@@ -60,7 +69,7 @@ export default function RecommendedPersonal(props: Props) {
     let hidden = hiddenArray.length;
 
     for (let uri of hiddenArray) {
-      if (personalRecommendations.uris.indexOf(uri) > finalCount) hidden--;
+      if (recommendationUris.indexOf(uri) > finalCount) hidden--;
     }
 
     return hidden;
@@ -87,7 +96,7 @@ export default function RecommendedPersonal(props: Props) {
       }
     }
 
-    if (newView && newView !== view) {
+    if (newView !== undefined && newView !== view) {
       setView(newView);
     }
   }, [count, countCollapsed, view, setView]);
@@ -156,7 +165,7 @@ export default function RecommendedPersonal(props: Props) {
 
       <ClaimList
         tileLayout
-        uris={personalRecommendations.uris.slice(0, finalCount + getHidden())}
+        uris={recommendationUris.slice(0, finalCount + getHidden())}
         fypId={personalRecommendations.gid}
         onHidden={onClaimHidden}
       />

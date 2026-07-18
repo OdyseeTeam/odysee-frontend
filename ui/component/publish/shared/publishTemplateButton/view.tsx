@@ -503,7 +503,7 @@ export default function PublishTemplateButton() {
           ? __('Template "%name%" unpinned', {
               name: template.name,
             })
-          : __('Template "%name%" pinned', {
+          : __('Template "%name%" pinned as the default for new uploads', {
               name: template.name,
             }),
       })

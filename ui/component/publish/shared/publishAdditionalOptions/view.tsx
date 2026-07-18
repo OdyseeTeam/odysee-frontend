@@ -10,7 +10,7 @@ import SUPPORTED_LANGUAGES from 'constants/supported_languages';
 import { sortLanguageMap } from 'util/default-languages';
 import PublishBid from '../publishBid';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectPublishFormValues, selectIsStillEditing } from 'redux/selectors/publish';
+import { selectPublishFormValues } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
 import { selectUser } from 'redux/selectors/user';
 type Props = {
@@ -26,9 +26,8 @@ function PublishAdditionalOptions(props: Props) {
   const formValues = useAppSelector((state) => selectPublishFormValues(state));
   const { language, licenseType, otherLicenseDescription, licenseUrl, visibility } = formValues;
   const user = useAppSelector((state) => selectUser(state));
-  const isStillEditing = useAppSelector(selectIsStillEditing);
   const updatePublishForm = (value: UpdatePublishState) => dispatch(doUpdatePublishForm(value));
-  const showReleaseDate = isStillEditing && !showSchedulingOptions && visibility === 'public';
+  const showReleaseDate = !showSchedulingOptions && visibility === 'public';
 
   return (
     <div className="publish-additional">

@@ -331,14 +331,9 @@ export const doFetchRecommendedContent =
         matureEnabled,
         claimIsMature,
         claim.claim_id,
-        language
+        language,
+        hideYouTubeMirrors
       );
-
-      // Increased the size because if it's the case the user is hiding
-      // YouTube mirrors, since Odysee is mostly mirrored videos—it'll just
-      // _not_ show that much videos, so this is here to combat the issue of
-      // when fetching, it doesn't show fewer results.
-      if (hideYouTubeMirrors) options.size = 50;
 
       if (fyp) {
         options['gid'] = fyp.gid;

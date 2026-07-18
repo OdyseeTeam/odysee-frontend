@@ -156,7 +156,12 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
     } = currentLocation as { search: string; href?: string; state: any; pathname?: string };
     const { forceDisableAutoplay } = locationState || {};
     const currentUriPlaying = playingUri.uri === uri && claimLinkId === playingUri.sourceId;
-    const urlParams = search ? new URLSearchParams(search) : null;
+    const uriQueryIndex = uri.indexOf('?');
+    const uriSearch = uriQueryIndex >= 0 ? uri.slice(uriQueryIndex) : '';
+    const urlParams = uriSearch || search ? new URLSearchParams(uriSearch) : null;
+    if (urlParams && search) {
+      new URLSearchParams(search).forEach((value, key) => urlParams.set(key, value));
+    }
     const forceAutoplayParam = (urlParams && urlParams.get('autoplay')) || false;
     const collectionId =
       (urlParams && (urlParams.get(COLLECTIONS_CONSTS.COLLECTION_ID) || urlParams.get('lid'))) ||
@@ -185,6 +190,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       delete window.__shortsAutoPlayNext;
       alreadyPlaying.current = false;
     }
+    const forcedAutoplay = Boolean(forceAutoplayParam || shortsAutoPlayOverride);
 
     const autoplayEnabled =
       !forceDisableAutoplay &&
@@ -192,12 +198,13 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
       (forceAutoplayParam ||
         urlTimeParam ||
         (isLivestreamClaim ? isCurrentClaimLive : autoplay) ||
+        isShortsContext ||
         (isShortsContext && autoplayNextShort));
     const autoplayVideo =
       !claimLinkId &&
       !isCastSessionActive() &&
       (autoplayEnabled || playingCollectionId) &&
-      (!alreadyPlaying.current || currentUriPlaying || (!isFloatingContext && autoplay)) &&
+      (forcedAutoplay || !alreadyPlaying.current || currentUriPlaying || (!isFloatingContext && autoplay)) &&
       isPlayable;
     const shouldStartFloating = !currentUriPlaying || (claimLinkId !== playingUri.sourceId && !isLivestreamClaim);
     const streamStarted = isPlayable ? playingUri.uri === uri : currentStreamingUri === uri;
@@ -289,7 +296,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         if (uriIsActive && !playingUriIsActive && !isHome && !claimLinkId && !isExternaleEmbed) {
           if (renderMode === 'video' || renderMode === 'audio') {
             // Play next
-            if (autoplay || shortsAutoPlayOverride) updateClaim('a & d & !claimLinkId video');
+            if (autoplay || forcedAutoplay) updateClaim('a & d & !claimLinkId video');
           } else {
             // Non video claims
             updateClaim('a & d & !claimLinkId nonVideo');
@@ -337,6 +344,7 @@ const withStreamClaimRender = (StreamClaimComponent: FunctionalComponentParam) =
         source: undefined,
         sourceId: claimLinkId,
         commentId: undefined,
+        isShort: isShortsContext ? true : undefined,
       };
       let check = playingOptions.uri === currentStreamingUri;
 

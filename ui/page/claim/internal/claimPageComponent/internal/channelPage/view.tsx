@@ -82,6 +82,61 @@ type Props = {
   };
 };
 
+function isShortVideoMetadata(video: { duration?: number; height?: number; width?: number } | null | undefined) {
+  if (!video) return false;
+
+  const duration = Number(video.duration);
+  const width = Number(video.width);
+  const height = Number(video.height);
+
+  return (
+    Number.isFinite(duration) &&
+    duration > 0 &&
+    duration <= SETTINGS.SHORTS_DURATION_LTE &&
+    Number.isFinite(width) &&
+    width > 0 &&
+    Number.isFinite(height) &&
+    height > 0 &&
+    width / height <= SETTINGS.SHORTS_ASPECT_RATIO_LTE
+  );
+}
+
+function probeShortVideoFromUrl(streamingUrl: string): Promise<boolean> {
+  return new Promise((resolve) => {
+    const video = document.createElement('video');
+
+    const cleanup = () => {
+      video.removeAttribute('src');
+      video.load();
+    };
+
+    const finish = (isShort: boolean) => {
+      cleanup();
+      resolve(isShort);
+    };
+
+    video.preload = 'metadata';
+    video.playsInline = true;
+    video.muted = true;
+    video.addEventListener(
+      'loadedmetadata',
+      () => {
+        finish(
+          isShortVideoMetadata({
+            duration: video.duration,
+            width: video.videoWidth,
+            height: video.videoHeight,
+          })
+        );
+      },
+      { once: true }
+    );
+    video.addEventListener('error', () => finish(true), { once: true });
+    video.src = streamingUrl;
+    video.load();
+  });
+}
+
 function ChannelPage(props: Props) {
   const navigate = useNavigate();
   const { search, pathname } = useLocation();
@@ -206,20 +261,47 @@ function ChannelPage(props: Props) {
       setHasShorts(true);
     }
 
-    // Use claim_search instead of lighthouse to detect shorts
     Lbry.claim_search({
       channel_ids: [claimId],
-      page_size: 1,
+      page_size: 20,
       stream_types: ['video'],
       duration: `<=${SETTINGS.SHORTS_DURATION_LTE}`,
-      content_aspect_ratio: `<=${SETTINGS.SHORTS_ASPECT_RATIO_LTE}`,
       order_by: ['release_time'],
       no_totals: true,
     })
-      .then((result: any) => {
+      .then(async (result: any) => {
         if (!cancelled) {
           const items = result?.items || [];
-          setHasShorts(items.length > 0);
+          const hasIndexedShort = items.some((item: Claim) => isShortVideoMetadata((item?.value as any)?.video));
+
+          if (hasIndexedShort) {
+            setHasShorts(true);
+            return;
+          }
+
+          for (const item of items) {
+            if (cancelled) return;
+
+            try {
+              const fileInfo = await Lbry.get({
+                uri: item.canonical_url || item.permanent_url,
+              });
+
+              if (cancelled) return;
+
+              if (!fileInfo?.streaming_url || (await probeShortVideoFromUrl(fileInfo.streaming_url))) {
+                setHasShorts(true);
+                return;
+              }
+            } catch {
+              if (!cancelled) {
+                setHasShorts(true);
+              }
+              return;
+            }
+          }
+
+          setHasShorts(false);
         }
       })
       .catch(() => {

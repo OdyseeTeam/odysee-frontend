@@ -10,10 +10,11 @@ import Button from 'component/button';
 import Card from 'component/common/card';
 import { FormField, FormFieldPrice } from 'component/common/form';
 import SettingsRow from 'component/settingsRow';
+import TagsSearch from 'component/tagsSearch';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 
 import { doSetClientSetting } from 'redux/actions/settings';
-import { selectShowMatureContent, selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
+import { selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 type Price = {
@@ -27,6 +28,8 @@ export default function SettingContent() {
   const hideMembersOnlyContent = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT));
   const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
+  const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const hideLivestreams = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES));
   const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
   const defaultCollectionAction = useAppSelector((state) => selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION));
@@ -35,7 +38,18 @@ export default function SettingContent() {
   const instantPurchaseMax: Price = useAppSelector((state) => selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX));
   const enablePublishPreview = useAppSelector((state) => selectClientSetting(state, SETTINGS.ENABLE_PUBLISH_PREVIEW));
 
-  const setClientSetting = (key: string, value: boolean | string | number) => dispatch(doSetClientSetting(key, value));
+  const setClientSetting = (key: string, value: boolean | string | number | string[]) => dispatch(doSetClientSetting(key, value));
+  const hiddenTagObjects = hiddenTags.map((name: string) => ({ name }));
+  const addHiddenTags = (newTags: Tag[]) => {
+    const nextTags = Array.from(new Set([...hiddenTags, ...newTags.map((tag) => tag.name).filter(Boolean)]));
+    setClientSetting(SETTINGS.HIDDEN_TAGS, nextTags);
+  };
+  const removeHiddenTag = (tagToRemove: Tag) => {
+    setClientSetting(
+      SETTINGS.HIDDEN_TAGS,
+      hiddenTags.filter((tag: string) => tag !== tagToRemove.name)
+    );
+  };
 
 
   return <>
@@ -61,6 +75,10 @@ export default function SettingContent() {
 
             <SettingsRow title={__('Hide short content')} subtitle={__(HELP.HIDE_SHORTS)}>
               <FormField type="checkbox" name="hide_shorts" checked={hideShorts} onChange={() => setClientSetting(SETTINGS.HIDE_SHORTS, !hideShorts)} />
+            </SettingsRow>
+
+            <SettingsRow title={__('Hidden tags')} subtitle={__(HELP.HIDDEN_TAGS)}>
+              <TagsSearch label={__('Hidden tags')} labelAddNew={__('Add tags')} labelSuggestions={__('Suggestions')} onRemove={removeHiddenTag} onSelect={addHiddenTags} disableAutoFocus tagsPassedIn={hiddenTagObjects} placeholder={__('Add tags to hide')} hideSuggestions disableControlTags />
             </SettingsRow>
 
             <SettingsRow title={__('Hide livestreams in categories')} subtitle={__(HELP.HIDE_LIVESTREAMS)}>
@@ -108,6 +126,7 @@ const HELP = {
   HIDE_MEMBERS_ONLY_CONTENT: 'You will not see content that requires a membership subscription.',
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
   HIDE_SHORTS: 'You will not see vertical videos less than 3 minutes.',
+  HIDDEN_TAGS: 'You will not see content with these tags in discovery and home sections.',
   HIDE_LIVESTREAMS: 'You will not see livestreams in non-following categories.',
   HIDE_YOUTUBE_MIRRORS: 'You will not see videos that are mirrored from YouTube.',
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',

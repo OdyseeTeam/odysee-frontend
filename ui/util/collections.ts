@@ -22,6 +22,10 @@ export function getClaimIdsInCollectionClaim(claim: CollectionClaim | null | und
 export function claimToStoredCollection(claim: CollectionClaim) {
   const storedCollection: Collection = Object.assign({}, defaultCollectionState);
   const claimIds = getClaimIdsInCollectionClaim(claim);
+  const fallbackTimestamp =
+    claim.confirmations === 0 || claim.claim_id?.startsWith('pending-') ? getCurrentTimeInSec() : 0;
+  const createdAt = Number(claim.meta?.creation_timestamp || claim.timestamp || fallbackTimestamp || 0);
+  const updatedAt = Number(claim.timestamp || claim.meta?.creation_timestamp || fallbackTimestamp || 0);
   Object.assign(storedCollection, {
     id: claim.claim_id,
     name: claim.value.title || claim.name,
@@ -31,8 +35,8 @@ export function claimToStoredCollection(claim: CollectionClaim) {
     description: claim.value.description,
     thumbnail: claim.value.thumbnail,
     tags: claim.value.tags || [],
-    createdAt: claim.meta?.creation_timestamp || claim.timestamp,
-    updatedAt: claim.timestamp || claim.meta?.creation_timestamp,
+    createdAt,
+    updatedAt,
     type: resolveCollectionType(claim.value.tags),
   });
   return storedCollection;

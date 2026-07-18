@@ -11,6 +11,7 @@ import {
   selectResolvedCollectionsById,
   selectMyCollectionClaimsById,
   selectClaimIsMineForId,
+  selectFailedToResolveIds,
 } from 'redux/selectors/claims';
 import { normalizeURI, parseURI } from 'util/lbryURI';
 import { createCachedSelector } from 're-reselect';
@@ -431,9 +432,32 @@ export const selectClaimIdsForCollectionId = createSelector(
     if (!items || !isPrivate) return items;
     const ids = new Set<string | null>();
     const notFetched = items.some((item) => {
-      const claimId = byUri[normalizeURI(item)];
+      // Items can be bare claim ids (e.g. stored from a published claim before
+      // its items resolved) — use them directly instead of blocking on resolve.
+      if (HEX_CLAIM_ID.test(item)) {
+        ids.add(item);
+        return false;
+      }
+
+      let claimId;
+      try {
+        claimId = byUri[normalizeURI(item)];
+      } catch (e) {
+        claimId = byUri[item];
+      }
 
       if (claimId === undefined) {
+        // Permanent urls embed the full claim id — fall back to it so an
+        // unresolved (but known) item doesn't block publishing the whole list.
+        try {
+          const { streamClaimId, channelClaimId, isChannel } = parseURI(item);
+          const embeddedId = isChannel ? channelClaimId : streamClaimId;
+
+          if (embeddedId && HEX_CLAIM_ID.test(embeddedId)) {
+            ids.add(embeddedId);
+            return false;
+          }
+        } catch (e) {}
         return true;
       }
 
@@ -464,7 +488,8 @@ export const selectUrlsForCollectionId = createCachedSelector(
   (state, collectionId, itemCount) => itemCount,
   selectItemsForCollectionId,
   selectClaimsById,
-  (collectionId, itemCount, items, claimsById) => {
+  selectFailedToResolveIds,
+  (collectionId, itemCount, items, claimsById, failedToResolveIds) => {
     if (!items) return items;
     const uris: string[] = [];
     let notFetched;
@@ -477,7 +502,10 @@ export const selectUrlsForCollectionId = createCachedSelector(
         if (claim) {
           const uri = claim.permanent_url || claim.canonical_url;
           if (uri) uris.push(uri);
-        } else if (claim === undefined) {
+        } else if (claim === undefined && !failedToResolveIds.includes(item)) {
+          // failed-to-resolve items are treated like unavailable ones instead of
+          // "still loading" — otherwise one failed claim_search left the whole
+          // collection stuck in a permanent loading state.
           notFetched = true;
         }
         // claim === null → resolved as abandoned/deleted; skip so consumers never receive a raw claim ID as a URI.
@@ -578,28 +606,34 @@ export const selectIndexForUrlInCollectionForId = createCachedSelector(
 )((state, id, uri) => `${id}:${uri}`);
 export const selectIndexForUriInPlayingCollectionForId = createCachedSelector(
   selectCollectionForIdClaimForUriItem,
-  (state: State, id: string) => selectUrlsForCollectionId(state, id),
+  (state: State, id: string) => selectUrlsForCollectionIdNonDeleted(state, id),
   selectCollectionForIdIsPlayingShuffle,
   (uriItem, collectionUrls, playingCollectionShuffleUrls) => {
-    const uris = playingCollectionShuffleUrls || collectionUrls;
+    const uris = playingCollectionShuffleUrls
+      ? playingCollectionShuffleUrls.filter((uri) => collectionUrls?.includes(uri))
+      : collectionUrls;
     const index = uris && uris.findIndex((uri) => uri === uriItem);
     if (index > -1) return index;
     return null;
   }
 )((state, id, uri) => `${id}:${uri}`);
 export const selectIsLastCollectionItemForIdAndUri = (state: State, collectionId: string, uri: string) => {
-  const index = selectIndexForUrlInCollectionForId(state, collectionId, uri);
-  const length = selectCollectionLengthForId(state, collectionId);
+  const index = selectIndexForUriInPlayingCollectionForId(state, collectionId, uri);
+  const length = selectCountForCollectionIdNonDeleted(state, collectionId);
   return index === length - 1;
 };
 export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelector(
-  selectUrlsForCollectionId,
+  selectUrlsForCollectionIdNonDeleted,
   selectIndexForUriInPlayingCollectionForId,
   selectCollectionForIdIsPlayingShuffle,
   selectCollectionForIdIsPlayingLoop,
   (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
     if (currentIndex === null) return null;
-    const uris = playingCollectionShuffleUrls || collectionUrls;
+    const uris = playingCollectionShuffleUrls
+      ? playingCollectionShuffleUrls.filter((uri) => collectionUrls?.includes(uri))
+      : collectionUrls;
+
+    if (!uris?.length) return null;
 
     if (currentIndex === 0 && isLooped) {
       return uris[uris.length - 1];
@@ -609,13 +643,17 @@ export const selectPreviousUriForUriInPlayingCollectionForId = createCachedSelec
   }
 )((state, url, id) => `${String(url)}:${String(id)}`);
 export const selectNextUriForUriInPlayingCollectionForId = createCachedSelector(
-  selectUrlsForCollectionId,
+  selectUrlsForCollectionIdNonDeleted,
   selectIndexForUriInPlayingCollectionForId,
   selectCollectionForIdIsPlayingShuffle,
   selectCollectionForIdIsPlayingLoop,
   (collectionUrls, currentIndex, playingCollectionShuffleUrls, isLooped) => {
     if (currentIndex === null) return null;
-    const uris = playingCollectionShuffleUrls || collectionUrls;
+    const uris = playingCollectionShuffleUrls
+      ? playingCollectionShuffleUrls.filter((uri) => collectionUrls?.includes(uri))
+      : collectionUrls;
+
+    if (!uris?.length) return null;
 
     if (currentIndex === uris.length - 1 && isLooped) {
       return uris[0];

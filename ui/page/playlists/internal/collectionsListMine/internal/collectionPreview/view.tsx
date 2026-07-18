@@ -232,8 +232,12 @@ function CollectionPreview(props: Props) {
               </div>
 
               <div className="update-at">
-                <Icon icon={ICONS.EDIT} />
-                <DateTime timeAgo date={collectionUpdatedAt} />
+                {collectionUpdatedAt && (
+                  <>
+                    <Icon icon={ICONS.EDIT} />
+                    <DateTime timeAgo date={collectionUpdatedAt} />
+                  </>
+                )}
               </div>
             </div>
 

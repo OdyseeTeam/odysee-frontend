@@ -6,6 +6,7 @@ import { fullscreenElement as getFullscreenElement, requestFullscreen, exitFulls
 import Player from '../player';
 
 const SEEK_STEP = 10;
+const ARROW_SEEK_STEP = 5;
 const VOLUME_STEP = 0.05;
 const VOLUME_STEP_FINE = 0.01;
 const FAST_SPEED = 2;
@@ -165,12 +166,12 @@ export default function useKeyboardShortcuts({
         window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: -SEEK_STEP } }));
       }
       if (e.keyCode === KEYCODES.RIGHT) {
-        seekVideo(SEEK_STEP);
-        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: SEEK_STEP } }));
+        seekVideo(ARROW_SEEK_STEP);
+        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: ARROW_SEEK_STEP } }));
       }
       if (e.keyCode === KEYCODES.LEFT) {
-        seekVideo(-SEEK_STEP);
-        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: -SEEK_STEP } }));
+        seekVideo(-ARROW_SEEK_STEP);
+        window.dispatchEvent(new CustomEvent('odysee-seek', { detail: { amount: -ARROW_SEEK_STEP } }));
       }
       if (e.keyCode === KEYCODES.ZERO) seekVideo(0, true);
       if (e.keyCode === KEYCODES.ONE) seekVideo(10 / 100, true);
@@ -244,6 +245,5 @@ export default function useKeyboardShortcuts({
       if (container) container.removeEventListener('wheel', handleWheel);
       clearHoldTimeout();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [media, isMobile, isLivestreamClaim]);
+  }, [containerRef, getState, isMobile, isLivestreamClaim, media, playNext, playPrevious, toggleVideoTheaterMode]);
 }

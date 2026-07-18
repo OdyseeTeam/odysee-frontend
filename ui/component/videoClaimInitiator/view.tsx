@@ -13,10 +13,11 @@ type Props = {
   uri: string;
   children?: any;
   streamClaim: () => void;
+  isShortsContext?: boolean;
 };
 
 const VideoClaimInitiator = (props: Props) => {
-  const { uri, children, streamClaim } = props;
+  const { uri, children, streamClaim, isShortsContext } = props;
   const dispatch = useAppDispatch();
   const mainPlayerDimensions = useAppSelector(selectMainPlayerDimensions);
   const playerRef = React.useCallback(
@@ -36,7 +37,7 @@ const VideoClaimInitiator = (props: Props) => {
     [dispatch, mainPlayerDimensions]
   );
   return (
-    <ClaimCoverRender uri={uri} onClick={streamClaim} passedRef={playerRef}>
+    <ClaimCoverRender uri={uri} onClick={streamClaim} passedRef={playerRef} isShortsContext={isShortsContext}>
       <Button className="button--icon button--play" onClick={streamClaim} iconSize={30} title={__('Play')} />
       {children}
     </ClaimCoverRender>

@@ -29,6 +29,9 @@ const SORT_OLD = 'old';
 const INITIAL_VISIBLE_COUNT = 50;
 const LOAD_MORE_COUNT = 50;
 const ACTIVE_ITEM_BUFFER = Math.round(INITIAL_VISIBLE_COUNT / 2);
+
+const getClaimListItemKey = (uri: string, index: number) => `${uri}:${index}`;
+
 type Props = {
   uris?: Array<string>;
   prefixUris?: Array<string>;
@@ -357,6 +360,8 @@ export default function ClaimList(props: Props) {
       <section ref={listRef} className={`claim-grid ${isShorts ? 'claim-shorts-grid' : ''}`}>
         {urisLength > 0 &&
           tileUris.map((uri, index) => {
+            const itemKey = getClaimListItemKey(uri, index);
+
             if (uri) {
               const inj = getInjectedItem(index);
 
@@ -367,7 +372,7 @@ export default function ClaimList(props: Props) {
               }
 
               return (
-                <React.Fragment key={uri}>
+                <React.Fragment key={itemKey}>
                   {inj}
                   {(index < tileUris.length - uriBuffer.current.length ||
                     (pageSize && index < pageSize - uriBuffer.current.length) ||
@@ -450,8 +455,8 @@ export default function ClaimList(props: Props) {
           {droppableProvided ? (
             <>
               {displayedUris.map((uri, index) => (
-                <React.Suspense fallback={null} key={uri}>
-                  <Draggable draggableId={uri} index={index}>
+                <React.Suspense fallback={null} key={getClaimListItemKey(uri, index)}>
+                  <Draggable draggableId={getClaimListItemKey(uri, index)} index={index}>
                     {(draggableProvided, draggableSnapshot) => {
                       const dp = draggableProvided.draggableProps;
                       // Restrict dragging to vertical axis (https://github.com/atlassian/react-beautiful-dnd/issues/958#issuecomment-980548919)
@@ -528,7 +533,7 @@ export default function ClaimList(props: Props) {
           ) : (
             <>
               {displayedUris.map((uri, index) => (
-                <React.Fragment key={uri}>
+                <React.Fragment key={getClaimListItemKey(uri, index)}>
                   {getInjectedItem(index)}
                   {getClaimPreview(uri, index)}
                 </React.Fragment>

@@ -9,15 +9,22 @@ export const CsOptHelper = {
   not_tags: (input: NotTagInput = {}) => {
     const not_tags = input.showNsfw ? [] : MATURE_TAGS.slice();
 
-    if (input.notTags) {
-      not_tags.push(...input.notTags);
+    const inputNotTags = Array.isArray(input.notTags) ? input.notTags : [];
+    const hiddenTags = Array.isArray(input.hiddenTags) ? input.hiddenTags : [];
+
+    if (inputNotTags.length) {
+      not_tags.push(...inputNotTags);
+    }
+
+    if (hiddenTags.length) {
+      not_tags.push(...hiddenTags);
     }
 
     if (input.hideMembersOnly) {
       not_tags.push(MEMBERS_ONLY_CONTENT_TAG);
     }
 
-    return not_tags;
+    return Array.from(new Set(not_tags.filter((tag) => typeof tag === 'string' && tag.trim())));
   },
 
   /**

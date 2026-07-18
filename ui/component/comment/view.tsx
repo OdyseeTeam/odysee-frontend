@@ -530,6 +530,7 @@ function CommentView(props: Props) {
                         parentCommentId={commentId}
                         stakedLevel={stakedLevel}
                         hasMembership={Boolean(odyseeMembership)}
+                        isComment
                       />
                     </Expandable>
                   )}

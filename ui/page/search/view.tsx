@@ -15,6 +15,7 @@ import { selectClaimsByUri } from 'redux/selectors/claims';
 import {
   selectIsSearching,
   makeSelectSearchUrisForQuery,
+  makeSelectLastCompletedSearchFromForQuery,
   selectSearchOptions,
   makeSelectHasReachedMaxResultsLength,
 } from 'redux/selectors/search';
@@ -24,8 +25,9 @@ import {
   selectLanguage,
   selectShowMatureContent,
 } from 'redux/selectors/settings';
-import { isClaimYouTubeMirror } from 'util/claim';
+import { filterYouTubeMirrors } from 'util/claim';
 import { getSearchQueryString } from 'util/query-params';
+import { shouldFetchNextFilteredSearchPage } from 'util/search';
 
 export default function SearchPage() {
   const dispatch = useAppDispatch();
@@ -60,14 +62,17 @@ export default function SearchPage() {
 
   const query = getSearchQueryString(urlQuery, searchOptions);
   const uris = useAppSelector((state) => makeSelectSearchUrisForQuery(query)(state));
+  const lastCompletedSearchFrom = useAppSelector((state) => makeSelectLastCompletedSearchFromForQuery(query)(state));
   const hasReachedMaxResultsLength = useAppSelector((state) => makeSelectHasReachedMaxResultsLength(query)(state));
   const filteredUris = React.useMemo(() => {
-    if (!uris || !hideYouTubeMirrors) return uris || [];
-
-    return uris.filter((uri) => !isClaimYouTubeMirror(claimsByUri[uri]));
+    return filterYouTubeMirrors(uris || [], claimsByUri, hideYouTubeMirrors);
   }, [claimsByUri, hideYouTubeMirrors, uris]);
 
-  const [from, setFrom] = React.useState(0);
+  const [from, setFrom] = React.useState(lastCompletedSearchFrom ?? 0);
+  const [visibleResultTarget, setVisibleResultTarget] = React.useState(SEARCH_PAGE_SIZE);
+  const [initializedQuery, setInitializedQuery] = React.useState(query);
+  const displayResultTarget = initializedQuery === query ? visibleResultTarget : SEARCH_PAGE_SIZE;
+  const visibleUris = hideYouTubeMirrors ? filteredUris.slice(0, displayResultTarget) : filteredUris;
   const [currentUrlQuery, setCurrentUrlQuery] = React.useState(urlQuery);
   const modifiedUrlQuery = urlQuery && urlQuery.trim().replace(/\s+/g, '').replace(/:/g, '#');
   const uriFromQuery = `lbry://${modifiedUrlQuery}`;
@@ -110,40 +115,71 @@ export default function SearchPage() {
 
   const stringifiedSearchOptions = JSON.stringify(searchOptions);
   useEffect(() => {
-    if (currentUrlQuery) {
+    const hasCompletedCurrentOffset = uris !== undefined && lastCompletedSearchFrom === from;
+
+    if (initializedQuery === query && currentUrlQuery && !hasCompletedCurrentOffset) {
       const searchOptions = JSON.parse(stringifiedSearchOptions);
       dispatch(doSearch(currentUrlQuery, { ...searchOptions, from: from }));
     }
-  }, [dispatch, currentUrlQuery, stringifiedSearchOptions, from]);
+  }, [
+    currentUrlQuery,
+    dispatch,
+    from,
+    initializedQuery,
+    lastCompletedSearchFrom,
+    query,
+    stringifiedSearchOptions,
+    uris,
+  ]);
   useEffect(() => {
-    resetPage();
+    setFrom(lastCompletedSearchFrom ?? 0);
+    setVisibleResultTarget(SEARCH_PAGE_SIZE);
     setCurrentUrlQuery(urlQuery);
-  }, [urlQuery]);
+    setInitializedQuery(query);
+  }, [query]);
   useEffect(() => {
-    const requestedResultCount = from + SEARCH_PAGE_SIZE;
-
     if (
-      hideYouTubeMirrors &&
-      currentUrlQuery &&
-      !isSearching &&
-      uris &&
-      uris.length > 0 &&
-      uris.length >= requestedResultCount &&
-      filteredUris.length < requestedResultCount &&
-      !hasReachedMaxResultsLength
+      initializedQuery === query &&
+      shouldFetchNextFilteredSearchPage({
+        currentQuery: currentUrlQuery,
+        filteredResultCount: filteredUris.length,
+        from,
+        hasReachedMaxResultsLength: Boolean(hasReachedMaxResultsLength),
+        hideYouTubeMirrors,
+        isSearching,
+        lastCompletedSearchFrom,
+        visibleResultTarget,
+      })
     ) {
       setFrom((prev) => prev + SEARCH_PAGE_SIZE);
     }
-  }, [currentUrlQuery, filteredUris.length, from, hasReachedMaxResultsLength, hideYouTubeMirrors, isSearching, uris]);
+  }, [
+    currentUrlQuery,
+    filteredUris.length,
+    from,
+    hasReachedMaxResultsLength,
+    hideYouTubeMirrors,
+    initializedQuery,
+    isSearching,
+    lastCompletedSearchFrom,
+    query,
+    uris,
+    visibleResultTarget,
+  ]);
 
   function loadMore() {
-    if (!isSearching && !hasReachedMaxResultsLength) {
-      setFrom((prev) => prev + SEARCH_PAGE_SIZE);
+    if (!isSearching) {
+      if (hideYouTubeMirrors && (filteredUris.length > visibleResultTarget || !hasReachedMaxResultsLength)) {
+        setVisibleResultTarget((prev) => prev + SEARCH_PAGE_SIZE);
+      } else if (!hideYouTubeMirrors && !hasReachedMaxResultsLength) {
+        setFrom((prev) => prev + SEARCH_PAGE_SIZE);
+      }
     }
   }
 
   function resetPage() {
-    setFrom(0);
+    setFrom(lastCompletedSearchFrom ?? 0);
+    setVisibleResultTarget(SEARCH_PAGE_SIZE);
   }
 
   return (
@@ -151,12 +187,12 @@ export default function SearchPage() {
       <section className="search">
         {urlQuery && isValid && <SearchTopClaim query={modifiedUrlQuery} isSearching={isSearching} />}
         <ClaimList
-          uris={filteredUris}
+          uris={visibleUris}
           loading={isSearching}
           useLoadingSpinner
           onScrollBottom={loadMore} // 'page' is 1-indexed; It's not the same as 'from', but it just
           // needs to be unique to indicate when a fetch is needed.
-          page={from + 1}
+          page={hideYouTubeMirrors ? displayResultTarget : from + 1}
           pageSize={SEARCH_PAGE_SIZE}
           header={<SearchOptions simple additionalOptions={searchOptions} onSearchOptionsChanged={resetPage} />}
         />
