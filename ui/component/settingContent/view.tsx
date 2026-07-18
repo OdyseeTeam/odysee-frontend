@@ -85,7 +85,7 @@ export default function SettingContent() {
               <FormField type="checkbox" name="hide_livestreams" checked={hideLivestreams} onChange={() => setClientSetting(SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES, !hideLivestreams)} />
             </SettingsRow>
 
-            <SettingsRow title={__('Hide YouTube mirrored videos')} subtitle={__(HELP.HIDE_YOUTUBE_MIRRORS)}>
+            <SettingsRow title={__('Hide Synced YouTube videos')} subtitle={__(HELP.HIDE_YOUTUBE_MIRRORS)}>
               <FormField type="checkbox" name="hide_youtube_mirrors" checked={hideYouTubeMirrors} onChange={() => setClientSetting(SETTINGS.HIDE_YOUTUBE_MIRRORS, !hideYouTubeMirrors)} />
             </SettingsRow>
 
@@ -128,7 +128,7 @@ const HELP = {
   HIDE_SHORTS: 'You will not see vertical videos less than 3 minutes.',
   HIDDEN_TAGS: 'You will not see content with these tags in discovery and home sections.',
   HIDE_LIVESTREAMS: 'You will not see livestreams in non-following categories.',
-  HIDE_YOUTUBE_MIRRORS: 'You will not see videos that are mirrored from YouTube.',
+  HIDE_YOUTUBE_MIRRORS: 'You will not see videos that are synced from YouTube.',
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE:

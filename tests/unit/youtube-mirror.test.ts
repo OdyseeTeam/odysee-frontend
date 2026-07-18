@@ -1,6 +1,8 @@
 import { beforeAll, describe, expect, it } from 'vite-plus/test';
 
 let filterYouTubeMirrors: any;
+let getLivestreamSectionUris: any;
+let getLivestreamTileLimit: any;
 let getRecommendationSearchOptions: any;
 let isClaimYouTubeMirror: any;
 let shouldFetchNextFilteredSearchPage: any;
@@ -23,8 +25,11 @@ beforeAll(async () => {
   });
 
   const claim = await import('../../ui/util/claim');
+  const livestreamSection = await import('../../ui/page/discover/internal/livestreamSection/utils');
   const search = await import('../../ui/util/search');
   filterYouTubeMirrors = claim.filterYouTubeMirrors;
+  getLivestreamSectionUris = livestreamSection.getLivestreamSectionUris;
+  getLivestreamTileLimit = livestreamSection.getLivestreamTileLimit;
   isClaimYouTubeMirror = claim.isClaimYouTubeMirror;
   getRecommendationSearchOptions = search.getRecommendationSearchOptions;
   shouldFetchNextFilteredSearchPage = search.shouldFetchNextFilteredSearchPage;
@@ -64,6 +69,45 @@ describe('YouTube mirror filtering', () => {
     expect(
       filterYouTubeMirrors(['lbry://mirror', '', 'lbry://native', 'lbry://unresolved'], claimsByUri, true)
     ).toEqual(['', 'lbry://native', 'lbry://unresolved']);
+  });
+});
+
+describe('filtered livestream grids', () => {
+  it('uses complete rows at each responsive breakpoint', () => {
+    expect(getLivestreamTileLimit(true, true, false)).toBe(6);
+    expect(getLivestreamTileLimit(false, true, false)).toBe(6);
+    expect(getLivestreamTileLimit(false, false, false)).toBe(8);
+    expect(getLivestreamTileLimit(false, false, true)).toBe(12);
+  });
+
+  it('filters mirrors before limiting the collapsed section', () => {
+    const mirrorClaim = makeVideoClaim(
+      'This channel is mirrored from YouTube...\nhttps://www.youtube.com/watch?v=video-id_123'
+    );
+    const nativeClaim = makeVideoClaim('Published directly on Odysee');
+    const rawUris = [
+      'lbry://native-a',
+      'lbry://mirror',
+      'lbry://native-b',
+      'lbry://native-c',
+      'lbry://native-d',
+      'lbry://native-e',
+      'lbry://native-f',
+    ];
+    const claimsByUri = Object.fromEntries(rawUris.map((uri) => [uri, nativeClaim]));
+    claimsByUri['lbry://mirror'] = mirrorClaim;
+
+    const { allUris, visibleUris } = getLivestreamSectionUris(rawUris, claimsByUri, true, 6, false);
+
+    expect(allUris).toHaveLength(6);
+    expect(visibleUris).toStrictEqual([
+      'lbry://native-a',
+      'lbry://native-b',
+      'lbry://native-c',
+      'lbry://native-d',
+      'lbry://native-e',
+      'lbry://native-f',
+    ]);
   });
 });
 
