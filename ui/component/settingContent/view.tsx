@@ -14,7 +14,7 @@ import TagsSearch from 'component/tagsSearch';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 
 import { doSetClientSetting } from 'redux/actions/settings';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 type Price = {
@@ -31,6 +31,7 @@ export default function SettingContent() {
   const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
   const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const hideLivestreams = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES));
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
   const defaultCollectionAction = useAppSelector((state) => selectClientSetting(state, SETTINGS.DEFAULT_COLLECTION_ACTION));
 
   const instantPurchaseEnabled = useAppSelector((state) => selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED));
@@ -84,6 +85,10 @@ export default function SettingContent() {
               <FormField type="checkbox" name="hide_livestreams" checked={hideLivestreams} onChange={() => setClientSetting(SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES, !hideLivestreams)} />
             </SettingsRow>
 
+            <SettingsRow title={__('Hide Synced YouTube videos')} subtitle={__(HELP.HIDE_YOUTUBE_MIRRORS)}>
+              <FormField type="checkbox" name="hide_youtube_mirrors" checked={hideYouTubeMirrors} onChange={() => setClientSetting(SETTINGS.HIDE_YOUTUBE_MIRRORS, !hideYouTubeMirrors)} />
+            </SettingsRow>
+
             <SettingsRow title={__('Default playlist action')} subtitle={__(HELP.DEFAULT_PLAYLIST_ACTION)}>
               <fieldset-section>
                 <FormField name="default_playlist_action_select" type="select" onChange={(e) => setClientSetting(SETTINGS.DEFAULT_COLLECTION_ACTION, e.target.value)} value={defaultCollectionAction}>
@@ -123,6 +128,7 @@ const HELP = {
   HIDE_SHORTS: 'You will not see vertical videos less than 3 minutes.',
   HIDDEN_TAGS: 'You will not see content with these tags in discovery and home sections.',
   HIDE_LIVESTREAMS: 'You will not see livestreams in non-following categories.',
+  HIDE_YOUTUBE_MIRRORS: 'You will not see videos that are synced from YouTube.',
   DEFAULT_PLAYLIST_ACTION: 'Default action when clicking a playlist.',
   HIDE_FYP: 'You will not see the personal recommendations in the homepage.',
   SHOW_MATURE:

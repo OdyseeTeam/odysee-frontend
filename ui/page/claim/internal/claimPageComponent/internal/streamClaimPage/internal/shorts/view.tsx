@@ -26,7 +26,12 @@ import ChannelThumbnail from 'component/channelThumbnail';
 import { Link } from 'react-router-dom';
 import ViewModeToggle from 'component/shortsActions/swipeNavigation/viewModeToggle';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { getChannelIdFromClaim, createNormalizedClaimSearchKey, isClaimShort as isClaimShortUtil } from 'util/claim';
+import {
+  getChannelIdFromClaim,
+  createNormalizedClaimSearchKey,
+  isClaimShort as isClaimShortUtil,
+  isClaimYouTubeMirror,
+} from 'util/claim';
 import { doFileGetForUri as doFileGetForUriAction } from 'redux/actions/file';
 import {
   selectClaimIsNsfwForUri,
@@ -35,6 +40,7 @@ import {
   selectIsUriUnlisted,
   makeSelectTagInClaimOrChannelForUri,
   selectClaimSearchByQuery,
+  selectClaimsByUri,
   selectTitleForUri,
 } from 'redux/selectors/claims';
 import {
@@ -51,7 +57,7 @@ import {
   doClearPlayingUri as doClearPlayingUriAction,
 } from 'redux/actions/content';
 import { selectIsSearching } from 'redux/selectors/search';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import { selectShortsSidePanelOpen, selectShortsPlaylist, selectShortsViewMode } from 'redux/selectors/shorts';
 import {
   doSetShortsSidePanel as doSetShortsSidePanelAction,
@@ -134,7 +140,18 @@ export default function ShortsPage(props: Props) {
   const channelId = getChannelIdFromClaim(claim);
   const claimId = claim?.claim_id;
   const commentSettingDisabled = useAppSelector((state) => selectCommentsDisabledSettingForChannelId(state, channelId));
-  const shortsRecommendedUris = useAppSelector((state) => selectShortsRecommendedContent(state, uri));
+  const rawShortsRecommendedUris = useAppSelector((state) => selectShortsRecommendedContent(state, uri));
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
+  const shortsRecommendedUris = React.useMemo(
+    () =>
+      hideYouTubeMirrors
+        ? rawShortsRecommendedUris.filter(
+            (recommendedUri: string) => recommendedUri === uri || !isClaimYouTubeMirror(claimsByUri[recommendedUri])
+          )
+        : rawShortsRecommendedUris,
+    [claimsByUri, hideYouTubeMirrors, rawShortsRecommendedUris, uri]
+  );
   const currentIndex = shortsRecommendedUris.findIndex((shortUri: string) => shortUri === uri);
   const title = claim?.value?.title;
   const channelUri = claim?.signing_channel?.canonical_url || claim?.signing_channel?.permanent_url;

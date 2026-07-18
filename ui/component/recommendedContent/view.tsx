@@ -16,7 +16,7 @@ import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectClaimForUri } from 'redux/selectors/claims';
 import { doFetchRecommendedContent } from 'redux/actions/search';
 import { selectRecommendedContentForUri, selectIsSearching } from 'redux/selectors/search';
-import { selectClientSetting } from 'redux/selectors/settings';
+import { selectClientSetting, selectHideYouTubeMirrors } from 'redux/selectors/settings';
 import * as SETTINGS from 'constants/settings';
 const VIEW_ALL_RELATED = 'view_all_related';
 const VIEW_MORE_FROM = 'view_more_from';
@@ -34,6 +34,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
   const nextRecommendedUri = recommendedContentUris && recommendedContentUris[0];
   const isSearching = useAppSelector(selectIsSearching);
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
 
   const currentLocation = location || routeLocation;
   const claimId: string | null | undefined = claim && claim.claim_id;
@@ -68,7 +69,7 @@ export default React.memo<Props>(function RecommendedContent(props: Props) {
           }
         : null;
     dispatch(doFetchRecommendedContent(uri, fypParam));
-  }, [uri, dispatch, fypId, search, uuid]);
+  }, [uri, dispatch, fypId, hideYouTubeMirrors, search, uuid]);
   React.useEffect(() => {
     // Right now we only want to record the recs if they actually saw them.
     if (

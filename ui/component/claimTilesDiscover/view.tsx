@@ -11,6 +11,7 @@ import {
   selectClaimSearchByQuery,
   selectFetchingClaimSearchByQuery,
   selectClaimSearchByQueryLastPageReached,
+  selectClaimsByUri,
 } from 'redux/selectors/claims';
 import {
   doClaimSearch as doClaimSearchAction,
@@ -19,10 +20,10 @@ import {
 } from 'redux/actions/claims';
 import { doFetchOdyseeMembershipForChannelIds as doFetchOdyseeMembershipForChannelIdsAction } from 'redux/actions/memberships';
 import * as SETTINGS from 'constants/settings';
-import { selectClientSetting, selectShowMatureContent } from 'redux/selectors/settings';
+import { selectClientSetting, selectHideYouTubeMirrors, selectShowMatureContent } from 'redux/selectors/settings';
 import { selectMutedAndBlockedChannelIds } from 'redux/selectors/blocked';
 import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
-import { createNormalizedClaimSearchKey } from 'util/claim';
+import { createNormalizedClaimSearchKey, filterYouTubeMirrors } from 'util/claim';
 import { CsOptHelper } from 'util/claim-search';
 import * as CS from 'constants/claim_search';
 const SHOW_TIMEOUT_MSG = false;
@@ -270,6 +271,8 @@ function ClaimTilesDiscover(props: Props) {
   const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
   const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
+  const claimsByUri = useAppSelector(selectClaimsByUri);
   const routerSearch = useAppSelector((state) => state.router?.location?.search || '');
   const options = resolveSearchOptions({
     showNsfw,
@@ -289,6 +292,22 @@ function ClaimTilesDiscover(props: Props) {
     (state) => selectClaimSearchByQueryLastPageReached(state)[searchKey]
   );
   const fetchingClaimSearch = useAppSelector((state) => selectFetchingClaimSearchByQuery(state)[searchKey]);
+  const filteredClaimSearchResults = React.useMemo(
+    () => filterYouTubeMirrors(claimSearchResults || [], claimsByUri, hideYouTubeMirrors),
+    [claimSearchResults, claimsByUri, hideYouTubeMirrors]
+  );
+  const rawClaimSearchResultsCount = claimSearchResults ? claimSearchResults.length : 0;
+  const filteredClaimSearchResultsCount = filteredClaimSearchResults.length;
+  const timedOut = claimSearchResults === null;
+  const shouldFetchMoreFilteredResults = // idk man
+    !loading &&
+    !fetchingClaimSearch &&
+    !timedOut &&
+    !claimSearchLastPageReached &&
+    rawClaimSearchResultsCount > 0 &&
+    filteredClaimSearchResultsCount < pageSize &&
+    rawClaimSearchResultsCount % pageSize === 0;
+  options.page = shouldFetchMoreFilteredResults ? Math.floor(rawClaimSearchResultsCount / pageSize) + 1 : 1;
   const optionsStringified = JSON.stringify(options);
   // -- dispatch --
   const doClaimSearch = React.useCallback(
@@ -311,33 +330,47 @@ function ClaimTilesDiscover(props: Props) {
   const findLastVisibleSlot = injectedItem && injectedItem.node && injectedItem.index === undefined;
   const lastVisibleIndex = useGetLastVisibleSlot(listRef, !findLastVisibleSlot);
   const prevUris = React.useRef<string[]>();
-  const claimSearchUris = claimSearchResults || [];
+  const claimSearchUris = filteredClaimSearchResults;
   const isUnfetchedClaimSearch = claimSearchResults === undefined;
   const resolvedPinUris = useResolvePins({
     pins,
     doResolveClaimIds,
     doResolveUris,
   });
+  const filteredPrefixUris = React.useMemo(
+    () => (prefixUris ? filterYouTubeMirrors(prefixUris, claimsByUri, hideYouTubeMirrors) : prefixUris),
+    [claimsByUri, hideYouTubeMirrors, prefixUris]
+  );
+  const filteredResolvedPinUris = React.useMemo(
+    () => (resolvedPinUris ? filterYouTubeMirrors(resolvedPinUris, claimsByUri, hideYouTubeMirrors) : resolvedPinUris),
+    [claimsByUri, hideYouTubeMirrors, resolvedPinUris]
+  );
   const uriBuffer = useRef([]);
-  const timedOut = claimSearchResults === null;
   const shouldPerformSearch =
-    !fetchingClaimSearch && !timedOut && claimSearchUris.length === 0 && !claimSearchLastPageReached;
-  const uris = (prefixUris || []).concat(claimSearchUris);
-  if (prefixUris && prefixUris.length) uris.splice(prefixUris.length * -1, prefixUris.length);
+    !fetchingClaimSearch &&
+    !timedOut &&
+    !claimSearchLastPageReached &&
+    (rawClaimSearchResultsCount === 0 || shouldFetchMoreFilteredResults);
+  const uris = (filteredPrefixUris || []).concat(claimSearchUris);
+  if (filteredPrefixUris && filteredPrefixUris.length) {
+    uris.splice(filteredPrefixUris.length * -1, filteredPrefixUris.length);
+  }
 
   // Treat the embed homepage the same as the main homepage for pin injection.
   if (window.location.pathname === '/' || window.location.pathname === '/$/embed/home') {
-    injectPinUrls(uris, pins, resolvedPinUris);
+    injectPinUrls(uris, pins, filteredResolvedPinUris);
   }
+  const filteredUris = filterYouTubeMirrors(uris, claimsByUri, hideYouTubeMirrors);
 
-  if (uris.length > 0 && uris.length < pageSize && shouldPerformSearch) {
+  if (filteredUris.length > 0 && filteredUris.length < pageSize && shouldPerformSearch) {
     // prefixUri and pinUrls might already be present while waiting for the
     // remaining claim_search results. Fill the space to prevent layout shifts.
-    uris.push(...Array(pageSize - uris.length).fill(''));
+    filteredUris.push(...Array(pageSize - filteredUris.length).fill(''));
   }
 
   // Show previous results while we fetch to avoid blinkies and poor CLS.
-  const finalUris = isUnfetchedClaimSearch && prevUris.current ? prevUris.current : uris;
+  const visibleUris = hideYouTubeMirrors ? filteredUris.slice(0, pageSize) : filteredUris;
+  const finalUris = isUnfetchedClaimSearch && prevUris.current ? prevUris.current : visibleUris;
   prevUris.current = finalUris;
 
   // --------------------------------------------------------------------------

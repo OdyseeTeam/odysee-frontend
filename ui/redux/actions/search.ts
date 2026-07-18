@@ -3,7 +3,12 @@ import * as MODALS from 'constants/modal_types';
 import * as SETTINGS from 'constants/settings';
 import { doOpenModal } from 'redux/actions/app';
 import { doToast } from 'redux/actions/notifications';
-import { selectClientSetting, selectLanguage, selectShowMatureContent } from 'redux/selectors/settings';
+import {
+  selectClientSetting,
+  selectHideYouTubeMirrors,
+  selectLanguage,
+  selectShowMatureContent,
+} from 'redux/selectors/settings';
 import { selectClaimForUri, selectClaimIdForUri, selectClaimIsNsfwForUri } from 'redux/selectors/claims';
 import { doClaimSearch, doResolveClaimIds, doResolveUris } from 'redux/actions/claims';
 import { buildURI, isURIValid } from 'util/lbryURI';
@@ -315,6 +320,7 @@ export const doFetchRecommendedContent =
     const state = getState();
     const claim = selectClaimForUri(state, uri);
     const matureEnabled = selectShowMatureContent(state);
+    const hideYouTubeMirrors = selectHideYouTubeMirrors(state);
     const claimIsMature = selectClaimIsNsfwForUri(state, uri);
     const languageSetting = selectLanguage(state);
     const searchInLanguage = selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE);
@@ -325,7 +331,8 @@ export const doFetchRecommendedContent =
         matureEnabled,
         claimIsMature,
         claim.claim_id,
-        language
+        language,
+        hideYouTubeMirrors
       );
 
       if (fyp) {

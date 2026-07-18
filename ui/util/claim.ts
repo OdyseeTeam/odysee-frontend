@@ -209,5 +209,25 @@ export const isClaimShort = (claim: Claim | null | undefined): boolean => {
   const isVertical = aspectRatio <= SETTINGS.SHORTS_ASPECT_RATIO_LTE;
   return isVertical;
 };
+export const isClaimYouTubeMirror = (claim: Claim | null | undefined): boolean => {
+  if (claim?.reposted_claim) return isClaimYouTubeMirror(claim.reposted_claim);
+  if (!claim || !claim.value) return false;
+  const value = claim.value as StreamMetadata;
+  if (claim.value_type !== 'stream' || value.stream_type !== 'video') return false;
+  const description = value.description;
+  if (!description) return false;
+  return /\.\.\.\s*\n\s*(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/|shorts\/)|youtu\.be\/)[\w-]+/i.test(
+    description
+  );
+};
+export const filterYouTubeMirrors = (
+  uris: Array<string>,
+  claimsByUri: Record<string, Claim | null | undefined>,
+  hideYouTubeMirrors: boolean
+): Array<string> => {
+  if (!hideYouTubeMirrors) return uris;
+
+  return uris.filter((uri) => !uri || !isClaimYouTubeMirror(claimsByUri[uri]));
+};
 export const getClaimMeta = (claim: Claim | null | undefined) => claim && claim.meta;
 export const getClaimRepostedAmount = (claim: Claim | null | undefined) => getClaimMeta(claim)?.reposted;

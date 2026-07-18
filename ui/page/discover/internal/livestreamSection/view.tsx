@@ -4,22 +4,20 @@ import { ENABLE_NO_SOURCE_CLAIMS } from 'config';
 import * as SETTINGS from 'constants/settings';
 import * as ICONS from 'constants/icons';
 import ClaimListDiscover from 'component/claimListDiscover';
-import { useIsMobile, useIsLargeScreen } from 'effects/use-screensize';
+import { useIsMobile, useIsSmallScreen, useIsLargeScreen } from 'effects/use-screensize';
 import usePersistedState from 'effects/use-persisted-state';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { resolveLangForClaimSearch } from 'util/default-languages';
+import { selectClaimsByUri } from 'redux/selectors/claims';
 import { selectFilteredActiveLivestreamUris } from 'redux/selectors/livestream';
-import { selectClientSetting, selectLanguage } from 'redux/selectors/settings';
+import { selectClientSetting, selectHideYouTubeMirrors, selectLanguage } from 'redux/selectors/settings';
 import { doFetchAllActiveLivestreamsForQuery } from 'redux/actions/livestream';
-const DEFAULT_LIVESTREAM_TILE_LIMIT = 8;
+import { getLivestreamSectionUris, getLivestreamTileLimit } from './utils';
+
 const SECTION = Object.freeze({
   COLLAPSED: 1,
   EXPANDED: 2,
 });
-
-function getTileLimit(isLargeScreen, originalSize) {
-  return isLargeScreen ? originalSize * (3 / 2) : originalSize;
-}
 
 // ****************************************************************************
 // ****************************************************************************
@@ -43,13 +41,27 @@ export default function LivestreamSection(props: Props) {
   const activeLivestreamUris = useAppSelector((state) =>
     selectFilteredActiveLivestreamUris(state, channelIds, excludedChannelIds, livestreamSectionQueryStr)
   );
+  const claimsByUri = useAppSelector(selectClaimsByUri);
+  const hideYouTubeMirrors = useAppSelector(selectHideYouTubeMirrors);
   const [liveSectionStore, setLiveSectionStore] = usePersistedState('discover:lsSection', SECTION.COLLAPSED);
   const [expandedYPos, setExpandedYPos] = React.useState(null);
   const isMobile = useIsMobile();
+  const isSmallScreen = useIsSmallScreen();
   const isLargeScreen = useIsLargeScreen();
-  const initialLiveTileLimit = isMobile ? 6 : getTileLimit(isLargeScreen, DEFAULT_LIVESTREAM_TILE_LIMIT);
+  const initialLiveTileLimit = getLivestreamTileLimit(isMobile, isSmallScreen, isLargeScreen);
   const [liveSection, setLiveSection] = React.useState(liveSectionStore || SECTION.COLLAPSED);
-  const liveTilesOverLimit = activeLivestreamUris && activeLivestreamUris.length > initialLiveTileLimit;
+  const { allUris: filteredActiveLivestreamUris, visibleUris: visibleActiveLivestreamUris } = React.useMemo(
+    () =>
+      getLivestreamSectionUris(
+        activeLivestreamUris,
+        claimsByUri,
+        hideYouTubeMirrors,
+        initialLiveTileLimit,
+        liveSection === SECTION.EXPANDED
+      ),
+    [activeLivestreamUris, claimsByUri, hideYouTubeMirrors, initialLiveTileLimit, liveSection]
+  );
+  const liveTilesOverLimit = filteredActiveLivestreamUris && filteredActiveLivestreamUris.length > initialLiveTileLimit;
 
   function collapseSection() {
     window.scrollTo(0, 0);
@@ -73,7 +85,7 @@ export default function LivestreamSection(props: Props) {
     }
   }, [liveSection, expandedYPos]);
 
-  if (!activeLivestreamUris || activeLivestreamUris.length === 0) {
+  if (!filteredActiveLivestreamUris || filteredActiveLivestreamUris.length === 0) {
     return null;
   }
 
@@ -81,11 +93,7 @@ export default function LivestreamSection(props: Props) {
     return (
       <div className="livestream-list">
         <ClaimListDiscover
-          uris={
-            liveSection === SECTION.COLLAPSED
-              ? activeLivestreamUris.slice(0, initialLiveTileLimit)
-              : activeLivestreamUris
-          }
+          uris={visibleActiveLivestreamUris}
           tileLayout={tileLayout}
           headerLabel={<h1 className="page__title">{__('Livestreams')}</h1>}
           useSkeletonScreen={false}
@@ -131,9 +139,7 @@ export default function LivestreamSection(props: Props) {
   return (
     <div className="livestream-list">
       <ClaimListDiscover
-        uris={
-          liveSection === SECTION.COLLAPSED ? activeLivestreamUris.slice(0, initialLiveTileLimit) : activeLivestreamUris
-        }
+        uris={visibleActiveLivestreamUris}
         tileLayout={tileLayout}
         showHeader={false}
         hideFilters
