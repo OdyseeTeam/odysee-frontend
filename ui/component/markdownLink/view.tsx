@@ -2,6 +2,7 @@ import { KNOWN_APP_DOMAINS } from 'config';
 import * as ICONS from 'constants/icons';
 import * as React from 'react';
 import { isURIValid } from 'util/lbryURI';
+import { isEmbedOptIn, isEmbedOptOut } from 'util/remark-lbry';
 import Button from 'component/button';
 import CommentMenuList from 'component/commentMenuList';
 import ChannelTitle from 'component/channelTitle';
@@ -65,6 +66,8 @@ function MarkdownLink(props: Props) {
   // Regex for url protocol
   const protocolRegex = new RegExp('^(https?|lbry|mailto)+:', 'i');
   const protocol = href ? protocolRegex.exec(href) : null;
+  const embedOptOut = isEmbedOptOut(href, title);
+  const embedOptIn = isEmbedOptIn(href, title);
   const isMention = href && href.startsWith('lbry://@');
   const mentionedMyChannel =
     isMention &&
@@ -106,7 +109,7 @@ function MarkdownLink(props: Props) {
       const isMarkdownLinkWithLabel =
         children && Array.isArray(children) && React.Children.count(children) === 1 && children.toString() !== href;
 
-      if (possibleLbryUrl && !isMarkdownLinkWithLabel && !isComment) {
+      if (possibleLbryUrl && !embedOptOut && (embedOptIn || (!isMarkdownLinkWithLabel && !isComment))) {
         lbryUrlFromLink = possibleLbryUrl;
       }
     }
@@ -155,7 +158,7 @@ function MarkdownLink(props: Props) {
         <ClaimLink
           uri={lbryUrlFromLink || decodedUri}
           parentCommentId={parentCommentId}
-          allowPreview={embed || allowPreview || allowKnownAppPreview}
+          allowPreview={!embedOptOut && (embed || embedOptIn || allowPreview || allowKnownAppPreview)}
         >
           {children}
         </ClaimLink>

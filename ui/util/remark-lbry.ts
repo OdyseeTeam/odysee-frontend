@@ -92,6 +92,55 @@ const TRAILING_PAIRS: Array<[string, string]> = [
   ['{', '}'],
 ];
 const TRAILING_PUNCTUATION = ".,;:!?'";
+const EMBED_OPT_OUT_VALUES = new Set(['0', 'false', 'no']);
+const EMBED_OPT_IN_VALUES = new Set(['1', 'true', 'yes']);
+
+function getLinkSearchParams(url: string): URLSearchParams | null {
+  const queryIndex = url.indexOf('?');
+  if (queryIndex < 0) {
+    return null;
+  }
+
+  const hashIndex = url.indexOf('#', queryIndex);
+  const query = url.slice(queryIndex + 1, hashIndex >= 0 ? hashIndex : undefined);
+  return new URLSearchParams(query);
+}
+
+export function isEmbedOptOut(url: string, title?: string | null): boolean {
+  const normalizedTitle = title?.trim().toLowerCase();
+  if (normalizedTitle === 'noembed' || normalizedTitle === 'no-embed') {
+    return true;
+  }
+
+  const params = getLinkSearchParams(url);
+  if (!params) {
+    return false;
+  }
+
+  const embed = params.get('embed');
+  const noEmbed = params.get('noembed');
+
+  return (
+    (embed !== null && EMBED_OPT_OUT_VALUES.has(embed.toLowerCase())) ||
+    (noEmbed !== null && !EMBED_OPT_OUT_VALUES.has(noEmbed.toLowerCase()))
+  );
+}
+
+export function isEmbedOptIn(url: string, title?: string | null): boolean {
+  const normalizedTitle = title?.trim().toLowerCase();
+  if (normalizedTitle === 'embed') {
+    return true;
+  }
+
+  const params = getLinkSearchParams(url);
+  if (!params) {
+    return false;
+  }
+
+  const embed = params.get('embed');
+
+  return embed !== null && EMBED_OPT_IN_VALUES.has(embed.toLowerCase());
+}
 
 // Strip trailing punctuation from a bare URL, but keep paired brackets balanced
 // so links like https://en.wikipedia.org/wiki/Mark_Levine_(disambiguation) survive.
@@ -318,7 +367,7 @@ function splitTextNode(value: string): MdastNode[] {
 }
 
 function setAutoEmbed(node: MdastNode) {
-  if (!node.url) {
+  if (!node.url || isEmbedOptOut(node.url, node.title)) {
     return;
   }
 
