@@ -1,7 +1,7 @@
 import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, MISSING_THUMB_DEFAULT } from 'config';
 import { platform } from 'util/platform';
 import { formattedEmote } from 'util/remark-emote';
-import { formattedLinks } from 'util/remark-lbry';
+import { formattedLinks, isEmbedOptIn, isEmbedOptOut } from 'util/remark-lbry';
 import { formattedTimestamp } from 'util/remark-timestamp';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
 import * as React from 'react';
@@ -214,11 +214,9 @@ const SimpleLink = (props: SimpleLinkProps) => {
     );
   }
 
-  const [uri, search] = href.split('?');
-  const urlParams = new URLSearchParams(search);
-  const embedParam = urlParams.get('embed');
+  const [uri] = href.split('?');
 
-  if (embed || embedParam) {
+  if (!isEmbedOptOut(href, title) && (embed || isEmbedOptIn(href, title))) {
     // Decode this since users might just copy it from the url bar
     const decodedUri = decodeURI(uri);
     return (

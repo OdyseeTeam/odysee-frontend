@@ -292,7 +292,7 @@ function createLinkNode(rawText: string): { node?: MdastNode; consumedText: stri
       }
 
       return {
-        node: createURI(consumedText, consumedText, true),
+        node: createURI(consumedText, consumedText, !isEmbedOptOut(consumedText)),
         consumedText,
       };
     }
