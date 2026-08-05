@@ -7,6 +7,8 @@ import { platform } from 'util/platform';
 
 const IOS_FS_CLASS = 'ios-fullscreen';
 let iosFsElement = null;
+let iosFsMode = null;
+let removeIosNativeExitListener = null;
 
 function syncViewportHeight() {
   const docEl = document.documentElement;
@@ -32,9 +34,114 @@ const getPrefix = () => {
   return prefixIndex;
 };
 
+function getVideoElement(elem) {
+  if (!elem) return null;
+  if (elem.tagName === 'VIDEO') return elem;
+  if (typeof elem.querySelector === 'function') return elem.querySelector('video');
+  return null;
+}
+
+function dispatchFullscreenChange(elem) {
+  document.dispatchEvent(new Event('fullscreenchange'));
+  elem.dispatchEvent(new Event('fullscreenchange'));
+}
+
+function isEmbeddedPlayerFullscreenTarget(elem) {
+  return Boolean(elem?.classList?.contains('video-js-parent'));
+}
+
+function enterIosCssFullscreen(elem) {
+  const docEl = document.documentElement;
+  if (docEl) docEl.classList.add(IOS_FS_CLASS);
+  iosFsElement = elem;
+  iosFsMode = 'css';
+  syncViewportHeight();
+  window.addEventListener('resize', syncViewportHeight);
+  dispatchFullscreenChange(elem);
+}
+
+function clearIosFullscreenState(elem, dispatchEvent = true) {
+  if (removeIosNativeExitListener) {
+    removeIosNativeExitListener();
+    removeIosNativeExitListener = null;
+  }
+
+  const docEl = document.documentElement;
+  if (docEl) {
+    docEl.classList.remove(IOS_FS_CLASS);
+    docEl.style.removeProperty('--ios-fs-height');
+  }
+  window.removeEventListener('resize', syncViewportHeight);
+  iosFsElement = null;
+  iosFsMode = null;
+  if (dispatchEvent) {
+    document.dispatchEvent(new Event('fullscreenchange'));
+    if (elem) elem.dispatchEvent(new Event('fullscreenchange'));
+  }
+}
+
+function trackWebkitVideoFullscreen(video) {
+  iosFsElement = video;
+  iosFsMode = 'webkit-video';
+  dispatchFullscreenChange(video);
+
+  const handleNativeExit = () => {
+    if (iosFsElement === video && iosFsMode === 'webkit-video') {
+      clearIosFullscreenState(video);
+    }
+  };
+
+  video.addEventListener('webkitendfullscreen', handleNativeExit, { once: true });
+  removeIosNativeExitListener = () => video.removeEventListener('webkitendfullscreen', handleNativeExit);
+}
+
+function trackStandardVideoFullscreen(video) {
+  iosFsElement = video;
+  iosFsMode = 'standard-video';
+
+  const handleNativeExit = () => {
+    if (iosFsElement === video && iosFsMode === 'standard-video' && !document.fullscreenElement) {
+      clearIosFullscreenState(video, false);
+    }
+  };
+
+  document.addEventListener('fullscreenchange', handleNativeExit);
+  removeIosNativeExitListener = () => document.removeEventListener('fullscreenchange', handleNativeExit);
+}
+
+function requestVideoFullscreen(video, onReject?) {
+  if (!video) return false;
+
+  try {
+    if (video.webkitEnterFullscreen) {
+      video.webkitEnterFullscreen();
+      trackWebkitVideoFullscreen(video);
+      return true;
+    }
+
+    if (video.requestFullscreen) {
+      const result = video.requestFullscreen();
+      trackStandardVideoFullscreen(video);
+      if (result && typeof result.catch === 'function') {
+        result.catch(() => {
+          clearIosFullscreenState(video, false);
+          if (onReject) onReject();
+        });
+      }
+      return true;
+    }
+  } catch {
+    clearIosFullscreenState(video);
+  }
+
+  return false;
+}
+
 export const fullscreenElement = () => {
   if (platform.isIPhone()) {
-    return iosFsElement;
+    const index = getPrefix();
+    const prefix = prefixes.fullscreenElement[index];
+    return iosFsElement || document[prefix];
   }
   const index = getPrefix();
   const prefix = prefixes.fullscreenElement[index];
@@ -43,13 +150,14 @@ export const fullscreenElement = () => {
 
 export const requestFullscreen = (elem) => {
   if (platform.isIPhone()) {
-    const docEl = document.documentElement;
-    if (docEl) docEl.classList.add(IOS_FS_CLASS);
-    iosFsElement = elem;
-    syncViewportHeight();
-    window.addEventListener('resize', syncViewportHeight);
-    document.dispatchEvent(new Event('fullscreenchange'));
-    elem.dispatchEvent(new Event('fullscreenchange'));
+    if (
+      isEmbeddedPlayerFullscreenTarget(elem) &&
+      requestVideoFullscreen(getVideoElement(elem), () => enterIosCssFullscreen(elem))
+    ) {
+      return;
+    }
+
+    enterIosCssFullscreen(elem);
     return;
   }
   const index = getPrefix();
@@ -59,38 +167,40 @@ export const requestFullscreen = (elem) => {
     const result = elem[prefix]();
     if (result && typeof result.catch === 'function') {
       result.catch(() => {
-        const video = elem.querySelector('video');
-        if (video) {
-          if (video.requestFullscreen) {
-            video.requestFullscreen().catch(() => {});
-          } else if (video.webkitEnterFullscreen) {
-            video.webkitEnterFullscreen();
-          }
-        }
+        requestVideoFullscreen(getVideoElement(elem));
       });
     }
   } catch {
-    const video = elem.querySelector('video');
-    if (video) {
-      if (video.requestFullscreen) {
-        video.requestFullscreen().catch(() => {});
-      } else if (video.webkitEnterFullscreen) {
-        video.webkitEnterFullscreen();
-      }
-    }
+    requestVideoFullscreen(getVideoElement(elem));
   }
 };
 
 export const exitFullscreen = () => {
   if (platform.isIPhone() && iosFsElement) {
-    const docEl = document.documentElement;
-    if (docEl) {
-      docEl.classList.remove(IOS_FS_CLASS);
-      docEl.style.removeProperty('--ios-fs-height');
+    const elem = iosFsElement;
+
+    if (iosFsMode === 'webkit-video' && elem.webkitExitFullscreen) {
+      elem.webkitExitFullscreen();
+      clearIosFullscreenState(elem);
+      return;
     }
-    window.removeEventListener('resize', syncViewportHeight);
-    iosFsElement = null;
-    document.dispatchEvent(new Event('fullscreenchange'));
+
+    if (iosFsMode === 'standard-video') {
+      const index = getPrefix();
+      const prefix = prefixes.exitFullscreen[index];
+      if (!document[prefix]) {
+        clearIosFullscreenState(elem);
+        return;
+      }
+
+      const result = document[prefix]();
+      if (result && typeof result.catch === 'function') {
+        result.catch(() => {});
+      }
+      return;
+    }
+
+    clearIosFullscreenState(elem);
     return;
   }
   const index = getPrefix();
