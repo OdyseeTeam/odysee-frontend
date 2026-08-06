@@ -594,48 +594,38 @@ export default handleActions(
       const pinnedCommentsById = Object.assign({}, state.pinnedCommentsById);
 
       if (pinnedComment) {
-        if (topLevelCommentsById[claimId]) {
-          const index = topLevelCommentsById[claimId].indexOf(pinnedComment.comment_id);
-
-          if (index > -1) {
-            topLevelCommentsById[claimId].splice(index, 1);
-          }
-        } else {
-          topLevelCommentsById[claimId] = [];
-        }
-
-        if (pinnedCommentsById[claimId]) {
-          const index = pinnedCommentsById[claimId].indexOf(pinnedComment.comment_id);
-
-          if (index > -1) {
-            pinnedCommentsById[claimId].splice(index, 1);
-          }
-        } else {
-          pinnedCommentsById[claimId] = [];
-        }
+        const existingComment = commentById[pinnedComment.comment_id];
+        topLevelCommentsById[claimId] = (topLevelCommentsById[claimId] || []).filter(
+          (commentId) => commentId !== pinnedComment.comment_id
+        );
+        pinnedCommentsById[claimId] = (pinnedCommentsById[claimId] || []).filter(
+          (commentId) => commentId !== pinnedComment.comment_id
+        );
 
         if (unpin) {
           // Without the sort score, I have no idea where to put it. Just
           // dump it at the top. Users can refresh if they want it back to
           // the correct sorted position.
-          topLevelCommentsById[claimId].unshift(pinnedComment.comment_id);
+          topLevelCommentsById[claimId] = [pinnedComment.comment_id, ...topLevelCommentsById[claimId]];
         } else {
-          pinnedCommentsById[claimId].unshift(pinnedComment.comment_id);
+          pinnedCommentsById[claimId] = [pinnedComment.comment_id, ...pinnedCommentsById[claimId]];
         }
 
-        if (commentById[pinnedComment.comment_id]) {
+        if (existingComment) {
           // Commentron's `comment.Pin` response places the creator's credentials
           // in the 'channel_*' fields, which doesn't make sense. Maybe it is to
           // show who signed/pinned it, but even if so, it shouldn't overload
           // these variables which are already used by existing comment data structure.
-          // Ensure we don't override the existing/correct values, but fallback
-          // to whatever was given.
-          const { channel_id, channel_name, channel_url } = commentById[pinnedComment.comment_id];
+          // Ensure we don't override the existing/correct values, but fallback to whatever was given.
+          const { channel_id, channel_name, channel_url, parent_id, replies } = existingComment;
           commentById[pinnedComment.comment_id] = {
+            ...existingComment,
             ...pinnedComment,
             channel_id: channel_id || pinnedComment.channel_id,
             channel_name: channel_name || pinnedComment.channel_name,
             channel_url: channel_url || pinnedComment.channel_url,
+            parent_id: pinnedComment.parent_id || parent_id,
+            replies: pinnedComment.replies ?? replies,
           };
         } else {
           commentById[pinnedComment.comment_id] = pinnedComment;
