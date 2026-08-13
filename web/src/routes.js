@@ -14,11 +14,7 @@ const { getOEmbed } = require('./oEmbed');
 
 const { getRss } = require('./rss');
 
-const { getFarcasterManifest } = require('./farcaster');
-
 const { handleFramePost } = require('./frame');
-
-const { getTempFile } = require('./tempfile');
 
 const { getSpinnerHtml } = require('./spinner');
 
@@ -169,11 +165,6 @@ const oEmbedMiddleware = async (ctx) => {
   ctx.body = oEmbed;
 };
 
-const tempfileMiddleware = async (ctx) => {
-  const temp = await getTempFile(ctx);
-  ctx.body = temp;
-};
-
 const rssMediaMiddleware = async (ctx) => {
   const streamUrl = await getStreamUrl(ctx);
 
@@ -192,12 +183,6 @@ const rssMediaMiddleware = async (ctx) => {
 
   ctx.set('Cache-Control', 'no-store');
   ctx.redirect(redirectUrl);
-};
-
-const fcManifestMiddleware = async (ctx) => {
-  const manifest = await getFarcasterManifest(ctx);
-  ctx.set('Content-Type', 'application/json');
-  ctx.body = manifest;
 };
 
 router.get(`/$/favicon`, async (ctx) => {
@@ -302,9 +287,6 @@ router.get(`/$/stream/:claimName/:claimId`, async (ctx) => {
 router.get(`/$/activate`, async (ctx) => {
   ctx.redirect(`https://sso.odysee.com/auth/realms/Users/device`);
 });
-// to add a path for a temp file on the server, customize this path
-router.get('/.well-known/farcaster.json', fcManifestMiddleware);
-router.get('/.well-known/:filename', tempfileMiddleware);
 router.get(`/$/rss/media/:claimName/:claimId/:filename`, rssMediaMiddleware);
 router.get(`/rss/:claimName/:claimId`, rssMiddleware);
 router.get(`/rss/:claimName::claimId`, rssMiddleware);

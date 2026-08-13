@@ -5,11 +5,9 @@ const config = require('../config.cjs');
 
 const Koa = require('koa');
 
-const serve = require('koa-static');
-
 const logger = require('koa-logger');
 
-const router = require('./src/routes');
+const registerContentMiddleware = require('./src/content-middleware');
 
 const appStringsMiddleWare = require('./middleware/app-strings');
 
@@ -40,19 +38,11 @@ app.use(appStringsMiddleWare);
 
 // /public/* files are served from dist/ (maps to dist/public/*)
 const staticMaxAge = (process.env.NODE_ENV || 'development') === 'development' ? 0 : 3600000;
-const staticServe = serve(DIST_ROOT, { maxage: staticMaxAge, index: false });
-// Root-level files like /robots.txt, /sw.js are in dist/public/, serve with prefix strip
-const rootStaticServe = serve(path.resolve(__dirname, 'dist/public'), { maxage: staticMaxAge, index: false });
-
-if (config.DYNAMIC_ROUTES_FIRST) {
-  app.use(router.routes());
-  app.use(staticServe);
-  app.use(rootStaticServe);
-} else {
-  app.use(staticServe);
-  app.use(rootStaticServe);
-  app.use(router.routes());
-}
+registerContentMiddleware(app, {
+  distRoot: DIST_ROOT,
+  dynamicRoutesFirst: config.DYNAMIC_ROUTES_FIRST,
+  staticMaxAge,
+});
 
 const PORT = config.WEB_SERVER_PORT || 1337;
 

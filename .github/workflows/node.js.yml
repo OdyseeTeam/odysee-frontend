@@ -66,6 +66,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Test server routes
+        run: pnpm --dir web test
+
       - name: Build (Vite)
         run: pnpm build
         env:

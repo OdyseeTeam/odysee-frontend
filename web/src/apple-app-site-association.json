@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["7G9P9AM955.com.odysee.Odysee"],
+        "components": [
+          {
+            "/": "/$/*",
+            "exclude": true,
+            "comment": "exclude verification URL"
+          },
+          {
+            "/": "/*",
+            "comment": "Matches all URLs that are not just / (All files/channels)"
+          }
+        ]
+      }
+    ]
+  }
+}
