@@ -6,7 +6,7 @@ import { selectTagsForUri } from 'redux/selectors/claims';
 import { selectFollowedTags } from 'redux/selectors/tags';
 const SLIM_TAGS = 1;
 const NORMAL_TAGS = 3;
-const LARGE_TAGS = 6;
+const LARGE_TAGS = 5;
 type Props = {
   uri: string;
   type: string;

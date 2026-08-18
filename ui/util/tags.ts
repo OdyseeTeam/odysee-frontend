@@ -1,7 +1,17 @@
 import { INTERNAL_TAGS, PURCHASE_TAG, PURCHASE_TAG_OLD, RENTAL_TAG, RENTAL_TAG_OLD } from 'constants/tags';
 
 export function removeInternalStringTags(tags: Array<string>): Array<string> {
-  return tags.filter((tag: string) => {
+  const expandedTags = tags.flatMap((tag: string) => {
+    if (tag.includes(',')) {
+      return tag
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0);
+    }
+    return [tag];
+  });
+
+  return expandedTags.filter((tag: string) => {
     return (
       !INTERNAL_TAGS.includes(tag) &&
       !tag.startsWith(PURCHASE_TAG) &&
@@ -13,7 +23,19 @@ export function removeInternalStringTags(tags: Array<string>): Array<string> {
 }
 
 export function removeInternalTags(tags: Array<Tag>): Array<Tag> {
-  return tags.filter((tag: Tag) => {
+  const expandedTags = tags.flatMap((tag: Tag) => {
+    if (!tag?.name) return [];
+    if (tag.name.includes(',')) {
+      return tag.name
+        .split(',')
+        .map((t) => t.trim())
+        .filter((t) => t.length > 0)
+        .map((name) => ({ ...tag, name }));
+    }
+    return [tag];
+  });
+
+  return expandedTags.filter((tag: Tag) => {
     if (!tag?.name) return false;
     return (
       !INTERNAL_TAGS.includes(tag.name) &&
