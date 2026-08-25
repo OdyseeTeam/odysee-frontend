@@ -20,13 +20,14 @@ import { icons } from 'component/common/icon-custom';
 import * as ICONS from 'constants/icons';
 import * as QUALITY_OPTIONS from 'constants/player';
 import { VIDEO_PLAYBACK_RATES } from 'constants/player';
+import { getInitialQualityLevelIndex, getQualityHeight, snapHeight } from './quality';
 import { platform } from 'util/platform';
 import { useIsMobile } from 'effects/use-screensize';
 import { isEmbedPath } from 'util/embed';
 import usePersistedState from 'effects/use-persisted-state';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectClientSetting } from 'redux/selectors/settings';
-import { doSetClientSetting } from 'redux/actions/settings';
+import { doSetClientSetting, doSetDefaultVideoQuality } from 'redux/actions/settings';
 import * as SETTINGS from 'constants/settings';
 import {
   fullscreenElement as getFullscreenElement,
@@ -257,41 +258,6 @@ function handleSnapshotFn(media, title) {
   canvas.remove();
 }
 
-const COMMON_HEIGHTS = [144, 240, 360, 480, 720, 1080, 1440, 2160, 4320];
-function snapHeight(h) {
-  for (const c of COMMON_HEIGHTS) {
-    if (h <= c) return c;
-  }
-  return h;
-}
-
-function getQualityHeight(level) {
-  return level?.width && level?.height && level.height > level.width ? level.width : level?.height || 0;
-}
-
-function getInitialQualityLevelIndex(levels, defaultQuality) {
-  const targetHeight = Number(defaultQuality);
-  if (!Number.isFinite(targetHeight) || targetHeight <= 0 || !levels?.length) {
-    return null;
-  }
-
-  const candidates = levels
-    .map((level, index) => ({
-      index,
-      height: getQualityHeight(level),
-      bitrate: level?.bitrate || 0,
-    }))
-    .filter((level) => level.height > 0)
-    .sort((a, b) => {
-      if (b.height !== a.height) return b.height - a.height;
-      return b.bitrate - a.bitrate;
-    });
-
-  return (
-    candidates.find((level) => level.height <= targetHeight)?.index ?? candidates[candidates.length - 1]?.index ?? null
-  );
-}
-
 function useQualityLevels({
   defaultQuality,
   hasOriginalSource,
@@ -300,6 +266,7 @@ function useQualityLevels({
   onSelectAdaptiveSource,
 }) {
   const media = Player.useMedia();
+  const dispatch = useAppDispatch();
   const [levels, setLevels] = useState([]);
   const [currentLevel, setCurrentLevel] = useState(-1);
   const [activeHeight, setActiveHeight] = useState(0);
@@ -351,11 +318,19 @@ function useQualityLevels({
         const levelIndex = getInitialQualityLevelIndex(h.levels, defaultQuality);
         if (levelIndex === null) return;
 
-        h.currentLevel = levelIndex;
-        h.loadLevel = levelIndex;
-        h.nextLevel = levelIndex;
-        h.startLevel = levelIndex;
         initialQualityHlsRef.current = h;
+
+        // The player sets startLevel before the first fragment is requested, so
+        // normally there is nothing to correct here. Only force a switch if that
+        // did not take -- assigning currentLevel discards whatever is already
+        // buffered and fetches it again, which is the download-twice the setting
+        // is supposed to avoid.
+        if (h.currentLevel !== levelIndex && h.loadLevel !== levelIndex) {
+          h.currentLevel = levelIndex;
+          h.loadLevel = levelIndex;
+          h.nextLevel = levelIndex;
+        }
+
         setCurrentLevel(levelIndex);
       };
       const updateLevels = () => {
@@ -412,9 +387,30 @@ function useQualityLevels({
     };
   }, [defaultQuality, hasOriginalSource, isOriginalSourceSelected, media]);
 
+  // Picking a quality in the player is the same intent as setting it in
+  // Settings, so store it there. Without this the choice died with the player and
+  // the next video started over at whatever bandwidth suggested -- which for a
+  // metered connection meant paying for the wrong resolution on every video.
+  const persistQuality = useCallback(
+    (levelIndex: number) => {
+      if (levelIndex === -2) {
+        dispatch(doSetDefaultVideoQuality(QUALITY_OPTIONS.ORIGINAL));
+        return;
+      }
+      if (levelIndex === -1) {
+        dispatch(doSetDefaultVideoQuality(QUALITY_OPTIONS.AUTO));
+        return;
+      }
+      const height = getQualityHeight(levels[levelIndex]);
+      if (height > 0) dispatch(doSetDefaultVideoQuality(String(snapHeight(height))));
+    },
+    [dispatch, levels]
+  );
+
   const selectQuality = useCallback(
     (levelIndex) => {
       userSelectedQualityRef.current = true;
+      persistQuality(levelIndex);
       if (levelIndex === -2) {
         if (!hasOriginalSource) return;
         if (onSelectOriginalSource) onSelectOriginalSource();
@@ -432,7 +428,7 @@ function useQualityLevels({
       hls.currentLevel = levelIndex;
       setCurrentLevel(levelIndex);
     },
-    [hasOriginalSource, media, onSelectAdaptiveSource, onSelectOriginalSource]
+    [hasOriginalSource, media, onSelectAdaptiveSource, onSelectOriginalSource, persistQuality]
   );
 
   const autoLabel = activeHeight > 0 ? `${__('Auto')} (${snapHeight(activeHeight)}p)` : __('Auto');

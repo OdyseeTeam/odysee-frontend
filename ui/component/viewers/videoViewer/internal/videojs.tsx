@@ -4,6 +4,8 @@ import { Video } from '@videojs/react/video';
 import Player from './player';
 import OdyseeSkin from './OdyseeSkin';
 import { HLS_EVENT_LEVEL_LOADED, HLS_EVENT_MANIFEST_PARSED, loadHlsConstructor } from './hls';
+import { getInitialQualityLevelIndex } from './quality';
+import * as PLAYER from 'constants/player';
 import useResolvedSource from './hooks/useResolvedSource';
 import useRecsys from './hooks/useRecsys';
 import {
@@ -251,6 +253,11 @@ function VideoJsInner(props: Props) {
   const [videoElement, setVideoElement] = useState<HTMLVideoElement | null>(null);
   const [tapToUnmuteVisible, setTapToUnmuteVisible] = useState(false);
   const shouldShowTapToUnmuteRef = useRef(false);
+  // Read through a ref so the hls setup sees the current preference without
+  // taking it as an effect dependency -- that would tear down and recreate the
+  // engine every time the quality changed, which is the opposite of the point.
+  const defaultQualityRef = useRef(defaultQuality);
+  defaultQualityRef.current = defaultQuality;
   const tapToUnmuteTimeoutRef = useRef<number | null>(null);
   const [tapToRetryVisible, setTapToRetryVisible] = useState(false);
   const [p2pUiState, setP2PUiState] = useState({
@@ -777,6 +784,21 @@ function VideoJsInner(props: Props) {
       } as P2PHlsConfig) as HlsWithP2P;
 
       hls.attachMedia(media);
+
+      // Registered before loadSource so it is in place for the first manifest.
+      // startLevel governs the level of the very first fragment requested, so
+      // applying the saved quality here means it is never fetched at the
+      // bandwidth-estimated level and then fetched again after a switch. Only
+      // pixel-height preferences map to a level; auto and original are handled by
+      // the skin, which owns the source toggle.
+      hls.on(HLS_EVENT_MANIFEST_PARSED as any, () => {
+        const wanted = defaultQualityRef.current;
+        if (wanted && wanted !== PLAYER.AUTO && wanted !== PLAYER.ORIGINAL) {
+          const levelIndex = getInitialQualityLevelIndex(hls.levels, wanted);
+          if (levelIndex !== null) hls.startLevel = levelIndex;
+        }
+      });
+
       hls.loadSource(src);
       media._hls = hls;
 
