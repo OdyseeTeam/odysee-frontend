@@ -74,6 +74,7 @@ const defaultState: PublishState = {
   thumbnailPath: '',
   uploadThumbnailStatus: THUMBNAIL_STATUSES.API_DOWN,
   thumbnailError: undefined,
+  thumbnailIsUserChosen: false,
   description: '',
   language: '',
   releaseTime: undefined,

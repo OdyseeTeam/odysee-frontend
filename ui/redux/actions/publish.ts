@@ -267,6 +267,7 @@ export const doResetThumbnailStatus = () => (dispatch: Dispatch) => {
     data: {
       uploadThumbnailStatus: THUMBNAIL_STATUSES.READY,
       thumbnail: '',
+      thumbnailIsUserChosen: false,
     },
   });
 };

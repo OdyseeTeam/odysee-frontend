@@ -15,6 +15,9 @@ type PublishState = {
   thumbnailPath?: string;
   uploadThumbnailStatus: string;
   thumbnail?: string;
+  // Set when the publisher picked the thumbnail themselves, so the frame that
+  // gets auto-extracted from the source knows not to overwrite it.
+  thumbnailIsUserChosen?: boolean;
   description: string;
   language: string;
   releaseTime?: number;
