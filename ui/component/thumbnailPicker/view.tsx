@@ -120,6 +120,10 @@ function ThumbnailPicker(props: Props) {
       if (prev) URL.revokeObjectURL(prev);
       return null;
     });
+    // Both manual slots describe the source we are leaving. Keeping them would
+    // leave a tile pointing at an object url we just revoked.
+    setUploadedThumbUrl(null);
+    setUrlThumbUrl(null);
   }, [cleanupFrameUrls, cleanupInput, cleanupManualFrame, cleanupUploadedPreview]);
 
   const extractFrames = useCallback(
@@ -559,21 +563,27 @@ function ThumbnailPicker(props: Props) {
                   onChange={(e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      cleanupUploadedPreview();
+                      // This may be replacing an existing pick, so hold on to it
+                      // until the upload actually starts. Abandoning the
+                      // replacement has to leave the old one intact.
+                      const previousThumbUrl = uploadedThumbUrl;
+                      const previousPreviewUrl = uploadedPreviewUrlRef.current;
+                      const previousSelectedIndex = selectedIndex;
                       const previewUrl = URL.createObjectURL(file);
-                      uploadedPreviewUrlRef.current = previewUrl;
                       dispatch(
                         doOpenModal(MODALS.CONFIRM_THUMBNAIL_UPLOAD, {
                           file,
                           previewUrl,
                           onUploadStarted: () => {
+                            if (previousPreviewUrl) URL.revokeObjectURL(previousPreviewUrl);
+                            uploadedPreviewUrlRef.current = previewUrl;
                             setUploadedThumbUrl(previewUrl);
                             setSelectedIndex(-2);
                           },
                           onUploadCanceled: () => {
-                            cleanupUploadedPreview();
-                            setUploadedThumbUrl(null);
-                            if (selectedIndex === -2) setSelectedIndex(null);
+                            URL.revokeObjectURL(previewUrl);
+                            setUploadedThumbUrl(previousThumbUrl);
+                            setSelectedIndex(previousSelectedIndex);
                           },
                           cb: (url: string) => {
                             setUploadedThumbUrl((currentUrl) => currentUrl || url);
@@ -593,13 +603,15 @@ function ThumbnailPicker(props: Props) {
                     (selectedIndex === -2 ? ' thumbnail-picker__item--selected' : '')
                   }
                   onClick={() => {
-                    if (uploadedThumbUrl) {
-                      setSelectedIndex(-2);
-                    } else if (!isUploadInProgress) {
+                    // Always reopen the chooser, populated or not. Selecting the
+                    // tile is a side effect of picking a file, so a filled slot
+                    // stays replaceable.
+                    if (!isUploadInProgress) {
                       fileInputRef.current?.click();
                     }
                   }}
-                  disabled={isUploadInProgress && !uploadedThumbUrl}
+                  disabled={isUploadInProgress}
+                  title={uploadedThumbUrl ? __('Choose a different image') : undefined}
                   type="button"
                 >
                   {uploadedThumbUrl ? (
@@ -626,19 +638,17 @@ function ThumbnailPicker(props: Props) {
                     (selectedIndex === -3 ? ' thumbnail-picker__item--selected' : '')
                   }
                   onClick={() => {
-                    if (urlThumbUrl) {
-                      setSelectedIndex(-3);
-                    } else {
-                      dispatch(
-                        doOpenModal(MODALS.CONFIRM_THUMBNAIL_URL, {
-                          cb: (url: string) => {
-                            setUrlThumbUrl(url);
-                            setSelectedIndex(-3);
-                          },
-                        })
-                      );
-                    }
+                    dispatch(
+                      doOpenModal(MODALS.CONFIRM_THUMBNAIL_URL, {
+                        initialUrl: urlThumbUrl || undefined,
+                        cb: (url: string) => {
+                          setUrlThumbUrl(url);
+                          setSelectedIndex(-3);
+                        },
+                      })
+                    );
                   }}
+                  title={urlThumbUrl ? __('Enter a different URL') : undefined}
                   type="button"
                 >
                   {urlThumbUrl ? (

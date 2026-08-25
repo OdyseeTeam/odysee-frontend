@@ -9,12 +9,14 @@ import '../modalConfirmThumbnailUpload/style.scss';
 
 export type Props = {
   cb: (url: string) => void;
+  initialUrl?: string;
 };
 
 export default function ModalConfirmThumbnailUrl(props: Props) {
-  const { cb } = props;
+  const { cb, initialUrl } = props;
   const dispatch = useAppDispatch();
-  const [url, setUrl] = React.useState('');
+  // Seeded so replacing a URL means editing the old one rather than retyping it.
+  const [url, setUrl] = React.useState(initialUrl || '');
   const [previewError, setPreviewError] = React.useState(false);
 
   function handleConfirmed() {
