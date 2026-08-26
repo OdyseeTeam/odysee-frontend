@@ -93,7 +93,7 @@
     "parse-duration": "^1.0.0",
     "parse-entities": "^4.0.2",
     "player.js": "^0.1.0",
-    "postcss": "^8.4.21",
+    "postcss": "^8.5.10",
     "postcss-rtl": "^2.0.0",
     "proxy-polyfill": "0.3",
     "qrcode.react": "4",
