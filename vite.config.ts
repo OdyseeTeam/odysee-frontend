@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { DevTools } from '@vitejs/devtools';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -751,6 +752,19 @@ const codeSplittingGroups = [
   },
 ];
 
+function crossOriginIsolationPlugin() {
+  return {
+    name: 'cross-origin-isolation',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        res.setHeader('Cross-Origin-Opener-Policy', 'same-origin');
+        res.setHeader('Cross-Origin-Embedder-Policy', 'credentialless');
+        next();
+      });
+    },
+  };
+}
+
 export default defineConfig({
   root: __dirname,
   publicDir: 'static',
@@ -944,6 +958,8 @@ export default defineConfig({
         });
       },
     },
+    DevTools(),
+    crossOriginIsolationPlugin(),
   ],
 
   server: {
@@ -959,10 +975,6 @@ export default defineConfig({
     open: false,
     fs: {
       allow: [path.resolve(__dirname), ...(useLocalUsagi ? [LOCAL_USAGI_ROOT] : [])],
-    },
-    headers: {
-      'Cross-Origin-Opener-Policy': 'same-origin',
-      'Cross-Origin-Embedder-Policy': 'credentialless',
     },
     warmup: {
       clientFiles: [
@@ -988,6 +1000,7 @@ export default defineConfig({
           groups: codeSplittingGroups,
         },
       },
+      devtools: {},
     },
   },
 
