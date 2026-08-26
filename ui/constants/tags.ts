@@ -16,9 +16,6 @@ export const INTERNAL_TAG_PREFIX = 'c:';
 // export const CHANNEL_COLOR_TAG = 'c:color';
 export const DISABLE_SUPPORT_TAG = 'disable-support';
 export const PREFERENCE_EMBED = 'c:preference-embed';
-export const SCHEDULED_LIVESTREAM_TAG = 'c:scheduled-livestream'; // Deprecated; use 'SCHEDULED_TAGS.LIVE'
-
-export const LBRY_FIRST_TAG = 'c:lbry-first';
 export const DISABLE_COMMENTS_TAG = 'c:disable-comments';
 export const DISABLE_DOWNLOAD_BUTTON_TAG = 'c:disable-download';
 export const DISABLE_REACTIONS_ALL_TAG = 'c:disable-reactions-all';
@@ -56,7 +53,7 @@ export const CONTROL_TAGS = [
   DISABLE_DOWNLOAD_BUTTON_TAG,
 ];
 // System tags are special tags that are not available to the user.
-export const SYSTEM_TAGS = [LBRY_FIRST_TAG, ...Object.values(VISIBILITY_TAGS), ...Object.values(SCHEDULED_TAGS)];
+export const SYSTEM_TAGS = [...Object.values(VISIBILITY_TAGS), ...Object.values(SCHEDULED_TAGS)];
 export const INTERNAL_TAGS = [
   ...CONTROL_TAGS,
   ...SYSTEM_TAGS,

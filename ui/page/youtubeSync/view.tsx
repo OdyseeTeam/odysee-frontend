@@ -155,12 +155,12 @@ export default function YoutubeSync(props: Props) {
           <Card
             className="card--youtube-sync"
             title={__('Sync your YouTube channel to %site_name%', {
-              site_name: IS_WEB ? SITE_NAME : 'Odysee',
+              site_name: SITE_NAME,
             })}
             subtitle={__(
               `Don't want to manually upload? Get your YouTube videos in front of the %site_name% audience.`,
               {
-                site_name: IS_WEB ? SITE_NAME : 'Odysee',
+                site_name: SITE_NAME,
               }
             )}
             actions={
@@ -172,7 +172,7 @@ export default function YoutubeSync(props: Props) {
                         <span className="error__text">{nameError}</span>
                       ) : (
                         __('Your desired %site_name% channel name', {
-                          site_name: IS_WEB ? SITE_NAME : 'Odysee',
+                          site_name: SITE_NAME,
                         })
                       )}
                     </label>

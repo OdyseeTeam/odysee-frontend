@@ -30,7 +30,7 @@ function TagsFollowingPage() {
             button="alt"
             icon={ICONS.EDIT}
             label={__('Manage')}
-            requiresAuth={IS_WEB}
+            requiresAuth
             navigate={`/$/${PAGES.TAGS_FOLLOWING_MANAGE}`}
           />
         }

@@ -83,7 +83,7 @@ const CollectionPage = (props: Props) => {
   // After retries are exhausted, stop treating a failed resolve as "still
   // resolving" — otherwise the page spinner never goes away.
   const isResolvingCollection = hasClaim === undefined && !(collectionResolveFailed && resolveAttempt >= 3);
-  const shouldPromptSignIn = IS_WEB && publishPage && !isAuthenticated;
+  const shouldPromptSignIn = publishPage && !isAuthenticated;
   const collectionHasStoredItems = Boolean(collection?.items?.length);
   const shouldResolveCollectionItems = collectionHasStoredItems && !collectionHasItemsResolved;
 

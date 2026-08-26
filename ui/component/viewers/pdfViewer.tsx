@@ -5,11 +5,10 @@ type Props = {
 };
 
 function PdfViewer({ source }: Props) {
-  const src = IS_WEB ? source : `file://${source}`;
   return (
     <div className="file-viewer file-viewer--document">
       <div className="file-viewer file-viewer--iframe">
-        <IframeReact title={__('File preview')} src={src} />
+        <IframeReact title={__('File preview')} src={source} />
       </div>
     </div>
   );

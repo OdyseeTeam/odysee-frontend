@@ -81,5 +81,5 @@ const analytics: Analytics = {
     // so this can be removed, but together with the redux state.
   },
 };
-analytics.setState(IS_WEB);
+analytics.setState(true);
 export default analytics;

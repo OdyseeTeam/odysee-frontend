@@ -14,13 +14,12 @@ import Spinner from 'component/spinner';
 import Yrbl from 'component/yrbl';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { doEnterSettingsPage, doExitSettingsPage } from 'redux/actions/settings';
-import { selectDaemonSettings, selectLanguage } from 'redux/selectors/settings';
+import { selectLanguage } from 'redux/selectors/settings';
 import { selectPrefsReady } from 'redux/selectors/sync';
 import { selectUserVerifiedEmail } from 'redux/selectors/user';
 
 export default function SettingsPage() {
   const dispatch = useAppDispatch();
-  const daemonSettings = useAppSelector(selectDaemonSettings);
   const isAuthenticated = useAppSelector(selectUserVerifiedEmail);
   const prefsReady = useAppSelector(selectPrefsReady);
   const language = useAppSelector(selectLanguage);
@@ -31,8 +30,6 @@ export default function SettingsPage() {
       dispatch(doExitSettingsPage());
     };
   }, [dispatch]);
-
-  const noDaemonSettings = !daemonSettings || Object.keys(daemonSettings).length === 0;
 
   if (isAuthenticated && !prefsReady) {
     return (
@@ -65,7 +62,7 @@ export default function SettingsPage() {
       className="card-stack"
       key={language}
     >
-      {!isAuthenticated && IS_WEB && (
+      {!isAuthenticated && (
         <>
           <SettingUnauthenticated />
           <div className="main--empty">
@@ -83,23 +80,17 @@ export default function SettingsPage() {
         </>
       )}
 
-      {!IS_WEB && noDaemonSettings ? (
-        <section className="card card--section">
-          <div className="card__title card__title--deprecated">{__('Failed to load settings.')}</div>
-        </section>
-      ) : (
-        <div
-          className={classnames('card-stack', {
-            'card--disabled': IS_WEB && !isAuthenticated,
-          })}
-        >
-          <SettingAppearance />
-          <SettingAccount />
-          <SettingContent />
-          <SettingPlayer />
-          <SettingSystem />
-        </div>
-      )}
+      <div
+        className={classnames('card-stack', {
+          'card--disabled': !isAuthenticated,
+        })}
+      >
+        <SettingAppearance />
+        <SettingAccount />
+        <SettingContent />
+        <SettingPlayer />
+        <SettingSystem />
+      </div>
     </Page>
   );
 }

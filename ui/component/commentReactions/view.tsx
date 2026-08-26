@@ -117,7 +117,7 @@ export default function CommentReactions(props: Props) {
       {!disableReactions && (
         <>
           <Button
-            requiresAuth={IS_WEB}
+            requiresAuth
             title={__('Upvote')}
             icon={likeIcon}
             iconSize={isMobile && 12}
@@ -133,7 +133,7 @@ export default function CommentReactions(props: Props) {
           />
           {!disableSlimes && (
             <Button
-              requiresAuth={IS_WEB}
+              requiresAuth
               title={__('Downvote')}
               icon={dislikeIcon}
               iconSize={isMobile && 12}
@@ -154,7 +154,7 @@ export default function CommentReactions(props: Props) {
       {!shouldHide && ENABLE_CREATOR_REACTIONS && (canCreatorReact || creatorLiked) && (
         <Button
           disabled={!canCreatorReact || !claimIsMine}
-          requiresAuth={IS_WEB}
+          requiresAuth
           title={claimIsMine ? __('You loved this') : __('Creator loved this')}
           icon={creatorLiked ? ICONS.CREATOR_LIKE : ICONS.SUBSCRIBE}
           className={classnames('comment__action comment__action--creator-like')}

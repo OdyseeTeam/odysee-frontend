@@ -46,7 +46,7 @@ function PublishName(props: Props) {
   const isMobile = useIsMobile();
   const shouldLockName =
     isStillEditing || (publishType === 'livestream' && Boolean(editingURI) && liveCreateType === 'edit_placeholder');
-  let prefix = IS_WEB ? (isMobile ? '' : `${DOMAIN}/`) : 'lbry://';
+  let prefix = isMobile ? '' : `${DOMAIN}/`;
 
   if (activeChannelName && !incognito) {
     prefix += `${activeChannelName}/`;

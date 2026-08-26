@@ -4,14 +4,13 @@ import CopyableText from 'component/copyableText';
 import QRCode from 'component/common/qr-code';
 import Card from 'component/common/card';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
-import { selectReceiveAddress, selectGettingNewAddress } from 'redux/selectors/wallet';
+import { selectReceiveAddress } from 'redux/selectors/wallet';
 import { doCheckAddressIsMine, doGetNewAddress } from 'redux/actions/wallet';
 
 const WalletAddress = React.memo(function WalletAddress() {
   const dispatch = useAppDispatch();
 
   const receiveAddress = useAppSelector((state) => selectReceiveAddress(state));
-  const gettingNewAddress = useAppSelector((state) => selectGettingNewAddress(state));
 
   const [showQR, setShowQR] = useState(false);
 
@@ -43,20 +42,8 @@ const WalletAddress = React.memo(function WalletAddress() {
           />
 
           <div className="card__actions">
-            {!IS_WEB && (
-              <Button
-                button="secondary"
-                label={__('Get New Address')}
-                onClick={getNewAddress}
-                disabled={gettingNewAddress}
-              />
-            )}
             <Button button="link" label={showQR ? __('Hide QR code') : __('Show QR code')} onClick={toggleQR} />
           </div>
-          <p className="help">
-            {!IS_WEB &&
-              __('You can generate a new address at any time, and any previous addresses will continue to work.')}
-          </p>
 
           {showQR && <QRCode value={receiveAddress} paddingTop />}
         </React.Fragment>

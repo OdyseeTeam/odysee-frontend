@@ -10,7 +10,7 @@ import {
 } from 'redux/selectors/claims';
 import { WEB_PUBLISH_SIZE_LIMIT_GB } from 'config';
 import { CHANNEL_ANONYMOUS } from 'constants/claim';
-import { SCHEDULED_LIVESTREAM_TAG } from 'constants/tags';
+import { SCHEDULED_TAGS } from 'constants/tags';
 import {
   selectCollectionForId,
   selectClaimIdsForCollectionId,
@@ -268,8 +268,7 @@ export const selectActiveUploadActivity = createSelector(
 );
 // ****************************************************************************
 // ****************************************************************************
-export const selectIsScheduled = (state: State) =>
-  selectState(state).tags.some((t) => t.name === SCHEDULED_LIVESTREAM_TAG);
+export const selectIsScheduled = (state: State) => selectState(state).tags.some((t) => t.name === SCHEDULED_TAGS.LIVE);
 export const selectCollectionClaimUploadParamsForId = createCachedSelector(
   selectIsCollectionPrivateForId,
   selectCollectionForId,

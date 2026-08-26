@@ -3,13 +3,11 @@ import { COPYRIGHT, OTHER } from 'constants/licenses';
 import { PAYWALL } from 'constants/publish';
 import * as PUBLISH from 'constants/publish';
 import {
-  LBRY_FIRST_TAG,
   MEMBERS_ONLY_CONTENT_TAG,
   PURCHASE_TAG,
   PURCHASE_TAG_OLD,
   RENTAL_TAG,
   RENTAL_TAG_OLD,
-  SCHEDULED_LIVESTREAM_TAG,
   SCHEDULED_TAGS,
   VISIBILITY_TAGS,
 } from 'constants/tags';
@@ -203,7 +201,6 @@ export function resolvePublishPayload(
       : {}),
   };
   const tagSet = new Set(tags.map((t) => t.name));
-  PAYLOAD.tags.useLbryUploader(tagSet, publishData);
   PAYLOAD.tags.scheduledLivestream(tagSet, publishData, publishPayload.release_time, nowTimeStamp);
   PAYLOAD.tags.fiatPaywall(tagSet, publishData);
   PAYLOAD.tags.membershipRestrictions(tagSet, publishPayload.channel_id, memberRestrictionStatus);
@@ -338,11 +335,6 @@ const PAYLOAD = {
     }
   },
   tags: {
-    useLbryUploader: (tagSet: Set<string>, publishData: UpdatePublishState) => {
-      if (publishData.useLBRYUploader) {
-        tagSet.add(LBRY_FIRST_TAG);
-      }
-    },
     scheduledLivestream: (
       tagSet: Set<string>,
       publishData: UpdatePublishState,
@@ -357,10 +349,10 @@ const PAYLOAD = {
 
       if (isPlaceholderClaim && releaseTime && releaseTime > nowTime) {
         // Add internal scheduled tag if claim is a livestream and is being scheduled in the future.
-        tagSet.add(SCHEDULED_LIVESTREAM_TAG);
+        tagSet.add(SCHEDULED_TAGS.LIVE);
       } else {
         // Clear it if the claim is converted to a regular video.
-        tagSet.delete(SCHEDULED_LIVESTREAM_TAG);
+        tagSet.delete(SCHEDULED_TAGS.LIVE);
       }
     },
     fiatPaywall: (tagSet: Set<string>, publishData: UpdatePublishState) => {

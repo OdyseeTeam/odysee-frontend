@@ -9,10 +9,8 @@ type Props = {
 };
 export default function SyncFatalError(props: Props) {
   const { lbryTvApiStatus } = props;
-  let downTime = false;
-  downTime =
-    IS_WEB &&
-    (lbryTvApiStatus === STATUS_DEGRADED || lbryTvApiStatus === STATUS_FAILING || lbryTvApiStatus === STATUS_DOWN);
+  const downTime =
+    lbryTvApiStatus === STATUS_DEGRADED || lbryTvApiStatus === STATUS_FAILING || lbryTvApiStatus === STATUS_DOWN;
   return (
     <div className="main--empty">
       <Yrbl

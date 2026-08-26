@@ -2,16 +2,11 @@ interface Config {
   MINIMUM_VERSION: string | undefined;
   IGNORE_MINIMUM_VERSION: string | undefined;
   WEBPACK_WEB_PORT: string | undefined;
-  WEBPACK_ELECTRON_PORT: string | undefined;
   WEB_SERVER_PORT: string | undefined;
   LBRY_WEB_API: string | undefined;
   LBRY_WEB_API_NO_CF: string | undefined;
-  LBRY_WEB_PUBLISH_API: string | undefined;
-  LBRY_WEB_PUBLISH_API_V2: string | undefined;
-  LBRY_WEB_PUBLISH_API_V3: string | undefined;
   LBRY_WEB_PUBLISH_API_V4: string | undefined;
   LBRY_API_URL: string | undefined;
-  LBRY_WEB_BUFFER_API: string | undefined;
   SEARCH_SERVER_API: string | undefined;
   SEARCH_SERVER_API_ALT: string | undefined;
   COMMENT_SERVER_API: string | undefined;

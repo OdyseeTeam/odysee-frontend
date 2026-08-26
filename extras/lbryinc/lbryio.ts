@@ -283,7 +283,6 @@ Lbryio.getExchangeRates = () => {
 };
 
 // Allow overriding lbryio methods
-// The desktop app will need to use it for getAuthToken because we use electron's ipcRenderer
 Lbryio.overrides = {};
 
 Lbryio.setOverride = (methodName, newMethod) => {

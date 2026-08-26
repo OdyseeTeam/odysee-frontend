@@ -5,8 +5,6 @@ import Lbryio from './lbryio';
 export { Lbryio };
 // constants
 export { LBRYINC_ACTIONS, YOUTUBE_STATUSES, ERRORS };
-// utils
-export { doTransifexUpload } from 'util/transifex-upload';
 // actions
 export { doGenerateAuthToken } from './redux/actions/auth';
 export { doBlackListedDataSubscribe } from './redux/actions/blacklist';

@@ -3,8 +3,6 @@ import { parseURI, normalizeURI, isURIEqual } from 'util/lbryURI';
 import { handleActions } from 'util/redux-utils';
 const defaultState = {
   subscriptions: [],
-  // Deprecated
-  lastActiveSubscriptions: undefined,
   // undefined = un-fetched, null = no results;
   following: [],
   loading: false,

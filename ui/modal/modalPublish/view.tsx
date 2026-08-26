@@ -14,11 +14,10 @@ type Props = {
   uri: string;
   isEdit: boolean;
   filePath: undefined;
-  lbryFirstError: string | null | undefined;
 };
 
 function ModalPublishSuccess(props: Props) {
-  const { uri, isEdit, filePath, lbryFirstError } = props;
+  const { uri, isEdit, filePath } = props;
   const dispatch = useAppDispatch();
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
 
@@ -61,16 +60,6 @@ function ModalPublishSuccess(props: Props) {
             <div className="card--inline">
               <ClaimPreview type="small" uri={uri} />
             </div>
-            {filePath && !IS_WEB && (
-              <p className="help">
-                <React.Fragment>
-                  {__(
-                    `Upload will continue in the background, please do not shut down immediately. Leaving the app running helps the network, thank you!`
-                  )}{' '}
-                  <Button button="link" href="https://lbry.com/faq/host-content" label={__('Learn More')} />
-                </React.Fragment>
-              </p>
-            )}
           </React.Fragment>
         }
         actions={
@@ -97,21 +86,6 @@ function ModalPublishSuccess(props: Props) {
             )}
             <Button button="link" label={__('Close')} onClick={handleClose} />
           </div>
-        }
-        nag={
-          lbryFirstError && (
-            <Nag
-              relative
-              type="error"
-              message={
-                <span>
-                  {__('Your file was published to LBRY, but the YouTube upload failed.')}
-                  <br />
-                  {lbryFirstError}
-                </span>
-              }
-            />
-          )
         }
       />
     </Modal>

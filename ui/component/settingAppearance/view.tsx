@@ -48,9 +48,9 @@ export default function SettingAppearance() {
               <FormField type="checkbox" name="clock24h" onChange={() => setClientSetting(SETTINGS.CLOCK_24H, !clock24h)} checked={clock24h} />
             </SettingsRow>
 
-            {(isAuthenticated || !IS_WEB) && <SettingsRow title={__('Hide wallet balance in header')}>
-                <FormField type="checkbox" name="hide_balance" onChange={() => setClientSetting(SETTINGS.HIDE_BALANCE, !hideBalance)} checked={hideBalance} />
-              </SettingsRow>}
+            {isAuthenticated && <SettingsRow title={__('Hide wallet balance in header')}>
+              <FormField type="checkbox" name="hide_balance" onChange={() => setClientSetting(SETTINGS.HIDE_BALANCE, !hideBalance)} checked={hideBalance} />
+            </SettingsRow>}
 
             <SettingsRow title={__('Hide notification count in title bar')}>
               <FormField type="checkbox" name="hide_title_notification_count" onChange={() => setClientSetting(SETTINGS.HIDE_TITLE_NOTIFICATION_COUNT, !hideTitleNotificationCount)} checked={hideTitleNotificationCount} />

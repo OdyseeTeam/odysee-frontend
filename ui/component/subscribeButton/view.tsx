@@ -105,7 +105,7 @@ export default function SubscribeButton(props: Props) {
           largestLabel={isMobile && shrinkOnMobile ? '' : subscriptionLabel}
           icon={ICONS.UNSUBSCRIBE}
           button={'alt'}
-          requiresAuth={IS_WEB}
+          requiresAuth
           label={label}
           title={titlePrefix}
           href={isEmbed && `${PAGES.AUTH_SIGNIN}?redirect=${encodeURIComponent(formatLbryUrlForWeb(uri))}`}
@@ -156,7 +156,7 @@ export default function SubscribeButton(props: Props) {
               : ICONS.SUBSCRIBE
         }
         button={'alt'}
-        requiresAuth={IS_WEB}
+        requiresAuth
         label={label}
         title={titlePrefix}
         href={isEmbed && `/$/${PAGES.AUTH_SIGNIN}?redirect=${encodeURIComponent(formatLbryUrlForWeb(uri))}`}
