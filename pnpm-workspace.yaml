@@ -1,0 +1,6 @@
+overrides:
+  react-is: ^18.3.1
+
+onlyBuiltDependencies:
+  - '@firebase/util'
+  - protobufjs
