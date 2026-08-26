@@ -115,6 +115,11 @@ function getHandleCursor(handle: string): string {
   }
 }
 
+const hexToRgb = (hex: string) => {
+  const h = hex.replace('#', '');
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+};
+
 export function ChatWidgetEditPreview({ layer, scale }: { layer: CompositorLayer; scale: number }) {
   const max = layer.chatMaxMessages ?? 30;
   const hyperchatOnly = layer.chatHyperchatOnly ?? false;
@@ -141,7 +146,7 @@ export function ChatWidgetEditPreview({ layer, scale }: { layer: CompositorLayer
     return () => clearTimeout(timer);
   }, [pool, max]);
   const newOnTop = layer.chatNewOnTop ?? false;
-  const visible = newOnTop ? [...feed].reverse() : feed;
+  const visible = newOnTop ? feed.toReversed() : feed;
   const fontSize = (layer.chatFontSize ?? 20) * scale;
   const lineHeight = layer.chatLineHeight ?? 1.4;
   const textColor = layer.chatTextColor ?? '#ffffff';
@@ -163,10 +168,6 @@ export function ChatWidgetEditPreview({ layer, scale }: { layer: CompositorLayer
       ? `-${borderWidth}px -${borderWidth}px 0 ${borderColor}, ${borderWidth}px -${borderWidth}px 0 ${borderColor}, -${borderWidth}px ${borderWidth}px 0 ${borderColor}, ${borderWidth}px ${borderWidth}px 0 ${borderColor}`
       : 'none';
   const hyperColor = hyperchatColorHex;
-  const hexToRgb = (hex: string) => {
-    const h = hex.replace('#', '');
-    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
-  };
   return (
     <div
       className={classnames('livestream-compositor__chat-edit-preview', {

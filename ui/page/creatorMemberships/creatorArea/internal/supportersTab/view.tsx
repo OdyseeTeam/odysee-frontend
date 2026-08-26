@@ -22,8 +22,7 @@ type Props = {
 const getDateOfLastPayment = (payments) => {
   const payment =
     payments
-      .slice()
-      .reverse()
+      .toReversed()
       .find((p) => p.status === 'submitted' || p.status === 'paid') || {};
 
   if (payment.status === 'submitted') {

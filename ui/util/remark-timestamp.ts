@@ -26,7 +26,7 @@ function isValidTimestamp(text: string): boolean {
 }
 
 function strToSeconds(stime: string) {
-  const parts = stime.split(':').slice().reverse();
+  const parts = stime.split(':').toReversed();
   return (parts.length >= 3 ? +parts[2] : 0) * 60 * 60 + (parts.length >= 2 ? +parts[1] : 0) * 60 + +parts[0];
 }
 

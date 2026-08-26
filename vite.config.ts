@@ -201,57 +201,59 @@ function devRssRoutesPlugin() {
     configureServer(server) {
       const { getRss, parseRssParams } = require('./web/src/rss');
 
-      server.middlewares.use(async (req, res, next) => {
-        const requestUrl = req.url || '';
-        const pathname = requestUrl.split('?')[0];
+      server.middlewares.use((req, res, next) => {
+        void (async () => {
+          const requestUrl = req.url || '';
+          const pathname = requestUrl.split('?')[0];
 
-        if (!(pathname.startsWith('/rss/') || pathname.startsWith('/$/rss/') || pathname.startsWith('/%24/rss/'))) {
-          return next();
-        }
-
-        const basePath = pathname.startsWith('/$/rss/')
-          ? '/$/rss/'
-          : pathname.startsWith('/%24/rss/')
-            ? '/%24/rss/'
-            : '/rss/';
-        const rawRef = pathname.slice(basePath.length);
-
-        if (!rawRef) {
-          return next();
-        }
-
-        const params = rawRef.includes('/')
-          ? {
-              claimName: rawRef.slice(0, rawRef.lastIndexOf('/')),
-              claimId: rawRef.slice(rawRef.lastIndexOf('/') + 1),
-            }
-          : parseRssParams({ channelRef: rawRef }) || {
-              channelRef: rawRef,
-            };
-
-        try {
-          const rss = await getRss({
-            params,
-            request: {
-              url: requestUrl,
-            },
-          });
-
-          if (typeof rss === 'string' && rss.startsWith('<?xml')) {
-            res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/xml');
-            res.end(rss);
-            return;
+          if (!(pathname.startsWith('/rss/') || pathname.startsWith('/$/rss/') || pathname.startsWith('/%24/rss/'))) {
+            return next();
           }
 
-          res.statusCode = 404;
-          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          res.end(rss || 'Invalid URL');
-        } catch (error) {
-          res.statusCode = 500;
-          res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-          res.end(error instanceof Error ? error.message : 'Internal Server Error');
-        }
+          const basePath = pathname.startsWith('/$/rss/')
+            ? '/$/rss/'
+            : pathname.startsWith('/%24/rss/')
+              ? '/%24/rss/'
+              : '/rss/';
+          const rawRef = pathname.slice(basePath.length);
+
+          if (!rawRef) {
+            return next();
+          }
+
+          const params = rawRef.includes('/')
+            ? {
+                claimName: rawRef.slice(0, rawRef.lastIndexOf('/')),
+                claimId: rawRef.slice(rawRef.lastIndexOf('/') + 1),
+              }
+            : parseRssParams({ channelRef: rawRef }) || {
+                channelRef: rawRef,
+              };
+
+          try {
+            const rss = await getRss({
+              params,
+              request: {
+                url: requestUrl,
+              },
+            });
+
+            if (typeof rss === 'string' && rss.startsWith('<?xml')) {
+              res.statusCode = 200;
+              res.setHeader('Content-Type', 'application/xml');
+              res.end(rss);
+              return;
+            }
+
+            res.statusCode = 404;
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.end(rss || 'Invalid URL');
+          } catch (error) {
+            res.statusCode = 500;
+            res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+            res.end(error instanceof Error ? error.message : 'Internal Server Error');
+          }
+        })().catch(next);
       });
     },
   };
@@ -297,6 +299,9 @@ function providePlugin() {
   };
 }
 
+const injectPauseHelper = (from: string) =>
+  `${from}\nconst maybePause = async () => {\n\tconst pauseGate = globalThis.__mediabunnyPauseGate;\n\tif (pauseGate) {\n\t\tawait pauseGate();\n\t}\n};`;
+
 function mediabunnyPausePatchPlugin() {
   const conversionPattern = /[/\\]odysee-media-usagi[/\\]dist[/\\]modules[/\\]src[/\\]conversion\.js($|\?)/;
   const mediaSinkPattern = /[/\\]odysee-media-usagi[/\\]dist[/\\]modules[/\\]src[/\\]media-sink\.js($|\?)/;
@@ -319,9 +324,6 @@ function mediabunnyPausePatchPlugin() {
       if (code.includes('globalThis.__mediabunnyPauseGate')) return null;
 
       let result = code;
-
-      const injectPauseHelper = (from: string) =>
-        `${from}\nconst maybePause = async () => {\n\tconst pauseGate = globalThis.__mediabunnyPauseGate;\n\tif (pauseGate) {\n\t\tawait pauseGate();\n\t}\n};`;
 
       const insertions: Array<[string, string]> = conversionPattern.test(id)
         ? [
@@ -751,6 +753,89 @@ const codeSplittingGroups = [
   },
 ];
 
+async function tryFetchFavicon(u: string) {
+  const r = await fetch(u, { redirect: 'follow', signal: AbortSignal.timeout(2000) });
+  if (r.ok) {
+    const ct = r.headers.get('content-type') || '';
+    if (ct.startsWith('image/') || ct.includes('icon'))
+      return { buf: Buffer.from(await r.arrayBuffer()), ct };
+  }
+  return null;
+}
+
+function faviconProxyPlugin() {
+  return {
+    name: 'favicon-proxy',
+    configureServer(server: any) {
+      server.middlewares.use((req: any, res: any, next: any) => {
+        if (!req.url?.startsWith('/$/favicon?')) return next();
+        void (async () => {
+          const url = new URL(req.url, 'http://localhost');
+          const domain = url.searchParams.get('d');
+          if (!domain || !/^[a-z0-9.-]+$/i.test(domain)) {
+            res.statusCode = 400;
+            res.end();
+            return;
+          }
+          const cache = ((globalThis as any).__faviconCache || ((globalThis as any).__faviconCache = new Map())) as Map<
+            string,
+            any
+          >;
+          const cached = cache.get(domain);
+          if (cached) {
+            if (cached.status === 404) {
+              res.statusCode = 404;
+              res.end();
+              return;
+            }
+            res.setHeader('Content-Type', cached.ct);
+            res.setHeader('Cache-Control', 'public, max-age=604800');
+            res.end(cached.buf);
+            return;
+          }
+          function serve(result: any) {
+            cache.set(domain, result);
+            res.setHeader('Content-Type', result.ct);
+            res.setHeader('Cache-Control', 'public, max-age=604800');
+            res.end(result.buf);
+          }
+          const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
+          const results = await Promise.allSettled(paths.map((p) => tryFetchFavicon(`https://${domain}${p}`)));
+          for (const r of results) {
+            if (r.status === 'fulfilled' && r.value) {
+              serve(r.value);
+              return;
+            }
+          }
+          try {
+            const html = await fetch(`https://${domain}`, {
+              redirect: 'follow',
+              signal: AbortSignal.timeout(3000),
+            }).then((r: any) => r.text());
+            const match =
+              html.match(/<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i) ||
+              html.match(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i);
+            if (match?.[1]) {
+              let iconUrl = match[1];
+              if (iconUrl.startsWith('//')) iconUrl = 'https:' + iconUrl;
+              else if (iconUrl.startsWith('/')) iconUrl = `https://${domain}${iconUrl}`;
+              else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
+              const result = await tryFetchFavicon(iconUrl);
+              if (result) {
+                serve(result);
+                return;
+              }
+            }
+          } catch {}
+          cache.set(domain, { status: 404 });
+          res.statusCode = 404;
+          res.end();
+        })().catch(next);
+      });
+    },
+  };
+}
+
 export default defineConfig({
   root: __dirname,
   publicDir: 'static',
@@ -867,83 +952,7 @@ export default defineConfig({
     react(),
     legacyFallbackPlugin(),
     ssrTemplatePlugin(),
-    {
-      name: 'favicon-proxy',
-      configureServer(server) {
-        server.middlewares.use(async (req, res, next) => {
-          if (!req.url?.startsWith('/$/favicon?')) return next();
-          const url = new URL(req.url, 'http://localhost');
-          const domain = url.searchParams.get('d');
-          if (!domain || !/^[a-z0-9.-]+$/i.test(domain)) {
-            res.statusCode = 400;
-            res.end();
-            return;
-          }
-          const cache = ((globalThis as any).__faviconCache || ((globalThis as any).__faviconCache = new Map())) as Map<
-            string,
-            any
-          >;
-          const cached = cache.get(domain);
-          if (cached) {
-            if (cached.status === 404) {
-              res.statusCode = 404;
-              res.end();
-              return;
-            }
-            res.setHeader('Content-Type', cached.ct);
-            res.setHeader('Cache-Control', 'public, max-age=604800');
-            res.end(cached.buf);
-            return;
-          }
-          async function tryFetch(u: string) {
-            const r = await fetch(u, { redirect: 'follow', signal: AbortSignal.timeout(2000) });
-            if (r.ok) {
-              const ct = r.headers.get('content-type') || '';
-              if (ct.startsWith('image/') || ct.includes('icon'))
-                return { buf: Buffer.from(await r.arrayBuffer()), ct };
-            }
-            return null;
-          }
-          function serve(result: any) {
-            cache.set(domain, result);
-            res.setHeader('Content-Type', result.ct);
-            res.setHeader('Cache-Control', 'public, max-age=604800');
-            res.end(result.buf);
-          }
-          const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
-          const results = await Promise.allSettled(paths.map((p) => tryFetch(`https://${domain}${p}`)));
-          for (const r of results) {
-            if (r.status === 'fulfilled' && r.value) {
-              serve(r.value);
-              return;
-            }
-          }
-          try {
-            const html = await fetch(`https://${domain}`, {
-              redirect: 'follow',
-              signal: AbortSignal.timeout(3000),
-            }).then((r: any) => r.text());
-            const match =
-              html.match(/<link[^>]*rel=["'](?:shortcut )?icon["'][^>]*href=["']([^"']+)["']/i) ||
-              html.match(/<link[^>]*href=["']([^"']+)["'][^>]*rel=["'](?:shortcut )?icon["']/i);
-            if (match?.[1]) {
-              let iconUrl = match[1];
-              if (iconUrl.startsWith('//')) iconUrl = 'https:' + iconUrl;
-              else if (iconUrl.startsWith('/')) iconUrl = `https://${domain}${iconUrl}`;
-              else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
-              const result = await tryFetch(iconUrl);
-              if (result) {
-                serve(result);
-                return;
-              }
-            }
-          } catch {}
-          cache.set(domain, { status: 404 });
-          res.statusCode = 404;
-          res.end();
-        });
-      },
-    },
+    faviconProxyPlugin(),
   ],
 
   server: {
