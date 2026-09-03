@@ -577,7 +577,7 @@ function ChannelPage(props: Props) {
               <ClaimShareButton uri={uri} webShareable shrinkOnMobile />
             )}
             {!(isBlocked || isMuted || isMature) && <ClaimSupportButton uri={uri} shrinkOnMobile />}
-            {!(isBlocked || isMuted || isMature) && (!channelIsBlackListed || isSubscribed) && (
+            {!(isBlocked || isMuted || isMature || channelIsMine) && (!channelIsBlackListed || isSubscribed) && (
               <SubscribeButton uri={permanentUrl} shrinkOnMobile />
             )}
             <ClaimMenuList uri={claim.permanent_url} inline collectionId="" />
