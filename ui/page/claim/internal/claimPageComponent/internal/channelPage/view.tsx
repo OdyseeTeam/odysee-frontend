@@ -600,22 +600,7 @@ function ChannelPage(props: Props) {
               </Tooltip>
             </div>
             <div className="channel__edit">
-              {channelIsMine && (
-                <>
-                  {pending ? (
-                    <span>{__('Your changes will be live in a few minutes')}</span>
-                  ) : (
-                    <Button
-                      button="alt"
-                      title={__('Edit')}
-                      onClick={() => navigate(`?${CHANNEL_PAGE.QUERIES.VIEW}=${CHANNEL_PAGE.VIEWS.EDIT}`)}
-                      icon={ICONS.EDIT}
-                      iconSize={18}
-                      disabled={pending}
-                    />
-                  )}
-                </>
-              )}
+              {channelIsMine && pending && <span>{__('Your changes will be live in a few minutes')}</span>}
             </div>
           </div>
         </div>
