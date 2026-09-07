@@ -113,7 +113,8 @@ function probeShortVideoFromUrl(streamingUrl: string): Promise<boolean> {
       },
       { once: true }
     );
-    video.addEventListener('error', () => finish(true), { once: true });
+    // A failed probe is not evidence that a landscape-indexed video is a Short.
+    video.addEventListener('error', () => finish(false), { once: true });
     video.src = streamingUrl;
     video.load();
   });
@@ -254,7 +255,7 @@ function ClaimPreviewTile(props: Props) {
           const fileInfo = await Lbry.get({ uri });
           url = fileInfo?.streaming_url;
         } catch {
-          setProbedChannelShort(true);
+          if (!cancelled) setProbedChannelShort(false);
           return;
         }
       }
@@ -262,7 +263,7 @@ function ClaimPreviewTile(props: Props) {
       if (cancelled) return;
 
       if (!url) {
-        setProbedChannelShort(true);
+        setProbedChannelShort(false);
         return;
       }
 
