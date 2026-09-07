@@ -65,6 +65,7 @@ export function doCommentList(
       type: ACTIONS.COMMENT_LIST_STARTED,
       data: {
         parentId,
+        claimId,
       },
     });
     const activeChannelClaim = selectActiveChannelClaim(state);
@@ -125,7 +126,7 @@ export function doCommentList(
         : {}),
     })
       .then((result: CommentListResponse) => {
-        const { items: comments, total_items, total_filtered_items, total_pages } = result;
+        const { items: comments, page: fetchedPage = page, total_items, total_filtered_items, total_pages } = result;
 
         const returnResult = () => {
           dispatch({
@@ -138,7 +139,7 @@ export function doCommentList(
               totalPages: total_pages,
               claimId,
               uri,
-              page,
+              page: fetchedPage,
             },
           });
           return result;
@@ -177,12 +178,12 @@ export function doCommentList(
             dispatch(
               doToast({
                 isError: true,
-                message: __('Failed to fetch comments.'),
+                message: __('Comments are temporarily unavailable. Please try again later.'),
               })
             );
             return dispatch({
               type: ACTIONS.COMMENT_LIST_FAILED,
-              data: error,
+              data: { claimId, parentId, error, unavailable: true },
             });
 
           default:
@@ -194,7 +195,7 @@ export function doCommentList(
             );
             dispatch({
               type: ACTIONS.COMMENT_LIST_FAILED,
-              data: error,
+              data: { claimId, parentId, error },
             });
         }
       });
@@ -2183,9 +2184,14 @@ export const doFetchCreatorSettings = (channelId: string) => {
             },
           });
         } else {
-          devToast(dispatch, `Creator: ${err}`);
+          // Channel pages and playback do not depend on creator comment
+          // settings. Network outages are handled by the comments UI itself.
+          if (err.message !== FETCH_API_FAILED_TO_FETCH) {
+            devToast(dispatch, `Creator: ${err}`);
+          }
           dispatch({
             type: ACTIONS.COMMENT_FETCH_SETTINGS_FAILED,
+            data: { channelId },
           });
         }
 

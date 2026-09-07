@@ -160,6 +160,10 @@ export const selectCommentIdsForUri = (state: State, uri: string) => {
   const commentIdsByClaimId = selectCommentIdsByClaimId(state);
   return commentIdsByClaimId[claimId];
 };
+export const selectCommentListUnavailableForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  return Boolean(selectState(state).listErrorsByClaimId?.[claimId]);
+};
 const filterCommentsDepOnList = {
   claimsById: selectClaimsById,
   myClaimIds: selectMyClaimIdsRaw,
@@ -255,6 +259,10 @@ export const selectTopLevelCommentsForUri = (createCachedSelector as any)(
 export const selectTopLevelTotalPagesForUri = (state: State, uri: string) => {
   const claimId = selectClaimIdForUri(state, uri);
   return state.comments.topLevelTotalPagesById[claimId] || 0;
+};
+export const selectLastFetchedTopLevelPageForUri = (state: State, uri: string) => {
+  const claimId = selectClaimIdForUri(state, uri);
+  return state.comments.lastFetchedTopLevelPageById?.[claimId] || 0;
 };
 export const selectRepliesForParentId = (createCachedSelector as any)(
   (state: State, id: string) => id,
