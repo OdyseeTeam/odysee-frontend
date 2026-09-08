@@ -30,7 +30,11 @@ import {
   selectIsUriCurrentlyPlaying,
   selectIsAutoplayCountdownForUri,
 } from 'redux/selectors/content';
-import { selectCommentsListTitleForUri, selectCommentsDisabledSettingForChannelId } from 'redux/selectors/comments';
+import {
+  selectCommentsListTitleForUri,
+  selectCommentsDisabledSettingForChannelId,
+  selectTopLevelCommentsForUri,
+} from 'redux/selectors/comments';
 import { selectNoRestrictionOrUserIsMemberForContentClaimId } from 'redux/selectors/memberships';
 import { clearPosition as clearPositionAction } from 'redux/actions/content';
 const CommentsList = lazyImport(
@@ -38,6 +42,13 @@ const CommentsList = lazyImport(
     import(
       'component/commentsList'
       /* webpackChunkName: "comments" */
+    )
+);
+const ChatLayout = lazyImport(
+  () =>
+    import(
+      'component/chat'
+      /* webpackChunkName: "chat" */
     )
 );
 const PlaylistCard = lazyImport(
@@ -77,6 +88,27 @@ export default function VideoPlayersPage(props: Props) {
   const contentUnlocked = claimId && contentUnlockedValue;
   const isAutoplayCountdownForUri = useAppSelector((state) => selectIsAutoplayCountdownForUri(state, uri));
   const commentsListTitle = useAppSelector((state) => selectCommentsListTitleForUri(state, uri));
+
+  const allComments = useAppSelector((state) => selectTopLevelCommentsForUri(state, uri, undefined));
+  // Only show the chat replay if comments actually exist.
+  const shouldShowChatReplay = allComments !== undefined && allComments && allComments.length > 0;
+  const [videoCurrentTime, setVideoCurrentTime] = React.useState(0);
+
+  React.useEffect(() => {
+    if (!shouldShowChatReplay) return;
+
+    const interval = setInterval(() => {
+      if (window.player && typeof window.player.currentTime === 'function') {
+        const currentTime = window.player.currentTime();
+        if (currentTime !== videoCurrentTime) {
+          setVideoCurrentTime(currentTime);
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [shouldShowChatReplay, videoCurrentTime]);
+
   const clearPosition = (u: string) => dispatch(clearPositionAction(u));
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -100,8 +132,10 @@ export default function VideoPlayersPage(props: Props) {
       collectionId,
       uri,
       isSmallScreen,
+      shouldShowChatReplay,
+      videoCurrentTime,
     }),
-    [collectionId, isSmallScreen, uri]
+    [collectionId, isSmallScreen, uri, shouldShowChatReplay, videoCurrentTime]
   );
   const videoPlayedEnoughToResetPosition = React.useMemo(() => {
     const durationInSecs =
@@ -142,7 +176,22 @@ export default function VideoPlayersPage(props: Props) {
   }
 
   const isMobilePortrait = isMobile && !isLandscapeRotated;
-  const commentsListProps = { uri, linkedCommentId, threadCommentId };
+
+  const videoDuration = claim?.value?.video?.duration || claim?.value?.audio?.duration || 0;
+  const videoReleaseTimestamp = claim?.value?.release_time || claim?.timestamp || 0;
+  const livestreamEndTime = videoReleaseTimestamp
+    ? (Number(videoReleaseTimestamp) > 1000000000000
+        ? Number(videoReleaseTimestamp) / 1000
+        : Number(videoReleaseTimestamp)) + videoDuration
+    : 0;
+
+  const commentsListProps = {
+    uri,
+    linkedCommentId,
+    threadCommentId,
+    // Filter out the comments posted during the livestream if chat replay is shown.
+    excludeCommentsBeforeTimestamp: shouldShowChatReplay ? livestreamEndTime : undefined,
+  };
 
   if (isMobilePortrait) {
     const infoContent = (
@@ -230,15 +279,22 @@ type RightSideProps = {
   collectionId: string | null | undefined;
   uri: string;
   isSmallScreen: boolean;
+  shouldShowChatReplay: boolean;
+  videoCurrentTime: number;
 };
 
 const RightSideContent = (rightSideProps: RightSideProps) => {
-  const { collectionId, uri, isSmallScreen } = rightSideProps;
+  const { collectionId, uri, isSmallScreen, shouldShowChatReplay, videoCurrentTime } = rightSideProps;
   const isMobile = useIsMobile();
   return (
     <div className="card-stack--spacing-m">
       {!isSmallScreen && !isMobile && <PlaylistCard id={collectionId} uri={uri} />}
       {!isMobile && <ChaptersCard uri={uri} />}
+      {shouldShowChatReplay && (
+        <React.Suspense fallback={<div />}>
+          <ChatLayout uri={uri} disableChatInput={true} currentVideoTime={videoCurrentTime} />
+        </React.Suspense>
+      )}
       <RecommendedContent uri={uri} />
     </div>
   );
