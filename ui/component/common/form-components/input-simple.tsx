@@ -2,14 +2,15 @@ import * as React from 'react';
 import { Label } from './common';
 type InputSimpleProps = {
   name: string;
+  groupName?: string;
   type: string;
   label?: any;
 };
 export const InputSimple = (inputSimpleProps: InputSimpleProps) => {
-  const { name, type, label, ...inputProps } = inputSimpleProps;
+  const { name, groupName, type, label, ...inputProps } = inputSimpleProps;
   return (
     <>
-      <input id={name} type={type} {...inputProps} />
+      <input id={name} name={groupName} type={type} {...inputProps} />
       <Label name={name} label={label} />
     </>
   );
