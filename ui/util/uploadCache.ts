@@ -6,7 +6,8 @@
 
 const DB_NAME = 'odysee-upload-cache';
 const STORE_NAME = 'files';
-const DB_VERSION = 1;
+const HLS_STORE_NAME = 'hls_packages';
+const DB_VERSION = 2;
 const MAX_AGE_MS = 24 * 60 * 60 * 1000; // 24 hours
 
 function openDb(): Promise<IDBDatabase> {
@@ -17,6 +18,9 @@ function openDb(): Promise<IDBDatabase> {
       if (!db.objectStoreNames.contains(STORE_NAME)) {
         db.createObjectStore(STORE_NAME);
       }
+      if (!db.objectStoreNames.contains(HLS_STORE_NAME)) {
+        db.createObjectStore(HLS_STORE_NAME);
+      }
     });
     request.addEventListener('success', () => resolve(request.result), {
       once: true,
@@ -26,6 +30,22 @@ function openDb(): Promise<IDBDatabase> {
     });
   });
 }
+
+export type CachedHlsTier = {
+  name: string;
+  height: number;
+  width: number;
+  bitrate: number;
+  blob: Blob;
+  fileName: string;
+};
+
+export type CachedHlsPackage = {
+  masterPlaylist: string;
+  playlists: Record<string, string>;
+  tiers: CachedHlsTier[];
+  cachedAt: number;
+};
 
 export type CachedFile = {
   blob: Blob;
@@ -145,5 +165,69 @@ export async function cleanupExpiredCache(): Promise<void> {
     db.close();
   } catch {
     // Silently ignore
+  }
+}
+
+export async function cacheHlsPackage(guid: string, pkg: CachedHlsPackage): Promise<void> {
+  try {
+    const db = await openDb();
+    const tx = db.transaction(HLS_STORE_NAME, 'readwrite');
+    const store = tx.objectStore(HLS_STORE_NAME);
+
+    store.put(pkg, guid);
+    await new Promise<void>((resolve, reject) => {
+      tx.addEventListener('complete', () => resolve(), { once: true });
+      tx.addEventListener('error', () => reject(tx.error), { once: true });
+    });
+    db.close();
+  } catch (e) {
+    console.warn('[UploadCache] Failed to cache HLS package:', e); // eslint-disable-line no-console
+  }
+}
+
+export async function getCachedHlsPackage(guid: string): Promise<CachedHlsPackage | null> {
+  try {
+    const db = await openDb();
+    const tx = db.transaction(HLS_STORE_NAME, 'readonly');
+    const store = tx.objectStore(HLS_STORE_NAME);
+
+    const entry = await new Promise<CachedHlsPackage | undefined>((resolve, reject) => {
+      const request = store.get(guid);
+      request.addEventListener('success', () => resolve(request.result), {
+        once: true,
+      });
+      request.addEventListener('error', () => reject(request.error), {
+        once: true,
+      });
+    });
+
+    db.close();
+
+    if (!entry) return null;
+
+    if (Date.now() - entry.cachedAt > MAX_AGE_MS) {
+      removeCachedHlsPackage(guid);
+      return null;
+    }
+
+    return entry;
+  } catch (e) {
+    console.warn('[UploadCache] Failed to retrieve cached HLS package:', e); // eslint-disable-line no-console
+    return null;
+  }
+}
+
+export async function removeCachedHlsPackage(guid: string): Promise<void> {
+  try {
+    const db = await openDb();
+    const tx = db.transaction(HLS_STORE_NAME, 'readwrite');
+    tx.objectStore(HLS_STORE_NAME).delete(guid);
+    await new Promise<void>((resolve, reject) => {
+      tx.addEventListener('complete', () => resolve(), { once: true });
+      tx.addEventListener('error', () => reject(tx.error), { once: true });
+    });
+    db.close();
+  } catch {
+    // Silently ignore cleanup failures
   }
 }

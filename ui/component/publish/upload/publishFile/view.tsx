@@ -283,8 +283,11 @@ function PublishFile(props: Props) {
     dispatch(doUpdateFile(file, clearName));
   }
 
-  function handleOptimizedFile(optimizedFile: File) {
+  function handleOptimizedFile(optimizedFile: File, hlsPackage?: any) {
     dispatch(doUpdateFile(optimizedFile, false));
+    if (hlsPackage) {
+      dispatch(doUpdatePublishForm({ hlsPackage }));
+    }
     setOptimizerDismissed(true); // Don't re-show optimizer for the optimized file
   }
 
