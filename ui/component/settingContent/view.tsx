@@ -28,6 +28,7 @@ export default function SettingContent() {
   const hideMembersOnlyContent = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_MEMBERS_ONLY_CONTENT));
   const hideReposts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_REPOSTS));
   const hideShorts = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SHORTS));
+  const hideSearchChannels = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SEARCH_CHANNELS));
   const hiddenTagsSetting = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDDEN_TAGS));
   const hiddenTags = Array.isArray(hiddenTagsSetting) ? hiddenTagsSetting : [];
   const hideLivestreams = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_LIVESTREAMS_IN_CATEGORIES));
@@ -75,6 +76,10 @@ export default function SettingContent() {
 
             <SettingsRow title={__('Hide short content')} subtitle={__(HELP.HIDE_SHORTS)}>
               <FormField type="checkbox" name="hide_shorts" checked={hideShorts} onChange={() => setClientSetting(SETTINGS.HIDE_SHORTS, !hideShorts)} />
+            </SettingsRow>
+
+            <SettingsRow title={__('Hide channels in search bar')} subtitle={__(HELP.HIDE_SEARCH_CHANNELS)}>
+              <FormField type="checkbox" name="hide_search_channels" checked={hideSearchChannels} onChange={() => setClientSetting(SETTINGS.HIDE_SEARCH_CHANNELS, !hideSearchChannels)} />
             </SettingsRow>
 
             <SettingsRow title={__('Hidden tags')} subtitle={__(HELP.HIDDEN_TAGS)}>
@@ -126,6 +131,7 @@ const HELP = {
   HIDE_MEMBERS_ONLY_CONTENT: 'You will not see content that requires a membership subscription.',
   HIDE_REPOSTS: 'You will not see reposts by people you follow or receive email notifying about them.',
   HIDE_SHORTS: 'You will not see vertical videos less than 3 minutes.',
+  HIDE_SEARCH_CHANNELS: 'You will not see channel suggestions in the search bar.',
   HIDDEN_TAGS: 'You will not see content with these tags in discovery and home sections.',
   HIDE_LIVESTREAMS: 'You will not see livestreams in non-following categories.',
   HIDE_YOUTUBE_MIRRORS: 'You will not see videos that are synced from YouTube.',

@@ -12,9 +12,10 @@ import { getChannelIdFromClaim } from 'util/claim';
 
 type Props = {
   uri: string;
+  hideChannels?: boolean;
 };
 export default function WunderbarSuggestion(props: Props) {
-  const { uri } = props;
+  const { uri, hideChannels } = props;
 
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
   const odyseeMembership = useAppSelector((state) => selectUserOdyseeMembership(state, getChannelIdFromClaim(claim)));
@@ -41,6 +42,11 @@ export default function WunderbarSuggestion(props: Props) {
   }
 
   const isChannel = claim.value_type === 'channel';
+
+  if (hideChannels && isChannel) {
+    return null;
+  }
+
   const isCollection = claim.value_type === 'collection';
   return (
     <ComboboxOption value={uri}>

@@ -14,9 +14,10 @@ import { PREFERENCE_EMBED } from 'constants/tags';
 
 type Props = {
   query: string;
+  hideChannels?: boolean;
 };
 export default function WunderbarTopSuggestion(props: Props) {
-  const { query } = props;
+  const { query, hideChannels } = props;
   const dispatch = useAppDispatch();
 
   const uriFromQuery = `lbry://${query}`;
@@ -64,7 +65,7 @@ export default function WunderbarTopSuggestion(props: Props) {
     );
   }
 
-  if (!winningUri || preferEmbed) {
+  if (!winningUri || preferEmbed || (hideChannels && winningClaim && winningClaim.value_type === 'channel')) {
     return null;
   }
 
@@ -74,7 +75,7 @@ export default function WunderbarTopSuggestion(props: Props) {
         <LbcSymbol prefix={__('Most Supported')} />
       </div>
 
-      <WunderbarSuggestion uri={winningUri} />
+      <WunderbarSuggestion uri={winningUri} hideChannels={hideChannels} />
       <hr className="wunderbar__top-separator" />
     </>
   );
