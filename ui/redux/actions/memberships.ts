@@ -17,6 +17,7 @@ import { selectChannelTitleForUri, selectClaimForId, selectMyChannelClaims } fro
 import { doOpenModal } from 'redux/actions/app';
 import { ODYSEE_CHANNEL } from 'constants/channels';
 import { formatDateToMonthDayAndYear } from 'util/time';
+import { getMembershipCancelParams } from 'util/memberships';
 import { buildURI } from 'util/lbryURI';
 import { getStripeEnvironment } from 'util/stripe';
 import { selectAPIArweaveDefaultAddress } from '../selectors/payments';
@@ -315,10 +316,7 @@ export const doMembershipCancelForMembershipId =
     return await Lbryio.call(
       'membership_v2/subscription',
       'cancel',
-      {
-        membership_id: membershipId,
-        revert,
-      },
+      getMembershipCancelParams(membershipId, revert),
       'post'
     )
       .then((response) => {
