@@ -108,7 +108,8 @@ export default function MembershipRow(props: Props) {
   //
   //
   //
-  if (!creatorChannelClaim || !membershipSub || membershipIndex === -1) {
+  // The subscription snapshot remains manageable even if its original tier is no longer listed.
+  if (!creatorChannelClaim || !membershipSub) {
     return (
       <tr>
         <td colSpan={9}>
