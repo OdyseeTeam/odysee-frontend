@@ -1,4 +1,10 @@
 import dayjs from 'util/dayjs';
+
+export const getMembershipCancelParams = (membershipId: number, revert = false) => ({
+  membership_id: membershipId,
+  revert,
+});
+
 export const getTotalPriceFromSupportersList = (supportersList: SupportersList) =>
   supportersList.map((supporter) => supporter.price).reduce((total, supporterPledge) => total + supporterPledge, 0);
 export const getLastMonthPayments = (payments: any) => {
