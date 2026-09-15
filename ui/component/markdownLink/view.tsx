@@ -9,8 +9,11 @@ import ChannelTitle from 'component/channelTitle';
 import ClaimLink from 'component/claimLink';
 import { Menu, MenuButton } from 'component/common/menu';
 import { useIsMobile } from 'effects/use-screensize';
-import { useAppSelector } from 'redux/hooks';
+import { useAppDispatch, useAppSelector } from 'redux/hooks';
+import { doResolveClaimId as doResolveClaimIdAction } from 'redux/actions/claims';
+import { doFetchThumbnailClaimsForCollectionIds as doFetchThumbnailClaimsForCollectionIdsAction } from 'redux/actions/collections';
 import { selectActiveChannelClaim } from 'redux/selectors/app';
+import { selectClaimForClaimId } from 'redux/selectors/claims';
 type Props = {
   href: string;
   title?: string;
@@ -39,6 +42,42 @@ function getLbryUrlFromKnownAppLink(linkPathPlusHash: string, search: string = '
   if (legacyCandidate !== candidate && isURIValid(legacyCandidate)) {
     return legacyCandidate;
   }
+}
+
+type PlaylistLinkProps = {
+  claimId: string;
+  children: React.ReactNode;
+  parentCommentId?: string;
+  allowPreview: boolean;
+};
+
+function PlaylistLink(props: PlaylistLinkProps) {
+  const { claimId, children, parentCommentId, allowPreview } = props;
+  const dispatch = useAppDispatch();
+  const claim = useAppSelector((state) => selectClaimForClaimId(state, claimId));
+  const claimUri = claim && (claim.canonical_url || claim.permanent_url);
+
+  React.useEffect(() => {
+    if (claim === undefined) {
+      dispatch(doResolveClaimIdAction(claimId));
+    }
+  }, [claim, claimId, dispatch]);
+
+  React.useEffect(() => {
+    if (claim?.value_type === 'collection') {
+      dispatch(doFetchThumbnailClaimsForCollectionIdsAction({ collectionIds: [claimId], pageSize: 3 }));
+    }
+  }, [claim?.value_type, claimId, dispatch]);
+
+  if (!claimUri || claim?.value_type !== 'collection') {
+    return <span>{children}</span>;
+  }
+
+  return (
+    <ClaimLink uri={claimUri} parentCommentId={parentCommentId} allowPreview={allowPreview}>
+      {children}
+    </ClaimLink>
+  );
 }
 
 function MarkdownLink(props: Props) {
@@ -85,6 +124,7 @@ function MarkdownLink(props: Props) {
   } catch (e) {}
 
   let lbryUrlFromLink;
+  let playlistClaimIdFromLink;
 
   if (linkUrlObject && !href.startsWith('mailto:')) {
     const linkDomain = linkUrlObject.hostname;
@@ -109,8 +149,11 @@ function MarkdownLink(props: Props) {
       const isMarkdownLinkWithLabel =
         children && Array.isArray(children) && React.Children.count(children) === 1 && children.toString() !== href;
       const shouldAutoEmbedKnownAppLink = !isMarkdownLinkWithLabel && (!isComment || Boolean(parentCommentId));
+      const playlistRouteMatch = linkPathname?.match(/^\$\/playlist\/([a-f0-9]{40})\/?$/i);
 
-      if (possibleLbryUrl && !embedOptOut && (embedOptIn || shouldAutoEmbedKnownAppLink)) {
+      if (playlistRouteMatch && !embedOptOut && (embedOptIn || shouldAutoEmbedKnownAppLink)) {
+        playlistClaimIdFromLink = playlistRouteMatch[1];
+      } else if (possibleLbryUrl && !embedOptOut && (embedOptIn || shouldAutoEmbedKnownAppLink)) {
         lbryUrlFromLink = possibleLbryUrl;
       }
     }
@@ -136,6 +179,17 @@ function MarkdownLink(props: Props) {
           }
         }}
       />
+    );
+  } else if (!simpleLinks && playlistClaimIdFromLink) {
+    const allowKnownAppPreview = Boolean(parentCommentId || isComment);
+    element = (
+      <PlaylistLink
+        claimId={playlistClaimIdFromLink}
+        parentCommentId={parentCommentId}
+        allowPreview={!embedOptOut && (embed || embedOptIn || allowPreview || allowKnownAppPreview)}
+      >
+        {children}
+      </PlaylistLink>
     );
   } else if (!simpleLinks && ((protocol && protocol[0] === 'lbry:' && isURIValid(decodedUri)) || lbryUrlFromLink)) {
     if (isComment && isChannel && isMention && setUserMention) {

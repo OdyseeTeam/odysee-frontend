@@ -31,6 +31,7 @@ import {
 import {
   selectTopLevelCommentsForUri,
   selectTopLevelTotalPagesForUri,
+  selectLastFetchedTopLevelPageForUri,
   selectIsFetchingComments,
   selectIsFetchingTopLevelComments,
   selectIsFetchingReacts,
@@ -42,6 +43,7 @@ import {
   selectPinnedCommentsForUri,
   selectCommentForCommentId,
   selectCommentAncestorsForId,
+  selectCommentListUnavailableForUri,
 } from 'redux/selectors/comments';
 import { doCommentReset, doCommentList, doCommentById, doCommentReactList } from 'redux/actions/comments';
 import { doPopOutInlinePlayer } from 'redux/actions/content';
@@ -117,13 +119,14 @@ export default function CommentList(props: Props) {
   const threadCommentAncestors = useAppSelector((state) => selectCommentAncestorsForId(state, threadCommentId));
   const topLevelComments: Array<any> = useAppSelector((state) => selectTopLevelCommentsForUri(state, uri));
   const topLevelTotalPages = useAppSelector((state) => selectTopLevelTotalPagesForUri(state, uri));
+  const currentFetchedPage = useAppSelector((state) => selectLastFetchedTopLevelPageForUri(state, uri));
   const totalComments = useAppSelector((state) => selectTotalCommentsCountForUri(state, uri));
+  const commentListUnavailable = useAppSelector((state) => selectCommentListUnavailableForUri(state, uri));
   const scheduledState = useAppSelector((state) => selectScheduledStateForUri(state, uri));
   const isMobile = useIsMobile();
   const isSmallScreen = useIsSmallScreen();
   const urlParams = new URLSearchParams(search);
   const isShortsParam = urlParams.get('view') === 'shorts';
-  const currentFetchedPage = Math.ceil(topLevelComments.length / COMMENT_PAGE_SIZE_TOP_LEVEL);
   const spinnerRef = React.useRef<HTMLDivElement>(null);
   const commentListRef = React.useRef<HTMLUListElement>(null);
   const threadRedirect = React.useRef(false);
@@ -143,6 +146,7 @@ export default function CommentList(props: Props) {
   }, []);
   const totalUnfilteredComments = totalComments > 0 ? totalComments - uiFilteredComments.length : totalComments;
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
+  const commentsUnavailable = commentListUnavailable && totalFetchedComments === 0;
   const moreBelow = page < topLevelTotalPages;
   const title = getCommentsListTitle(totalUnfilteredComments);
   const threadDepthLevel = isMobile || isShortsParam ? 3 : 10;
@@ -321,7 +325,7 @@ export default function CommentList(props: Props) {
   }, [linkedCommentId, threadCommentId]);
   // Infinite scroll
   useEffect(() => {
-    if (topLevelComments.length === 0) return;
+    if (currentFetchedPage === 0) return;
 
     function shouldFetchNextPage(page, topLevelTotalPages, yPrefetchPx = 1000) {
       if (!spinnerRef || !spinnerRef.current) return false;
@@ -342,18 +346,18 @@ export default function CommentList(props: Props) {
     }
 
     const handleCommentScroll = debounce(() => {
-      if (shouldFetchNextPage(page, topLevelTotalPages)) {
+      if (page === currentFetchedPage && shouldFetchNextPage(page, topLevelTotalPages)) {
         setDebouncedUri(uri);
         setInitialPageFetch(true);
       }
     }, DEBOUNCE_SCROLL_HANDLER_MS);
 
-    if (!didInitialPageFetch) {
-      handleCommentScroll();
-      setInitialPageFetch(true);
-    }
+    if (hasDefaultExpansion && !isFetchingComments && moreBelow) {
+      if (page === currentFetchedPage && shouldFetchNextPage(page, topLevelTotalPages)) {
+        setDebouncedUri(uri);
+        setInitialPageFetch(true);
+      }
 
-    if (hasDefaultExpansion && !isFetchingComments && readyToDisplayComments && moreBelow) {
       const commentsInDrawer = Boolean(document.querySelector('.MuiDrawer-root .card--enable-overflow'));
       const scrollingElement = commentsInDrawer ? document.querySelector('.card--enable-overflow') : window;
 
@@ -362,18 +366,7 @@ export default function CommentList(props: Props) {
         return () => scrollingElement.removeEventListener('scroll', handleCommentScroll);
       }
     }
-  }, [
-    topLevelComments,
-    hasDefaultExpansion,
-    didInitialPageFetch,
-    isFetchingComments,
-    isMobile,
-    moreBelow,
-    page,
-    readyToDisplayComments,
-    topLevelTotalPages,
-    uri,
-  ]);
+  }, [currentFetchedPage, hasDefaultExpansion, isFetchingComments, isMobile, moreBelow, page, topLevelTotalPages, uri]);
   const commentProps = {
     isTopLevel: true,
     uri,
@@ -402,7 +395,11 @@ export default function CommentList(props: Props) {
       titleActions={<CommentActionButtons {...actionButtonsProps} />}
       actions={
         <>
-          <CommentCreate uri={uri} />
+          {!commentsUnavailable && <CommentCreate uri={uri} />}
+
+          {commentsUnavailable && (
+            <Empty padded text={__('Comments are temporarily unavailable. Please try again later.')} />
+          )}
 
           {threadCommentId && threadComment && (
             <span className="comment__actions comment__thread-links">
@@ -423,9 +420,11 @@ export default function CommentList(props: Props) {
             </span>
           )}
 
-          {commentsEnabledSetting && !isFetchingComments && !totalUnfilteredComments && !threadCommentId && (
-            <Empty padded text={__('That was pretty deep. What do you think?')} />
-          )}
+          {!commentsUnavailable &&
+            commentsEnabledSetting &&
+            !isFetchingComments &&
+            !totalUnfilteredComments &&
+            !threadCommentId && <Empty padded text={__('That was pretty deep. What do you think?')} />}
 
           <ul
             ref={commentListRef}
