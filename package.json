@@ -33,6 +33,7 @@
     "lint": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json .",
     "lint:fix": "node node_modules/.pnpm/oxlint@1.55.0_oxlint-tsgolint@0.17.0/node_modules/oxlint/bin/oxlint -c .oxlintrc.json --fix .",
     "audit:styles": "node scripts/style-audit.mjs",
+    "audit:browser-support": "node scripts/audit-bundle-browser-support.mjs",
     "fmt": "vp fmt",
     "fmt:check": "vp fmt --check",
     "typecheck": "vp lint --type-aware --type-check",
@@ -181,6 +182,9 @@
     "onlyBuiltDependencies": [
       "@firebase/util",
       "protobufjs"
-    ]
+    ],
+    "patchedDependencies": {
+      "mdast-util-gfm-autolink-literal@2.0.1": "patches/mdast-util-gfm-autolink-literal@2.0.1.patch"
+    }
   }
 }

@@ -43,8 +43,11 @@ const BARE_LINK_DOMAINS = [
   'odysee.com',
 ];
 const bareDomainPattern = BARE_LINK_DOMAINS.map((d) => d.replace(/\./g, '\\.')).join('|');
+// The leading boundary is captured rather than looked behind, so group 2 is the
+// link and group 1 is whatever preceded it. Lookbehind throws on Safari before
+// 16.4, which left iOS 15 with a blank page.
 const bareLinkRegex = new RegExp(
-  `(?:^|(?<=\\s))((?:(?:https?://|www\\.)[^\\s<>"]+|(?:https?://)?(?:${bareDomainPattern})(?:/[^\\s<>"]*)?))`,
+  `(^|\\s)((?:(?:https?://|www\\.)[^\\s<>"]+|(?:https?://)?(?:${bareDomainPattern})(?:/[^\\s<>"]*)?))`,
   'i'
 );
 export const punctuationMarks = [',', '.', '!', '?', ':', ';', '-', ']', ')', '}'];
@@ -234,7 +237,7 @@ function locateBareLink(value: string, fromIndex: number): number {
   const sub = value.slice(fromIndex);
   const match = bareLinkRegex.exec(sub);
   if (!match) return -1;
-  const idx = fromIndex + (match.index ?? 0);
+  const idx = fromIndex + (match.index ?? 0) + match[1].length;
   if (idx > 0 && /\S/.test(value.charAt(idx - 1))) return locateBareLink(value, idx + 1);
   return idx;
 }
@@ -327,7 +330,7 @@ function splitTextNode(value: string): MdastNode[] {
     const nextValue = value.slice(nextIndex);
     let rawMatch: string | undefined;
     if (nextIndex === nextBare && nextIndex !== nextUri && nextIndex !== nextMention) {
-      rawMatch = nextValue.match(bareLinkRegex)?.[0];
+      rawMatch = nextValue.match(bareLinkRegex)?.[2];
     } else {
       rawMatch = nextIndex === nextUri ? nextValue.match(uriRegex)?.[0] : nextValue.match(mentionRegex)?.[0];
     }

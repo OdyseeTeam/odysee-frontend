@@ -1,0 +1,19 @@
+diff --git a/lib/index.js b/lib/index.js
+index c5ca771c24dd914e342f791716a822431ee32b3a..c935878a82f8ee638bb61309637072f373ffe940 100644
+--- a/lib/index.js
++++ b/lib/index.js
+@@ -132,7 +132,13 @@ function transformGfmAutolinkLiterals(tree) {
+     tree,
+     [
+       [/(https?:\/\/|www(?=\.))([-.\w]+)([^ \t\r\n]*)/gi, findUrl],
+-      [/(?<=^|\s|\p{P}|\p{S})([-.\w+]+)@([-\w]+(?:\.[-\w]+)+)/gu, findEmail]
++      // Lookbehind is a syntax error in Safari before 16.4, and this regex
++      // literal ships in a chunk the entry statically imports, so parsing it
++      // failed and iOS 15 got a blank page. findEmail already calls previous(),
++      // whose guard is exactly this assertion -- index 0, unicode whitespace or
++      // unicodePunctuation, which micromark defines as /\p{P}|\p{S}/u -- so
++      // dropping the assertion changes nothing except where it is enforced.
++      [/([-.\w+]+)@([-\w]+(?:\.[-\w]+)+)/gu, findEmail]
+     ],
+     {ignore: ['link', 'linkReference']}
+   )
