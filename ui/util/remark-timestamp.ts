@@ -1,6 +1,9 @@
 import { visit } from 'unist-util-visit';
 
-const RE_TIMESTAMP_GLOBAL = /(?<!\w)(\d{1,2}:\d{2}(?::\d{2})?)(?![\w:])/g;
+// The leading boundary is captured rather than looked behind. Lookbehind is a
+// syntax error in Safari before 16.4, and a regex literal that fails to parse
+// takes the whole bundle with it, so iOS 15 got a blank page.
+const RE_TIMESTAMP_GLOBAL = /(^|\W)(\d{1,2}:\d{2}(?::\d{2})?)(?![\w:])/g;
 
 type MdastNode = {
   type: string;
@@ -58,14 +61,18 @@ function splitTextNode(value: string): MdastNode[] {
   RE_TIMESTAMP_GLOBAL.lastIndex = 0;
   let match;
   while ((match = RE_TIMESTAMP_GLOBAL.exec(value)) !== null) {
-    if (!isValidTimestamp(match[1])) continue;
+    const timestamp = match[2];
+    // The boundary character is part of the match now, so step over it to get
+    // back to where the timestamp itself starts.
+    const start = match.index + match[1].length;
+    if (!isValidTimestamp(timestamp)) continue;
 
-    if (match.index > lastIndex) {
-      nodes.push(createTextNode(value.slice(lastIndex, match.index)));
+    if (start > lastIndex) {
+      nodes.push(createTextNode(value.slice(lastIndex, start)));
     }
 
-    nodes.push(createTimestampNode(match[1]));
-    lastIndex = match.index + match[1].length;
+    nodes.push(createTimestampNode(timestamp));
+    lastIndex = start + timestamp.length;
   }
 
   if (lastIndex < value.length) {
