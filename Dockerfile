@@ -19,6 +19,7 @@ WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 COPY web/package.json web/pnpm-lock.yaml ./web/
+COPY patches/ ./patches/
 
 # Fix git dep SSH URL in lockfile -> HTTPS for Docker builds
 RUN sed -i 's|git@github.com:|https://github.com/|g' pnpm-lock.yaml
