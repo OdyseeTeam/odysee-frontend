@@ -1,4 +1,5 @@
 import React from 'react';
+import { isClaimFree } from 'util/purchase-protection';
 import classnames from 'classnames';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ChannelPageContext } from 'contexts/channel';
@@ -185,7 +186,7 @@ function ClaimPreviewTile(props: Props) {
   const isClaimShortValue = Boolean(claim && isClaimShort(claim));
   const claimVideo = claim?.value?.video;
   const shouldProbeChannelShort =
-    Boolean(isShortFromChannelPage && isStream && !isClaimShortValue) &&
+    Boolean(isShortFromChannelPage && isStream && !isClaimShortValue && isClaimFree(claim)) &&
     Boolean(claimVideo?.duration && claimVideo.duration <= SETTINGS.SHORTS_DURATION_LTE);
   const [probedChannelShort, setProbedChannelShort] = React.useState<boolean | null>(null);
   const isProbedChannelShort = shouldProbeChannelShort && probedChannelShort === true;
@@ -249,8 +250,6 @@ function ClaimPreviewTile(props: Props) {
       let url = streamingUrl;
 
       if (!url) {
-        dispatch(doFileGetForUri(uri));
-
         try {
           const fileInfo = await Lbry.get({ uri });
           url = fileInfo?.streaming_url;

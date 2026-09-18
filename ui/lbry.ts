@@ -5,6 +5,7 @@ import fetchWithTimeout from 'util/fetch';
 import { PROXY_URL_NO_CF } from 'config';
 
 import 'proxy-polyfill';
+import { createPurchaseProtectedGet, hasValidFiatPurchase } from 'util/purchase-protection';
 
 const CHECK_DAEMON_STARTED_TRY_NUMBER = 200;
 const ERR_LOG_METHOD_WHITELIST = ['support_create'];
@@ -77,7 +78,23 @@ const Lbry: LbryTypes = {
   version: () => daemonCallWithResult('version', {}),
   // Claim fetching and manipulation
   resolve: (params) => daemonCallWithResult('resolve', params, handleAuthentication),
-  get: (params) => daemonCallWithResult('get', params),
+  get: createPurchaseProtectedGet({
+    resolve: (params) => Lbry.resolve(params),
+    get: (params) => daemonCallWithResult('get', params),
+    getContext: () => JSON.stringify([Lbry.daemonConnectionString, Lbry.apiRequestHeaders]),
+    hasFiatPurchase: async (claimId, environment) => {
+      // Use the same identity as resolve/get, even during an account switch.
+      const authToken = Lbry.apiRequestHeaders[X_LBRY_AUTH_TOKEN];
+      if (!authToken) return false;
+      const { Lbryio } = await import('lbryinc');
+      const purchases = await Lbryio.call('customer', 'list', {
+        claim_id_filter: claimId,
+        environment,
+        auth_token: authToken,
+      });
+      return hasValidFiatPurchase(purchases, claimId);
+    },
+  }),
   claim_search: (params) => daemonCallWithResult('claim_search', params, claimSearchParamHook),
   claim_list: (params) => daemonCallWithResult('claim_list', params),
   channel_create: (params) => daemonCallWithResult('channel_create', params),

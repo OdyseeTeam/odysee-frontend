@@ -1,6 +1,7 @@
 import * as ACTIONS from 'constants/action_types';
 import * as ABANDON_STATES from 'constants/abandon_states';
 import Lbry from 'lbry';
+import { PurchaseConfirmationRequiredError, type PurchaseAuthorization } from 'util/purchase-protection';
 import {
   selectClaimForUri,
   selectClaimIsMine,
@@ -161,7 +162,7 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
       return;
     }
 
-    if (fileInfo !== undefined && onSuccess !== undefined) {
+    if (fileInfo !== undefined && onSuccess !== undefined && !opt?.purchaseAuthorization) {
       onSuccess(fileInfo);
       return;
     }
@@ -181,11 +182,14 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
       accessKey = (await getOwnedClaimAccessKey(dispatch, state, uri)) || null;
     }
 
-    Lbry.get({
-      uri,
-      environment: stripeEnvironment,
-      ...accessKey,
-    })
+    return Lbry.get(
+      {
+        uri,
+        environment: stripeEnvironment,
+        ...accessKey,
+      },
+      opt?.purchaseAuthorization
+    )
       .then((streamInfo: GetResponse & { error?: string; purchase_receipt?: any; content_fee?: any }) => {
         const timeout = streamInfo === null || typeof streamInfo !== 'object' || streamInfo.error === 'Timeout';
 
@@ -269,12 +273,15 @@ export const doFileGetForUri = (uri: string, opt?: FileGetOptions | null, onSucc
             if (c?.claim_id?.startsWith('pending-') || c?.confirmations === 0) {
               retryPending(attempt + 1);
             } else {
-              dispatch(doFileGetForUri(uri, opt, onSuccess));
+              // A retry is a read, never a fresh authorization to spend.
+              dispatch(doFileGetForUri(uri, { ...opt, purchaseAuthorization: undefined }, onSuccess));
             }
           };
           retryPending(0);
           return;
         }
+        // Background fetches may not buy content or open purchase dialogs.
+        if (error instanceof PurchaseConfirmationRequiredError && !opt?.purchaseAuthorization) return;
         dispatch(
           doToast({
             message: __('Failed to load the file. If problem persists, visit https://help.odysee.tv/ for support.'),
@@ -295,7 +302,8 @@ export function doPurchaseUri(
   costInfo: {
     cost: number;
   },
-  onSuccess?: (arg0: GetResponse) => any
+  onSuccess?: (arg0: GetResponse) => any,
+  purchaseAuthorization?: PurchaseAuthorization
 ) {
   return (dispatch: Dispatch, getState: GetState) => {
     dispatch({
@@ -320,7 +328,7 @@ export function doPurchaseUri(
       return;
     }
 
-    dispatch(doFileGetForUri(uri, null, onSuccess));
+    return dispatch(doFileGetForUri(uri, { purchaseAuthorization }, onSuccess));
   };
 }
 export function doClearPurchasedUriSuccess() {
