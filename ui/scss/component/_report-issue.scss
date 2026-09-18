@@ -1,0 +1,157 @@
+.report-issue {
+  fieldset-section {
+    display: block;
+  }
+}
+
+// One visual block per question group, separated by a hairline so a long form
+// reads as a handful of steps rather than a wall of inputs.
+.report-issue__section {
+  padding: var(--spacing-m) 0;
+
+  & + & {
+    border-top: 1px solid var(--color-border);
+  }
+
+  > fieldset-section + fieldset-section,
+  > .form-field--SimpleMDE {
+    margin-top: var(--spacing-s);
+  }
+}
+
+.report-issue__group {
+  border: 0;
+  margin: 0;
+  min-width: 0;
+  padding: 0;
+}
+
+.report-issue__section {
+  > .report-issue__group + .report-issue__group,
+  > .report-issue__group + fieldset-section,
+  > fieldset-section + .report-issue__group {
+    margin-top: var(--spacing-m);
+  }
+}
+
+.report-issue__legend {
+  display: block;
+  font-weight: var(--font-weight-bold);
+  margin-top: var(--spacing-m);
+  padding: 0;
+
+  &:first-child {
+    margin-top: 0;
+  }
+}
+
+.report-issue__hint {
+  display: block;
+  font-size: var(--font-xsmall);
+  color: var(--color-text-subtitle);
+  margin-bottom: var(--spacing-xs);
+}
+
+.report-issue__note {
+  font-size: var(--font-small);
+  color: var(--color-text-subtitle);
+  margin-bottom: var(--spacing-s);
+}
+
+.report-issue__disclosure {
+  font-size: var(--font-xsmall);
+  margin-top: var(--spacing-xxs);
+}
+
+.report-issue__actions {
+  margin-top: var(--spacing-m);
+}
+
+// Checkbox/radio groups. Two columns on desktop so long option lists stay
+// scannable, collapsing to one column on narrow screens.
+.report-issue__options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--spacing-xxs) var(--spacing-m);
+  margin-top: var(--spacing-xs);
+
+  @media (max-width: $breakpoint-xsmall) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .checkbox,
+  .radio {
+    margin: 0;
+  }
+}
+
+// Short, mutually-exclusive sets (frequency, scope) read better in a row.
+.report-issue__options--inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-xs) var(--spacing-m);
+}
+
+.report-issue__upload {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-s);
+  margin-top: var(--spacing-xs);
+}
+
+.report-issue__attachment {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-m);
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+}
+
+.report-issue__attachment-preview {
+  width: 6rem;
+  height: 4rem;
+  object-fit: cover;
+  border-radius: var(--border-radius);
+}
+
+.report-issue__attachment-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--spacing-xxs);
+  font-size: var(--font-small);
+  overflow: hidden;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 100%;
+  }
+}
+
+.report-issue__diagnostics {
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-s);
+  border: 1px solid var(--color-border);
+  border-radius: var(--border-radius);
+  font-size: var(--font-xsmall);
+  list-style: none;
+
+  li {
+    display: flex;
+    gap: var(--spacing-s);
+    padding: var(--spacing-xxxxs) 0;
+  }
+}
+
+.report-issue__diagnostics-label {
+  flex: 0 0 8rem;
+  color: var(--color-text-subtitle);
+}
+
+.report-issue__diagnostics-value {
+  overflow-wrap: anywhere;
+}

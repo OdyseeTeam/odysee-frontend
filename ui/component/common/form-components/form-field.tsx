@@ -80,6 +80,7 @@ export function FormField(props: Props) {
     label,
     labelOnLeft = false,
     name,
+    groupName,
     postfix,
     prefix,
     quickActionLabel,
@@ -153,7 +154,7 @@ export function FormField(props: Props) {
   const labelProps = { name, label };
   const countInfoProps = { charCount, textAreaMaxLength };
   const quickActionProps = { label: quickActionLabel, quickActionHandler };
-  const inputSimpleProps = { name, label, disabled, ...inputProps };
+  const inputSimpleProps = { name, groupName, label, disabled, ...inputProps };
   const inputSelectProps = { name, error, label, children, ...inputProps };
 
   switch (type) {
