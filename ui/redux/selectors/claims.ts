@@ -369,7 +369,7 @@ export const makeSelectMyPurchasesForPage = (query: string | null | undefined, p
     }
   );
 export const selectClaimWasPurchasedForUri = createSelector(selectClaimForUri, (claim) =>
-  Boolean(claim?.purchase_receipt !== undefined)
+  Boolean(claim?.purchase_receipt?.txid)
 );
 export const selectAllFetchingChannelClaims = createSelector(
   selectState,
