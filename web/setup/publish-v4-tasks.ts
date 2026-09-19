@@ -469,3 +469,51 @@ function beautifyTusError(err: Error) {
 export function yieldThread(durationMs: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, durationMs));
 }
+
+export async function uploadHlsPackage(
+  authToken: string,
+  claimId: string,
+  hlsPackage: any,
+  meta?: { sdHash?: string; channelUrl?: string; claimUrl?: string }
+): Promise<boolean> {
+  if (!hlsPackage || !claimId) return false;
+  try {
+    const formData = new FormData();
+    formData.append('claim_id', claimId);
+    if (meta?.sdHash) formData.append('sd_hash', meta.sdHash);
+    if (meta?.channelUrl) formData.append('channel_url', meta.channelUrl);
+    if (meta?.claimUrl) formData.append('claim_url', meta.claimUrl);
+    formData.append(
+      'master.m3u8',
+      new Blob([hlsPackage.masterPlaylist], { type: 'application/x-mpegURL' }),
+      'master.m3u8'
+    );
+
+    if (hlsPackage.playlists) {
+      for (const [name, content] of Object.entries(hlsPackage.playlists)) {
+        formData.append(name, new Blob([content as string], { type: 'application/x-mpegURL' }), name);
+      }
+    }
+
+    if (hlsPackage.tiers) {
+      for (const tier of hlsPackage.tiers) {
+        if (tier.blob && tier.fileName) {
+          formData.append(tier.fileName, tier.blob, tier.fileName);
+        }
+      }
+    }
+
+    const response = await fetch(`${LBRY_WEB_PUBLISH_API_V4}/transcode/upload`, {
+      method: 'POST',
+      headers: {
+        [X_LBRY_AUTH_TOKEN]: authToken,
+      },
+      body: formData,
+    });
+
+    return response.ok;
+  } catch (e) {
+    console.warn('[publish-v4] HLS package upload failed or endpoint pending:', e); // eslint-disable-line no-console
+    return false;
+  }
+}
