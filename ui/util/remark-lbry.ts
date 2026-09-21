@@ -97,8 +97,23 @@ const TRAILING_PAIRS: Array<[string, string]> = [
 const TRAILING_PUNCTUATION = ".,;:!?'";
 const EMBED_OPT_OUT_VALUES = new Set(['0', 'false', 'no']);
 const EMBED_OPT_IN_VALUES = new Set(['1', 'true', 'yes']);
+// Every node type that can reach the sanitizer with an author-written URL:
+// `[text](Https://…)` and `<Https://…>` (link), `[r]: Https://…` (definition)
+// and `![alt](Https://…)` (image).
+const NORMALIZED_URL_TYPES = new Set(['link', 'definition', 'image']);
 
-function getLinkSearchParams(url: string): URLSearchParams | null {
+// hast-util-sanitize compares protocols case-sensitively, so a link written as
+// `Https://...` has its href stripped entirely and renders as bare text (and used
+// to crash the whole preview). Schemes are case-insensitive, so lowering ours is safe.
+export function normalizeHttpUrlProtocol(url: string): string {
+  return url.replace(/^https?:/i, (protocol) => protocol.toLowerCase());
+}
+
+function getLinkSearchParams(url?: string | null): URLSearchParams | null {
+  if (!url) {
+    return null;
+  }
+
   const queryIndex = url.indexOf('?');
   if (queryIndex < 0) {
     return null;
@@ -109,7 +124,7 @@ function getLinkSearchParams(url: string): URLSearchParams | null {
   return new URLSearchParams(query);
 }
 
-export function isEmbedOptOut(url: string, title?: string | null): boolean {
+export function isEmbedOptOut(url?: string | null, title?: string | null): boolean {
   const normalizedTitle = title?.trim().toLowerCase();
   if (normalizedTitle === 'noembed' || normalizedTitle === 'no-embed') {
     return true;
@@ -129,7 +144,7 @@ export function isEmbedOptOut(url: string, title?: string | null): boolean {
   );
 }
 
-export function isEmbedOptIn(url: string, title?: string | null): boolean {
+export function isEmbedOptIn(url?: string | null, title?: string | null): boolean {
   const normalizedTitle = title?.trim().toLowerCase();
   if (normalizedTitle === 'embed') {
     return true;
@@ -344,7 +359,7 @@ function splitTextNode(value: string): MdastNode[] {
     const isBareLink = nextIndex === nextBare && nextIndex !== nextUri && nextIndex !== nextMention;
     if (isBareLink) {
       const cleaned = stripTrailingPunctuation(rawMatch);
-      const url = /^https?:\/\//i.test(cleaned) ? cleaned : `https://${cleaned}`;
+      const url = /^https?:\/\//i.test(cleaned) ? normalizeHttpUrlProtocol(cleaned) : `https://${cleaned}`;
       nodes.push({
         type: 'link',
         url,
@@ -407,6 +422,12 @@ const transform = (tree: MdastNode): void => {
 
     parent.children?.splice(index, 1, ...nextChildren);
     return index + nextChildren.length;
+  });
+
+  visit(tree, (node: MdastNode) => {
+    if (node.url && NORMALIZED_URL_TYPES.has(node.type)) {
+      node.url = normalizeHttpUrlProtocol(node.url);
+    }
   });
 
   visit(tree, 'link', (node: MdastNode, index: number | undefined, parent: MdastNode | undefined) => {

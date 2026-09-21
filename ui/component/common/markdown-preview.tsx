@@ -1,7 +1,7 @@
 import { CHANNEL_STAKED_LEVEL_VIDEO_COMMENTS, MISSING_THUMB_DEFAULT } from 'config';
 import { platform } from 'util/platform';
 import { formattedEmote } from 'util/remark-emote';
-import { formattedLinks, isEmbedOptIn, isEmbedOptOut } from 'util/remark-lbry';
+import { formattedLinks, isEmbedOptIn, isEmbedOptOut, normalizeHttpUrlProtocol } from 'util/remark-lbry';
 import { formattedTimestamp } from 'util/remark-timestamp';
 import { getThumbnailCdnUrl } from 'util/thumbnail';
 import * as React from 'react';
@@ -32,6 +32,7 @@ const TRAILING_LINK_PAIRS: Array<[string, string]> = [
 function isEmote(title, src) {
   return (
     title &&
+    src &&
     RE_EMOTE.test(title) &&
     (src.includes('static.odycdn.com/emoticons') || src.includes('/public/img/emoticons'))
   );
@@ -123,7 +124,7 @@ function protectBareHttpLinks(content: string) {
       return match;
     }
 
-    return `${prefix}<${link}>${trailing}`;
+    return `${prefix}<${normalizeHttpUrlProtocol(link)}>${trailing}`;
   });
 }
 
