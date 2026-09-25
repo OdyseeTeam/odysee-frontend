@@ -100,7 +100,7 @@ function checkAuthBusy() {
         }
       }
 
-      if (!IS_WEB || !sessionStorageAvailable) {
+      if (!sessionStorageAvailable) {
         return resolve();
       }
 

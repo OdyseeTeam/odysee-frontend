@@ -28,7 +28,7 @@ export default function SettingSystem() {
 
   // Update storedPassword state
   React.useEffect(() => {
-    if (isAuthenticated || !IS_WEB) {
+    if (isAuthenticated) {
       updateWalletStatus();
       dispatch(doFetchClaimListMine());
       getPasswordFromCookie().then((p) => {

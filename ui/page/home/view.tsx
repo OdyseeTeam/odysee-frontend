@@ -134,8 +134,8 @@ function HomePage() {
     selectUrlsForCollectionIdNonDeleted(state, COLLECTIONS.WATCH_LATER_ID)
   );
 
-  const showPersonalizedChannels = (authenticated || !IS_WEB) && subscribedChannelIds.length > 0;
-  const showPersonalizedTags = (authenticated || !IS_WEB) && followedTags && followedTags.length > 0;
+  const showPersonalizedChannels = authenticated && subscribedChannelIds.length > 0;
+  const showPersonalizedTags = authenticated && followedTags && followedTags.length > 0;
   const showIndividualTags = showPersonalizedTags && followedTags.length < 5;
   const isSmallScreen = useIsSmallScreen();
   const isMediumScreen = useIsMediumScreen();

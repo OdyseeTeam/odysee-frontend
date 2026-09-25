@@ -754,7 +754,7 @@ function ClaimMenuListInner(props: Props) {
                 </div>
               </MenuItem>
 
-              {isChannelPage && IS_WEB && rssUrl && (
+              {isChannelPage && rssUrl && (
                 <MenuItem className="comment__menu-option" onSelect={handleCopyRssLink}>
                   <div className="menu__link">
                     <Icon aria-hidden icon={ICONS.RSS} />

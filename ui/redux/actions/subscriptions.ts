@@ -24,16 +24,12 @@ export function doToggleSubscription(
 ) {
   return async (dispatch: Dispatch, getState: GetState) => {
     const {
-      settings: { daemonSettings },
       sync: { prefsReady: ready },
     } = getState();
 
     if (!ready) {
       return dispatch(doAlertWaitingForSync());
     }
-
-    const { share_usage_data: shareSetting } = daemonSettings;
-    const isSharingData = shareSetting || IS_WEB;
 
     if (!isSubscribed) {
       const subscriptionUri = subscription.uri;
@@ -48,27 +44,24 @@ export function doToggleSubscription(
       data: subscription,
     });
 
-    // if the user isn't sharing data, keep the subscriptions entirely in the app
-    if (isSharingData || IS_WEB) {
-      const { channelClaimId } = parseURI(subscription.uri);
+    const { channelClaimId } = parseURI(subscription.uri);
 
-      if (!isSubscribed) {
-        // They are sharing data, we can store their subscriptions in our internal database
-        Lbryio.call('subscription', 'new', {
-          channel_name: subscription.channelName,
-          claim_id: channelClaimId,
-          notifications_disabled: subscription.notificationsDisabled,
-        });
-        dispatch(
-          doClaimRewardType(REWARDS.TYPE_SUBSCRIPTION, {
-            failSilently: true,
-          })
-        );
-      } else {
-        Lbryio.call('subscription', 'delete', {
-          claim_id: channelClaimId,
-        });
-      }
+    if (!isSubscribed) {
+      // They are sharing data, we can store their subscriptions in our internal database
+      Lbryio.call('subscription', 'new', {
+        channel_name: subscription.channelName,
+        claim_id: channelClaimId,
+        notifications_disabled: subscription.notificationsDisabled,
+      });
+      dispatch(
+        doClaimRewardType(REWARDS.TYPE_SUBSCRIPTION, {
+          failSilently: true,
+        })
+      );
+    } else {
+      Lbryio.call('subscription', 'delete', {
+        claim_id: channelClaimId,
+      });
     }
 
     if (followToast) {

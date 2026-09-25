@@ -1,7 +1,6 @@
 /// <reference types="node" />
 /// <reference types="vite/client" />
 
-declare const IS_WEB: boolean;
 declare const __static: string;
 declare const WEBPACK_PORT: number;
 declare const module: { exports: any };

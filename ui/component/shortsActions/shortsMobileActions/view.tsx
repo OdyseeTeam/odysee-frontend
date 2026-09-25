@@ -286,7 +286,7 @@ const MobileActions = (props: Props) => {
             className={classnames('shorts-mobile-panel__action-button button-bubble', {
               'button-bubble--active': autoPlayNextShort,
             })}
-            requiresAuth={IS_WEB}
+            requiresAuth
             title={__('Autoplay Next')}
             onClick={doToggleShortsAutoplay}
             icon={ICONS.AUTOPLAY_NEXT}

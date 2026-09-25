@@ -337,7 +337,7 @@ function SideNavigation(props: Props) {
   const isAuthenticated = Boolean(email);
   const [pulseLibrary, setPulseLibrary] = React.useState(false);
   const [expandTags, setExpandTags] = React.useState(false);
-  const isPersonalized = !IS_WEB || isAuthenticated;
+  const isPersonalized = isAuthenticated;
   const isAbsolute = isOnFilePage || isMediumScreen;
   const isMobile = useIsMobile();
   const [menuInitialized, setMenuInitialized] = React.useState(false);

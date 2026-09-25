@@ -34,7 +34,7 @@ export default function I18nMessage(props: Props) {
     // style={{height: iframeHeight}}
     // ref={iframeRef}
     !failedToLoadSrc ? (
-      <iframe src={src} title={title} onLoad={onLoad} sandbox={!IS_WEB as any} />
+      <iframe src={src} title={title} onLoad={onLoad} />
     ) : (
       <Card
         title={__('Failed to load')}

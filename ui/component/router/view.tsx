@@ -587,7 +587,7 @@ function PrivateRoute(props: PrivateRouteProps) {
   const urlSearchParams = new URLSearchParams(location.search);
   const redirectUrl = urlSearchParams.get('redirect');
 
-  if (isAuthenticated || !IS_WEB) {
+  if (isAuthenticated) {
     return <Component {...rest} />;
   }
 
@@ -838,7 +838,7 @@ function AppRouter(props: Props) {
           path={`/$/${PAGES.CHANNELS_FOLLOWING}`}
           element={
             <PrivateRoute
-              component={isAuthenticated || !IS_WEB ? ChannelsFollowingPage : DiscoverPage}
+              component={isAuthenticated ? ChannelsFollowingPage : DiscoverPage}
               isAuthenticated={isAuthenticated}
             />
           }

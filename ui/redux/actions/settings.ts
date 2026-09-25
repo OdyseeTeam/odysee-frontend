@@ -252,7 +252,7 @@ export function doEnterSettingsPage() {
     const syncEnabled = selectClientSetting(state, SETTINGS.ENABLE_SYNC);
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
 
-    if (IS_WEB && !hasVerifiedEmail) {
+    if (!hasVerifiedEmail) {
       return;
     }
 
@@ -272,7 +272,7 @@ export function doExitSettingsPage() {
     const state = getState();
     const hasVerifiedEmail = state.user && state.user.user && state.user.user.has_verified_email;
 
-    if (IS_WEB && !hasVerifiedEmail) {
+    if (!hasVerifiedEmail) {
       return;
     }
 
@@ -431,9 +431,7 @@ export function doSetHomepage(code: string) {
 export function doSetLanguage(language: string) {
   return (dispatch: Dispatch, getState: GetState) => {
     const { settings } = getState();
-    const { daemonSettings } = settings;
-    const { share_usage_data: shareSetting } = daemonSettings;
-    const isSharingData = shareSetting || IS_WEB;
+    const isSharingData = true;
     let languageSetting = language;
 
     // @if TARGET='DISABLED_FOR_NOW'

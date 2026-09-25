@@ -8,7 +8,7 @@ import * as SETTINGS from 'constants/settings';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
 import { makeSelectClaimForUri } from 'redux/selectors/claims';
 import { selectPlayingUri, selectPrimaryUri } from 'redux/selectors/content';
-import { selectClientSetting, selectDaemonSettings } from 'redux/selectors/settings';
+import { selectClientSetting } from 'redux/selectors/settings';
 import { selectIsSubscribedForClaimId } from 'redux/selectors/subscriptions';
 import { history } from 'redux/router';
 const recsysEndpoint = RECSYS_ENDPOINT;
@@ -167,10 +167,7 @@ const recsys: Recsys = {
    * @param isTentative Visibility change rather than tab closed.
    */
   sendRecsysEntry: function (claimId, isTentative) {
-    const shareTelemetry =
-      IS_WEB || (window && window.store && selectDaemonSettings(window.store.getState()).share_usage_data);
-
-    if (recsys.entries[claimId] && shareTelemetry) {
+    if (recsys.entries[claimId]) {
       // Exclude `events` in the submission https://github.com/OdyseeTeam/odysee-frontend/issues/1317
       const { events, ...entryData } = recsys.entries[claimId];
       const data = JSON.stringify(entryData);

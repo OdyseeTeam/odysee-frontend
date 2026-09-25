@@ -280,10 +280,9 @@ export function doAlertWaitingForSync() {
     const authenticated = selectUserVerifiedEmail(state);
     dispatch(
       doToast({
-        message:
-          !authenticated && IS_WEB
-            ? __('Sign in or create an account to change this setting.')
-            : __('Please wait a bit, we are still getting your account ready.'),
+        message: !authenticated
+          ? __('Sign in or create an account to change this setting.')
+          : __('Please wait a bit, we are still getting your account ready.'),
         isError: false,
       })
     );
@@ -293,7 +292,7 @@ export function doDaemonReady() {
   return (dispatch: Dispatch, getState: GetState) => {
     const state = getState();
     // TODO: call doFetchDaemonSettings, then get usage data, and call doAuthenticate once they are loaded into the store
-    const shareUsageData = IS_WEB || LocalStorage.getItem(LS.SHARE_INTERNAL) === 'true';
+    const shareUsageData = true;
     dispatch(
       (doAuthenticate as Function)(
         appVersion,

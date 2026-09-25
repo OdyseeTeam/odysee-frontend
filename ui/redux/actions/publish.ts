@@ -40,7 +40,6 @@ import { getVideoBitrate, resolvePublishPayload } from 'util/publish';
 import { parsePurchaseTag, parseRentalTag, TO_SECONDS } from 'util/stripe';
 import Lbry from 'lbry';
 import { X_LBRY_AUTH_TOKEN } from 'constants/token';
-// import LbryFirst from 'extras/lbry-first/lbry-first';
 import { isClaimNsfw, getChannelIdFromClaim, isStreamPlaceholderClaim } from 'util/claim';
 import { MEMBERS_ONLY_CONTENT_TAG, SCHEDULED_TAGS, VISIBILITY_TAGS } from 'constants/tags';
 const PUBLISH_PATH_MAP = Object.freeze({
@@ -93,7 +92,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
     const hasSourceFile = claim.value && claim.value.source;
     const redirectToLivestream = noFileParam && !hasSourceFile && !remoteUrl;
 
-    const publishSuccess = (successResponse, lbryFirstError) => {
+    const publishSuccess = (successResponse) => {
       const state: State = getState();
       const myClaims = selectMyClaims(state);
       const pendingClaim = successResponse.outputs[0];
@@ -142,7 +141,6 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
           uri: url,
           isEdit,
           filePath,
-          lbryFirstError,
         })
       );
       dispatch(doCheckPendingClaims(undefined));
@@ -189,7 +187,7 @@ export const doPublishDesktop = (filePath: undefined, preview?: boolean) => {
   };
 };
 export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatch: Dispatch, getState: GetState) => {
-  const publishSuccess = (successResponse, lbryFirstError) => {
+  const publishSuccess = (successResponse) => {
     const state = getState();
     const myClaimIds = selectMyActiveClaims(state) as Set<string>;
     const pendingClaim = successResponse.outputs[0];
@@ -232,7 +230,6 @@ export const doPublishResume = (publishPayload: FileUploadSdkParams) => (dispatc
       doOpenModal(MODALS.PUBLISH, {
         uri: url,
         isEdit,
-        lbryFirstError,
       })
     );
     dispatch(doCheckPendingClaims(undefined));
@@ -599,8 +596,6 @@ export const doUpdateFile = (file: WebFile, clearName: boolean = true) => {
     }
 
     // --- File Path ---
-    // If electron, we'll set filePath to the path string because SDK is handling publishing.
-    // File.path will be undefined from web due to browser security, so it will default to the File Object.
     formUpdates.filePath = selectedFilePath;
     // --- Finalize ---
     dispatch({

@@ -99,7 +99,7 @@ export default function SettingContent() {
               </fieldset-section>
             </SettingsRow>
 
-            {(isAuthenticated || !IS_WEB) && <>
+            {isAuthenticated && <>
                 <SettingsRow title={__('Notifications')}>
                   <Button button="inverse" label={__('Manage')} icon={ICONS.ARROW_RIGHT} navigate={`/$/${PAGES.SETTINGS_NOTIFICATIONS}`} />
                 </SettingsRow>

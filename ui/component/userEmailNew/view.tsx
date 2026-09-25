@@ -16,7 +16,6 @@ import { LocalStorage, LS } from 'util/storage';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { doClearEmailEntry, doUserSignUp } from 'redux/actions/user';
 import { selectEmailNewIsPending, selectEmailNewErrorMessage, selectEmailAlreadyExists } from 'redux/selectors/user';
-import { selectDaemonSettings } from 'redux/selectors/settings';
 
 type Props = {
   interestedInYoutubSync?: boolean;
@@ -30,8 +29,6 @@ function UserEmailNew(props: Props) {
   const errorMessage = useAppSelector(selectEmailNewErrorMessage);
   const isPending = useAppSelector(selectEmailNewIsPending);
   const emailExists = useAppSelector(selectEmailAlreadyExists);
-  const daemonSettings = useAppSelector(selectDaemonSettings);
-  const { share_usage_data: shareUsageData } = daemonSettings || {};
   const navigate = useNavigate();
   const location = useLocation();
   const urlParams = new URLSearchParams(location.search);
@@ -39,12 +36,7 @@ function UserEmailNew(props: Props) {
   const defaultEmail = emailFromUrl ? decodeURIComponent(emailFromUrl) : '';
   const [email, setEmail] = useState(defaultEmail);
   const [password, setPassword] = useState('');
-  const [localShareUsageData, setLocalShareUsageData] = React.useState(false);
   const valid = email.match(EMAIL_REGEX);
-
-  function handleUsageDataChange() {
-    setLocalShareUsageData(!localShareUsageData);
-  }
 
   function handleSubmit() {
     dispatch(doUserSignUp(email, password === '' ? undefined : password))
@@ -90,7 +82,7 @@ function UserEmailNew(props: Props) {
         actions={
           <div
             className={classnames({
-              'card--disabled': DOMAIN === 'lbry.tv' && IS_WEB,
+              'card--disabled': DOMAIN === 'lbry.tv',
             })}
           >
             <Form onSubmit={handleSubmit} className="section">
@@ -123,29 +115,12 @@ function UserEmailNew(props: Props) {
                 onChange={() => doToggleInterestedInYoutubeSync()}
               />
 
-              {!shareUsageData && !IS_WEB && (
-                <FormField
-                  type="checkbox"
-                  name="share_data_checkbox"
-                  checked={localShareUsageData}
-                  onChange={handleUsageDataChange}
-                  label={
-                    <React.Fragment>
-                      {__('Share usage data with LBRY inc.')}{' '}
-                      <Button button="link" href="https://odysee.com/$/privacypolicy" label={__('Learn More')} />
-                      {!localShareUsageData && <span className="error__text"> ({__('Required')})</span>}
-                    </React.Fragment>
-                  }
-                />
-              )}
               <div className="section__actions">
                 <Button
                   button="primary"
                   type="submit"
                   label={__('Sign Up')}
-                  disabled={
-                    !email || !password || !valid || (!IS_WEB && !localShareUsageData && !shareUsageData) || isPending
-                  }
+                  disabled={!email || !password || !valid || isPending}
                 />
                 <Button button="link" onClick={handleChangeToSignIn} label={__('Log In')} />
               </div>

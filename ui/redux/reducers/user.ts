@@ -30,10 +30,6 @@ const defaultState: UserState = {
   referrerSetError: '',
   referrerSet: undefined,
   odyseeMembershipName: undefined,
-  // deprecated
-  odyseeMembershipsPerClaimIds: undefined,
-  // deprecated
-  hasLegacyOdyseePremium: false,
   isCheckingLegacyOdyseePremium: false,
   locale: undefined,
   localeFailed: undefined,

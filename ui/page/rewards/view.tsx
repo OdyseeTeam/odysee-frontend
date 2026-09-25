@@ -16,11 +16,9 @@ import { selectUser } from 'redux/selectors/user';
 import { selectFetchingRewards, selectUnclaimedRewards, selectClaimedRewards } from 'redux/selectors/rewards';
 import { doUserFetch } from 'redux/actions/user';
 import { doRewardList } from 'redux/actions/rewards';
-import { selectDaemonSettings } from 'redux/selectors/settings';
 
 function RewardsPage() {
   const dispatch = useAppDispatch();
-  const daemonSettings = useAppSelector(selectDaemonSettings);
   const fetching = useAppSelector(selectFetchingRewards);
   const rewards = useAppSelector(selectUnclaimedRewards);
   const claimed = useAppSelector(selectClaimedRewards);
@@ -35,9 +33,7 @@ function RewardsPage() {
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   function renderPageHeader() {
-    const rewardsEnabled = IS_WEB || (daemonSettings && daemonSettings.share_usage_data);
-
-    if (user && !user.is_reward_approved && rewardsEnabled) {
+    if (user && !user.is_reward_approved) {
       if (!user.primary_email || !user.has_verified_email || !user.is_identity_verified) {
         return (
           <div className="section">
@@ -111,23 +107,7 @@ function RewardsPage() {
   }
 
   function renderUnclaimedRewards() {
-    if (!IS_WEB && daemonSettings && !daemonSettings.share_usage_data) {
-      return (
-        <section className="card card--section">
-          <h2 className="card__title card__title--deprecated">{__('Credits Disabled')}</h2>
-          <p className="error__text">
-            <I18nMessage
-              tokens={{
-                settings: <Button button="link" navigate="/$/settings" label="Settings" />,
-              }}
-            >
-              Receiving credits feature is currently disabled for your account. Turn on diagnostic data sharing, in
-              %settings%, to re-enable them.
-            </I18nMessage>
-          </p>
-        </section>
-      );
-    } else if (fetching) {
+    if (fetching) {
       return <BusyIndicator message={__('Fetching available credits')} />;
     } else if (user === null) {
       return (

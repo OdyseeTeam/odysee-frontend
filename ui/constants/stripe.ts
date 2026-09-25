@@ -24,5 +24,3 @@ export const CURRENCY = Object.freeze({
     symbol: '$',
   },
 });
-export const STRIPE_BILLING_URL = 'https://billing.stripe.com/p/login/4gw14s1bLbBfdmoaEE';
-export const STRIPE_ACCOUNT_DASHBOARD_URL = 'https://dashboard.stripe.com';
