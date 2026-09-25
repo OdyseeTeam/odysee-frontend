@@ -5,7 +5,6 @@ import * as ICONS from 'constants/icons';
 import * as SETTINGS from 'constants/settings';
 import React from 'react';
 import classnames from 'classnames';
-import Icon from 'component/common/icon';
 import { isURIValid, normalizeURI, parseURI } from 'util/lbryURI';
 import { Combobox, ComboboxInput, ComboboxPopover, ComboboxList, ComboboxOption } from 'component/common/combobox';
 import useLighthouse from 'effects/use-lighthouse';
@@ -54,6 +53,7 @@ export default function WunderBarSuggestions(props: Props) {
   const dispatch = useAppDispatch();
   const languageSetting = useAppSelector(selectLanguage);
   const searchInLanguage = useAppSelector((state) => selectClientSetting(state, SETTINGS.SEARCH_IN_LANGUAGE));
+  const hideSearchChannels = useAppSelector((state) => selectClientSetting(state, SETTINGS.HIDE_SEARCH_CHANNELS));
   const showMature = useAppSelector(selectShowMatureContent);
   const claimsByUri = useAppSelector(selectClaimsByUri);
   const subscriptionUris: Array<string> = useAppSelector(selectSubscriptionUris) || [];
@@ -67,13 +67,16 @@ export default function WunderBarSuggestions(props: Props) {
   const urlParams = new URLSearchParams(search);
   const queryFromUrl = urlParams.get('q') || '';
   const inputRef = React.useRef<ElementRef<typeof ComboboxInput> | null>(null);
-  const viewResultsRef = React.useRef<ElementRef<typeof Button> | null>(null);
   const exploreTagRef = React.useRef<ElementRef<typeof Button> | null>(null);
-  const isFocused = isRefFocused(inputRef) || isRefFocused(viewResultsRef) || isRefFocused(exploreTagRef);
+  const isFocused = isRefFocused(inputRef) || isRefFocused(exploreTagRef);
   const [term, setTerm] = React.useState(queryFromUrl);
   const [debouncedTerm, setDebouncedTerm] = React.useState('');
   const searchSize = isMobile ? 20 : 5;
-  const additionalOptions = getAdditionalOptions(channelsOnly, searchInLanguage ? languageSetting : null);
+  const additionalOptions = getAdditionalOptions(
+    channelsOnly,
+    hideSearchChannels,
+    searchInLanguage ? languageSetting : null
+  );
   const { results, loading } = useLighthouse(debouncedTerm, showMature, searchSize, additionalOptions, 0);
   const noResults = debouncedTerm && !loading && results && results.length === 0;
   const nameFromQuery = debouncedTerm && debouncedTerm.trim().replace(/\s+/g, '').replace(/:/g, '#');
@@ -99,12 +102,18 @@ export default function WunderBarSuggestions(props: Props) {
   const isTyping = debouncedTerm !== term;
   const showPlaceholder = isTyping || loading;
 
-  function getAdditionalOptions(channelsOnly: boolean | null | undefined, language: string | null | undefined) {
+  function getAdditionalOptions(
+    channelsOnly: boolean | null | undefined,
+    hideChannels: boolean | null | undefined,
+    language: string | null | undefined
+  ) {
     const additionalOptions: Record<string, any> = {};
 
     if (channelsOnly) {
       additionalOptions.isBackgroundSearch = false;
       additionalOptions[SEARCH_OPTIONS.CLAIM_TYPE] = SEARCH_OPTIONS.INCLUDE_CHANNELS;
+    } else if (hideChannels) {
+      additionalOptions[SEARCH_OPTIONS.CLAIM_TYPE] = SEARCH_OPTIONS.INCLUDE_FILES;
     }
 
     if (language) {
@@ -290,18 +299,20 @@ export default function WunderBarSuggestions(props: Props) {
     if (subscriptionUris && term && term.length > 1) {
       let subscriptionResults = [];
       subscriptionUris.map((uri) => {
+        const claim = claimsByUri[uri];
         if (
-          claimsByUri[uri] &&
-          subscriptionResults.indexOf(claimsByUri[uri].permanent_url) === -1 &&
-          (claimsByUri[uri].name.toLowerCase().includes(term.toLowerCase()) ||
-            claimsByUri[uri].value?.title?.toLowerCase().includes(term.toLowerCase()))
+          claim &&
+          (!hideSearchChannels || claim.value_type !== 'channel') &&
+          subscriptionResults.indexOf(claim.permanent_url) === -1 &&
+          (claim.name.toLowerCase().includes(term.toLowerCase()) ||
+            claim.value?.title?.toLowerCase().includes(term.toLowerCase()))
         ) {
-          subscriptionResults.push(claimsByUri[uri].permanent_url);
+          subscriptionResults.push(claim.permanent_url);
         }
       });
       setSubscriptionResults(subscriptionResults.slice(0, isMobile ? 5 : 10));
     } // eslint-disable-next-line react-hooks/exhaustive-deps -- @see TODO_NEED_VERIFICATION
-  }, [term]);
+  }, [term, hideSearchChannels, subscriptionUris, claimsByUri, isMobile]);
   React.useEffect(() => {
     if (results && subscriptionResults) {
       subscriptionResults.map((subscription) => {
@@ -318,27 +329,39 @@ export default function WunderBarSuggestions(props: Props) {
         onSubmit={() => handleSelect(term)}
       >
         <Combobox className="wunderbar" onSelect={handleSelect} openOnFocus>
-          <Icon icon={ICONS.SEARCH} />
-          <ComboboxInput
-            ref={inputRef}
-            className="wunderbar__input"
-            placeholder={__('Search')}
-            onChange={(e) => setTerm(e.target.value)}
-            value={term}
-          />
-          {term && (
-            <Button
-              icon={ICONS.REMOVE}
-              aria-label={__('Clear')}
-              button="alt"
-              className="wunderbar__clear"
-              onClick={() => {
-                setTerm('');
-              }}
+          <div className="wunderbar__input-wrapper">
+            <ComboboxInput
+              ref={inputRef}
+              className="wunderbar__input"
+              placeholder={__('Search')}
+              onChange={(e) => setTerm(e.target.value)}
+              value={term}
             />
-          )}
+            {term && (
+              <Button
+                icon={ICONS.REMOVE}
+                aria-label={__('Clear')}
+                button="alt"
+                className="wunderbar__clear"
+                onClick={() => {
+                  setTerm('');
+                }}
+              />
+            )}
+          </div>
+          <Button
+            type="submit"
+            icon={ICONS.SEARCH}
+            aria-label={__('Search')}
+            title={__('Search')}
+            className="wunderbar__search"
+            onClick={(e) => {
+              e.preventDefault();
+              handleSelect(term);
+            }}
+          />
 
-          {isFocused && (
+          {isFocused && term && (
             <ComboboxPopover
               portal={false}
               className={classnames('wunderbar__suggestions', {
@@ -346,11 +369,29 @@ export default function WunderBarSuggestions(props: Props) {
               })}
             >
               <ComboboxList>
-                {!noBottomLinks && (
+                {uriFromQueryIsValid && !noTopSuggestion ? (
+                  <WunderbarTopSuggestion query={nameFromQuery} hideChannels={hideSearchChannels} />
+                ) : null}
+
+                {subscriptionResults.length > 0 &&
+                  subscriptionResults.map((uri) => (
+                    <WunderbarSuggestion key={uri} uri={uri} hideChannels={hideSearchChannels} />
+                  ))}
+
+                {showPlaceholder && term.length > LIGHTHOUSE_MIN_CHARACTERS ? <Spinner type="small" /> : null}
+
+                {!showPlaceholder && results
+                  ? results
+                      .slice(0, isMobile ? 20 - subscriptionResults.length : 10 - subscriptionResults.length)
+                      .map((uri) => <WunderbarSuggestion key={uri} uri={uri} hideChannels={hideSearchChannels} />)
+                  : null}
+              </ComboboxList>
+
+              {!noBottomLinks && term && (
+                <>
+                  <hr className="wunderbar__top-separator" />
+
                   <div className="wunderbar__bottom-links">
-                    <ComboboxOption value={term} className="wunderbar__more-results">
-                      <Button ref={viewResultsRef} button="link" label={__('View All Results')} />
-                    </ComboboxOption>
                     <ComboboxOption value={`${TAG_SEARCH_PREFIX}${term}`} className="wunderbar__more-results">
                       <Button ref={exploreTagRef} className="wunderbar__tag-search" button="link">
                         {__('Search tag')}
@@ -358,25 +399,8 @@ export default function WunderBarSuggestions(props: Props) {
                       </Button>
                     </ComboboxOption>
                   </div>
-                )}
-
-                <hr className="wunderbar__top-separator" />
-
-                {uriFromQueryIsValid && !noTopSuggestion ? <WunderbarTopSuggestion query={nameFromQuery} /> : null}
-
-                <div className="wunderbar__label">{__('Search Results')}</div>
-
-                {subscriptionResults.length > 0 &&
-                  subscriptionResults.map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)}
-
-                {showPlaceholder && term.length > LIGHTHOUSE_MIN_CHARACTERS ? <Spinner type="small" /> : null}
-
-                {!showPlaceholder && results
-                  ? results
-                      .slice(0, isMobile ? 20 - subscriptionResults.length : 10 - subscriptionResults.length)
-                      .map((uri) => <WunderbarSuggestion key={uri} uri={uri} />)
-                  : null}
-              </ComboboxList>
+                </>
+              )}
             </ComboboxPopover>
           )}
         </Combobox>
