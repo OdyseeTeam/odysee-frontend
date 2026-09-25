@@ -77,6 +77,8 @@ type Props = {
   uri: string;
   setLayoutRendered?: (arg0: boolean) => void;
   doUpdateCreatorSettings?: (arg0: ChannelClaim, arg1: PerChannelSettings) => void;
+  disableChatInput?: boolean; // For when watching a replay.
+  currentVideoTime?: number; // To filter comments.
 };
 export default function ChatLayout(props: Props) {
   const {
@@ -88,6 +90,8 @@ export default function ChatLayout(props: Props) {
     setCustomViewMode,
     setLayoutRendered,
     uri,
+    disableChatInput,
+    currentVideoTime,
   } = props;
 
   const dispatch = useAppDispatch();
@@ -97,6 +101,8 @@ export default function ChatLayout(props: Props) {
   const claimId = claim && claim.claim_id;
   const channelId = getChannelIdFromClaim(claim);
   const channelTitle = getChannelTitleFromClaim(claim);
+  // Get the video release timestamp (when the livestream was started or when the VOD was published.)
+  const videoReleaseTimestamp = claim?.value?.release_time || claim?.timestamp || 0;
   const commentsByChronologicalOrder = useAppSelector((state) =>
     selectTopLevelCommentsForUri(state, uri, MAX_LIVESTREAM_COMMENTS)
   ) as Array<ChatCommentData> | undefined;
@@ -161,7 +167,35 @@ export default function ChatLayout(props: Props) {
   }, [dispatch, myChannelClaims]);
   const commentsToDisplay =
     viewMode === VIEW_MODES.CHAT ? commentsByChronologicalOrder : superChatsByChronologicalOrder;
-  const commentsLength = commentsToDisplay && commentsToDisplay.length;
+
+  const filteredCommentsForReplay = React.useMemo(() => {
+    if (currentVideoTime === undefined || !commentsToDisplay || commentsToDisplay.length === 0) {
+      return commentsToDisplay;
+    }
+
+    try {
+      let streamStartTime = Number(videoReleaseTimestamp);
+
+      // Convert to seconds if in milliseconds.
+      if (streamStartTime > 1000000000000) {
+        streamStartTime = streamStartTime / 1000;
+      }
+
+      // Calc. the absolute time at the current video position.
+      const currentAbsoluteTime = streamStartTime + currentVideoTime;
+
+      return commentsToDisplay.filter((comment: ChatCommentData) => {
+        const commentTime = comment.timestamp;
+        return commentTime >= streamStartTime && commentTime <= currentAbsoluteTime;
+      });
+    } catch (error) {
+      // Just return the normal comments if any error came up.
+      return commentsToDisplay;
+    }
+  }, [commentsToDisplay, currentVideoTime, videoReleaseTimestamp]);
+
+  const finalCommentsToDisplay = currentVideoTime !== undefined ? filteredCommentsForReplay : commentsToDisplay;
+  const commentsLength = finalCommentsToDisplay && finalCommentsToDisplay.length;
   const pinnedComment = pinnedComments.length > 0 ? pinnedComments[0] : null;
   const { superChatsChannelUrls, superChatsFiatAmount, superChatsLBCAmount } = getTipValues(
     superChatsByChronologicalOrder as any
@@ -221,10 +255,13 @@ export default function ChatLayout(props: Props) {
   }, [customViewMode, viewMode]);
   React.useEffect(() => {
     if (claimId && contentUnlocked) {
-      dispatch(doCommentList(uri, undefined, 1, 75, undefined, true));
+      // Fetch more comments when watching in replay mode.
+      const commentLimit = disableChatInput ? 512 : 75;
+      const isLivestream = disableChatInput === undefined || !disableChatInput;
+      dispatch(doCommentList(uri, undefined, 1, commentLimit, undefined, isLivestream));
       dispatch(doHyperChatList(uri));
     }
-  }, [claimId, contentUnlocked, dispatch, uri]);
+  }, [claimId, contentUnlocked, dispatch, uri, disableChatInput]);
   React.useEffect(() => {
     if (isMobile && !didInitialScroll) {
       restoreScrollPos();
@@ -393,6 +430,7 @@ export default function ChatLayout(props: Props) {
     <div
       className={classnames('chat__wrapper', {
         'livestream__chat--popout': isPopoutWindow,
+        'chat__wrapper--replay': disableChatInput && currentVideoTime !== undefined,
       })}
     >
       {!hideHeader && (
@@ -431,6 +469,7 @@ export default function ChatLayout(props: Props) {
             isCompact={isCompact}
             hyperchatsHidden={hideHyperchats}
             noHyperchats={!hyperChatsByAmount}
+            isReplay={disableChatInput}
           />
         </div>
       )}
@@ -535,7 +574,7 @@ export default function ChatLayout(props: Props) {
         <ChatComments
           uri={uri}
           viewMode={viewMode}
-          comments={commentsToDisplay as any}
+          comments={finalCommentsToDisplay as any}
           isMobile={isMobile}
           restoreScrollPos={!scrolledPastRecent && isMobile && restoreScrollPos}
           handleCommentClick={handleCommentClick}
@@ -554,19 +593,21 @@ export default function ChatLayout(props: Props) {
         )}
 
         {!isMobile && membersOnlyMessage}
-        <div className="chat__comment-create">
-          {isMobile && membersOnlyMessage}
+        {!disableChatInput && (
+          <div className="chat__comment-create">
+            {isMobile && membersOnlyMessage}
 
-          <CommentCreate
-            isLivestream
-            bottom
-            embed={embed}
-            uri={uri}
-            onDoneReplying={restoreScrollPos}
-            onSlimInputClose={!scrolledPastRecent && isMobile ? () => setKeyboardOpened(true) : undefined}
-            textInjection={textInjection}
-          />
-        </div>
+            <CommentCreate
+              isLivestream
+              bottom
+              embed={embed}
+              uri={uri}
+              onDoneReplying={restoreScrollPos}
+              onSlimInputClose={!scrolledPastRecent && isMobile ? () => setKeyboardOpened(true) : undefined}
+              textInjection={textInjection}
+            />
+          </div>
+        )}
       </div>
     </div>
   );
