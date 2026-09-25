@@ -10,7 +10,7 @@ import VideoFormatNotice from 'component/videoFormatNotice/view';
 import PublishStatusCard from 'component/publish/shared/publishStatusCard';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectIsStillEditing, selectPublishFormValue, selectPrevFileSizeTooBig } from 'redux/selectors/publish';
-import { doUpdateFile } from 'redux/actions/publish';
+import { doUpdateFile, doUpdatePublishForm } from 'redux/actions/publish';
 import './style.scss';
 import '../publishFile/style.scss';
 
@@ -65,8 +65,11 @@ export default function PublishFilePicker(props: Props) {
     dispatch(doUpdateFile(file as WebFile, true));
   }
 
-  function handleOptimizedFile(optimizedFile: File) {
+  function handleOptimizedFile(optimizedFile: File, hlsPackage?: any) {
     dispatch(doUpdateFile(optimizedFile as WebFile, false));
+    if (hlsPackage) {
+      dispatch(doUpdatePublishForm({ hlsPackage }));
+    }
     setOptimizerDismissed(true);
   }
 
