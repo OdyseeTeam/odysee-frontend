@@ -166,7 +166,7 @@ export default function ClaimList(props: Props) {
     return maxClaimRender ? x.slice(0, maxClaimRender) : x;
   }, [prefixUris, uris, maxClaimRender]);
   const totalLength = tileUris.length;
-  const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.slice().reverse())) || [];
+  const sortedUris = (urisLength > 0 && (currentSort === SORT_NEW ? tileUris : tileUris.toReversed())) || [];
   // -- Progressive rendering for large lists (#3206) --
   const supportsProgressiveRender = !tileLayout && Boolean(collectionId || droppableProvided);
   const isLargeList = supportsProgressiveRender && sortedUris.length > INITIAL_VISIBLE_COUNT;

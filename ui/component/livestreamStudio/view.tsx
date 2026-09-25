@@ -94,6 +94,9 @@ function formatCodecLabel(mimeType: string, sdpFmtpLine?: string): string {
   return codec.toUpperCase();
 }
 
+const isEphemeralId = (id: string) =>
+  id.startsWith('__screen_') || id.startsWith('__videofile_') || id.startsWith('__image_');
+
 function computeBitrateKbps(
   currentBytes: number | undefined,
   previousBytes: number | undefined,
@@ -482,7 +485,7 @@ export default function LivestreamStudio(props: Props) {
             }
             const newOnTop = layer.chatNewOnTop ?? false;
             let yy = newOnTop ? ly + 8 * sy : Math.max(ly + 8 * sy, ly + lh - totalH - 8 * sy);
-            const drawList = newOnTop ? [...visible].reverse() : visible;
+            const drawList = newOnTop ? visible.toReversed() : visible;
             for (const m of drawList) {
               if (m.amount) {
                 const [r, g, b] = hyperchatColor(m.amount);
@@ -982,8 +985,6 @@ export default function LivestreamStudio(props: Props) {
         if (draft.audioVolumes) setAudioVolumes(draft.audioVolumes);
         if (typeof draft.masterVolume === 'number') setMasterVolume(draft.masterVolume);
         if (Array.isArray(draft.mutedAudios)) setMutedAudios(new Set(draft.mutedAudios));
-        const isEphemeralId = (id: string) =>
-          id.startsWith('__screen_') || id.startsWith('__videofile_') || id.startsWith('__image_');
         await handleLoadSaved({
           id: 'draft',
           name: 'Draft',
@@ -1679,7 +1680,7 @@ export default function LivestreamStudio(props: Props) {
           ? realMessages.filter((m) => m.amount).slice(0, max)
           : realMessages.slice(0, max);
         const newOnTop = layer?.chatNewOnTop ?? false;
-        const visible = newOnTop ? [...baseList].reverse() : baseList;
+        const visible = newOnTop ? baseList.toReversed() : baseList;
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         const bgAlpha = layer?.chatBgAlpha ?? (layer?.chatBgTransparent === false ? 1 : 0);

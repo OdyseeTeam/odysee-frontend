@@ -47,8 +47,7 @@ const RewardListClaimed = (props: Props) => {
             </thead>
             <tbody>
               {rewards
-                .slice()
-                .reverse()
+                .toReversed()
                 .map((reward) => (
                   <tr key={reward.id}>
                     <td>{reward.reward_title}</td>

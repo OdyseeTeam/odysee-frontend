@@ -159,13 +159,14 @@ function BgColorSwatch({
   );
 }
 
+const hex = (n: number) => n.toString(16).padStart(2, '0');
+
 function getPrimaryHex() {
   if (typeof document === 'undefined') return '#de0050';
   const dyn = getComputedStyle(document.documentElement).getPropertyValue('--color-primary-dynamic').trim();
   if (!dyn) return '#de0050';
   const [r, g, b] = dyn.split(',').map((n) => parseInt(n.trim(), 10));
   if ([r, g, b].some((n) => Number.isNaN(n))) return '#de0050';
-  const hex = (n: number) => n.toString(16).padStart(2, '0');
   return `#${hex(r)}${hex(g)}${hex(b)}`;
 }
 

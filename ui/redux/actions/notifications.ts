@@ -115,7 +115,7 @@ export function doNotificationCategories() {
         dispatch({
           type: ACTIONS.NOTIFICATION_CATEGORIES_COMPLETED,
           data: {
-            notificationCategories: notificationCategories.slice().reverse(),
+            notificationCategories: notificationCategories.toReversed(),
           },
         });
       }

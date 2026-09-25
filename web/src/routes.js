@@ -185,6 +185,17 @@ const rssMediaMiddleware = async (ctx) => {
   ctx.redirect(redirectUrl);
 };
 
+async function tryFetchFavicon(url) {
+  const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(2000) });
+  if (res.ok) {
+    const ct = res.headers.get('content-type') || '';
+    if (ct.startsWith('image/') || ct.includes('icon')) {
+      return { buffer: Buffer.from(await res.arrayBuffer()), contentType: ct };
+    }
+  }
+  return null;
+}
+
 router.get(`/$/favicon`, async (ctx) => {
   const domain = ctx.query.d;
   if (!domain || typeof domain !== 'string' || !/^[a-z0-9.-]+$/i.test(domain)) {
@@ -206,17 +217,6 @@ router.get(`/$/favicon`, async (ctx) => {
     return;
   }
 
-  async function tryFetch(url) {
-    const res = await fetch(url, { redirect: 'follow', signal: AbortSignal.timeout(2000) });
-    if (res.ok) {
-      const ct = res.headers.get('content-type') || '';
-      if (ct.startsWith('image/') || ct.includes('icon')) {
-        return { buffer: Buffer.from(await res.arrayBuffer()), contentType: ct };
-      }
-    }
-    return null;
-  }
-
   function serve(result) {
     faviconCache.set(domain, result);
     ctx.set('Content-Type', result.contentType);
@@ -226,7 +226,7 @@ router.get(`/$/favicon`, async (ctx) => {
 
   // Try common paths in parallel
   const paths = ['/favicon.ico', '/favicon-32x32.png', '/favicon-16x16.png', '/apple-touch-icon.png'];
-  const results = await Promise.allSettled(paths.map((p) => tryFetch(`https://${domain}${p}`)));
+  const results = await Promise.allSettled(paths.map((p) => tryFetchFavicon(`https://${domain}${p}`)));
   for (const r of results) {
     if (r.status === 'fulfilled' && r.value) {
       serve(r.value);
@@ -247,7 +247,7 @@ router.get(`/$/favicon`, async (ctx) => {
       if (iconUrl.startsWith('//')) iconUrl = 'https:' + iconUrl;
       else if (iconUrl.startsWith('/')) iconUrl = `https://${domain}${iconUrl}`;
       else if (!iconUrl.startsWith('http')) iconUrl = `https://${domain}/${iconUrl}`;
-      const result = await tryFetch(iconUrl);
+      const result = await tryFetchFavicon(iconUrl);
       if (result) {
         serve(result);
         return;
