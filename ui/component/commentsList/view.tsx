@@ -83,6 +83,7 @@ export type Props = {
   commentsAreExpanded?: boolean;
   threadCommentId: string | null | undefined;
   notInDrawer?: boolean;
+  excludeCommentsBeforeTimestamp?: number; // For filtering livestream comments.
 };
 
 // ****************************************************************************
@@ -92,7 +93,8 @@ export type Props = {
 export default function CommentList(props: Props) {
   const navigate = useNavigate();
   const { pathname, search } = useLocation();
-  const { uri, linkedCommentId, commentsAreExpanded, threadCommentId, notInDrawer } = props;
+  const { uri, linkedCommentId, commentsAreExpanded, threadCommentId, notInDrawer, excludeCommentsBeforeTimestamp } =
+    props;
 
   const dispatch = useAppDispatch();
   const claim = useAppSelector((state) => selectClaimForUri(state, uri));
@@ -144,7 +146,15 @@ export default function CommentList(props: Props) {
       return newCommentIds.length > 0 ? [...prevCommentIds, ...newCommentIds] : prevCommentIds;
     });
   }, []);
-  const totalUnfilteredComments = totalComments > 0 ? totalComments - uiFilteredComments.length : totalComments;
+
+  // Count the comments on the replay that are filtered out.
+  const livestreamCommentsCount = React.useMemo(() => {
+    if (!excludeCommentsBeforeTimestamp || !topLevelComments) return 0;
+    return topLevelComments.filter((c) => c.timestamp && c.timestamp <= excludeCommentsBeforeTimestamp).length;
+  }, [excludeCommentsBeforeTimestamp, topLevelComments]);
+
+  const totalUnfilteredComments =
+    totalComments > 0 ? totalComments - uiFilteredComments.length - livestreamCommentsCount : totalComments;
   const totalFetchedComments = allCommentIds ? allCommentIds.length : 0;
   const commentsUnavailable = commentListUnavailable && totalFetchedComments === 0;
   const moreBelow = page < topLevelTotalPages;
@@ -461,22 +471,29 @@ export default function CommentList(props: Props) {
                     );
                   })}
 
-                {topLevelComments.map((c) => {
-                  if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
-                    // Skip if part of the linked comment thread - thread is shown at the top
-                    return;
-                  }
+                {topLevelComments
+                  .filter((c) => {
+                    // Only show comments posted after the livestream has ended.
+                    if (excludeCommentsBeforeTimestamp && c.timestamp) {
+                      return c.timestamp > excludeCommentsBeforeTimestamp;
+                    }
+                    return true;
+                  })
+                  .map((c) => {
+                    if (threadComment && threadCommentAncestors && threadCommentAncestors.includes(c.comment_id)) {
+                      return;
+                    }
 
-                  return (
-                    <CommentView
-                      key={c.comment_id}
-                      comment={c}
-                      disabled={notAuthedToChat}
-                      updateUiFilteredComments={updateUiFilteredComments}
-                      {...commentProps}
-                    />
-                  );
-                })}
+                    return (
+                      <CommentView
+                        key={c.comment_id}
+                        comment={c}
+                        disabled={notAuthedToChat}
+                        updateUiFilteredComments={updateUiFilteredComments}
+                        {...commentProps}
+                      />
+                    );
+                  })}
               </>
             )}
           </ul>

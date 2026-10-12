@@ -24,6 +24,7 @@ type Props = {
   setPopoutWindow?: (arg0: any) => void;
   toggleHyperchats?: () => void;
   toggleIsCompact?: () => void;
+  isReplay?: boolean;
 };
 
 const LivestreamMenu = (props: Props) => {
@@ -38,6 +39,7 @@ const LivestreamMenu = (props: Props) => {
     setPopoutWindow,
     toggleHyperchats,
     toggleIsCompact,
+    isReplay,
   } = props;
 
   const dispatch = useAppDispatch();
@@ -136,14 +138,16 @@ const LivestreamMenu = (props: Props) => {
                 </MenuItem>
               )}
               {/* No need for Hide Chat on mobile with the expand/collapse drawer */}
-              <MenuItem className="comment__menu-option" onSelect={hideChat}>
-                <span className="menu__link">
-                  <Icon aria-hidden icon={ICONS.EYE} />
-                  {__('Hide Chat')}
-                </span>
-              </MenuItem>
+              {!isReplay && (
+                <MenuItem className="comment__menu-option" onSelect={hideChat}>
+                  <span className="menu__link">
+                    <Icon aria-hidden icon={ICONS.EYE} />
+                    {__('Hide Chat')}
+                  </span>
+                </MenuItem>
+              )}
 
-              {!isPopoutWindow && (
+              {!isPopoutWindow && !isReplay && (
                 <MenuItem className="comment__menu-option" onSelect={handlePopout}>
                   <span className="menu__link">
                     <Icon aria-hidden icon={ICONS.EXTERNAL} />
