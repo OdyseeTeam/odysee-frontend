@@ -1,6 +1,7 @@
 import { THUMBNAIL_QUALITY, MISSING_THUMB_DEFAULT } from 'config';
 import { getImageProxyUrl, getThumbnailCdnUrl } from 'util/thumbnail';
 import React from 'react';
+import { isClaimFree } from 'util/purchase-protection';
 import useLiveThumbnailFrame from 'effects/use-live-thumbnail-frame';
 import useVideoPreviewOnHover from 'effects/use-video-preview-on-hover';
 import useHlsVideoPreview from 'effects/use-hls-video-preview';
@@ -121,6 +122,7 @@ function FileThumbnail(props: Props) {
     videoPreviewsEnabled &&
     hoverPreview &&
     isVideoContent &&
+    isClaimFree(claim) &&
     !isActiveLivestream &&
     !liveThumbnail &&
     videoDuration > 3;

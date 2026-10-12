@@ -2,7 +2,6 @@ import React from 'react';
 import classnames from 'classnames';
 import analytics from 'analytics';
 import ClaimInsufficientCredits from 'component/claimInsufficientCredits';
-import FilePrice from 'component/filePrice';
 import { Modal } from 'modal/modal';
 import Card from 'component/common/card';
 import I18nMessage from 'component/i18nMessage';
@@ -11,7 +10,8 @@ import { isURIEqual } from 'util/lbryURI';
 import { useAppDispatch, useAppSelector } from 'redux/hooks';
 import { selectInsufficientCreditsForUri, selectPlayingUri } from 'redux/selectors/content';
 import { doHideModal, doAnaltyicsPurchaseEvent } from 'redux/actions/app';
-import { makeSelectMetadataForUri } from 'redux/selectors/claims';
+import { makeSelectMetadataForUri, selectClaimForUri } from 'redux/selectors/claims';
+import { getPurchaseAuthorization } from 'util/purchase-protection';
 import { doPlayUri, doSetPlayingUri } from 'redux/actions/content';
 // This number is tied to transitions in scss/purchase.scss
 const ANIMATION_LENGTH = 2500;
@@ -27,31 +27,42 @@ function ModalAffirmPurchase(props: Props) {
   const isInsufficientCredits = useAppSelector((state) => selectInsufficientCreditsForUri(state, uri));
   const metadata = useAppSelector((state) => makeSelectMetadataForUri(uri)(state));
   const playingUri = useAppSelector(selectPlayingUri);
+  const claim = useAppSelector((state) => selectClaimForUri(state, uri));
+  const authorization = getPurchaseAuthorization(claim);
   const closeModal = () => dispatch(doHideModal());
   const [success, setSuccess] = React.useState(false);
   const [purchasing, setPurchasing] = React.useState(false);
+  const purchaseInFlight = React.useRef(false);
 
   const modalTitle = __('Confirm Purchase');
 
   const title = metadata?.title;
   const renderedTitle = title ? `"${title}"` : uri;
 
-  function onAffirmPurchase() {
+  async function onAffirmPurchase() {
+    if (purchaseInFlight.current || !authorization) return;
+    purchaseInFlight.current = true;
     setPurchasing(true);
-    dispatch(
-      doPlayUri(uri, true, undefined, ((fileInfo: GetResponse) => {
-        setPurchasing(false);
-        setSuccess(true);
-        dispatch(doAnaltyicsPurchaseEvent(fileInfo));
+    try {
+      await dispatch(
+        doPlayUri(uri, authorization, undefined, ((fileInfo: GetResponse) => {
+          setPurchasing(false);
+          setSuccess(true);
+          dispatch(doAnaltyicsPurchaseEvent(fileInfo));
 
-        if (playingUri.uri !== uri) {
-          dispatch(doSetPlayingUri({ ...playingUri, uri }));
-        }
-      }) as any)
-    );
+          if (playingUri.uri !== uri) {
+            dispatch(doSetPlayingUri({ ...playingUri, uri }));
+          }
+        }) as any)
+      );
+    } finally {
+      purchaseInFlight.current = false;
+      setPurchasing(false);
+    }
   }
 
   function handleCancelPurchase() {
+    if (purchaseInFlight.current) return;
     if (playingUri.uri && isURIEqual(uri, playingUri.uri) && !playingUri.collection.collectionId) {
       dispatch(doSetPlayingUri({ ...playingUri, uri: null }));
     }
@@ -118,7 +129,12 @@ function ModalAffirmPurchase(props: Props) {
                 </I18nMessage>
               </div>
               <div>
-                <FilePrice uri={uri} showFullPrice type="modal" />
+                <span className="filePrice filePrice--modal">
+                  {authorization ? `${authorization.amount} ${authorization.currency}` : __('Price unavailable')}
+                </span>
+                {authorization && authorization.currency !== 'LBC' && (
+                  <div>{__('Paid in LBC at the current exchange rate.')}</div>
+                )}
               </div>
             </div>
             {success && (
@@ -144,11 +160,11 @@ function ModalAffirmPurchase(props: Props) {
           >
             <Button
               button="primary"
-              disabled={purchasing}
+              disabled={purchasing || !authorization}
               label={purchasing ? __('Purchasing...') : __('Purchase')}
               onClick={onAffirmPurchase}
             />
-            <Button button="link" label={__('Cancel')} onClick={handleCancelPurchase} />
+            <Button button="link" label={__('Cancel')} disabled={purchasing} onClick={handleCancelPurchase} />
           </div>
         }
       />

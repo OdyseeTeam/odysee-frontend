@@ -15,7 +15,7 @@ import { doFetchThumbnailClaimsForCollectionIds as doFetchThumbnailClaimsForColl
 import { selectActiveChannelClaim } from 'redux/selectors/app';
 import { selectClaimForClaimId } from 'redux/selectors/claims';
 type Props = {
-  href: string;
+  href?: string;
   title?: string;
   embed?: boolean;
   allowPreview?: boolean;

@@ -1,6 +1,7 @@
 import * as ICONS from 'constants/icons';
 import * as PAGES from 'constants/pages';
 import React from 'react';
+import { isClaimFree } from 'util/purchase-protection';
 import { getChannelSubCountStr } from 'util/formatMediaDuration';
 import { ChannelPageContext } from 'contexts/channel';
 import { parseURI } from 'util/lbryURI';
@@ -282,6 +283,7 @@ function ChannelPage(props: Props) {
 
           for (const item of items) {
             if (cancelled) return;
+            if (!isClaimFree(item)) continue;
 
             try {
               const fileInfo = await Lbry.get({

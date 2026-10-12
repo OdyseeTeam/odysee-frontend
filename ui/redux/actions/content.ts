@@ -7,6 +7,7 @@ import { navigateTo } from 'redux/router';
 import { doOpenModal, doAnalyticsViewForUri } from 'redux/actions/app';
 import { getChannelIdFromClaim, isClaimUnlisted, isClaimShort } from 'util/claim';
 import { toHex } from 'util/hex';
+import { isClaimFree, type PurchaseAuthorization } from 'util/purchase-protection';
 import { formatLbryUrlForWeb, generateListSearchUrlParams } from 'util/url';
 import {
   makeSelectClaimForUri,
@@ -153,7 +154,12 @@ export const doChangePlayingUri = (newPlayingUri: PlayingUri) => (dispatch: Disp
   const playingUri = selectPlayingUri(state);
   return dispatch(doSetPlayingUri({ ...playingUri, ...newPlayingUri }));
 };
-export function doPurchaseUriWrapper(uri: string, cost: number, cb: ((arg0: GetResponse) => void) | null | undefined) {
+export function doPurchaseUriWrapper(
+  uri: string,
+  cost: number,
+  cb: ((arg0: GetResponse) => void) | null | undefined,
+  purchaseAuthorization?: PurchaseAuthorization
+) {
   return (dispatch: Dispatch, getState: () => any) => {
     function onSuccess(fileInfo) {
       if (cb) {
@@ -161,19 +167,20 @@ export function doPurchaseUriWrapper(uri: string, cost: number, cb: ((arg0: GetR
       }
     }
 
-    dispatch(
+    return dispatch(
       doPurchaseUri(
         uri,
         {
           cost,
         },
-        onSuccess
+        onSuccess,
+        purchaseAuthorization
       )
     );
   };
 }
 export function doDownloadUri(uri: string) {
-  return (dispatch: Dispatch) => dispatch(doPlayUri(uri, false, true, () => dispatch(doAnalyticsViewForUri(uri))));
+  return (dispatch: Dispatch) => dispatch(doPlayUri(uri, null, true, () => dispatch(doAnalyticsViewForUri(uri))));
 }
 export const doStartFloatingPlayingUri =
   (playingOptions: PlayingUri) => async (dispatch: Dispatch, getState: () => any) => {
@@ -540,7 +547,7 @@ export function doPlaylistAddAndAllowPlaying({
 }
 export function doPlayUri(
   uri: string,
-  skipCostCheck: boolean = false,
+  purchaseAuthorization: PurchaseAuthorization | null = null,
   saveFileOverride: boolean = false,
   cb?: () => void,
   hideFailModal: boolean = false
@@ -553,10 +560,8 @@ export function doPlayUri(
     const claimId = selectClaimIdForUri(state, uri);
     const costInfo = selectCostInfoForUri(state, uri);
     const cost = costInfo && Number(costInfo.cost);
-    const instantPurchaseEnabled = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_ENABLED);
-    const instantPurchaseMax = selectClientSetting(state, SETTINGS.INSTANT_PURCHASE_MAX);
     const fiatRequired = selectIsFiatRequiredForUri(state, uri);
-    const isFree = (!cost || cost === 0) && !fiatRequired;
+    const isFree = isClaimFree(selectClaimForUri(state, uri)) && !fiatRequired;
     const paid = {
       sdk: selectClaimWasPurchasedForUri(state, uri),
       fiat: selectPurchaseMadeForClaimId(state, claimId),
@@ -564,10 +569,10 @@ export function doPlayUri(
     };
 
     function beginGetFile() {
-      dispatch(doPurchaseUriWrapper(uri, cost, cb));
+      return dispatch(doPurchaseUriWrapper(uri, cost, cb, purchaseAuthorization));
     }
 
-    function attemptPlay(instantPurchaseMax = null) {
+    function attemptPlay() {
       if (fiatRequired && !isMine) {
         if (!paid.fiat && !paid.fiat_rent) {
           if (!hideFailModal) {
@@ -578,19 +583,14 @@ export function doPlayUri(
             );
           }
         } else {
-          beginGetFile();
+          return beginGetFile();
         }
 
         return;
       }
 
       // If you have a file_list entry, you have already purchased the file
-      if (
-        !isMine &&
-        !fileInfo &&
-        !claimWasPurchased &&
-        (!instantPurchaseMax || !instantPurchaseEnabled || cost > instantPurchaseMax)
-      ) {
+      if (!isMine && !fileInfo && !claimWasPurchased) {
         if (!hideFailModal)
           dispatch(
             doOpenModal(MODALS.AFFIRM_PURCHASE, {
@@ -598,27 +598,14 @@ export function doPlayUri(
             })
           );
       } else {
-        beginGetFile();
+        return beginGetFile();
       }
     }
 
-    if (isFree || skipCostCheck) {
-      beginGetFile();
-      return;
-    }
+    if (isFree || purchaseAuthorization) return beginGetFile();
 
-    if (instantPurchaseEnabled) {
-      if (instantPurchaseMax.currency === 'LBC') {
-        attemptPlay(instantPurchaseMax.amount);
-      } else {
-        // Need to convert currency of instant purchase maximum before trying to play
-        Lbryio.getExchangeRates().then(({ LBC_USD }) => {
-          attemptPlay(instantPurchaseMax.amount / LBC_USD);
-        });
-      }
-    } else {
-      attemptPlay();
-    }
+    // Loading, autoplay, and a saved tip threshold are not purchase consent.
+    return attemptPlay();
   };
 }
 export function savePosition(uri: string, position: number) {

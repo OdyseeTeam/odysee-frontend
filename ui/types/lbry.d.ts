@@ -153,6 +153,7 @@ type FileGetOptions = {
   outpoint?: string;
   claim_id?: string;
   uriAccessKey?: UriAccessKey;
+  purchaseAuthorization?: import('util/purchase-protection').PurchaseAuthorization;
 };
 
 type LbryTypes = {
