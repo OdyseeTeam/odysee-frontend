@@ -85,38 +85,46 @@ const contentSlice = createSlice({
         state.fetchingRemoteHistory = true;
       })
       .addCase(ACTIONS.FETCH_VIEW_HISTORY_COMPLETED, (state, action: any) => {
-        const { remoteHistory, remotePositions } = action.data;
-        const remoteByUri = new Map(remoteHistory.map((entry: any) => [entry.uri, entry]));
+        const { remoteHistory, remotePositions, fetchedAt } = action.data;
+
+        // Keep the newest entry per uri in case the remote list repeats one
+        const remoteByUri = new Map();
+        for (const entry of remoteHistory) {
+          const existing = remoteByUri.get(entry.uri);
+          if (!existing || entry.lastViewed > existing.lastViewed) {
+            remoteByUri.set(entry.uri, entry);
+          }
+        }
 
         // Local entries win, but take the remote lastViewed when it is more recent
-        const localUris = new Set();
         for (const localEntry of state.history) {
-          localUris.add(localEntry.uri);
-          const remoteEntry: any = remoteByUri.get(localEntry.uri);
-          if (remoteEntry && remoteEntry.lastViewed > localEntry.lastViewed) {
-            localEntry.lastViewed = remoteEntry.lastViewed;
+          const remoteEntry = remoteByUri.get(localEntry.uri);
+          if (remoteEntry) {
+            if (remoteEntry.lastViewed > localEntry.lastViewed) {
+              localEntry.lastViewed = remoteEntry.lastViewed;
+            }
+            remoteByUri.delete(localEntry.uri);
           }
         }
 
-        for (const remoteEntry of remoteHistory) {
-          if (!localUris.has(remoteEntry.uri)) {
-            state.history.push(remoteEntry);
-          }
-        }
+        state.history.push(...remoteByUri.values());
         state.history.sort((a: any, b: any) => b.lastViewed - a.lastViewed);
 
-        // Only fill in positions we have nothing for. The remote has no outpoint, so it is stored under 'remote'.
+        // The remote has no outpoint, so it is stored under 'remote'. Refresh entries that only hold a remote
+        // position, but never touch local ones: a leftover 'remote' key would outlive a locally cleared position.
         if (remotePositions) {
           for (const claimId of Object.keys(remotePositions)) {
             const remotePos = remotePositions[claimId];
-            if (remotePos > 0 && !state.positions[claimId]) {
+            const existing = state.positions[claimId];
+            const isRemoteOnly = existing && Object.keys(existing).length === 1 && 'remote' in existing;
+            if (remotePos > 0 && (!existing || isRemoteOnly)) {
               state.positions[claimId] = { remote: remotePos };
             }
           }
         }
 
         state.fetchingRemoteHistory = false;
-        state.remoteHistoryLastFetched = Date.now();
+        state.remoteHistoryLastFetched = fetchedAt;
       })
       .addCase(ACTIONS.FETCH_VIEW_HISTORY_FAILED, (state) => {
         state.fetchingRemoteHistory = false;

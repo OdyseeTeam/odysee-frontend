@@ -716,7 +716,7 @@ export function doFetchViewHistory() {
       if (allItems.length === 0) {
         dispatch({
           type: ACTIONS.FETCH_VIEW_HISTORY_COMPLETED,
-          data: { remoteHistory: [], remotePositions: {} },
+          data: { remoteHistory: [], remotePositions: {}, fetchedAt: Date.now() },
         });
         return;
       }
@@ -767,7 +767,7 @@ export function doFetchViewHistory() {
 
       dispatch({
         type: ACTIONS.FETCH_VIEW_HISTORY_COMPLETED,
-        data: { remoteHistory, remotePositions },
+        data: { remoteHistory, remotePositions, fetchedAt: Date.now() },
       });
     } catch (err) {
       // eslint-disable-next-line no-console
