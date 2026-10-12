@@ -21,6 +21,8 @@ function TruncatedLabel({ label }: { label: string }) {
   );
 }
 
+const cleanLabel = (raw: string) => raw.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*/gi, '').trim();
+
 export type VideoSource = {
   deviceId: string;
   label: string;
@@ -144,8 +146,6 @@ export default function LivestreamSourceSelector(props: Props) {
       };
       const videoInputs = dedupeByGroup(devices.filter((d) => d.kind === 'videoinput'));
       const audioInputs = dedupeByGroup(devices.filter((d) => d.kind === 'audioinput'));
-
-      const cleanLabel = (raw: string) => raw.replace(/\s*\([0-9a-f]{4}:[0-9a-f]{4}\)\s*/gi, '').trim();
 
       const cameraLabel = (d: MediaDeviceInfo, i: number) =>
         cleanLabel(d.label || __('Camera %number%', { number: i + 1 }));
@@ -868,6 +868,15 @@ function MeterBar({ getLevel, resetSignal }: { getLevel: () => number; resetSign
   );
 }
 
+const formatTime = (s: number) => {
+  if (!isFinite(s) || s < 0) return '0:00';
+  const m = Math.floor(s / 60);
+  const ss = Math.floor(s % 60)
+    .toString()
+    .padStart(2, '0');
+  return `${m}:${ss}`;
+};
+
 function MediaPlayerControls({ element }: { element: HTMLMediaElement }) {
   const [paused, setPaused] = React.useState(element.paused);
   const [loop, setLoop] = React.useState(element.loop);
@@ -897,15 +906,6 @@ function MediaPlayerControls({ element }: { element: HTMLMediaElement }) {
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
   }, [element]);
-
-  const formatTime = (s: number) => {
-    if (!isFinite(s) || s < 0) return '0:00';
-    const m = Math.floor(s / 60);
-    const ss = Math.floor(s % 60)
-      .toString()
-      .padStart(2, '0');
-    return `${m}:${ss}`;
-  };
 
   return (
     <div className="livestream-sources__player">
