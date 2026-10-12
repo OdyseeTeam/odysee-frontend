@@ -14,6 +14,8 @@ const defaultState: ContentState = {
   collectionLastPlayedUris: {},
   positions: {},
   history: [],
+  fetchingRemoteHistory: false,
+  remoteHistoryLastFetched: null,
   lastViewedAnnouncement: [],
   recsysEntries: {},
   autoplayCountdownUri: null,
@@ -78,6 +80,46 @@ const contentSlice = createSlice({
       })
       .addCase(ACTIONS.CLEAR_CONTENT_HISTORY_ALL, (state) => {
         state.history = [];
+      })
+      .addCase(ACTIONS.FETCH_VIEW_HISTORY_STARTED, (state) => {
+        state.fetchingRemoteHistory = true;
+      })
+      .addCase(ACTIONS.FETCH_VIEW_HISTORY_COMPLETED, (state, action: any) => {
+        const { remoteHistory, remotePositions } = action.data;
+        const remoteByUri = new Map(remoteHistory.map((entry: any) => [entry.uri, entry]));
+
+        // Local entries win, but take the remote lastViewed when it is more recent
+        const localUris = new Set();
+        for (const localEntry of state.history) {
+          localUris.add(localEntry.uri);
+          const remoteEntry: any = remoteByUri.get(localEntry.uri);
+          if (remoteEntry && remoteEntry.lastViewed > localEntry.lastViewed) {
+            localEntry.lastViewed = remoteEntry.lastViewed;
+          }
+        }
+
+        for (const remoteEntry of remoteHistory) {
+          if (!localUris.has(remoteEntry.uri)) {
+            state.history.push(remoteEntry);
+          }
+        }
+        state.history.sort((a: any, b: any) => b.lastViewed - a.lastViewed);
+
+        // Only fill in positions we have nothing for. The remote has no outpoint, so it is stored under 'remote'.
+        if (remotePositions) {
+          for (const claimId of Object.keys(remotePositions)) {
+            const remotePos = remotePositions[claimId];
+            if (remotePos > 0 && !state.positions[claimId]) {
+              state.positions[claimId] = { remote: remotePos };
+            }
+          }
+        }
+
+        state.fetchingRemoteHistory = false;
+        state.remoteHistoryLastFetched = Date.now();
+      })
+      .addCase(ACTIONS.FETCH_VIEW_HISTORY_FAILED, (state) => {
+        state.fetchingRemoteHistory = false;
       })
       .addCase(ACTIONS.SET_LAST_VIEWED_ANNOUNCEMENT, (state, action: any) => {
         const N_ENTRIES_TO_KEEP = 25;
