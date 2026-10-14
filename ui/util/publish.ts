@@ -26,6 +26,17 @@ export function getVideoBitrate(size: number | string, duration: number | string
     return 0;
   }
 }
+// An empty or unreadable deposit field leaves the bid as NaN (or null once persisted), which the SDK rejects.
+// Fall back to the deposit the claim already has, so an edit never silently lowers it, or the minimum otherwise.
+export function resolveValidBid(bid: number | string | null | undefined, previousBid?: number | string | null): number {
+  const value = typeof bid === 'number' ? bid : parseFloat(String(bid));
+  if (Number.isFinite(value)) {
+    return value;
+  }
+
+  const previous = parseFloat(String(previousBid));
+  return Number.isFinite(previous) && previous > 0 ? previous : MINIMUM_PUBLISH_BID;
+}
 export function handleBidChange(
   bid: number,
   amount: string | number,
@@ -164,7 +175,7 @@ export function resolvePublishPayload(
     title,
     description,
     locations: [],
-    bid: creditsToString(bid),
+    bid: creditsToString(resolveValidBid(bid, myClaimForUri?.amount)),
     languages: [language],
     thumbnail_url: thumbnail,
     release_time: PAYLOAD.releaseTime(nowTimeStamp, releaseTime, myClaimForUriEditing, publishData) || nowTimeStamp,

@@ -14,6 +14,7 @@ import {
   selectTakeOverAmount,
 } from 'redux/selectors/publish';
 import { doUpdatePublishForm } from 'redux/actions/publish';
+import { resolveValidBid } from 'util/publish';
 import './style.scss';
 type Props = {};
 
@@ -80,6 +81,12 @@ function PublishBid(props: Props) {
                   bid: parseFloat(event.target.value),
                 })
               }
+              onBlur={() => {
+                const validBid = resolveValidBid(bid, previousBidAmount);
+                if (validBid !== bid) {
+                  updatePublishForm({ bid: validBid });
+                }
+              }}
               onWheel={(e) => e.stopPropagation()}
             />
             <WalletSpendableBalanceHelp inline />
