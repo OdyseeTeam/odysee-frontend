@@ -43,6 +43,7 @@ export const HOMEPAGE_ORDER_APPLY_TO_SIDEBAR = 'homepage_order_apply_to_sidebar'
 export const HIDE_MEMBERS_ONLY_CONTENT = 'hide_members_only_content';
 export const HIDE_REPOSTS = 'hide_reposts';
 export const HIDE_SHORTS = 'hide_shorts';
+export const HIDE_SEARCH_CHANNELS = 'hide_search_channels';
 export const HIDDEN_TAGS = 'hidden_tags';
 export const HIDE_LIVESTREAMS_IN_CATEGORIES = 'hide_livestreams_in_categories';
 export const HIDE_YOUTUBE_MIRRORS = 'hide_youtube_mirrors';
