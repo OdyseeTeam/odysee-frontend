@@ -9,6 +9,7 @@ import Icon from 'component/common/icon';
 import React from 'react';
 import Tooltip from 'component/common/tooltip';
 import UploadManagerMenu from 'component/header/uploadManagerMenu';
+import { Menu, MenuButton, MenuList, MenuItem } from 'component/common/menu';
 import { useAppSelector, useAppDispatch } from 'redux/hooks';
 import { selectUserVerifiedEmail, selectUser } from 'redux/selectors/user';
 import { selectActivePipelineItems, selectCurrentUploads } from 'redux/selectors/publish';
@@ -18,29 +19,6 @@ type HeaderMenuButtonProps = {
   authRedirect?: string;
 };
 
-function HeaderLivestreamButton({
-  uploadProps,
-  doBeginPublish,
-}: {
-  uploadProps: { requiresAuth: boolean };
-  doBeginPublish: (type: PublishType) => void;
-}) {
-  const ctx = useLivestreamPublish();
-  const isLive = ctx.state.status === 'live' || ctx.state.status === 'connecting';
-  return (
-    <Tooltip title={isLive ? __('Live') : __('Go live')}>
-      <Button
-        className={classnames('header__navigationItem--icon', {
-          'header__livestream-btn--live': isLive,
-        })}
-        {...uploadProps}
-        onClick={() => doBeginPublish(PUBLISH_TYPES.LIVESTREAM)}
-      >
-        <Icon size={18} icon={ICONS.GOLIVE} aria-hidden />
-      </Button>
-    </Tooltip>
-  );
-}
 export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const { authRedirect } = props;
   const dispatch = useAppDispatch();
@@ -54,18 +32,48 @@ export default function HeaderMenuButtons(props: HeaderMenuButtonProps) {
   const hasUploadActivity =
     (pipelineItems as any[]).some((item: any) => item.stage !== 'error') ||
     Object.keys(currentUploads || {}).length > 0;
-  const uploadProps = {
-    requiresAuth: !authenticated,
-  };
+
+  const ctx = useLivestreamPublish();
+  const isLive = ctx.state.status === 'live' || ctx.state.status === 'connecting';
+
   return authenticated ? (
     <div className="header__buttons">
-      <UploadManagerMenu hasActivity={hasUploadActivity} onUploadClick={() => doBeginPublish(PUBLISH_TYPES.FILE)} />
-      {livestreamEnabled && <HeaderLivestreamButton uploadProps={uploadProps} doBeginPublish={doBeginPublish} />}
-      <Tooltip title={__('Post an article')}>
-        <Button className="header__navigationItem--icon" onClick={() => doBeginPublish(PUBLISH_TYPES.POST)}>
-          <Icon size={18} icon={ICONS.POST} aria-hidden />
-        </Button>
-      </Tooltip>
+      {hasUploadActivity && (
+        <UploadManagerMenu hasActivity={hasUploadActivity} onUploadClick={() => doBeginPublish(PUBLISH_TYPES.FILE)} />
+      )}
+      <Menu>
+        <Tooltip title={__('Create')}>
+          <MenuButton
+            className={classnames('button header__navigationItem--icon', {
+              'header__livestream-btn--live': isLive,
+            })}
+          >
+            <Icon size={18} icon={ICONS.ADD} aria-hidden />
+          </MenuButton>
+        </Tooltip>
+        <MenuList className="menu__list">
+          <MenuItem className="comment__menu-option" onSelect={() => doBeginPublish(PUBLISH_TYPES.FILE)}>
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.PUBLISH} />
+              {__('Upload a video')}
+            </div>
+          </MenuItem>
+          {livestreamEnabled && (
+            <MenuItem className="comment__menu-option" onSelect={() => doBeginPublish(PUBLISH_TYPES.LIVESTREAM)}>
+              <div className="menu__link">
+                <Icon aria-hidden icon={isLive ? ICONS.GOLIVE : ICONS.VIDEO} />
+                {isLive ? __('Livestream settings') : __('Start a livestream')}
+              </div>
+            </MenuItem>
+          )}
+          <MenuItem className="comment__menu-option" onSelect={() => doBeginPublish(PUBLISH_TYPES.POST)}>
+            <div className="menu__link">
+              <Icon aria-hidden icon={ICONS.POST} />
+              {__('Post an article')}
+            </div>
+          </MenuItem>
+        </MenuList>
+      </Menu>
     </div>
   ) : (
     <>

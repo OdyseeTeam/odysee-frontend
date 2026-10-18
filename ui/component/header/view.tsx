@@ -211,6 +211,7 @@ const Header = (props: Props) => {
 
           {!hideProfile && (
             <React.Suspense fallback={null}>
+              <HeaderMenuButtons authRedirect={authRedirect} />
               <HeaderProfileMenuButton />
             </React.Suspense>
           )}
@@ -331,9 +332,6 @@ const Header = (props: Props) => {
             {!authHeader && !isMobile && (
               <div className="header__center">
                 <WunderBar />
-                <React.Suspense fallback={null}>
-                  <HeaderMenuButtons authRedirect={authRedirect} />
-                </React.Suspense>
               </div>
             )}
 
