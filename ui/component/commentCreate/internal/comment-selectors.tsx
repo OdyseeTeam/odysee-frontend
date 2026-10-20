@@ -275,7 +275,7 @@ const StickerCategory = (rowProps: RowProps) => {
                 button="alt"
                 className="button--file-action"
                 onClick={() => handleSelect(sticker)}
-                onMouseEnter={() => handleHover(sticker)}
+                onMouseEnter={() => handleHover(name)}
                 onMouseLeave={() => handleHover('')}
               >
                 <StickerWrapper price={price}>
